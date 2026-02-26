@@ -42,6 +42,7 @@
     "next:serve": "yarn workspace @se-2/nextjs serve",
     "postinstall": "husky",
     "precommit": "lint-staged",
+    "lint-staged": "lint-staged",
     "start": "yarn workspace @se-2/nextjs dev",
     "test": "yarn hardhat:test",
     "vercel": "yarn workspace @se-2/nextjs vercel",
