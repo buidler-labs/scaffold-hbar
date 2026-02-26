@@ -19,7 +19,7 @@
     "lint": "eslint",
     "lint-staged": "eslint",
     "test": "REPORT_GAS=true hardhat test --network hardhat",
-    "verify": "hardhat etherscan-verify"
+    "verify": "hardhat verify"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
