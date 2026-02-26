@@ -1,3 +1,13 @@
+/* Styrene A Web – Hedera brand font (fallback: Montserrat per brand.hedera.com) */
+@font-face {
+  font-family: "Styrene A Web";
+  src: url("https://db.onlinewebfonts.com/t/819f612977ba7ba86c14b739b908c73f.woff2") format("woff2"),
+       url("https://db.onlinewebfonts.com/t/819f612977ba7ba86c14b739b908c73f.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
@@ -5,6 +15,14 @@
 @theme {
   --shadow-center: 0 0 12px -2px rgb(0 0 0 / 0.05);
   --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --font-sans: "Styrene A Web", "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --color-hedera-ultraviolet: #8259EF;
+  --color-hedera-azure: #0031FF;
+  --color-hedera-charcoal: #11151D;
+  --color-hedera-indigo: #00156E;
+  --color-hedera-cobalt: #2D84EB;
+  --color-hedera-violet: #4F46E5;
+  --color-hedera-smoke: #9B9B9D;
 }
 
 @plugin "daisyui" {
@@ -16,19 +34,19 @@
 @plugin "daisyui/theme" {
   name: "light";
 
-  --color-primary: #93bbfb;
-  --color-primary-content: #212638;
-  --color-secondary: #dae8ff;
-  --color-secondary-content: #212638;
-  --color-accent: #93bbfb;
-  --color-accent-content: #212638;
-  --color-neutral: #212638;
+  --color-primary: #4F46E5;
+  --color-primary-content: #ffffff;
+  --color-secondary: #8259EF;
+  --color-secondary-content: #ffffff;
+  --color-accent: #2D84EB;
+  --color-accent-content: #ffffff;
+  --color-neutral: #11151D;
   --color-neutral-content: #ffffff;
   --color-base-100: #ffffff;
-  --color-base-200: #f4f8ff;
-  --color-base-300: #dae8ff;
-  --color-base-content: #212638;
-  --color-info: #93bbfb;
+  --color-base-200: #f7f7f8;
+  --color-base-300: #e8e8ec;
+  --color-base-content: #11151D;
+  --color-info: #2D84EB;
   --color-success: #34eeb6;
   --color-warning: #ffcf72;
   --color-error: #ff8863;
@@ -41,19 +59,19 @@
 @plugin "daisyui/theme" {
   name: "dark";
 
-  --color-primary: #212638;
-  --color-primary-content: #f9fbff;
-  --color-secondary: #323f61;
-  --color-secondary-content: #f9fbff;
-  --color-accent: #4969a6;
-  --color-accent-content: #f9fbff;
-  --color-neutral: #f9fbff;
-  --color-neutral-content: #385183;
-  --color-base-100: #385183;
-  --color-base-200: #2a3655;
-  --color-base-300: #212638;
-  --color-base-content: #f9fbff;
-  --color-info: #385183;
+  --color-primary: #8259EF;
+  --color-primary-content: #ffffff;
+  --color-secondary: #4F46E5;
+  --color-secondary-content: #ffffff;
+  --color-accent: #2D84EB;
+  --color-accent-content: #ffffff;
+  --color-neutral: #ffffff;
+  --color-neutral-content: #11151D;
+  --color-base-100: #181c27;
+  --color-base-200: #11151D;
+  --color-base-300: #0a0d14;
+  --color-base-content: #f0f0f2;
+  --color-info: #2D84EB;
   --color-success: #34eeb6;
   --color-warning: #ffcf72;
   --color-error: #ff8863;
@@ -88,6 +106,7 @@
 
   body {
     min-height: 100vh;
+    font-family: "Styrene A Web", "Montserrat", ui-sans-serif, system-ui, sans-serif;
   }
 
   h1,
@@ -118,4 +137,15 @@
 
 .link:hover {
   opacity: 80%;
+}
+
+.hedera-gradient {
+  background: linear-gradient(135deg, #8259EF 0%, #0031FF 100%);
+}
+
+.hedera-gradient-text {
+  background: linear-gradient(135deg, #8259EF 0%, #0031FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
