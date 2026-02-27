@@ -12,6 +12,7 @@ type HeaderMenuLink = {
   label: string;
   href: string;
   icon?: React.ReactNode;
+  comingSoon?: boolean;
 };
 
 export const menuLinks: HeaderMenuLink[] = [
@@ -28,6 +29,7 @@ export const menuLinks: HeaderMenuLink[] = [
     label: "Block Explorer",
     href: "/blockexplorer",
     icon: <MagnifyingGlassIcon className="h-4 w-4" />,
+    comingSoon: true,
   },
 ];
 
@@ -36,8 +38,22 @@ export const HeaderMenuLinks = () => {
 
   return (
     <>
-      {menuLinks.map(({ label, href, icon }) => {
-        const isActive = pathname === href;
+      {menuLinks.map(({ label, href, icon, comingSoon }) => {
+        const isActive = pathname === href && !comingSoon;
+        if (comingSoon) {
+          return (
+            <li key={href}>
+              <span
+                className="py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col transition-colors cursor-not-allowed opacity-80"
+                aria-disabled
+              >
+                {icon}
+                <span>{label}</span>
+                <span className="badge badge-sm badge-ghost">Coming Soon</span>
+              </span>
+            </li>
+          );
+        }
         return (
           <li key={href}>
             <Link

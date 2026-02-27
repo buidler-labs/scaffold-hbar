@@ -93,7 +93,8 @@ const Home: NextPage = () => {
               </Link>
             </div>
 
-            <div className="bg-base-100 rounded-2xl shadow-md p-8 text-center flex flex-col items-center hover:shadow-lg transition-shadow border border-base-300">
+            <div className="bg-base-100 rounded-2xl shadow-md p-8 text-center flex flex-col items-center border border-base-300 relative">
+              <span className="badge badge-primary badge-sm absolute top-4 right-4">Coming Soon</span>
               <div className="w-14 h-14 rounded-full hedera-gradient flex items-center justify-center mb-4">
                 <MagnifyingGlassIcon className="h-7 w-7 text-white" />
               </div>
@@ -101,9 +102,9 @@ const Home: NextPage = () => {
               <p className="text-base-content/70 text-sm m-0 mb-4">
                 Explore transactions, addresses, and contract activity on Hedera.
               </p>
-              <Link href="/blockexplorer" passHref className="btn btn-primary btn-sm">
-                Open Explorer
-              </Link>
+              <button type="button" className="btn btn-primary btn-sm btn-disabled" disabled aria-disabled>
+                Coming Soon
+              </button>
             </div>
           </div>
 
