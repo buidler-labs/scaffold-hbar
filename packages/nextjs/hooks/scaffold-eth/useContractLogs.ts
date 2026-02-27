@@ -2,6 +2,20 @@ import { useEffect, useState } from "react";
 import { useTargetNetwork } from "./useTargetNetwork";
 import { Address, Log } from "viem";
 import { usePublicClient } from "wagmi";
+import deployedContracts from "~~/contracts/deployedContracts";
+import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
+
+function getDeployedOnBlock(chainId: number, address: Address): bigint {
+  const contracts = deployedContracts as GenericContractsDeclaration | null;
+  if (!contracts?.[chainId]) return 0n;
+
+  for (const contractInfo of Object.values(contracts[chainId])) {
+    if (contractInfo.address.toLowerCase() === address.toLowerCase() && contractInfo.deployedOnBlock) {
+      return BigInt(contractInfo.deployedOnBlock);
+    }
+  }
+  return 0n;
+}
 
 export const useContractLogs = (address: Address) => {
   const [logs, setLogs] = useState<Log[]>([]);
@@ -12,9 +26,10 @@ export const useContractLogs = (address: Address) => {
     const fetchLogs = async () => {
       if (!client) return console.error("Client not found");
       try {
+        const startBlock = getDeployedOnBlock(targetNetwork.id, address);
         const existingLogs = await client.getLogs({
           address: address,
-          fromBlock: 0n,
+          fromBlock: startBlock,
           toBlock: "latest",
         });
         setLogs(existingLogs);
@@ -34,7 +49,7 @@ export const useContractLogs = (address: Address) => {
         setLogs(prevLogs => [...prevLogs, ...newLogs]);
       },
     });
-  }, [address, client]);
+  }, [address, client, targetNetwork.id]);
 
   return logs;
 };

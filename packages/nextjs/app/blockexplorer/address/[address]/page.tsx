@@ -62,7 +62,7 @@ const getContractData = async (address: Address) => {
   );
 
   if (!fs.existsSync(buildInfoDirectory)) {
-    throw new Error(`Directory ${buildInfoDirectory} not found.`);
+    return null;
   }
 
   const deployedContractsOnChain = contracts[chainId];
@@ -77,9 +77,12 @@ const getContractData = async (address: Address) => {
     return null;
   }
 
-  const { bytecode, assembly } = await fetchByteCodeAndAssembly(buildInfoDirectory, contractPath);
-
-  return { bytecode, assembly };
+  try {
+    const { bytecode, assembly } = await fetchByteCodeAndAssembly(buildInfoDirectory, contractPath);
+    return { bytecode, assembly };
+  } catch {
+    return null;
+  }
 };
 
 export function generateStaticParams() {

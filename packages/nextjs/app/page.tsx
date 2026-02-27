@@ -6,18 +6,28 @@ import { Address } from "@scaffold-ui/components";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useHederaAccountId, useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const { targetNetwork } = useTargetNetwork();
+  const { accountId: hederaAccountId, isLoading: isResolvingAccountId } = useHederaAccountId(
+    connectedAddress,
+    targetNetwork.id,
+  );
 
   return (
     <>
       <div className="flex items-center flex-col grow">
         <div className="hedera-gradient dark:bg-none dark:bg-hedera-charcoal w-full py-16 px-5">
           <div className="flex flex-col items-center max-w-2xl mx-auto">
-            <Image src="/Hedera-Icon-White.svg" alt="Hedera icon" width={80} height={80} className="mb-6 hidden dark:block" />
+            <Image
+              src="/Hedera-Icon-White.svg"
+              alt="Hedera icon"
+              width={80}
+              height={80}
+              className="mb-6 hidden dark:block"
+            />
             <Image src="/Hedera-Icon-Dark.svg" alt="Hedera icon" width={80} height={80} className="mb-6 dark:hidden" />
             <div className="flex flex-col items-center gap-1 mb-4">
               <span className="block text-lg font-medium tracking-widest uppercase text-white/80 dark:text-white/60">
@@ -34,7 +44,7 @@ const Home: NextPage = () => {
                 className="mt-1 hidden dark:block"
               />
               <Image
-                src="/Hedera-Wordmark-Lockup-Dark (1).svg"
+                src="/Hedera-Wordmark-Lockup-Dark.svg"
                 alt="Hedera"
                 width={240}
                 height={48}
@@ -52,6 +62,11 @@ const Home: NextPage = () => {
                   Connected Address
                 </p>
                 <Address address={connectedAddress} chain={targetNetwork} />
+                {isResolvingAccountId ? (
+                  <span className="text-xs text-base-content/60">Resolving Hedera Account ID…</span>
+                ) : hederaAccountId ? (
+                  <span className="text-xs text-base-content/80">Hedera Account ID: {hederaAccountId}</span>
+                ) : null}
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2">
