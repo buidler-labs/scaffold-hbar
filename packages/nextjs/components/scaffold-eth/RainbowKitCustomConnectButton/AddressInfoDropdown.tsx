@@ -10,15 +10,13 @@ import {
   CheckCircleIcon,
   ChevronDownIcon,
   DocumentDuplicateIcon,
-  EyeIcon,
+  KeyIcon,
   QrCodeIcon,
 } from "@heroicons/react/24/outline";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { useCopyToClipboard, useOutsideClick } from "~~/hooks/scaffold-eth";
 import { getTargetNetworks } from "~~/utils/scaffold-eth";
 import { isENS } from "~~/utils/scaffold-eth/common";
-
-const BURNER_WALLET_ID = "burnerWallet";
 
 const allowedNetworks = getTargetNetworks();
 
@@ -29,6 +27,8 @@ type AddressInfoDropdownProps = {
   ensAvatar?: string;
 };
 
+const BURNER_WALLET_CONNECTOR_ID = "burnerWallet";
+
 export const AddressInfoDropdown = ({
   address,
   ensAvatar,
@@ -37,6 +37,7 @@ export const AddressInfoDropdown = ({
 }: AddressInfoDropdownProps) => {
   const { disconnect } = useDisconnect();
   const { connector } = useAccount();
+  const isBurnerWallet = connector?.id === BURNER_WALLET_CONNECTOR_ID;
   const checkSumAddress = getAddress(address);
 
   const { copyToClipboard: copyAddressToClipboard, isCopiedToClipboard: isAddressCopiedToClipboard } =
@@ -113,14 +114,14 @@ export const AddressInfoDropdown = ({
               </button>
             </li>
           ) : null}
-          {connector?.id === BURNER_WALLET_ID ? (
-            <li>
-              <label htmlFor="reveal-burner-pk-modal" className="h-8 btn-sm rounded-xl! flex gap-3 py-3 text-error">
-                <EyeIcon className="h-6 w-4 ml-2 sm:ml-0" />
-                <span>Reveal Private Key</span>
+          {isBurnerWallet && (
+            <li className={selectingNetwork ? "hidden" : ""}>
+              <label htmlFor="reveal-burner-pk-modal" className="h-8 btn-sm rounded-xl! flex gap-3 py-3">
+                <KeyIcon className="h-6 w-4 ml-2 sm:ml-0" />
+                <span className="whitespace-nowrap">Reveal Private Key</span>
               </label>
             </li>
-          ) : null}
+          )}
           <li className={selectingNetwork ? "hidden" : ""}>
             <button
               className="menu-item text-error h-8 btn-sm rounded-xl! flex gap-3 py-3"

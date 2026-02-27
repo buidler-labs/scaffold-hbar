@@ -15,13 +15,31 @@ const Home: NextPage = () => {
   return (
     <>
       <div className="flex items-center flex-col grow">
-        <div className="hedera-gradient w-full py-16 px-5">
+        <div className="hedera-gradient dark:bg-none dark:bg-hedera-charcoal w-full py-16 px-5">
           <div className="flex flex-col items-center max-w-2xl mx-auto">
-            <Image src="/Hedera-Icon-White.svg" alt="Hedera icon" width={80} height={80} className="mb-6" />
+            <Image src="/Hedera-Icon-White.svg" alt="Hedera icon" width={80} height={80} className="mb-6 hidden dark:block" />
+            <Image src="/Hedera-Icon-Dark.svg" alt="Hedera icon" width={80} height={80} className="mb-6 dark:hidden" />
             <div className="flex flex-col items-center gap-1 mb-4">
-              <span className="block text-lg font-medium tracking-widest uppercase text-white/80">Built on Hedera</span>
-              <span className="block text-lg font-medium tracking-widest uppercase text-white/80">For</span>
-              <Image src="/Hedera-Wordmark-Lockup-White.svg" alt="Hedera" width={240} height={48} className="mt-1" />
+              <span className="block text-lg font-medium tracking-widest uppercase text-white/80 dark:text-white/60">
+                Built on Hedera
+              </span>
+              <span className="block text-lg font-medium tracking-widest uppercase text-white/80 dark:text-white/60">
+                For
+              </span>
+              <Image
+                src="/Hedera-Wordmark-Lockup-White.svg"
+                alt="Hedera"
+                width={240}
+                height={48}
+                className="mt-1 hidden dark:block"
+              />
+              <Image
+                src="/Hedera-Wordmark-Lockup-Dark (1).svg"
+                alt="Hedera"
+                width={240}
+                height={48}
+                className="mt-1 dark:hidden"
+              />
             </div>
           </div>
         </div>

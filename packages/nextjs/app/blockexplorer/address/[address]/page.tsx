@@ -1,9 +1,9 @@
 import fs from "fs";
 import path from "path";
 import { Address } from "viem";
-import { hardhat } from "viem/chains";
 import { AddressComponent } from "~~/app/blockexplorer/_components/AddressComponent";
 import deployedContracts from "~~/contracts/deployedContracts";
+import scaffoldConfig from "~~/scaffold.config";
 import { isZeroAddress } from "~~/utils/scaffold-eth/common";
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
@@ -39,7 +39,7 @@ async function fetchByteCodeAndAssembly(buildInfoDirectory: string, contractPath
 
 const getContractData = async (address: Address) => {
   const contracts = deployedContracts as GenericContractsDeclaration | null;
-  const chainId = hardhat.id;
+  const chainId = scaffoldConfig.targetNetworks[0].id;
 
   if (!contracts || !contracts[chainId] || Object.keys(contracts[chainId]).length === 0) {
     return null;
@@ -74,7 +74,6 @@ const getContractData = async (address: Address) => {
   }
 
   if (!contractPath) {
-    // No contract found at this address
     return null;
   }
 
@@ -84,7 +83,6 @@ const getContractData = async (address: Address) => {
 };
 
 export function generateStaticParams() {
-  // An workaround to enable static exports in Next.js, generating single dummy page.
   return [{ address: "0x0000000000000000000000000000000000000000" }];
 }
 

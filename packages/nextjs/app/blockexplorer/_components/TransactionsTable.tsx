@@ -1,7 +1,6 @@
 import { TransactionHash } from "./TransactionHash";
 import { Address } from "@scaffold-ui/components";
 import { formatEther } from "viem";
-import { hardhat } from "viem/chains";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { TransactionWithFunction } from "~~/utils/scaffold-eth";
 import { TransactionsTableProps } from "~~/utils/scaffold-eth/";
@@ -49,9 +48,7 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
                         address={tx.from}
                         size="sm"
                         onlyEnsOrAddress
-                        blockExplorerAddressLink={
-                          targetNetwork.id === hardhat.id ? `/blockexplorer/address/${tx.from}` : undefined
-                        }
+                        blockExplorerAddressLink={`/blockexplorer/address/${tx.from}`}
                       />
                     </td>
                     <td className="w-2/12 md:py-4">
@@ -61,9 +58,7 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
                             address={tx.to}
                             size="sm"
                             onlyEnsOrAddress
-                            blockExplorerAddressLink={
-                              targetNetwork.id === hardhat.id ? `/blockexplorer/address/${tx.to}` : undefined
-                            }
+                            blockExplorerAddressLink={`/blockexplorer/address/${tx.to}`}
                           />
                         )
                       ) : (
@@ -72,11 +67,7 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
                             address={receipt.contractAddress}
                             size="sm"
                             onlyEnsOrAddress
-                            blockExplorerAddressLink={
-                              targetNetwork.id === hardhat.id
-                                ? `/blockexplorer/address/${receipt.contractAddress}`
-                                : undefined
-                            }
+                            blockExplorerAddressLink={`/blockexplorer/address/${receipt.contractAddress}`}
                           />
                           <small className="absolute top-4 left-4">(Contract Creation)</small>
                         </div>

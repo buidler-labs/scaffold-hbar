@@ -4,8 +4,6 @@ import { BackButton } from "./BackButton";
 import { ContractTabs } from "./ContractTabs";
 import { Address, Balance } from "@scaffold-ui/components";
 import { Address as AddressType } from "viem";
-import { hardhat } from "viem/chains";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 export const AddressComponent = ({
   address,
@@ -14,7 +12,6 @@ export const AddressComponent = ({
   address: AddressType;
   contractData: { bytecode: string; assembly: string } | null;
 }) => {
-  const { targetNetwork } = useTargetNetwork();
   return (
     <div className="m-10 mb-20">
       <div className="flex justify-start mb-5">
@@ -29,9 +26,7 @@ export const AddressComponent = ({
                   address={address}
                   format="long"
                   onlyEnsOrAddress
-                  blockExplorerAddressLink={
-                    targetNetwork.id === hardhat.id ? `/blockexplorer/address/${address}` : undefined
-                  }
+                  blockExplorerAddressLink={`/blockexplorer/address/${address}`}
                 />
                 <div className="flex gap-1 items-center">
                   <span className="font-bold text-sm">Balance:</span>

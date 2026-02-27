@@ -6,9 +6,10 @@ import { AddressLogsTab } from "./AddressLogsTab";
 import { AddressStorageTab } from "./AddressStorageTab";
 import { PaginationButton } from "./PaginationButton";
 import { TransactionsTable } from "./TransactionsTable";
-import { Address, createPublicClient, http } from "viem";
-import { hardhat } from "viem/chains";
+import { Address } from "viem";
+import { usePublicClient } from "wagmi";
 import { useFetchBlocks } from "~~/hooks/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
 type AddressCodeTabProps = {
   bytecode: string;
@@ -20,24 +21,23 @@ type PageProps = {
   contractData: AddressCodeTabProps | null;
 };
 
-const publicClient = createPublicClient({
-  chain: hardhat,
-  transport: http(),
-});
-
 export const ContractTabs = ({ address, contractData }: PageProps) => {
   const { blocks, transactionReceipts, currentPage, totalBlocks, setCurrentPage } = useFetchBlocks();
   const [activeTab, setActiveTab] = useState("transactions");
   const [isContract, setIsContract] = useState(false);
 
+  const { targetNetwork } = useTargetNetwork();
+  const publicClient = usePublicClient({ chainId: targetNetwork.id });
+
   useEffect(() => {
     const checkIsContract = async () => {
+      if (!publicClient) return;
       const contractCode = await publicClient.getBytecode({ address: address });
       setIsContract(contractCode !== undefined && contractCode !== "0x");
     };
 
     checkIsContract();
-  }, [address]);
+  }, [address, publicClient]);
 
   const filteredBlocks = blocks.filter(block =>
     block.transactions.some(tx => {

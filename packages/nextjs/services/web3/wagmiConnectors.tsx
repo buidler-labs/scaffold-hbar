@@ -12,7 +12,9 @@ import scaffoldConfig from "~~/scaffold.config";
 
 const wallets = [metaMaskWallet, walletConnectWallet, ledgerWallet, rainbowWallet, safeWallet];
 
-const isHederaTestnet = scaffoldConfig.targetNetworks.some(network => network.id === chains.hederaTestnet.id);
+const isDevNetwork = scaffoldConfig.targetNetworks.some(
+  network => (network.id as number) === chains.hederaTestnet.id || (network.id as number) === chains.hardhat.id,
+);
 
 /**
  * wagmi connectors for the wagmi context
@@ -29,7 +31,7 @@ export const wagmiConnectors = () => {
     },
   ];
 
-  if (scaffoldConfig.enableBurnerWallet && isHederaTestnet) {
+  if (scaffoldConfig.enableBurnerWallet && isDevNetwork) {
     walletGroups.push({
       groupName: "Development",
       wallets: [rainbowkitBurnerWallet],
