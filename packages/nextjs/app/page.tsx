@@ -2,19 +2,18 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Address } from "@scaffold-ui/components";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { useHederaAccountId, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { HederaAddress } from "~~/components/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
+  const { address: connectedAddress, status } = useAccount();
   const { targetNetwork } = useTargetNetwork();
-  const { accountId: hederaAccountId, isLoading: isResolvingAccountId } = useHederaAccountId(
-    connectedAddress,
-    targetNetwork.id,
-  );
+
+  const isReconnecting = status === "reconnecting" || status === "connecting";
+  const isConnected = status === "connected" && connectedAddress;
 
   return (
     <>
@@ -56,17 +55,17 @@ const Home: NextPage = () => {
 
         <div className="w-full max-w-4xl mx-auto px-5 -mt-8">
           <div className="bg-base-100 rounded-2xl shadow-lg p-8">
-            {connectedAddress ? (
+            {isReconnecting ? (
+              <div className="flex flex-col items-center gap-2">
+                <p className="font-semibold text-sm text-base-content/60 uppercase tracking-wider m-0">Connecting…</p>
+                <div className="h-8 w-48 rounded bg-base-200 animate-pulse" aria-hidden />
+              </div>
+            ) : isConnected ? (
               <div className="flex flex-col items-center gap-2">
                 <p className="font-semibold text-sm text-base-content/60 uppercase tracking-wider m-0">
                   Connected Address
                 </p>
-                <Address address={connectedAddress} chain={targetNetwork} />
-                {isResolvingAccountId ? (
-                  <span className="text-xs text-base-content/60">Resolving Hedera Account ID…</span>
-                ) : hederaAccountId ? (
-                  <span className="text-xs text-base-content/80">Hedera Account ID: {hederaAccountId}</span>
-                ) : null}
+                <HederaAddress address={connectedAddress} chain={targetNetwork} />
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2">

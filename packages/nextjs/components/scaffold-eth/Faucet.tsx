@@ -1,7 +1,5 @@
 "use client";
 
-import { hederaTestnet } from "viem/chains";
-import { useAccount } from "wagmi";
 import { BanknotesIcon } from "@heroicons/react/24/outline";
 
 /**
@@ -9,12 +7,6 @@ import { BanknotesIcon } from "@heroicons/react/24/outline";
  * Only renders when connected to Hedera testnet.
  */
 export const Faucet = () => {
-  const { chain } = useAccount();
-
-  if (chain?.id !== hederaTestnet.id) {
-    return null;
-  }
-
   return (
     <a
       href="https://portal.hedera.com/faucet"
