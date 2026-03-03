@@ -10,6 +10,7 @@ import "solidity-coverage";
 // Only load the Hedera forking plugin when starting the local node (yarn chain / yarn fork).
 // Deploying to an already-running node doesn't need it and would fail with EADDRINUSE.
 if (process.env.HEDERA_FORKING === "true") {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- conditional plugin load
   require("@hashgraph/system-contracts-forking/plugin");
 }
 import "hardhat-deploy";
@@ -48,9 +49,9 @@ const config: HardhatUserConfig = {
     hardhat: {
       forking: {
         url: hederaRpcUrl,
-        // @ts-ignore - custom property for hedera-forking plugin
+        // @ts-expect-error - custom property for hedera-forking plugin
         chainId: 296,
-        // @ts-ignore
+        // @ts-expect-error - custom property for hedera-forking plugin
         workerPort: 10001,
       },
     },

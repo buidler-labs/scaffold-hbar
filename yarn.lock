@@ -4553,6 +4553,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@se-2/foundry@workspace:packages/foundry":
+  version: 0.0.0-use.local
+  resolution: "@se-2/foundry@workspace:packages/foundry"
+  dependencies:
+    dotenv: ~16.3.1
+    envfile: ~6.18.0
+    ethers: ~5.7.1
+    prettier: ~2.8.8
+    qrcode: ~1.5.3
+    shx: ^0.3.4
+    toml: ~3.0.0
+  languageName: unknown
+  linkType: soft
+
 "@se-2/hardhat@workspace:packages/hardhat":
   version: 0.0.0-use.local
   resolution: "@se-2/hardhat@workspace:packages/hardhat"
@@ -10203,6 +10217,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:~16.3.1":
+  version: 16.3.2
+  resolution: "dotenv@npm:16.3.2"
+  checksum: 917b27eeb654b95846484009326b1c52af7a7c25f7b09e2939ed49de8f98cb9895dcc04f13a39cdb078d247985e21147311ccb5bfbf2fd151afb20fa8f96de15
+  languageName: node
+  linkType: hard
+
 "dotenv@npm:~16.4.5":
   version: 16.4.7
   resolution: "dotenv@npm:16.4.7"
@@ -10420,6 +10441,15 @@ __metadata:
   version: 2.2.1
   resolution: "env-paths@npm:2.2.1"
   checksum: 65b5df55a8bab92229ab2b40dad3b387fad24613263d103a97f91c9fe43ceb21965cd3392b1ccb5d77088021e525c4e0481adb309625d0cb94ade1d1fb8dc17e
+  languageName: node
+  linkType: hard
+
+"envfile@npm:~6.18.0":
+  version: 6.18.0
+  resolution: "envfile@npm:6.18.0"
+  bin:
+    envfile: bin.cjs
+  checksum: 3a3762994d7b84ccf0293c1269cdfa5ea8971bdbbf7e3571fb686a6415eee2029e43d3faf36ed4222a83eaaf38fbc4fa37b3f50b77ea417ca35561e0e54059c1
   languageName: node
   linkType: hard
 
@@ -11499,7 +11529,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:~5.7.0":
+"ethers@npm:~5.7.0, ethers@npm:~5.7.1":
   version: 5.7.2
   resolution: "ethers@npm:5.7.2"
   dependencies:
@@ -15042,7 +15072,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimist@npm:^1.2.0, minimist@npm:^1.2.5, minimist@npm:^1.2.6":
+"minimist@npm:^1.2.0, minimist@npm:^1.2.3, minimist@npm:^1.2.5, minimist@npm:^1.2.6":
   version: 1.2.8
   resolution: "minimist@npm:1.2.8"
   checksum: 75a6d645fb122dad29c06a7597bddea977258957ed88d7a6df59b5cd3fe4a527e253e9bbf2e783e4b73657f9098b96a5fe96ab8a113655d4109108577ecf85b0
@@ -16952,7 +16982,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.3.1":
+"prettier@npm:^2.3.1, prettier@npm:~2.8.8":
   version: 2.8.8
   resolution: "prettier@npm:2.8.8"
   bin:
@@ -17201,7 +17231,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qrcode@npm:~1.5.4":
+"qrcode@npm:~1.5.3, qrcode@npm:~1.5.4":
   version: 1.5.4
   resolution: "qrcode@npm:1.5.4"
   dependencies:
@@ -18191,7 +18221,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shelljs@npm:^0.8.3":
+"shelljs@npm:^0.8.3, shelljs@npm:^0.8.5":
   version: 0.8.5
   resolution: "shelljs@npm:0.8.5"
   dependencies:
@@ -18201,6 +18231,18 @@ __metadata:
   bin:
     shjs: bin/shjs
   checksum: 7babc46f732a98f4c054ec1f048b55b9149b98aa2da32f6cf9844c434b43c6251efebd6eec120937bd0999e13811ebd45efe17410edb3ca938f82f9381302748
+  languageName: node
+  linkType: hard
+
+"shx@npm:^0.3.4":
+  version: 0.3.4
+  resolution: "shx@npm:0.3.4"
+  dependencies:
+    minimist: ^1.2.3
+    shelljs: ^0.8.5
+  bin:
+    shx: lib/cli.js
+  checksum: 0aa168bfddc11e3fe8943cce2e0d2d8514a560bd58cf2b835b4351ba03f46068f7d88286c2627f4b85604e81952154c43746369fb3f0d60df0e3b511f465e5b8
   languageName: node
   linkType: hard
 
@@ -19180,6 +19222,13 @@ __metadata:
   version: 1.0.1
   resolution: "toidentifier@npm:1.0.1"
   checksum: 952c29e2a85d7123239b5cfdd889a0dde47ab0497f0913d70588f19c53f7e0b5327c95f4651e413c74b785147f9637b17410ac8c846d5d4a20a5a33eb6dc3a45
+  languageName: node
+  linkType: hard
+
+"toml@npm:~3.0.0":
+  version: 3.0.0
+  resolution: "toml@npm:3.0.0"
+  checksum: 5d7f1d8413ad7780e9bdecce8ea4c3f5130dd53b0a4f2e90b93340979a137739879d7b9ce2ce05c938b8cc828897fe9e95085197342a1377dd8850bf5125f15f
   languageName: node
   linkType: hard
 

@@ -8,18 +8,8 @@ export type ScaffoldConfig = {
   walletConnectProjectId: string;
 };
 
-const hederaLocalFork = {
-  ...chains.hardhat,
-  name: "Hedera Local Fork",
-  nativeCurrency: {
-    name: "HBAR",
-    symbol: "HBAR",
-    decimals: 18,
-  },
-} as const satisfies chains.Chain;
-
 const scaffoldConfig = {
-  targetNetworks: [chains.hederaTestnet, chains.hedera, hederaLocalFork],
+  targetNetworks: [chains.hederaTestnet, chains.hedera],
 
   pollingInterval: 3000,
 

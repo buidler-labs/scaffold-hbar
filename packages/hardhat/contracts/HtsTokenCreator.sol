@@ -81,11 +81,7 @@ contract HtsTokenCreator {
     }
 
     function _defaultExpiry() internal view returns (IHederaTokenService.Expiry memory) {
-        return IHederaTokenService.Expiry({
-            second: 0,
-            autoRenewAccount: msg.sender,
-            autoRenewPeriod: 7890000
-        });
+        return IHederaTokenService.Expiry({ second: 0, autoRenewAccount: msg.sender, autoRenewPeriod: 7890000 });
     }
 
     error HtsCreateFailed(int64 responseCode);

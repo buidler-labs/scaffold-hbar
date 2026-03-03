@@ -5,7 +5,8 @@
   "workspaces": {
     "packages": [
       "packages/hardhat",
-      "packages/nextjs"
+      "packages/nextjs",
+      "packages/foundry"
     ]
   },
   "scripts": {
@@ -16,6 +17,10 @@
     "chain": "yarn hardhat:chain",
     "compile": "yarn hardhat:compile",
     "deploy": "yarn hardhat:deploy",
+    "foundry:compile": "yarn workspace @se-2/foundry compile",
+    "foundry:test": "yarn workspace @se-2/foundry test",
+    "foundry:deploy": "yarn workspace @se-2/foundry deploy",
+    "foundry:clean": "yarn workspace @se-2/foundry clean",
     "fork": "yarn hardhat:fork",
     "format": "yarn next:format && yarn hardhat:format",
     "generate": "yarn account:generate",
@@ -45,6 +50,7 @@
     "lint-staged": "lint-staged",
     "start": "yarn workspace @se-2/nextjs dev",
     "test": "yarn hardhat:test",
+    "test:foundry": "yarn foundry:test",
     "vercel": "yarn workspace @se-2/nextjs vercel",
     "vercel:yolo": "yarn workspace @se-2/nextjs vercel:yolo",
     "ipfs": "yarn workspace @se-2/nextjs ipfs",
