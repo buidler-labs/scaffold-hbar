@@ -1,0 +1,5 @@
+{
+  "0x8ce361602B935680E8DeC218b820ff5056BeB7af": "HtsTokenCreator",
+  "0xb19b36b1456E65E3A6D514D3F715f204BD59f431": "HederaToken",
+  "networkName": "anvil-hardhat"
+}
