@@ -208,18 +208,19 @@ function main() {
   const current_path_to_broadcast = join(__dirname, "..", "broadcast");
   const current_path_to_deployments = join(__dirname, "..", "deployments");
 
-  const Deploymentchains = getFiles(current_path_to_deployments);
   const deployments = {};
-
-  // Load existing deployments from deployments directory
-  Deploymentchains.forEach((chain) => {
-    if (!chain.endsWith(".json")) return;
-    chain = chain.slice(0, -5);
-    var deploymentObject = JSON.parse(
-      readFileSync(`${current_path_to_deployments}/${chain}.json`)
-    );
-    deployments[chain] = deploymentObject;
-  });
+  if (existsSync(current_path_to_deployments)) {
+    const Deploymentchains = getFiles(current_path_to_deployments);
+    // Load existing deployments from deployments directory
+    Deploymentchains.forEach((chain) => {
+      if (!chain.endsWith(".json")) return;
+      chain = chain.slice(0, -5);
+      var deploymentObject = JSON.parse(
+        readFileSync(`${current_path_to_deployments}/${chain}.json`)
+      );
+      deployments[chain] = deploymentObject;
+    });
+  }
 
   // Process all deployments from all script folders
   const allGeneratedContracts = processAllDeployments(

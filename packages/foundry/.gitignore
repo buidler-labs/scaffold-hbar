@@ -3,5 +3,4 @@ cache/
 out/
 broadcast/
 
-# Optional: keep deployment metadata if you use it (we generate deployedContracts from broadcast, so usually not needed)
-# deployments/
+deployments/
