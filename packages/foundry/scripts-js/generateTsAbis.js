@@ -12,8 +12,8 @@ import { format } from "prettier";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Hardhat Hedera-forked node reports chainId 31337; frontend expects hederaTestnet (296)
-const CHAIN_ID_MAP = { 31337: 296 };
+// No chain ID remapping: broadcast folder name (31337) matches hederaLocalFork in scaffold.config.ts
+const CHAIN_ID_MAP = {};
 
 const generatedContractComment = `
 /**
