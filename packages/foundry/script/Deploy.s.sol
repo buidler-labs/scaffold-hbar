@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "./DeployHelpers.s.sol";
+import { ScaffoldETHDeploy } from "./DeployHelpers.s.sol";
 import { HederaToken } from "../contracts/HederaToken.sol";
 import { HtsTokenCreator } from "../contracts/HtsTokenCreator.sol";
 
@@ -14,9 +14,9 @@ import { HtsTokenCreator } from "../contracts/HtsTokenCreator.sol";
 contract DeployScript is ScaffoldETHDeploy {
   function run() external ScaffoldEthDeployerRunner {
     HederaToken hederaToken = new HederaToken(deployer);
-    deployments.push(Deployment("HederaToken", address(hederaToken)));
+    deployments.push(Deployment({ name: "HederaToken", addr: address(hederaToken) }));
 
     HtsTokenCreator creator = new HtsTokenCreator();
-    deployments.push(Deployment("HtsTokenCreator", address(creator)));
+    deployments.push(Deployment({ name: "HtsTokenCreator", addr: address(creator) }));
   }
 }

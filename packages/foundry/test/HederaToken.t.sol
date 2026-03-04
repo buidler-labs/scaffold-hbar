@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "forge-std/Test.sol";
+import { Test } from "forge-std/Test.sol";
 import { HederaToken } from "../contracts/HederaToken.sol";
 
 contract HederaTokenTest is Test {
@@ -24,7 +24,8 @@ contract HederaTokenTest is Test {
 
     function test_transfer() public {
         address alice = makeAddr("alice");
-        token.transfer(alice, 100 * 10 ** token.decimals());
+        bool ok = token.transfer(alice, 100 * 10 ** token.decimals());
+        require(ok, "transfer failed");
         assertEq(token.balanceOf(alice), 100 * 10 ** token.decimals());
     }
 }

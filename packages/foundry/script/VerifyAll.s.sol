@@ -1,9 +1,8 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "forge-std/Script.sol";
-import "forge-std/Vm.sol";
-import "solidity-bytes-utils/BytesLib.sol";
+import { Script, console } from "forge-std/Script.sol";
+import { BytesLib } from "solidity-bytes-utils/BytesLib.sol";
 
 /**
  * @dev Temp Vm implementation
@@ -11,7 +10,7 @@ import "solidity-bytes-utils/BytesLib.sol";
  * @notice will be deleted once the forge/std is updated
  */
 struct FfiResult {
-    int32 exit_code;
+    int32 exitCode;
     bytes stdout;
     bytes stderr;
 }
@@ -27,6 +26,7 @@ contract VerifyAll is Script {
         string memory root = vm.projectRoot();
         string memory path =
             string.concat(root, "/broadcast/Deploy.s.sol/", vm.toString(block.chainid), "/run-latest.json");
+        // forge-lint: disable-next-line(unsafe-cheatcode)
         string memory content = vm.readFile(path);
 
         while (nextTransaction(content)) {
@@ -93,6 +93,7 @@ contract VerifyAll is Script {
     function _getCompiledBytecode(string memory contractName) internal view returns (string memory compiledBytecode) {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/out/", contractName, ".sol/", contractName, ".json");
+        // forge-lint: disable-next-line(unsafe-cheatcode)
         compiledBytecode = vm.readFile(path);
     }
 

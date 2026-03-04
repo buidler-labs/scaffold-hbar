@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "forge-std/Test.sol";
+import { Test } from "forge-std/Test.sol";
 import { HtsTokenCreator } from "../contracts/HtsTokenCreator.sol";
 
 contract HtsTokenCreatorTest is Test {
@@ -52,6 +52,7 @@ contract HtsTokenCreatorTest is Test {
 
         uint256 mintAmount = parseHtsUnits(500);
         vm.expectEmit(true, true, true, true);
+        // forge-lint: disable-next-line(unsafe-typecast)
         emit HtsTokenCreator.TokenMinted(tokenAddress, int64(int256(initialSupply + mintAmount)));
         creator.mintToken(tokenAddress, mintAmount);
     }

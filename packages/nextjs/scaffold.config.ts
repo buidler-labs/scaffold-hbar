@@ -8,8 +8,18 @@ export type ScaffoldConfig = {
   walletConnectProjectId: string;
 };
 
+const hederaLocalFork = {
+  ...chains.hardhat,
+  name: "Hedera Local Fork",
+  nativeCurrency: {
+    name: "HBAR",
+    symbol: "HBAR",
+    decimals: 18,
+  },
+} as const satisfies chains.Chain;
+
 const scaffoldConfig = {
-  targetNetworks: [chains.hederaTestnet, chains.hedera],
+  targetNetworks: [chains.hederaTestnet, chains.hedera, hederaLocalFork],
 
   pollingInterval: 3000,
 
@@ -18,6 +28,7 @@ const scaffoldConfig = {
   rpcOverrides: {
     [chains.hedera.id]: process.env.NEXT_PUBLIC_HEDERA_MAINNET_RPC_URL || "https://mainnet.hashio.io/api",
     [chains.hederaTestnet.id]: process.env.NEXT_PUBLIC_HEDERA_TESTNET_RPC_URL || "https://testnet.hashio.io/api",
+    [chains.hardhat.id]: "http://127.0.0.1:8545",
   },
 
   walletConnectProjectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "3a8170812b534d0ff9d794f19a901d64",
