@@ -1,7 +1,20 @@
 # Forge / Foundry
 cache/
 out/
-broadcast/
+
+# Ignores development broadcast logs
+/broadcast/*/31337/
+/broadcast/**/dry-run/
+
+# Docs
+docs/
 
 deployments/
 .env
+localhost.json
+
+# Generated deployment artifact (produced by scripts-js/generateTsAbis.js)
+nextjs.args/contracts/deployedContracts.ts
+
+# Local Cursor IDE config
+.cursor/
