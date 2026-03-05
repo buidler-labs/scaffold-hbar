@@ -22,7 +22,7 @@ deploy: setup-deployer
 			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --broadcast --ffi; \
 		fi \
 	else \
-		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --broadcast --ffi; \
+		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --broadcast --ffi --slow; \
 	fi
 
 # Deploy and generate ABIs (used by scripts-js/parseArgs.js)
@@ -61,5 +61,12 @@ test:
 	forge test
 
 # Verify contracts
+# For Hedera networks (chainId 295/296) this calls verifyHedera.js which uses
+# Hashscan's legacy Sourcify v1 API directly (forge's built-in Sourcify client
+# uses APIv2 which Hashscan does not support).
 verify:
-	forge script script/VerifyAll.s.sol --ffi --rpc-url $(RPC_URL)
+	@if [ "$(RPC_URL)" = "hedera_testnet" ] || [ "$(RPC_URL)" = "hedera_mainnet" ]; then \
+		node scripts-js/verifyHedera.js $$([ "$(RPC_URL)" = "hedera_mainnet" ] && echo 295 || echo 296); \
+	else \
+		forge script script/VerifyAll.s.sol --ffi --rpc-url $(RPC_URL); \
+	fi

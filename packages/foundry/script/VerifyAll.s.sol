@@ -55,7 +55,25 @@ contract VerifyAll is Script {
         bytes memory constructorArgs =
             BytesLib.slice(deployedBytecode, compiledBytecode.length, deployedBytecode.length - compiledBytecode.length);
 
-        string[] memory inputs = new string[](9);
+        bool isHedera = block.chainid == 296 || block.chainid == 295;
+
+        if (isHedera) {
+            // Forge's internal Sourcify client uses APIv2, which Hashscan does not support.
+            // Verification is handled by scripts-js/verifyHedera.js via `yarn verify`.
+            console.logString(
+                string.concat(
+                    "[Hedera] Skipping forge verify for ",
+                    contractName,
+                    " at ",
+                    vm.toString(contractAddr),
+                    " — handled by verifyHedera.js"
+                )
+            );
+            return;
+        }
+
+        uint256 n = 9;
+        string[] memory inputs = new string[](n);
         inputs[0] = "forge";
         inputs[1] = "verify-contract";
         inputs[2] = vm.toString(contractAddr);

@@ -5,9 +5,9 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  31337: {
+  296: {
     HederaToken: {
-      address: "0xf1078fd568ad76e49e6f88d1ff485402a086976b",
+      address: "0x91c45252d93d299e908ed262f6c4a2ab9cdd3c36",
       abi: [
         {
           type: "constructor",
@@ -422,10 +422,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 32288665,
+      deployedOnBlock: 32298424,
     },
     HtsTokenCreator: {
-      address: "0xe8f76a822b57b973c7a89006092364fff8f69040",
+      address: "0x86a5c46f2b22f24e674a0e68fa4340d5f298364e",
       abi: [
         {
           type: "function",
@@ -579,7 +579,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 32288666,
+      deployedOnBlock: 32298426,
     },
   },
 } as const;

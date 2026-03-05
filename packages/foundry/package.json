@@ -19,6 +19,8 @@
     "test:fork": "forge test --fork-url ${HEDERA_RPC_URL:-https://testnet.hashio.io/api} --chain-id 296",
     "test:fork:local": "forge test --fork-url http://127.0.0.1:8545 --chain-id 296",
     "verify": "make verify RPC_URL=${1:-localhost}",
+    "verify:testnet": "node scripts-js/verifyHedera.js 296",
+    "verify:mainnet": "node scripts-js/verifyHedera.js 295",
     "postinstall": "shx cp -n .env.example .env"
   },
   "dependencies": {
