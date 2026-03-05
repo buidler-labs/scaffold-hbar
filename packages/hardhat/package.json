@@ -17,7 +17,9 @@
     "generate": "yarn account:generate",
     "lint": "eslint",
     "lint-staged": "eslint",
-    "test": "HEDERA_FORKING=true REPORT_GAS=true hardhat test"
+    "test": "HEDERA_FORKING=true REPORT_GAS=true hardhat test",
+    "verify:testnet": "node scripts/verifyHedera.js hederaTestnet",
+    "verify:mainnet": "node scripts/verifyHedera.js hederaMainnet"
   },
   "devDependencies": {
     "@ethersproject/abi": "~5.7.0",
