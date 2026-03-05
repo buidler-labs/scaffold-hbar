@@ -19,7 +19,8 @@
     "lint-staged": "eslint",
     "test": "HEDERA_FORKING=true REPORT_GAS=true hardhat test",
     "verify:testnet": "node scripts/verifyHedera.js 296",
-    "verify:mainnet": "node scripts/verifyHedera.js 295"
+    "verify:mainnet": "node scripts/verifyHedera.js 295",
+    "verify:contract": "node scripts/verifyHederaContract.js"
   },
   "devDependencies": {
     "@ethersproject/abi": "~5.7.0",

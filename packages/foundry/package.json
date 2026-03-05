@@ -21,6 +21,7 @@
     "verify": "make verify RPC_URL=${1:-localhost}",
     "verify:testnet": "node scripts-js/verifyHedera.js 296",
     "verify:mainnet": "node scripts-js/verifyHedera.js 295",
+    "verify:contract": "node scripts-js/verifyHederaContract.js",
     "postinstall": "shx cp -n .env.example .env"
   },
   "dependencies": {
