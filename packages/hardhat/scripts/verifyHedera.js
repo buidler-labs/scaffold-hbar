@@ -8,8 +8,8 @@
  * Uses only Node.js built-ins — no extra dependencies.
  *
  * Usage:
- *   node scripts/verifyHedera.js [networkName]
- *   networkName defaults to hederaTestnet. Use hederaMainnet for mainnet.
+ *   node scripts/verifyHedera.js [chainId]
+ *   chainId defaults to 296 (testnet). Pass 295 for mainnet.
  */
 
 const { readFileSync, readdirSync, existsSync } = require("fs");
@@ -21,9 +21,9 @@ const hardhatRoot = join(dirname(__filename), "..");
 const HASHSCAN_VERIFY_HOST = "server-verify.hashscan.io";
 const HASHSCAN_VERIFY_PATH = "/verify";
 
-const NETWORK_TO_CHAIN_ID = {
-  hederaTestnet: 296,
-  hederaMainnet: 295,
+const CHAIN_ID_TO_NETWORK = {
+  296: "hederaTestnet",
+  295: "hederaMainnet",
 };
 
 function buildMultipart(boundary, fields) {
@@ -181,17 +181,15 @@ async function verifyContract(contractName, artifact, chainId) {
 }
 
 async function main() {
-  const networkName = process.argv[2] || "hederaTestnet";
-  const chainId = NETWORK_TO_CHAIN_ID[networkName];
+  const chainId = parseInt(process.argv[2] || "296", 10);
+  const networkName = CHAIN_ID_TO_NETWORK[chainId];
 
-  if (chainId == null) {
-    console.error(
-      `Error: network must be hederaTestnet or hederaMainnet, got '${networkName}'`
-    );
+  if (networkName == null) {
+    console.error(`Error: chainId must be 295 (mainnet) or 296 (testnet), got ${chainId}`);
     process.exit(1);
   }
 
-  console.log(`Hedera contract verification — network ${networkName} (chain ${chainId})`);
+  console.log(`Hedera contract verification — chain ${chainId} (${networkName})`);
   console.log(`Verifier: https://${HASHSCAN_VERIFY_HOST}${HASHSCAN_VERIFY_PATH}`);
 
   const artifacts = getDeploymentArtifacts(networkName);
