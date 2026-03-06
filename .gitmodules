@@ -1,0 +1,8 @@
+[submodule "packages/foundry/lib/forge-std"]
+	path = packages/foundry/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+	ignore = all
+[submodule "packages/foundry/lib/solidity-bytes-utils"]
+	path = packages/foundry/lib/solidity-bytes-utils
+	url = https://github.com/GNSPS/solidity-bytes-utils
+	ignore = all

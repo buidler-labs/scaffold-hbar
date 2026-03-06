@@ -36,6 +36,7 @@ contract HtsTokenCreator {
 
         (int64 responseCode, address created) = IHederaTokenService(HTS).createFungibleToken{ value: msg.value }(
             token,
+            // forge-lint: disable-next-line(unsafe-typecast)
             int64(uint64(initialSupply)),
             int32(uint32(decimals))
         );
@@ -52,6 +53,7 @@ contract HtsTokenCreator {
     function mintToken(address token, uint256 amount) external returns (int64 newTotalSupply) {
         (int64 responseCode, int64 newSupply, ) = IHederaTokenService(HTS).mintToken(
             token,
+            // forge-lint: disable-next-line(unsafe-typecast)
             int64(uint64(amount)),
             new bytes[](0)
         );
@@ -81,7 +83,11 @@ contract HtsTokenCreator {
     }
 
     function _defaultExpiry() internal view returns (IHederaTokenService.Expiry memory) {
-        return IHederaTokenService.Expiry({ second: 0, autoRenewAccount: msg.sender, autoRenewPeriod: 7890000 });
+        return IHederaTokenService.Expiry({
+            second: 0,
+            autoRenewAccount: msg.sender,
+            autoRenewPeriod: 7890000
+        });
     }
 
     error HtsCreateFailed(int64 responseCode);
