@@ -1,18 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Address, toHex } from "viem";
-import { usePublicClient } from "wagmi";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
+import { Address, createPublicClient, http, toHex } from "viem";
+import { hardhat } from "viem/chains";
+
+const publicClient = createPublicClient({
+  chain: hardhat,
+  transport: http(),
+});
 
 export const AddressStorageTab = ({ address }: { address: Address }) => {
   const [storage, setStorage] = useState<string[]>([]);
-  const { targetNetwork } = useTargetNetwork();
-  const publicClient = usePublicClient({ chainId: targetNetwork.id });
 
   useEffect(() => {
     const fetchStorage = async () => {
-      if (!publicClient) return;
       try {
         const storageData = [];
         let idx = 0;
@@ -38,7 +39,7 @@ export const AddressStorageTab = ({ address }: { address: Address }) => {
     };
 
     fetchStorage();
-  }, [address, publicClient]);
+  }, [address]);
 
   return (
     <div className="flex flex-col gap-3 p-4">

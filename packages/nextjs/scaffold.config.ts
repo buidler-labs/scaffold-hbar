@@ -1,7 +1,7 @@
 import * as chains from "viem/chains";
 
 export type ScaffoldConfig = {
-  targetNetworks: readonly chains.Chain[];
+  targetNetworks: readonly [chains.Chain, ...chains.Chain[]];
   pollingInterval: number;
   rpcOverrides?: Record<number, string>;
   enableBurnerWallet: boolean;
@@ -14,14 +14,23 @@ const hederaLocalFork = {
   nativeCurrency: {
     name: "HBAR",
     symbol: "HBAR",
+    // Note: HBAR has 8 protocol decimals (tinybar),
+    // but JSON-RPC msg.value & gasPrice use 18 decimals for EVM compatibility.
+    // We keep 18 here so tx.value formatting matches what viem/hardhat return.
     decimals: 18,
   },
 } as const satisfies chains.Chain;
 
-const scaffoldConfig = {
-  targetNetworks: [chains.hederaTestnet, chains.hedera, hederaLocalFork],
+const targetNetworks: readonly [chains.Chain, ...chains.Chain[]] = [
+  chains.hederaTestnet,
+  chains.hedera,
+  hederaLocalFork,
+];
 
-  pollingInterval: 3000,
+const scaffoldConfig = {
+  targetNetworks,
+
+  pollingInterval: 10000,
 
   enableBurnerWallet: true,
 

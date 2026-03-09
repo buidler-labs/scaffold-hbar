@@ -84,7 +84,7 @@ const Home: NextPage = () => {
                 <BugAntIcon className="h-7 w-7 text-white" />
               </div>
               <h3 className="font-bold text-lg mb-2">Debug Contracts</h3>
-              <p className="text-base-content/70 text-sm m-0 mb-4">
+              <p className="text-base-content/70 text-sm m-0 mb-6">
                 Tinker with your smart contracts and test interactions in real time.
               </p>
               <Link href="/debug" passHref className="btn btn-primary btn-sm">
@@ -93,17 +93,16 @@ const Home: NextPage = () => {
             </div>
 
             <div className="bg-base-100 rounded-2xl shadow-md p-8 text-center flex flex-col items-center border border-base-300 relative">
-              <span className="badge badge-primary badge-sm absolute top-4 right-4">Coming Soon</span>
               <div className="w-14 h-14 rounded-full hedera-gradient flex items-center justify-center mb-4">
                 <MagnifyingGlassIcon className="h-7 w-7 text-white" />
               </div>
               <h3 className="font-bold text-lg mb-2">Block Explorer</h3>
-              <p className="text-base-content/70 text-sm m-0 mb-4">
+              <p className="text-base-content/70 text-sm m-0 mb-6">
                 Explore transactions, addresses, and contract activity on Hedera.
               </p>
-              <button type="button" className="btn btn-primary btn-sm btn-disabled" disabled aria-disabled>
-                Coming Soon
-              </button>
+              <Link href="/blockexplorer" passHref className="btn btn-primary btn-sm">
+                Open Block Explorer
+              </Link>
             </div>
           </div>
 

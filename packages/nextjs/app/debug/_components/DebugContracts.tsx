@@ -47,11 +47,11 @@ export function DebugContracts() {
                       ? "bg-base-300 hover:bg-base-300 no-animation"
                       : "bg-base-100 hover:bg-secondary"
                   }`}
-                  key={contractName}
+                  key={String(contractName)}
                   onClick={() => setSelectedContract(contractName)}
                 >
-                  {contractName}
-                  {(contractsData[contractName] as GenericContract)?.external && (
+                  {String(contractName)}
+                  {(contractsData[String(contractName)] as GenericContract)?.external && (
                     <span className="tooltip tooltip-top tooltip-accent" data-tip="External contract">
                       <BarsArrowUpIcon className="h-4 w-4 cursor-pointer" />
                     </span>
@@ -62,7 +62,9 @@ export function DebugContracts() {
           )}
           {contractNames.map(
             contractName =>
-              contractName === selectedContract && <ContractUI key={contractName} contractName={contractName} />,
+              contractName === selectedContract && (
+                <ContractUI key={String(contractName)} contractName={contractName} />
+              ),
           )}
         </>
       )}
