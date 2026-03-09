@@ -12,11 +12,13 @@
  *   chainId defaults to 296 (testnet). Pass 295 for mainnet.
  */
 
-const { readFileSync, readdirSync, existsSync } = require("fs");
-const { join, dirname } = require("path");
-const https = require("https");
+import { readFileSync, readdirSync, existsSync } from "fs";
+import { join, dirname } from "path";
+import https from "https";
+import { fileURLToPath } from "url";
 
-const hardhatRoot = join(dirname(__filename), "..");
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const hardhatRoot = join(__dirname, "..");
 
 const HASHSCAN_VERIFY_HOST = "server-verify.hashscan.io";
 const HASHSCAN_VERIFY_PATH = "/verify";
@@ -59,12 +61,10 @@ function postMultipart(host, path, body, boundary) {
         "Content-Length": body.length,
       },
     };
-    const req = https.request(options, (res) => {
+    const req = https.request(options, res => {
       const chunks = [];
-      res.on("data", (chunk) => chunks.push(chunk));
-      res.on("end", () =>
-        resolve({ status: res.statusCode, body: Buffer.concat(chunks).toString("utf8") })
-      );
+      res.on("data", chunk => chunks.push(chunk));
+      res.on("end", () => resolve({ status: res.statusCode, body: Buffer.concat(chunks).toString("utf8") }));
     });
     req.on("error", reject);
     req.write(body);
@@ -75,18 +75,16 @@ function postMultipart(host, path, body, boundary) {
 function getDeploymentArtifacts(networkName) {
   const deploymentsDir = join(hardhatRoot, "deployments", networkName);
   if (!existsSync(deploymentsDir)) {
-    throw new Error(
-      `Deployments directory not found: ${deploymentsDir}\nDeploy to network '${networkName}' first.`
-    );
+    throw new Error(`Deployments directory not found: ${deploymentsDir}\nDeploy to network '${networkName}' first.`);
   }
 
   const names = readdirSync(deploymentsDir, { withFileTypes: true })
-    .filter((d) => d.isFile() && d.name.endsWith(".json"))
-    .map((d) => d.name.replace(/\.json$/, ""));
+    .filter(d => d.isFile() && d.name.endsWith(".json"))
+    .map(d => d.name.replace(/\.json$/, ""));
 
-  return names.map((name) => {
-    const path = join(deploymentsDir, `${name}.json`);
-    const raw = readFileSync(path, "utf8");
+  return names.map(name => {
+    const filePath = join(deploymentsDir, `${name}.json`);
+    const raw = readFileSync(filePath, "utf8");
     const artifact = JSON.parse(raw);
     return { contractName: name, artifact };
   });
@@ -108,7 +106,7 @@ async function verifyContract(contractName, artifact, chainId) {
   let metadata;
   try {
     metadata = typeof rawMetadata === "string" ? JSON.parse(rawMetadata) : rawMetadata;
-  } catch (e) {
+  } catch {
     console.error(`  ✗ ${contractName}: invalid metadata JSON`);
     return false;
   }
@@ -145,7 +143,7 @@ async function verifyContract(contractName, artifact, chainId) {
     HASHSCAN_VERIFY_HOST,
     HASHSCAN_VERIFY_PATH,
     body,
-    boundary
+    boundary,
   );
 
   let parsed;
@@ -218,7 +216,7 @@ async function main() {
   if (failed > 0) process.exit(1);
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error("Fatal:", err.message);
   process.exit(1);
 });

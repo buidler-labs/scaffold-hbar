@@ -17,11 +17,13 @@
  *   yarn verify:contract HederaToken testnet
  */
 
-const { readFileSync, existsSync } = require("fs");
-const { join, dirname } = require("path");
-const https = require("https");
+import { readFileSync, existsSync } from "fs";
+import { join, dirname } from "path";
+import https from "https";
+import { fileURLToPath } from "url";
 
-const hardhatRoot = join(dirname(__filename), "..");
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const hardhatRoot = join(__dirname, "..");
 
 const HASHSCAN_VERIFY_HOST = "server-verify.hashscan.io";
 const HASHSCAN_VERIFY_PATH = "/verify";
@@ -69,12 +71,10 @@ function postMultipart(host, path, body, boundary) {
         "Content-Length": body.length,
       },
     };
-    const req = https.request(options, (res) => {
+    const req = https.request(options, res => {
       const chunks = [];
-      res.on("data", (chunk) => chunks.push(chunk));
-      res.on("end", () =>
-        resolve({ status: res.statusCode, body: Buffer.concat(chunks).toString("utf8") })
-      );
+      res.on("data", chunk => chunks.push(chunk));
+      res.on("end", () => resolve({ status: res.statusCode, body: Buffer.concat(chunks).toString("utf8") }));
     });
     req.on("error", reject);
     req.write(body);
@@ -98,7 +98,7 @@ async function verifyContract(contractName, artifact, chainId) {
   let metadata;
   try {
     metadata = typeof rawMetadata === "string" ? JSON.parse(rawMetadata) : rawMetadata;
-  } catch (e) {
+  } catch {
     console.error(`  ✗ ${contractName}: invalid metadata JSON`);
     return false;
   }
@@ -135,7 +135,7 @@ async function verifyContract(contractName, artifact, chainId) {
     HASHSCAN_VERIFY_HOST,
     HASHSCAN_VERIFY_PATH,
     body,
-    boundary
+    boundary,
   );
 
   let parsed;
@@ -194,7 +194,7 @@ async function main() {
   const artifactPath = join(hardhatRoot, "deployments", hardhatNetworkName, `${contractName}.json`);
   if (!existsSync(artifactPath)) {
     console.error(
-      `Error: Deployment artifact not found: ${artifactPath}\nDeploy '${contractName}' to '${hardhatNetworkName}' first.`
+      `Error: Deployment artifact not found: ${artifactPath}\nDeploy '${contractName}' to '${hardhatNetworkName}' first.`,
     );
     process.exit(1);
   }
@@ -210,7 +210,7 @@ async function main() {
   }
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error("Fatal:", err.message);
   process.exit(1);
 });

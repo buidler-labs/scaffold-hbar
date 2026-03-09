@@ -44,31 +44,33 @@ When using the CLI, you can choose:
 
 ## Deploy and verify on Hedera
 
+To deploy or verify on Hedera testnet, you need a deployer account with testnet HBAR. Generate an account with `yarn generate` or `yarn account:import` (in the contract package), then fund it using the [Hedera Portal faucet](https://portal.hedera.com/faucet). Without funds, deploy and verify will fail with "Sender account not found".
+
 ### Hardhat
 
 - **Deploy to Hedera testnet:**  
-  Set `__RUNTIME_DEPLOYER_PRIVATE_KEY` (or use `yarn generate` / `yarn account:import`), then:
+  From repo root (you will be prompted to decrypt your deployer key):
   ```bash
-  cd packages/hardhat
   yarn deploy --network hederaTestnet
   ```
+  Or use `yarn deploy --network hedera_testnet` (same network, alternate name).
 - **Verify on Hashscan:**  
-  After deploy, artifacts are in `deployments/hederaTestnet/`. Run:
+  After deploy, run (no extra arguments needed; uses last deployment):
   ```bash
   yarn verify:testnet   # chain 296
-  yarn verify:mainnet  # chain 295
+  yarn verify:mainnet   # chain 295
   ```
 
 ### Foundry
 
 - **Deploy to Hedera testnet:**  
-  Use a keystore (not the default Anvil key). From repo root or `packages/foundry`:
+  Use a keystore with testnet HBAR (fund via [Hedera Portal faucet](https://portal.hedera.com/faucet)). From repo root or `packages/foundry`:
   ```bash
   yarn deploy --network hedera_testnet
   ```
   Or from `packages/foundry`: `make deploy` with `RPC_URL` and account set via env / Makefile.
 - **Verify on Hashscan:**  
-  After deploy, broadcast logs are in `broadcast/Deploy.s.sol/296/` (or `295` for mainnet). Run:
+  After deploy, run (no extra arguments needed):
   ```bash
   yarn verify:testnet   # 296
   yarn verify:mainnet   # 295

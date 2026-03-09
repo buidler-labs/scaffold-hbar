@@ -89,7 +89,8 @@ type IsContractDeclarationMissing<TYes, TNo> = typeof contractsData extends { [k
 
 type ContractsDeclaration = IsContractDeclarationMissing<GenericContractsDeclaration, typeof contractsData>;
 
-type Contracts = ContractsDeclaration[ConfiguredChainId];
+// MergeDeepRecord has no index signature for number; intersect so indexing by ConfiguredChainId is valid
+type Contracts = (ContractsDeclaration & GenericContractsDeclaration)[ConfiguredChainId];
 
 export type ContractName = keyof Contracts;
 
@@ -280,7 +281,7 @@ export type EventFilters<
     : {
         [Key in IsContractDeclarationMissing<
           any,
-          IndexedEventInputs<TContractName, TEventName>["name"]
+          IndexedEventInputs<TContractName, TEventName>["name"] & string
         >]?: AbiParameterToPrimitiveType<Extract<IndexedEventInputs<TContractName, TEventName>, { name: Key }>>;
       }
 >;
