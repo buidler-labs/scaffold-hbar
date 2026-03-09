@@ -1,6 +1,7 @@
 import { TransactionHash } from "./TransactionHash";
 import { Address } from "@scaffold-ui/components";
-import { formatEther } from "viem";
+import { formatUnits } from "viem";
+import { hardhat } from "viem/chains";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { TransactionWithFunction } from "~~/utils/scaffold-eth";
 import { TransactionsTableProps } from "~~/utils/scaffold-eth/";
@@ -29,6 +30,13 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
                 const receipt = transactionReceipts[tx.hash];
                 const timeMined = new Date(Number(block.timestamp) * 1000).toLocaleString();
                 const functionCalled = tx.input.substring(0, 10);
+                const isContractCreation = !!receipt?.contractAddress;
+                const functionLabel = isContractCreation
+                  ? "Contract Creation"
+                  : tx.functionName && tx.functionName !== "0x"
+                    ? tx.functionName
+                    : "";
+                const showFunctionSelectorBadge = !isContractCreation && functionCalled !== "0x";
 
                 return (
                   <tr key={tx.hash} className="hover text-sm">
@@ -36,10 +44,12 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
                       <TransactionHash hash={tx.hash} />
                     </td>
                     <td className="w-2/12 md:py-4">
-                      {tx.functionName === "0x" ? "" : <span className="mr-1">{tx.functionName}</span>}
-                      {functionCalled !== "0x" && (
-                        <span className="badge badge-primary font-bold text-xs">{functionCalled}</span>
-                      )}
+                      <div className="flex items-center gap-2 whitespace-nowrap">
+                        {functionLabel && <span>{functionLabel}</span>}
+                        {showFunctionSelectorBadge && (
+                          <span className="badge badge-primary font-bold text-xs">{functionCalled}</span>
+                        )}
+                      </div>
                     </td>
                     <td className="w-1/12 md:py-4">{block.number?.toString()}</td>
                     <td className="w-2/12 md:py-4">{timeMined}</td>
@@ -48,7 +58,9 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
                         address={tx.from}
                         size="sm"
                         onlyEnsOrAddress
-                        blockExplorerAddressLink={`/blockexplorer/address/${tx.from}`}
+                        blockExplorerAddressLink={
+                          targetNetwork.id === hardhat.id ? `/blockexplorer/address/${tx.from}` : undefined
+                        }
                       />
                     </td>
                     <td className="w-2/12 md:py-4">
@@ -58,23 +70,30 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
                             address={tx.to}
                             size="sm"
                             onlyEnsOrAddress
-                            blockExplorerAddressLink={`/blockexplorer/address/${tx.to}`}
+                            blockExplorerAddressLink={
+                              targetNetwork.id === hardhat.id ? `/blockexplorer/address/${tx.to}` : undefined
+                            }
                           />
                         )
                       ) : (
-                        <div className="relative">
+                        <div className="flex items-center gap-2 whitespace-nowrap">
                           <Address
                             address={receipt.contractAddress}
                             size="sm"
                             onlyEnsOrAddress
-                            blockExplorerAddressLink={`/blockexplorer/address/${receipt.contractAddress}`}
+                            blockExplorerAddressLink={
+                              targetNetwork.id === hardhat.id
+                                ? `/blockexplorer/address/${receipt.contractAddress}`
+                                : undefined
+                            }
                           />
-                          <small className="absolute top-4 left-4">(Contract Creation)</small>
+                          <small className="text-xs text-base-content/70">(Contract Creation)</small>
                         </div>
                       )}
                     </td>
                     <td className="text-right md:py-4">
-                      {formatEther(tx.value)} {targetNetwork.nativeCurrency.symbol}
+                      {formatUnits(tx.value, targetNetwork.nativeCurrency.decimals)}{" "}
+                      {targetNetwork.nativeCurrency.symbol}
                     </td>
                   </tr>
                 );

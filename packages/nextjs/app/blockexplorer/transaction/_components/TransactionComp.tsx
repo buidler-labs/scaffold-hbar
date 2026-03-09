@@ -4,18 +4,20 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Address } from "@scaffold-ui/components";
 import { Hash, Transaction, TransactionReceipt, formatEther, formatUnits } from "viem";
+import { hardhat } from "viem/chains";
 import { usePublicClient } from "wagmi";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { decodeTransactionData, getFunctionDetails } from "~~/utils/scaffold-eth";
 import { replacer } from "~~/utils/scaffold-eth/common";
 
 const TransactionComp = ({ txHash }: { txHash: Hash }) => {
-  const { targetNetwork } = useTargetNetwork();
-  const client = usePublicClient({ chainId: targetNetwork.id });
+  const client = usePublicClient({ chainId: hardhat.id });
   const router = useRouter();
   const [transaction, setTransaction] = useState<Transaction>();
   const [receipt, setReceipt] = useState<TransactionReceipt>();
   const [functionCalled, setFunctionCalled] = useState<string>();
+
+  const { targetNetwork } = useTargetNetwork();
 
   useEffect(() => {
     if (txHash && client) {
@@ -66,7 +68,9 @@ const TransactionComp = ({ txHash }: { txHash: Hash }) => {
                     address={transaction.from}
                     format="long"
                     onlyEnsOrAddress
-                    blockExplorerAddressLink={`/blockexplorer/address/${transaction.from}`}
+                    blockExplorerAddressLink={
+                      targetNetwork.id === hardhat.id ? `/blockexplorer/address/${transaction.from}` : undefined
+                    }
                   />
                 </td>
               </tr>
@@ -81,7 +85,9 @@ const TransactionComp = ({ txHash }: { txHash: Hash }) => {
                         address={transaction.to}
                         format="long"
                         onlyEnsOrAddress
-                        blockExplorerAddressLink={`/blockexplorer/address/${transaction.to}`}
+                        blockExplorerAddressLink={
+                          targetNetwork.id === hardhat.id ? `/blockexplorer/address/${transaction.to}` : undefined
+                        }
                       />
                     )
                   ) : (
@@ -91,7 +97,11 @@ const TransactionComp = ({ txHash }: { txHash: Hash }) => {
                         address={receipt.contractAddress}
                         format="long"
                         onlyEnsOrAddress
-                        blockExplorerAddressLink={`/blockexplorer/address/${receipt.contractAddress}`}
+                        blockExplorerAddressLink={
+                          targetNetwork.id === hardhat.id
+                            ? `/blockexplorer/address/${receipt.contractAddress}`
+                            : undefined
+                        }
                       />
                     </span>
                   )}

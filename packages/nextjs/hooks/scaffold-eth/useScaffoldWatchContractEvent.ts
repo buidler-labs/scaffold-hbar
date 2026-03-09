@@ -34,7 +34,7 @@ export const useScaffoldWatchContractEvent = <
     address: deployedContractData?.address,
     abi: deployedContractData?.abi as Abi,
     chainId: selectedNetwork.id,
-    onLogs: (logs: Log[]) => onLogs(logs as Parameters<typeof onLogs>[0]),
+    onLogs: (logs: Log[]) => onLogs(logs as unknown as Parameters<typeof onLogs>[0]),
     eventName,
   });
 };

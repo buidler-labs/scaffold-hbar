@@ -1,24 +1,15 @@
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
-import {
-  ledgerWallet,
-  metaMaskWallet,
-  rainbowWallet,
-  safeWallet,
-  walletConnectWallet,
-} from "@rainbow-me/rainbowkit/wallets";
+import { metaMaskWallet, walletConnectWallet } from "@rainbow-me/rainbowkit/wallets";
 import { rainbowkitBurnerWallet } from "burner-connector";
 import * as chains from "viem/chains";
 import scaffoldConfig from "~~/scaffold.config";
 
-const wallets = [metaMaskWallet, walletConnectWallet, ledgerWallet, rainbowWallet, safeWallet];
+const wallets = [metaMaskWallet, walletConnectWallet];
 
-const isDevNetwork = scaffoldConfig.targetNetworks.some(
-  network => (network.id as number) === chains.hederaTestnet.id || (network.id as number) === chains.hardhat.id,
-);
+const DEV_CHAIN_IDS = new Set<number>([chains.hardhat.id, chains.foundry.id, chains.hederaTestnet.id]);
 
-/**
- * wagmi connectors for the wagmi context
- */
+const hasDevNetwork = scaffoldConfig.targetNetworks.some(n => DEV_CHAIN_IDS.has(n.id));
+
 export const wagmiConnectors = () => {
   if (typeof window === "undefined") {
     return [];
@@ -31,7 +22,7 @@ export const wagmiConnectors = () => {
     },
   ];
 
-  if (scaffoldConfig.enableBurnerWallet && isDevNetwork) {
+  if (scaffoldConfig.enableBurnerWallet && hasDevNetwork) {
     walletGroups.push({
       groupName: "Development",
       wallets: [rainbowkitBurnerWallet],
