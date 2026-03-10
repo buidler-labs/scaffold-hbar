@@ -1,8 +1,17 @@
-PHONY: build deploy deploy-and-generate-abis generate-abis get-address account compile flatten format lint test verify
+PHONY: build deploy deploy-and-generate-abis generate-abis get-address account chain fork compile flatten format lint test verify
 
 DEPLOY_SCRIPT ?= script/Deploy.s.sol
 
-# Setup the default deployer keystore (Anvil account #9, prefunded on the Hedera-forked node)
+# Start a plain local Anvil chain (no fork)
+chain:
+	anvil
+
+fork:
+	@FORK_URL=$${FORK_URL:-$${HEDERA_RPC_URL:-https://testnet.hashio.io/api}}; \
+	echo "Starting Anvil fork against $$FORK_URL with chain-id 296..."; \
+	anvil --fork-url $$FORK_URL --chain-id 296
+
+# Setup the default deployer keystore (Anvil account #9, prefunded on the Hedera node)
 setup-deployer:
 	rm -f ~/.foundry/keystores/scaffold-eth-default 2>/dev/null; \
 	rm -rf broadcast/Deploy.s.sol/31337
