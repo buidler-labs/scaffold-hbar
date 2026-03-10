@@ -6,3 +6,6 @@
 	path = packages/foundry/lib/solidity-bytes-utils
 	url = https://github.com/GNSPS/solidity-bytes-utils
 	ignore = all
+[submodule "packages/foundry/lib/hedera-forking"]
+	path = packages/foundry/lib/hedera-forking
+	url = https://github.com/hashgraph/hedera-forking

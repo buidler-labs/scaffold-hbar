@@ -2,6 +2,7 @@
 pragma solidity ^0.8.19;
 
 import { Test } from "forge-std/Test.sol";
+import { htsSetup } from "../lib/hedera-forking/contracts/htsSetup.sol";
 import { HtsTokenCreator } from "../contracts/HtsTokenCreator.sol";
 
 contract HtsTokenCreatorTest is Test {
@@ -11,6 +12,13 @@ contract HtsTokenCreatorTest is Test {
     uint256 public constant HTS_CREATE_VALUE = 100_000_000; // 1 HBAR (10^8 tinybars)
 
     function setUp() public {
+        // Only run on Hedera chains (testnet/mainnet or local fork with chainId 296).
+        if (block.chainid != 296 && block.chainid != 295) {
+            vm.skip(true);
+        }
+
+        htsSetup();
+
         creator = new HtsTokenCreator();
         vm.deal(address(this), 1000 ether);
     }
