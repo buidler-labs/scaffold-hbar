@@ -3,7 +3,7 @@ import { hedera } from "viem/chains";
 import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
 import { SwitchTheme } from "~~/components/SwitchTheme";
 import { Faucet } from "~~/components/scaffold-eth";
-import { useFetchHbarPrice } from "~~/hooks/scaffold-eth";
+import { useFetchHbarPrice } from "@scaffold-ui/hooks";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
 /**

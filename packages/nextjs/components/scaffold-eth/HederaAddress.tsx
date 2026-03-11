@@ -5,8 +5,7 @@ import type { Address as AddressType, Chain } from "viem";
 import { getAddress } from "viem";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { useHederaAccountId } from "~~/hooks/scaffold-eth";
-import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
+import { useHederaAccountId, getBlockExplorerAddressLink } from "@scaffold-ui/hooks";
 
 type HederaAddressProps = {
   address?: AddressType;
