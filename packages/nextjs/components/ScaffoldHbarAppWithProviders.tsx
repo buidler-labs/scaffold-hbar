@@ -11,8 +11,8 @@ import { WagmiProvider } from "wagmi";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { LocalChainErrorBanner } from "~~/components/LocalChainErrorBanner";
-import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { wagmiConfig } from "~~/services/web3/wagmiConfig";
+import { BlockieAvatar } from "~~/components/scaffold-eth/BlockieAvatar";
+import { getWagmiConfig } from "~~/services/web3/wagmiConfig";
 
 const ScaffoldHbarApp = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -40,6 +40,7 @@ export const ScaffoldHbarAppWithProviders = ({ children }: { children: React.Rea
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
   const [mounted, setMounted] = useState(false);
+  const wagmiConfig = getWagmiConfig();
 
   useEffect(() => {
     setMounted(true);
@@ -49,13 +50,17 @@ export const ScaffoldHbarAppWithProviders = ({ children }: { children: React.Rea
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <ProgressBar height="3px" color="#2299dd" />
-        <RainbowKitProvider
-          avatar={BlockieAvatar}
-          initialChain={hederaTestnet}
-          theme={mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()}
-        >
+        {mounted ? (
+          <RainbowKitProvider
+            avatar={BlockieAvatar}
+            initialChain={hederaTestnet}
+            theme={isDarkMode ? darkTheme() : lightTheme()}
+          >
+            <ScaffoldHbarApp>{children}</ScaffoldHbarApp>
+          </RainbowKitProvider>
+        ) : (
           <ScaffoldHbarApp>{children}</ScaffoldHbarApp>
-        </RainbowKitProvider>
+        )}
       </QueryClientProvider>
     </WagmiProvider>
   );

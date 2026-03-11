@@ -1,3 +1,5 @@
+"use client";
+
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import { metaMaskWallet, walletConnectWallet } from "@rainbow-me/rainbowkit/wallets";
 import { rainbowkitBurnerWallet } from "burner-connector";

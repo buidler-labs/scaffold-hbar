@@ -3,7 +3,7 @@ import { Config, useWalletClient } from "wagmi";
 import { getPublicClient } from "wagmi/actions";
 import { SendTransactionMutate } from "wagmi/query";
 import scaffoldConfig from "~~/scaffold.config";
-import { wagmiConfig } from "~~/services/web3/wagmiConfig";
+import { getWagmiConfig } from "~~/services/web3/wagmiConfig";
 import { AllowedChainIds, getBlockExplorerTxLink, notification } from "~~/utils/scaffold-eth";
 import { TransactorFuncOptions, getParsedErrorWithAllAbis } from "~~/utils/scaffold-eth/contract";
 
@@ -55,7 +55,7 @@ export const useTransactor = (_walletClient?: WalletClient): TransactionFunc => 
     try {
       chainId = await walletClient.getChainId();
       // Get full transaction from public client
-      const publicClient = getPublicClient(wagmiConfig);
+      const publicClient = getPublicClient(getWagmiConfig());
       if (!publicClient) throw new Error("Public client not available");
 
       notificationId = notification.loading(<TxnNotification message="Awaiting for user confirmation" />);

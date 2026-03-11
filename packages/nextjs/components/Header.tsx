@@ -1,12 +1,23 @@
 "use client";
 
 import React, { useRef } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bars3Icon, BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
+
+const RainbowKitCustomConnectButton = dynamic(
+  () =>
+    import("~~/components/scaffold-eth/RainbowKitCustomConnectButton").then(mod => ({
+      default: mod.RainbowKitCustomConnectButton,
+    })),
+  {
+    ssr: false,
+    loading: () => <div className="h-9 w-32 rounded-full bg-base-200 animate-pulse" aria-hidden />,
+  },
+);
 
 type HeaderMenuLink = {
   label: string;
