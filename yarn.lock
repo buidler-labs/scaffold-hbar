@@ -4416,7 +4416,7 @@ __metadata:
 
 "@scaffold-ui/components@file:../../../scaffold-ui/packages/components::locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs":
   version: 0.1.8
-  resolution: "@scaffold-ui/components@file:../../../scaffold-ui/packages/components#../../../scaffold-ui/packages/components::hash=0c696a&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-ui/components@file:../../../scaffold-ui/packages/components#../../../scaffold-ui/packages/components::hash=d82c3a&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   peerDependencies:
     "@scaffold-ui/hooks": "workspace:*"
     "@tanstack/react-query": ^5.59.15
@@ -4424,13 +4424,13 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: 40055882ae49aed3cf26c1aa4f4ef5b029bb42fc8de899ecaffb348522845357abf7d458d754d9000f13f888866b4cbff0c9a25908d5a9cc9b2f6838fde12596
+  checksum: bd4315e7e7555054a4cc9e4da08aa2e1a11040a1f95abb7da8dd0b8e20ae70181a7c6e06a8e8e75936990fa9dd8dc4f94a95d8de5d768580f9ddcde039478f03
   languageName: node
   linkType: hard
 
 "@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts::locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs":
   version: 0.1.7
-  resolution: "@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts#../../../scaffold-ui/packages/debug-contracts::hash=a20e77&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts#../../../scaffold-ui/packages/debug-contracts::hash=d62e00&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   dependencies:
     "@heroicons/react": ^2.2.0
     react-hot-toast: ^2.5.2
@@ -4442,13 +4442,13 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: 1827ad87f17776447ddb5794f8cffa4fa7c49110b2b2ea31650a02d39f3fc0746b564d4f0b3e3d7f8248fde35238e5bd0f28c3b103bb6de9cf693d7959d476f8
+  checksum: 5770ebb54d69d1f0ee46adfc359246595ac20a7b5babab24da8db8611620d3a673501a53309547c971205c9ac10edcf597f998683dd4d744f041823dc60ff6bb
   languageName: node
   linkType: hard
 
 "@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks::locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs":
   version: 0.1.6
-  resolution: "@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks#../../../scaffold-ui/packages/hooks::hash=3f6c31&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks#../../../scaffold-ui/packages/hooks::hash=ec28e2&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   dependencies:
     "@uniswap/sdk-core": ^7.7.2
     "@uniswap/v2-sdk": ^4.15.2
@@ -4460,7 +4460,7 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: bb9110205ed2d4faddcb05961f0e218cf765d1774978c6b90d6fe4be82cf96f85efbd1f3d2fbbe2b18387d3f3b6f3693732456f7a62e78a94c03a84439d1cd6d
+  checksum: ea7b6be395faa81b99a705fe13fd0aed8358cfe8a9e4133774cff6e0d058a4ed1e906a500edd31ae32613ea0d7aec8ddad911d336257fbc6c20ef7c7a841a5cf
   languageName: node
   linkType: hard
 

@@ -1,0 +1,55 @@
+{
+  "name": "se-2",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/nextjs",
+      "packages/foundry"
+    ]
+  },
+  "scripts": {
+    "account": "yarn foundry:account",
+    "account:import": "yarn workspace @se-2/hardhat account:import",
+    "account:generate": "yarn workspace @se-2/hardhat account:generate",
+    "account:reveal-pk": "yarn workspace @se-2/hardhat account:reveal-pk",
+    "chain": "yarn foundry:chain",
+    "compile": "yarn foundry:compile",
+    "deploy": "yarn foundry:deploy",
+    "foundry:compile": "yarn workspace @se-2/foundry compile",
+    "foundry:test": "yarn workspace @se-2/foundry test",
+    "foundry:test:local": "yarn workspace @se-2/foundry test:local",
+    "foundry:test:testnet": "yarn workspace @se-2/foundry test:testnet",
+    "foundry:test:mainnet": "yarn workspace @se-2/foundry test:mainnet",
+    "foundry:deploy": "yarn workspace @se-2/foundry deploy",
+    "foundry:clean": "yarn workspace @se-2/foundry clean",
+    "fork": "yarn foundry:fork",
+    "format": "yarn next:format",
+    "generate": "yarn account:generate",
+    "lint": "yarn next:lint",
+    "next:build": "yarn workspace @se-2/nextjs build",
+    "next:check-types": "yarn workspace @se-2/nextjs check-types",
+    "next:format": "yarn workspace @se-2/nextjs format",
+    "next:lint": "yarn workspace @se-2/nextjs lint",
+    "next:serve": "yarn workspace @se-2/nextjs serve",
+    "postinstall": "husky",
+    "precommit": "lint-staged",
+    "lint-staged": "lint-staged",
+    "start": "yarn workspace @se-2/nextjs dev",
+    "test": "yarn foundry:test",
+    "test:foundry": "yarn foundry:test",
+    "vercel": "yarn workspace @se-2/nextjs vercel",
+    "vercel:yolo": "yarn workspace @se-2/nextjs vercel:yolo",
+    "ipfs": "yarn workspace @se-2/nextjs ipfs",
+    "vercel:login": "yarn workspace @se-2/nextjs vercel:login",
+    "verify": "yarn foundry:verify"
+  },
+  "packageManager": "yarn@3.2.3",
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10"
+  },
+  "engines": {
+    "node": ">=20.18.3"
+  }
+}
