@@ -9,12 +9,15 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },
-  // @rainbow-me/rainbowkit calls localStorage without SSR guards in v2.2.x;
-  // marking it as a server external prevents it from being evaluated on the server.
-  serverExternalPackages: ["@rainbow-me/rainbowkit"],
-  webpack: config => {
+  webpack: (config, { dev }) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
     config.externals.push("pino-pretty", "lokijs", "encoding");
+    if (dev) {
+      config.watchOptions = {
+        followSymlinks: true,
+      };
+      config.snapshot = { ...(config.snapshot as object), managedPaths: [] };
+    }
     return config;
   },
 };
