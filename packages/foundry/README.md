@@ -2,6 +2,17 @@
 
 Solidity contracts, Forge scripts, and tests for the Hedera EVM.
 
+## Setup
+
+Forge dependencies are not committed to the repo. Install them locally from this package:
+
+```bash
+cd packages/foundry
+forge install foundry-rs/forge-std gnsps/solidity-bytes-utils hashgraph/hedera-forking
+```
+
+(OpenZeppelin contracts are provided via `node_modules`; install with `yarn` from the repo root.)
+
 ## Deploy
 
 - **Local (Hedera fork):** Start the chain (`yarn chain` from repo root), then `yarn deploy` (default network: localhost). Uses the default keystore `scaffold-eth-default` (prefunded on the fork).
