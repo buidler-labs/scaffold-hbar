@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { HederaAddress } from "@scaffold-ui/components";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { HederaAddress } from "~~/components/scaffold-eth";
+import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 const Home: NextPage = () => {
@@ -65,7 +66,7 @@ const Home: NextPage = () => {
                 <p className="font-semibold text-sm text-base-content/60 uppercase tracking-wider m-0">
                   Connected Address
                 </p>
-                <HederaAddress address={connectedAddress} chain={targetNetwork} />
+                <HederaAddress address={connectedAddress} chain={targetNetwork} avatarComponent={BlockieAvatar} />
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2">

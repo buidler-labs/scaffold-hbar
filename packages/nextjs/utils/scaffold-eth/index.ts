@@ -4,4 +4,3 @@ export * from "./block";
 export * from "./decodeTxData";
 export * from "./getParsedError";
 export * from "./hbarPrice";
-export * from "./hederaAccountId";
