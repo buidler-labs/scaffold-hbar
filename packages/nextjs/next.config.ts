@@ -16,7 +16,10 @@ const nextConfig: NextConfig = {
       config.watchOptions = {
         followSymlinks: true,
       };
-      config.snapshot = { ...(config.snapshot as object), managedPaths: [] };
+      config.snapshot = {
+        ...config.snapshot,
+        managedPaths: [],
+      };
     }
     return config;
   },

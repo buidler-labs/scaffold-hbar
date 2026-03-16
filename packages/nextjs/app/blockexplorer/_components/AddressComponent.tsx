@@ -28,7 +28,6 @@ export const AddressComponent = ({
                 <Address
                   address={address}
                   format="long"
-                  onlyEnsOrAddress
                   blockExplorerAddressLink={
                     targetNetwork.id === hardhat.id ? `/blockexplorer/address/${address}` : undefined
                   }

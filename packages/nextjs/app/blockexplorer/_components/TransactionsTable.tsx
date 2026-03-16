@@ -57,7 +57,6 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
                       <Address
                         address={tx.from}
                         size="sm"
-                        onlyEnsOrAddress
                         blockExplorerAddressLink={
                           targetNetwork.id === hardhat.id ? `/blockexplorer/address/${tx.from}` : undefined
                         }
@@ -69,7 +68,6 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
                           <Address
                             address={tx.to}
                             size="sm"
-                            onlyEnsOrAddress
                             blockExplorerAddressLink={
                               targetNetwork.id === hardhat.id ? `/blockexplorer/address/${tx.to}` : undefined
                             }
@@ -80,7 +78,6 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
                           <Address
                             address={receipt.contractAddress}
                             size="sm"
-                            onlyEnsOrAddress
                             blockExplorerAddressLink={
                               targetNetwork.id === hardhat.id
                                 ? `/blockexplorer/address/${receipt.contractAddress}`
