@@ -34,7 +34,7 @@ export const AddressComponent = ({
                 />
                 <div className="flex gap-1 items-center">
                   <span className="font-bold text-sm">Balance:</span>
-                  <Balance address={address} />
+                  <Balance address={address} chain={targetNetwork} />
                 </div>
               </div>
             </div>

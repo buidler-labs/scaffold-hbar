@@ -47,6 +47,7 @@ export const RainbowKitCustomConnectButton = () => {
                   <div className="flex flex-col items-center mr-2">
                     <Balance
                       address={account.address as Address}
+                      chain={targetNetwork}
                       style={{
                         minHeight: "0",
                         height: "auto",
