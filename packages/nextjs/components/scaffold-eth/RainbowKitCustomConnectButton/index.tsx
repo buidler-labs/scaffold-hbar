@@ -10,7 +10,7 @@ import { Balance } from "@scaffold-ui/components";
 import { Address } from "viem";
 import { useNetworkColor } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
-import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
+import { getBlockExplorerAddressLink, getTargetNetworks } from "~~/utils/scaffold-eth";
 
 /**
  * Custom Wagmi Connect Button (watch balance + custom design)
@@ -22,10 +22,11 @@ export const RainbowKitCustomConnectButton = () => {
   return (
     <ConnectButton.Custom>
       {({ account, chain, openConnectModal, mounted }) => {
-        const connected = mounted && account && chain;
-        const blockExplorerAddressLink = account
-          ? getBlockExplorerAddressLink(targetNetwork, account.address)
-          : undefined;
+        const connected = mounted && account;
+        const networks = getTargetNetworks();
+        const connectedChain = (chain && networks.find(n => n.id === chain.id)) ?? targetNetwork;
+        const blockExplorerAddressLink =
+          account && connectedChain ? getBlockExplorerAddressLink(connectedChain, account.address) : undefined;
 
         return (
           <>
@@ -38,16 +39,15 @@ export const RainbowKitCustomConnectButton = () => {
                 );
               }
 
-              if (chain.unsupported || chain.id !== targetNetwork.id) {
-                return <WrongNetworkDropdown />;
-              }
+              const isWrongNetwork = !chain || chain.unsupported || chain.id !== targetNetwork.id;
 
               return (
                 <>
+                  {isWrongNetwork && <WrongNetworkDropdown />}
                   <div className="flex flex-col items-center mr-2">
                     <Balance
                       address={account.address as Address}
-                      chain={targetNetwork}
+                      chain={connectedChain}
                       style={{
                         minHeight: "0",
                         height: "auto",
@@ -55,7 +55,7 @@ export const RainbowKitCustomConnectButton = () => {
                       }}
                     />
                     <span className="text-xs" style={{ color: networkColor }}>
-                      {chain.name}
+                      {connectedChain.name}
                     </span>
                   </div>
                   <AddressInfoDropdown
@@ -63,6 +63,7 @@ export const RainbowKitCustomConnectButton = () => {
                     displayName={account.displayName}
                     ensAvatar={account.ensAvatar}
                     blockExplorerAddressLink={blockExplorerAddressLink}
+                    targetNetwork={connectedChain}
                   />
                   <RevealBurnerPKModal />
                   <SetBurnerPKModal />

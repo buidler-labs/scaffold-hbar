@@ -12,7 +12,8 @@ type ChainAttributes = {
 export type ChainWithAttributes = chains.Chain & Partial<ChainAttributes>;
 export type AllowedChainIds = (typeof scaffoldConfig.targetNetworks)[number]["id"];
 
-const HEDERA_CHAIN_IDS: Set<number> = new Set([chains.hedera.id, chains.hederaTestnet.id]);
+// Local fork (31337) is Hedera-shaped; account ID resolution uses optional local mirror
+const HEDERA_CHAIN_IDS: Set<number> = new Set([chains.hedera.id, chains.hederaTestnet.id, 31337]);
 
 export const NETWORKS_EXTRA_DATA: Record<string, ChainAttributes> = {
   [chains.mainnet.id]: {
@@ -23,6 +24,9 @@ export const NETWORKS_EXTRA_DATA: Record<string, ChainAttributes> = {
   },
   [chains.hederaTestnet.id]: {
     color: ["#8259EF", "#A98AFF"],
+  },
+  31337: {
+    color: ["#6B7280", "#9CA3AF"],
   },
 };
 

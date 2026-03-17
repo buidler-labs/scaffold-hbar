@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
 import { NetworkOptions } from "./NetworkOptions";
+import { useHederaAccountId } from "@scaffold-ui/hooks";
 import { getAddress } from "viem";
+import type { Chain } from "viem";
 import { Address } from "viem";
 import { useAccount, useDisconnect } from "wagmi";
 import {
@@ -19,11 +21,14 @@ import { isENS } from "~~/utils/scaffold-eth/common";
 
 const allowedNetworks = getTargetNetworks();
 
+const HEDERA_CHAIN_IDS = new Set([296, 295, 31337]);
+
 type AddressInfoDropdownProps = {
   address: Address;
   blockExplorerAddressLink: string | undefined;
   displayName: string;
   ensAvatar?: string;
+  targetNetwork: Chain;
 };
 
 const BURNER_WALLET_CONNECTOR_ID = "burnerWallet";
@@ -33,13 +38,19 @@ export const AddressInfoDropdown = ({
   ensAvatar,
   displayName,
   blockExplorerAddressLink,
+  targetNetwork,
 }: AddressInfoDropdownProps) => {
   const { disconnect } = useDisconnect();
   const { connector } = useAccount();
   const isBurnerWallet = connector?.id === BURNER_WALLET_CONNECTOR_ID;
   const checkSumAddress = getAddress(address);
 
+  const { accountId, isLoading: isAccountIdLoading } = useHederaAccountId(address, targetNetwork.id);
+  const isHederaNetwork = HEDERA_CHAIN_IDS.has(targetNetwork.id);
+
   const { copyToClipboard: copyAddressToClipboard, isCopiedToClipboard: isAddressCopiedToClipboard } =
+    useCopyToClipboard();
+  const { copyToClipboard: copyAccountIdToClipboard, isCopiedToClipboard: isAccountIdCopiedToClipboard } =
     useCopyToClipboard();
   const [selectingNetwork, setSelectingNetwork] = useState(false);
   const dropdownRef = useRef<HTMLDetailsElement>(null);
@@ -51,18 +62,43 @@ export const AddressInfoDropdown = ({
 
   useOutsideClick(dropdownRef, closeDropdown);
 
+  const summaryLabel = isENS(displayName)
+    ? displayName
+    : isHederaNetwork && accountId
+      ? accountId
+      : checkSumAddress?.slice(0, 6) + "..." + checkSumAddress?.slice(-4);
+
   return (
     <>
       <details ref={dropdownRef} className="dropdown dropdown-end leading-3">
         <summary className="btn btn-secondary btn-sm pl-0 pr-2 shadow-md dropdown-toggle gap-0 h-auto!">
           <BlockieAvatar address={checkSumAddress} size={30} ensImage={ensAvatar} />
-          <span className="ml-2 mr-1">
-            {isENS(displayName) ? displayName : checkSumAddress?.slice(0, 6) + "..." + checkSumAddress?.slice(-4)}
-          </span>
+          <span className="ml-2 mr-1">{isAccountIdLoading && isHederaNetwork ? "…" : summaryLabel}</span>
           <ChevronDownIcon className="h-6 w-4 ml-2 sm:ml-0" />
         </summary>
         <ul className="dropdown-content menu z-2 p-2 mt-2 shadow-center shadow-accent bg-base-200 rounded-box gap-1">
           <NetworkOptions hidden={!selectingNetwork} />
+          {isHederaNetwork && accountId && (
+            <li className={selectingNetwork ? "hidden" : ""}>
+              <div
+                className="h-8 btn-sm rounded-xl! flex gap-3 py-3 cursor-pointer"
+                onClick={() => copyAccountIdToClipboard(accountId)}
+              >
+                {isAccountIdCopiedToClipboard ? (
+                  <>
+                    <CheckCircleIcon className="text-xl font-normal h-6 w-4 ml-2 sm:ml-0" aria-hidden="true" />
+                    <span className="whitespace-nowrap">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <DocumentDuplicateIcon className="text-xl font-normal h-6 w-4 ml-2 sm:ml-0" aria-hidden="true" />
+                    <span className="whitespace-nowrap">Copy account ID</span>
+                  </>
+                )}
+              </div>
+              <div className="px-3 py-1 text-xs text-base-content/70 font-mono">{accountId}</div>
+            </li>
+          )}
           <li className={selectingNetwork ? "hidden" : ""}>
             <div
               className="h-8 btn-sm rounded-xl! flex gap-3 py-3 cursor-pointer"
