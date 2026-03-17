@@ -1,4 +1,5 @@
 export * from "./SearchBar";
+export * from "./LookUpAddress";
 export * from "./BackButton";
 export * from "./AddressCodeTab";
 export * from "./TransactionHash";

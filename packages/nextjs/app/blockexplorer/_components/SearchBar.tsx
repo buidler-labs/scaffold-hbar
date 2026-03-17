@@ -5,20 +5,28 @@ import { useRouter } from "next/navigation";
 import { isAddress, isHex } from "viem";
 import { hardhat } from "viem/chains";
 import { usePublicClient } from "wagmi";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
+
+const NATIVE_ACCOUNT_ID_REGEX = /^\d+\.\d+\.\d+$/;
 
 export const SearchBar = () => {
   const [searchInput, setSearchInput] = useState("");
+  const [isResolving, setIsResolving] = useState(false);
   const router = useRouter();
+  const { targetNetwork } = useTargetNetwork();
 
   const client = usePublicClient({ chainId: hardhat.id });
 
   const handleSearch = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (isHex(searchInput)) {
+    const trimmed = searchInput.trim();
+    if (!trimmed) return;
+
+    if (isHex(trimmed)) {
       try {
-        const tx = await client?.getTransaction({ hash: searchInput });
+        const tx = await client?.getTransaction({ hash: trimmed as `0x${string}` });
         if (tx) {
-          router.push(`/blockexplorer/transaction/${searchInput}`);
+          router.push(`/blockexplorer/transaction/${trimmed}`);
           return;
         }
       } catch (error) {
@@ -26,9 +34,26 @@ export const SearchBar = () => {
       }
     }
 
-    if (isAddress(searchInput)) {
-      router.push(`/blockexplorer/address/${searchInput}`);
+    if (isAddress(trimmed)) {
+      router.push(`/blockexplorer/address/${trimmed}`);
       return;
+    }
+
+    if (NATIVE_ACCOUNT_ID_REGEX.test(trimmed)) {
+      setIsResolving(true);
+      try {
+        const network = targetNetwork.id === 295 ? "mainnet" : "testnet";
+        const res = await fetch(`/api/hedera/evm-address?accountId=${encodeURIComponent(trimmed)}&network=${network}`);
+        const data = (await res.json()) as { evmAddress?: string | null; error?: string } | undefined;
+        if (data?.evmAddress) {
+          router.push(`/blockexplorer/address/${data.evmAddress}`);
+          return;
+        }
+      } catch (e) {
+        console.error("Failed to resolve Hedera account ID:", e);
+      } finally {
+        setIsResolving(false);
+      }
     }
   };
 
@@ -38,11 +63,11 @@ export const SearchBar = () => {
         className="border-primary bg-base-100 text-base-content placeholder:text-base-content/50 p-2 mr-2 w-full md:w-1/2 lg:w-1/3 rounded-md shadow-md focus:outline-hidden focus:ring-2 focus:ring-accent"
         type="text"
         value={searchInput}
-        placeholder="Search by hash or address"
+        placeholder="Search by tx hash, 0x... or 0.0.12345"
         onChange={e => setSearchInput(e.target.value)}
       />
-      <button className="btn btn-sm btn-primary" type="submit">
-        Search
+      <button className="btn btn-sm btn-primary" type="submit" disabled={isResolving}>
+        {isResolving ? "Resolving…" : "Search"}
       </button>
     </form>
   );

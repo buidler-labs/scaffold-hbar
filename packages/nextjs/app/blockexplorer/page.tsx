@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PaginationButton, SearchBar, TransactionsTable } from "./_components";
+import { LookUpAddress, PaginationButton, SearchBar, TransactionsTable } from "./_components";
 import type { NextPage } from "next";
 import { Block, Transaction, TransactionReceipt } from "viem";
 import { hardhat } from "viem/chains";
@@ -79,7 +79,7 @@ const BlockExplorer: NextPage = () => {
               block explorer is only for <code className="italic bg-base-300 text-base font-bold">localhost</code>.
             </p>
             {targetNetwork.blockExplorers?.default && (
-              <p>
+              <p className="mb-4">
                 You can use{" "}
                 <a
                   className="text-accent underline"
@@ -94,6 +94,7 @@ const BlockExplorer: NextPage = () => {
             )}
           </div>
         </div>
+        <LookUpAddress />
       </div>
     );
   }
@@ -101,6 +102,7 @@ const BlockExplorer: NextPage = () => {
   return (
     <div className="container mx-auto my-10">
       <SearchBar />
+      <LookUpAddress />
       {hasContracts && !hasTransactions && blocks.length > 0 && (
         <div className="flex justify-center p-8">
           <p className="text-lg text-base-content/70">
