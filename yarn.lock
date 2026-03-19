@@ -4416,7 +4416,7 @@ __metadata:
 
 "@scaffold-ui/components@file:../../../scaffold-ui/packages/components::locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs":
   version: 0.1.8
-  resolution: "@scaffold-ui/components@file:../../../scaffold-ui/packages/components#../../../scaffold-ui/packages/components::hash=401b9b&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-ui/components@file:../../../scaffold-ui/packages/components#../../../scaffold-ui/packages/components::hash=b96524&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   peerDependencies:
     "@scaffold-ui/hooks": "workspace:*"
     "@tanstack/react-query": ^5.59.15
@@ -4424,13 +4424,13 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: 40d5cb4fd6c0796cc2d30f8e0c5b031dbf9abaf627545145305f0faeff32146a8796d577bb08a088aea0b640bbc2fb69032014e48a92a9b41c629fd465df3dc0
+  checksum: 3f788c76768949b140070a2fb02feee9968abfba1ab63a323443ffc6ed644a4cf4cbe2517042036fef7b57fbc7698d98a24621d6aaad2c542432d6acf1bd37e1
   languageName: node
   linkType: hard
 
 "@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts::locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs":
   version: 0.1.7
-  resolution: "@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts#../../../scaffold-ui/packages/debug-contracts::hash=3d0407&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts#../../../scaffold-ui/packages/debug-contracts::hash=a06e1a&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   dependencies:
     "@heroicons/react": ^2.2.0
     react-hot-toast: ^2.5.2
@@ -4442,7 +4442,7 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: 646cb7e85f99cc5731e64d779e93fe9ea9ce988eeae2b43bc0f894455edb1f5457d8cdee44d093180c7eca15dffe87636701a67a9fe6d1452e8812eba8b74388
+  checksum: 6d9b66bb9bc90c28c9523d74e83bad189087f261f406cbadcc1ab9821747a8bbbcdbf94e82c809b66f0ee1b957802eaa4b1dbd9a007ba62edcd9c03920ae85da
   languageName: node
   linkType: hard
 

@@ -2,6 +2,8 @@
 
 Hardhat config, contracts, deploy scripts, tests, and Hashscan verification for this monorepo.
 
+**Proof Wall (hedera-demo) template:** This branch focuses on the native Hedera demo app. The frontend uses HCS and HTS via the Hedera SDK; no smart contracts are required. This package remains available for optional contract work but is not used by the Proof Wall demo.
+
 ## Local development
 
 1. **Start the local chain** (terminal 1):
