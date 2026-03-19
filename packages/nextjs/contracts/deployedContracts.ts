@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     HederaToken: {
-      address: "0x82A9286dB983093Ff234cefCea1d8fA66382876B",
+      address: "0x41219a0a9C0b86ED81933c788a6B63Dfef8f17eE",
       abi: [
         {
           inputs: [
@@ -435,10 +435,10 @@ const deployedContracts = {
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
-      deployedOnBlock: 32846596,
+      deployedOnBlock: 32936297,
     },
     HtsTokenCreator: {
-      address: "0x41219a0a9C0b86ED81933c788a6B63Dfef8f17eE",
+      address: "0x1d460d731Bd5a0fF2cA07309dAEB8641a7b175A1",
       abi: [
         {
           inputs: [
@@ -592,7 +592,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 32846598,
+      deployedOnBlock: 32936299,
     },
   },
 } as const;

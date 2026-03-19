@@ -96,7 +96,6 @@ export const AddressInfoDropdown = ({
                   </>
                 )}
               </div>
-              <div className="px-3 py-1 text-xs text-base-content/70 font-mono">{accountId}</div>
             </li>
           )}
           <li className={selectingNetwork ? "hidden" : ""}>
