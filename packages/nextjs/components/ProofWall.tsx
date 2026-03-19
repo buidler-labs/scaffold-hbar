@@ -26,14 +26,16 @@ export function ProofWall({
 }: ProofWallProps) {
   if (error) {
     return (
-      <div className="rounded-xl border border-error/30 bg-base-100 p-8 text-center">
-        <p className="text-error font-medium">Failed to load messages</p>
-        <p className="text-base-content/70 text-sm mt-1">{error.message}</p>
-        {onRetry && (
-          <button type="button" className="btn btn-sm btn-outline btn-error mt-4" onClick={onRetry}>
-            Try again
-          </button>
-        )}
+      <div className="alert alert-error/20 border border-error/30 bg-base-100 p-6 sm:p-8">
+        <div className="w-full text-center">
+          <p className="text-error font-medium">Failed to load messages</p>
+          <p className="text-base-content/70 text-sm mt-1">{error.message}</p>
+          {onRetry && (
+            <button type="button" className="btn btn-sm btn-outline btn-error mt-4" onClick={onRetry}>
+              Try again
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -50,7 +52,7 @@ export function ProofWall({
 
   if (!messages.length) {
     return (
-      <div className="rounded-xl border border-base-300 bg-base-100 p-10 text-center">
+      <div className="rounded-xl border border-base-300 bg-base-100 p-8 sm:p-10 text-center shadow-sm">
         <p className="text-base-content/70 text-lg">{emptyTitle}</p>
         <p className="text-base-content/50 text-sm mt-1">{emptyDescription}</p>
         {emptyAction && <div className="mt-4">{emptyAction}</div>}

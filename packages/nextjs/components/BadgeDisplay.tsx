@@ -38,34 +38,39 @@ export function BadgeDisplay({ accountIdOrEvm, variant = "card" }: BadgeDisplayP
 
   // Card variant
   return (
-    <div className="rounded-xl border border-base-300 bg-base-100 p-6 shadow-sm">
-      <h2 className="text-lg font-semibold mb-3">Proof Badges</h2>
-      {!hasBadgeToken ? (
-        <p className="text-base-content/60 text-sm">
-          No badge token configured. Create one in{" "}
-          <Link href="/admin" className="link link-primary">
-            Admin
-          </Link>
-          .
-        </p>
-      ) : isLoading ? (
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-base-200 animate-pulse" />
-          <div className="h-5 w-24 rounded bg-base-200 animate-pulse" />
+    <div className="card border border-base-300 bg-base-100 shadow-sm">
+      <div className="card-body p-5 sm:p-6">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-semibold m-0">Proof Badges</h2>
+          <span className="badge badge-outline badge-secondary">HTS</span>
         </div>
-      ) : error ? (
-        <p className="text-error text-sm">Couldn&apos;t load badge balance.</p>
-      ) : data ? (
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-primary text-xl font-bold">
-            {data.balance}
+        {!hasBadgeToken ? (
+          <p className="text-base-content/60 text-sm">
+            No badge token configured. Create one in{" "}
+            <Link href="/admin" className="link link-primary">
+              Admin
+            </Link>
+            .
+          </p>
+        ) : isLoading ? (
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-base-200 animate-pulse" />
+            <div className="h-5 w-24 rounded bg-base-200 animate-pulse" />
           </div>
-          <div>
-            <p className="font-medium">Balance</p>
-            <p className="text-sm text-base-content/60">Earned from posting proofs</p>
+        ) : error ? (
+          <p className="text-error text-sm">Couldn&apos;t load badge balance.</p>
+        ) : data ? (
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-primary text-xl font-bold">
+              {data.balance}
+            </div>
+            <div>
+              <p className="font-medium">Balance</p>
+              <p className="text-sm text-base-content/60">Earned from posting proofs</p>
+            </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -36,20 +36,22 @@ export default function MyProofsPage() {
 
   return (
     <div className="flex flex-col grow">
-      <div className="w-full max-w-3xl mx-auto px-4 py-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">My Proofs</h1>
-          <p className="text-base-content/70 mt-2">Your submitted proofs and Proof Badge balance.</p>
+      <div className="w-full max-w-5xl mx-auto px-4 py-6 sm:py-8">
+        <header className="rounded-2xl border border-base-300 bg-base-100 p-6 sm:p-8 shadow-sm mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight m-0">My Proofs</h1>
+          <p className="text-base-content/70 mt-2 mb-0">Your submitted proofs and Proof Badge balance.</p>
         </header>
 
         {!isConnected ? (
-          <div className="rounded-xl border border-base-300 bg-base-100 p-8 text-center">
-            <p className="text-base-content/70 font-medium">Connect your wallet</p>
-            <p className="text-base-content/50 text-sm mt-1">Your proofs and badge balance will appear here.</p>
+          <div className="card border border-base-300 bg-base-100 shadow-sm">
+            <div className="card-body items-center text-center py-10">
+              <p className="text-base-content/70 font-medium">Connect your wallet</p>
+              <p className="text-base-content/50 text-sm mt-1">Your proofs and badge balance will appear here.</p>
+            </div>
           </div>
         ) : !topicId ? (
-          <div className="rounded-xl border border-warning/40 bg-base-200 p-6">
-            <p className="text-base-content/80">
+          <div className="alert alert-warning shadow-sm">
+            <span className="text-base-content/80">
               No topic configured. Set{" "}
               <code className="text-sm bg-base-300 px-1.5 py-0.5 rounded">NEXT_PUBLIC_PROOF_WALL_TOPIC_ID</code> or
               create one in{" "}
@@ -57,7 +59,7 @@ export default function MyProofsPage() {
                 Admin
               </Link>
               .
-            </p>
+            </span>
           </div>
         ) : (
           <>
@@ -65,11 +67,11 @@ export default function MyProofsPage() {
               <BadgeDisplay accountIdOrEvm={address} variant="card" />
             </section>
 
-            <div className="divider my-8">Your proofs</div>
+            <div className="divider my-8 text-base-content/60">Your proofs</div>
 
             <section aria-label="Your proof feed">
-              <div className="mb-4 flex items-center justify-between gap-2">
-                <p className="text-sm text-base-content/60">
+              <div className="mb-4 flex items-center justify-between gap-2 px-1">
+                <p className="text-sm text-base-content/60 font-medium">
                   {!isLoading && !error && myMessages.length > 0
                     ? `${myMessages.length} proof${myMessages.length === 1 ? "" : "s"}`
                     : null}

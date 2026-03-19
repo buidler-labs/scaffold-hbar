@@ -26,7 +26,8 @@ export async function POST(req: Request) {
     }
     return NextResponse.json({ topicId });
   } catch (e) {
+    const message = e instanceof Error ? e.message : "Create topic failed";
     console.error("[api/hedera/create-topic]", e);
-    return NextResponse.json({ error: "Create topic failed" }, { status: 502 });
+    return NextResponse.json({ error: message }, { status: 502 });
   }
 }

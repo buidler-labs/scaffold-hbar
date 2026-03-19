@@ -68,7 +68,8 @@ export const Header = () => {
   });
 
   return (
-    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 shrink-0 justify-between z-20 shadow-sm border-b border-base-300 px-0 sm:px-2">
+    <div className="sticky lg:static top-0 navbar bg-base-100/95 backdrop-blur min-h-0 shrink-0 justify-between z-20 shadow-sm border-b border-base-300 px-0 sm:px-2">
+      <div className="absolute inset-x-0 top-0 h-0.5 hedera-gradient" />
       <div className="navbar-start w-auto lg:w-1/2">
         <details className="dropdown" ref={burgerMenuRef}>
           <summary className="ml-1 btn btn-ghost lg:hidden hover:bg-transparent">
@@ -83,14 +84,14 @@ export const Header = () => {
             <HeaderMenuLinks />
           </ul>
         </details>
-        <Link href="/" passHref className="hidden lg:flex items-center gap-3 ml-4 mr-6 shrink-0">
+        <Link href="/" passHref className="flex items-center gap-3 ml-3 lg:ml-4 mr-4 lg:mr-6 shrink-0">
           <div className="flex relative w-9 h-9">
             <Image alt="Hedera icon" className="cursor-pointer dark:hidden" fill src="/Hedera-Icon-Dark.svg" />
             <Image alt="Hedera icon" className="cursor-pointer hidden dark:block" fill src="/Hedera-Icon-White.svg" />
           </div>
           <div className="flex flex-col">
             <span className="font-bold leading-tight text-base">Proof Wall</span>
-            <span className="text-[10px] tracking-wider uppercase text-base-content/50 font-medium">
+            <span className="hidden md:block text-[10px] tracking-wider uppercase text-base-content/50 font-medium">
               Hedera Native Demo
             </span>
           </div>

@@ -1,33 +1,32 @@
 "use client";
 
 import React, { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import { useSubmitProof } from "~~/hooks/useSubmitProof";
 
 type SubmitProofFormProps = {
   topicId: string;
+  onSuccess?: (result: { sequenceNumber?: string }) => void;
 };
 
 const MAX_CHARS = 500;
 
-export function SubmitProofForm({ topicId }: SubmitProofFormProps) {
+export function SubmitProofForm({ topicId, onSuccess }: SubmitProofFormProps) {
   const [text, setText] = useState("");
   const { address, status } = useAccount();
-  const queryClient = useQueryClient();
   const submit = useSubmitProof();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
     try {
-      await submit.mutateAsync({
+      const result = await submit.mutateAsync({
         topicId,
         text: text.trim(),
         author: address ?? undefined,
       });
       setText("");
-      await queryClient.invalidateQueries({ queryKey: ["topic-messages", topicId] });
+      onSuccess?.(result as { sequenceNumber?: string });
     } catch {
       // Error shown below via submit.isError
     }
@@ -37,39 +36,53 @@ export function SubmitProofForm({ topicId }: SubmitProofFormProps) {
   const isPending = submit.isPending;
 
   return (
-    <div className="rounded-xl border border-base-300 bg-base-100 p-6 shadow-sm">
-      <h2 className="text-lg font-semibold mb-4">Post a proof</h2>
-      {!isConnected ? (
-        <div className="rounded-lg bg-base-200 p-4 text-center text-base-content/70">
-          <p className="font-medium">Connect your wallet to post</p>
-          <p className="text-sm mt-1">Your address will be recorded as the author of the proof.</p>
+    <div className="card border border-base-300 bg-base-100 shadow-sm">
+      <div className="card-body p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <h2 className="text-lg font-semibold m-0">Post a proof</h2>
+          <span className="badge badge-outline badge-primary">HCS</span>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <textarea
-            className="textarea textarea-bordered w-full min-h-[120px] resize-y"
-            placeholder="What do you want to prove? e.g. “I was here”, a prediction, a commitment…"
-            value={text}
-            onChange={e => setText(e.target.value)}
-            maxLength={MAX_CHARS}
-            disabled={isPending}
-            rows={4}
-          />
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="text-xs text-base-content/50">
-              {text.length}/{MAX_CHARS}
-            </span>
-            <button type="submit" className="btn btn-primary" disabled={!text.trim() || isPending}>
-              {isPending ? "Posting…" : "Post proof"}
-            </button>
+        {!isConnected ? (
+          <div className="rounded-lg bg-base-200 p-4 text-center text-base-content/70">
+            <p className="font-medium">Connect your wallet to post</p>
+            <p className="text-sm mt-1">Your address will be recorded as the author of the proof.</p>
           </div>
-          {submit.isError && (
-            <p className="text-sm text-error">
-              {submit.error instanceof Error ? submit.error.message : "Submit failed"}
-            </p>
-          )}
-        </form>
-      )}
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="relative">
+              <textarea
+                className="textarea textarea-bordered w-full min-h-[130px] resize-y text-sm sm:text-base leading-relaxed p-4"
+                placeholder={'What do you want to prove? e.g. "I was here", a prediction, a commitment\u2026'}
+                value={text}
+                onChange={e => setText(e.target.value)}
+                maxLength={MAX_CHARS}
+                disabled={isPending}
+                rows={4}
+              />
+              <span className="absolute bottom-3 right-4 text-xs text-base-content/40 pointer-events-none">
+                {text.length}/{MAX_CHARS}
+              </span>
+            </div>
+            <div className="flex items-center justify-end gap-3">
+              {submit.isError && (
+                <p className="text-sm text-error mr-auto m-0">
+                  {submit.error instanceof Error ? submit.error.message : "Submit failed"}
+                </p>
+              )}
+              <button type="submit" className="btn btn-primary" disabled={!text.trim() || isPending}>
+                {isPending ? (
+                  <>
+                    <span className="loading loading-spinner loading-xs" />
+                    Posting&hellip;
+                  </>
+                ) : (
+                  "Post proof"
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
