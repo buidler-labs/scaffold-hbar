@@ -64,7 +64,7 @@ export default function MyProofsPage() {
         ) : (
           <>
             <section className="mb-8" aria-label="Badge balance">
-              <BadgeDisplay accountIdOrEvm={address} variant="card" />
+              <BadgeDisplay accountIdOrEvm={address} variant="card" proofCount={myMessages.length} />
             </section>
 
             <div className="divider my-8 text-base-content/60">Your proofs</div>

@@ -5,15 +5,19 @@ import Link from "next/link";
 import { proofWallConfig } from "~~/config/proofWallConfig";
 import { useBadgeTokens } from "~~/hooks/useBadgeTokens";
 
+const MILESTONES = [1, 5, 10, 25, 50, 100];
+
 type BadgeDisplayProps = {
   accountIdOrEvm: string | null;
-  /** Show as a card (e.g. on My Proofs page). Default true. */
   variant?: "card" | "inline";
+  proofCount?: number;
 };
 
-export function BadgeDisplay({ accountIdOrEvm, variant = "card" }: BadgeDisplayProps) {
+export function BadgeDisplay({ accountIdOrEvm, variant = "card", proofCount }: BadgeDisplayProps) {
   const { data, isLoading, error } = useBadgeTokens(proofWallConfig.badgeTokenId || null, accountIdOrEvm);
   const hasBadgeToken = Boolean(proofWallConfig.badgeTokenId);
+  const balance = data?.balance ?? 0;
+  const nextMilestone = MILESTONES.find(m => m > (proofCount ?? 0));
 
   if (!accountIdOrEvm) {
     return (
@@ -31,12 +35,11 @@ export function BadgeDisplay({ accountIdOrEvm, variant = "card" }: BadgeDisplayP
     return (
       <div className="flex items-center gap-2">
         <span className="text-sm text-base-content/80">Proof Badges:</span>
-        <span className="badge badge-primary">{data.balance}</span>
+        <span className="badge badge-primary">{balance}</span>
       </div>
     );
   }
 
-  // Card variant
   return (
     <div className="card border border-base-300 bg-base-100 shadow-sm">
       <div className="card-body p-5 sm:p-6">
@@ -60,13 +63,35 @@ export function BadgeDisplay({ accountIdOrEvm, variant = "card" }: BadgeDisplayP
         ) : error ? (
           <p className="text-error text-sm">Couldn&apos;t load badge balance.</p>
         ) : data ? (
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-primary text-xl font-bold">
-              {data.balance}
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/20 text-primary text-2xl font-bold shrink-0">
+                {balance}
+              </div>
+              <div>
+                <p className="font-medium m-0">
+                  {balance} badge{balance !== 1 ? "s" : ""} earned
+                </p>
+                <p className="text-sm text-base-content/60 m-0">
+                  {nextMilestone
+                    ? `Next badge at ${nextMilestone} proof${nextMilestone !== 1 ? "s" : ""}`
+                    : "All milestones reached!"}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="font-medium">Balance</p>
-              <p className="text-sm text-base-content/60">Earned from posting proofs</p>
+            <div className="flex flex-wrap gap-2">
+              {MILESTONES.map(m => {
+                const reached = balance > 0 && MILESTONES.indexOf(m) < balance;
+                return (
+                  <div
+                    key={m}
+                    className={`badge badge-lg ${reached ? "badge-primary" : "badge-ghost opacity-50"}`}
+                    title={`${m} proof${m !== 1 ? "s" : ""} milestone`}
+                  >
+                    {m}
+                  </div>
+                );
+              })}
             </div>
           </div>
         ) : null}

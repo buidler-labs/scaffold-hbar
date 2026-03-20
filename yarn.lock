@@ -4430,7 +4430,7 @@ __metadata:
 
 "@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts::locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs":
   version: 0.1.7
-  resolution: "@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts#../../../scaffold-ui/packages/debug-contracts::hash=a06e1a&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts#../../../scaffold-ui/packages/debug-contracts::hash=0bdb82&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   dependencies:
     "@heroicons/react": ^2.2.0
     react-hot-toast: ^2.5.2
@@ -4442,7 +4442,7 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: 6d9b66bb9bc90c28c9523d74e83bad189087f261f406cbadcc1ab9821747a8bbbcdbf94e82c809b66f0ee1b957802eaa4b1dbd9a007ba62edcd9c03920ae85da
+  checksum: ef30f47ece4bfe5519dfbb5f6eb7289c2d6026cbae20742d95121969f0fa8b13f7fc03f118eb0be5b0fb9f8cfd3926d8c571a99f581889b0ca4477d22879bb64
   languageName: node
   linkType: hard
 

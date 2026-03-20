@@ -435,7 +435,7 @@ const deployedContracts = {
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
-      deployedOnBlock: 32936297,
+      deployedOnBlock: 32986365,
     },
     HtsTokenCreator: {
       address: "0x1d460d731Bd5a0fF2cA07309dAEB8641a7b175A1",
@@ -592,7 +592,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 32936299,
+      deployedOnBlock: 32986367,
     },
   },
 } as const;

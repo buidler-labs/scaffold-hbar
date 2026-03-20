@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
+import { useEffect } from "react";
 import { NetworkOptions } from "./NetworkOptions";
-import { useHederaAccountId } from "@scaffold-ui/hooks";
 import { getAddress } from "viem";
 import type { Chain } from "viem";
 import { Address } from "viem";
@@ -33,6 +33,42 @@ type AddressInfoDropdownProps = {
 
 const BURNER_WALLET_CONNECTOR_ID = "burnerWallet";
 
+function useResolvedHederaAccountId(address: Address, chainId: number, enabled: boolean) {
+  const [accountId, setAccountId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!enabled) {
+      setAccountId(null);
+      setIsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    const network = chainId === 295 ? "mainnet" : "testnet";
+
+    const run = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/hedera/account?evm=${encodeURIComponent(address)}&network=${network}`);
+        const data = (await res.json()) as { accountId?: string | null };
+        if (!cancelled) setAccountId(data?.accountId ?? null);
+      } catch {
+        if (!cancelled) setAccountId(null);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [address, chainId, enabled]);
+
+  return { accountId, isLoading };
+}
+
 export const AddressInfoDropdown = ({
   address,
   ensAvatar,
@@ -44,9 +80,13 @@ export const AddressInfoDropdown = ({
   const { connector } = useAccount();
   const isBurnerWallet = connector?.id === BURNER_WALLET_CONNECTOR_ID;
   const checkSumAddress = getAddress(address);
-
-  const { accountId, isLoading: isAccountIdLoading } = useHederaAccountId(address, targetNetwork.id);
   const isHederaNetwork = HEDERA_CHAIN_IDS.has(targetNetwork.id);
+
+  const { accountId, isLoading: isAccountIdLoading } = useResolvedHederaAccountId(
+    address,
+    targetNetwork.id,
+    isHederaNetwork,
+  );
 
   const { copyToClipboard: copyAddressToClipboard, isCopiedToClipboard: isAddressCopiedToClipboard } =
     useCopyToClipboard();
