@@ -1,21 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useAccount } from "wagmi";
 import { BadgeDisplay } from "~~/components/BadgeDisplay";
 import { ProofWall } from "~~/components/ProofWall";
 import { proofWallConfig } from "~~/config/proofWallConfig";
+import { useHederaSigner } from "~~/hooks/useHederaSigner";
 import type { TopicMessage } from "~~/hooks/useTopicMessages";
 import { useTopicMessages } from "~~/hooks/useTopicMessages";
+import { normalizeIdentity } from "~~/utils/scaffold-eth/identity";
 
-function filterMessagesByAuthor(messages: TopicMessage[], authorAddress: string): TopicMessage[] {
-  const lower = authorAddress.toLowerCase();
+function filterMessagesByAuthor(messages: TopicMessage[], authors: string[]): TopicMessage[] {
+  const normalizedAuthors = authors.map(normalizeIdentity).filter(Boolean);
   return messages.filter(m => {
     try {
       if (typeof m.message !== "string") return false;
       const raw = atob(m.message);
       const payload = JSON.parse(raw) as { author?: string };
-      return payload.author?.toLowerCase() === lower;
+      const author = normalizeIdentity(payload.author);
+      return Boolean(author && normalizedAuthors.includes(author));
     } catch {
       return false;
     }
@@ -23,7 +25,8 @@ function filterMessagesByAuthor(messages: TopicMessage[], authorAddress: string)
 }
 
 export default function MyProofsPage() {
-  const { address, status } = useAccount();
+  const { accountId, isConnected } = useHederaSigner();
+  const address = accountId;
   const topicId = proofWallConfig.topicId;
   const { data, isLoading, error, refetch } = useTopicMessages(topicId, {
     enabled: Boolean(topicId),
@@ -31,8 +34,9 @@ export default function MyProofsPage() {
   });
 
   const allMessages = data?.messages ?? [];
-  const myMessages = address ? filterMessagesByAuthor(allMessages, address) : [];
-  const isConnected = status === "connected" && address;
+  const authorCandidates = [address, accountId].filter((value): value is string => Boolean(value));
+  const myMessages = authorCandidates.length > 0 ? filterMessagesByAuthor(allMessages, authorCandidates) : [];
+  const badgeLookupIdentity = accountId ?? address ?? "";
 
   return (
     <div className="flex flex-col grow">
@@ -64,7 +68,7 @@ export default function MyProofsPage() {
         ) : (
           <>
             <section className="mb-8" aria-label="Badge balance">
-              <BadgeDisplay accountIdOrEvm={address} variant="card" proofCount={myMessages.length} />
+              <BadgeDisplay accountIdOrEvm={badgeLookupIdentity} variant="card" proofCount={myMessages.length} />
             </section>
 
             <div className="divider my-8 text-base-content/60">Your proofs</div>

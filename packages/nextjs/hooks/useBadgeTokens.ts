@@ -1,29 +1,44 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { isEvmAddress, isHederaAccountId } from "~~/utils/scaffold-eth/identity";
 
 /**
  * Query HTS badge token balance for an account.
  * Resolves EVM address to Hedera accountId via /api/hedera/account, then fetches token balance via API.
  */
 export function useBadgeTokens(tokenId: string | null, accountIdOrEvm: string | null) {
+  const network = process.env.NEXT_PUBLIC_HEDERA_NETWORK ?? "testnet";
+
+  const extractIdentity = (value: string): string => {
+    const trimmed = value.trim();
+    if (trimmed.startsWith("hedera:") || trimmed.startsWith("eip155:")) {
+      return trimmed.split(":").pop() ?? trimmed;
+    }
+    return trimmed;
+  };
+
   return useQuery({
     queryKey: ["badge-tokens", tokenId, accountIdOrEvm],
     queryFn: async () => {
       if (!tokenId || !accountIdOrEvm) return null;
-      const isEvm = accountIdOrEvm.startsWith("0x");
+      const identity = extractIdentity(accountIdOrEvm);
       let accountId: string | null;
-      if (isEvm) {
-        const res = await fetch(`/api/hedera/account?evm=${encodeURIComponent(accountIdOrEvm)}&network=testnet`);
+      if (isEvmAddress(identity)) {
+        const res = await fetch(
+          `/api/hedera/account?evm=${encodeURIComponent(identity)}&network=${encodeURIComponent(network)}`,
+        );
         if (!res.ok) return null;
         const data = (await res.json()) as { accountId: string | null };
         accountId = data.accountId;
+      } else if (isHederaAccountId(identity)) {
+        accountId = identity;
       } else {
-        accountId = accountIdOrEvm;
+        return null;
       }
       if (!accountId) return null;
       const balanceRes = await fetch(
-        `/api/hedera/token-balance?tokenId=${encodeURIComponent(tokenId)}&accountId=${encodeURIComponent(accountId)}&network=testnet`,
+        `/api/hedera/token-balance?tokenId=${encodeURIComponent(tokenId)}&accountId=${encodeURIComponent(accountId)}&network=${encodeURIComponent(network)}`,
       );
       if (!balanceRes.ok) return null;
       const balanceData = (await balanceRes.json()) as { balance?: number };

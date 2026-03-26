@@ -4,7 +4,6 @@ export type ScaffoldConfig = {
   targetNetworks: readonly [chains.Chain, ...chains.Chain[]];
   pollingInterval: number;
   rpcOverrides?: Record<number, string>;
-  enableBurnerWallet: boolean;
   walletConnectProjectId: string;
 };
 
@@ -31,8 +30,6 @@ const scaffoldConfig = {
   targetNetworks,
 
   pollingInterval: 10000,
-
-  enableBurnerWallet: true,
 
   rpcOverrides: {
     [chains.hedera.id]: process.env.NEXT_PUBLIC_HEDERA_MAINNET_RPC_URL || "https://mainnet.hashio.io/api",

@@ -1,18 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
-import { useTheme } from "next-themes";
 import { Toaster } from "react-hot-toast";
-import { hederaTestnet } from "viem/chains";
-import { WagmiProvider } from "wagmi";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { LocalChainErrorBanner } from "~~/components/LocalChainErrorBanner";
-import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { wagmiConfig } from "~~/services/web3/wagmiConfig";
+import { HederaWalletConnectProvider } from "~~/services/web3/hederaWalletConnect";
 
 const ScaffoldHbarApp = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -37,26 +31,12 @@ export const queryClient = new QueryClient({
 });
 
 export const ScaffoldHbarAppWithProviders = ({ children }: { children: React.ReactNode }) => {
-  const { resolvedTheme } = useTheme();
-  const isDarkMode = resolvedTheme === "dark";
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <HederaWalletConnectProvider>
         <ProgressBar height="3px" color="#2299dd" />
-        <RainbowKitProvider
-          avatar={BlockieAvatar}
-          initialChain={hederaTestnet}
-          theme={mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()}
-        >
-          <ScaffoldHbarApp>{children}</ScaffoldHbarApp>
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+        <ScaffoldHbarApp>{children}</ScaffoldHbarApp>
+      </HederaWalletConnectProvider>
+    </QueryClientProvider>
   );
 };

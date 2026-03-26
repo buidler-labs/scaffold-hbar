@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAccount } from "wagmi";
+import { useHederaSigner } from "~~/hooks/useHederaSigner";
 import { useSubmitProof } from "~~/hooks/useSubmitProof";
 
 type SubmitProofFormProps = {
@@ -13,7 +13,7 @@ const MAX_CHARS = 500;
 
 export function SubmitProofForm({ topicId, onSuccess }: SubmitProofFormProps) {
   const [text, setText] = useState("");
-  const { address, status } = useAccount();
+  const { accountId, isConnected } = useHederaSigner();
   const submit = useSubmitProof();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +23,7 @@ export function SubmitProofForm({ topicId, onSuccess }: SubmitProofFormProps) {
       const result = await submit.mutateAsync({
         topicId,
         text: text.trim(),
-        author: address ?? undefined,
+        author: accountId ?? undefined,
       });
       setText("");
       onSuccess?.(result as { sequenceNumber?: string });
@@ -32,7 +32,6 @@ export function SubmitProofForm({ topicId, onSuccess }: SubmitProofFormProps) {
     }
   };
 
-  const isConnected = status === "connected" && address;
   const isPending = submit.isPending;
 
   return (
@@ -68,6 +67,9 @@ export function SubmitProofForm({ topicId, onSuccess }: SubmitProofFormProps) {
                 <p className="text-sm text-error mr-auto m-0">
                   {submit.error instanceof Error ? submit.error.message : "Submit failed"}
                 </p>
+              )}
+              {isPending && !submit.isError && (
+                <p className="text-xs text-base-content/60 mr-auto m-0">Waiting for wallet approval...</p>
               )}
               <button type="submit" className="btn btn-primary" disabled={!text.trim() || isPending}>
                 {isPending ? (

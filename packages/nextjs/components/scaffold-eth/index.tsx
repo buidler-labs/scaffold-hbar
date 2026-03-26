@@ -1,3 +1,3 @@
 export * from "./BlockieAvatar";
 export * from "./Faucet";
-export * from "./RainbowKitCustomConnectButton";
+export { AppKitConnectButton } from "./RainbowKitCustomConnectButton";

@@ -1,78 +1,93 @@
 "use client";
 
-// @refresh reset
-import { AddressInfoDropdown } from "./AddressInfoDropdown";
-import { RevealBurnerPKModal } from "./RevealBurnerPKModal";
-import { SetBurnerPKModal } from "./SetBurnerPKModal";
-import { WrongNetworkDropdown } from "./WrongNetworkDropdown";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Balance } from "@scaffold-ui/components";
-import { Address } from "viem";
-import { useNetworkColor } from "~~/hooks/scaffold-eth";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
-import { getBlockExplorerAddressLink, getTargetNetworks } from "~~/utils/scaffold-eth";
+import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
+import { useAppKit, useDisconnect } from "@reown/appkit/react";
+import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
 
 /**
- * Custom Wagmi Connect Button (watch balance + custom design)
+ * Reown AppKit connect button.
  */
-export const RainbowKitCustomConnectButton = () => {
-  const networkColor = useNetworkColor();
-  const { targetNetwork } = useTargetNetwork();
+export const AppKitConnectButton = () => {
+  const { open } = useAppKit();
+  const { disconnect } = useDisconnect();
+  const { provider, accountId, isConnected } = useHederaWalletConnect();
+
+  const clearWalletSessionStorage = () => {
+    if (typeof window === "undefined") return;
+    const keysToRemove = Object.keys(window.localStorage).filter(key => {
+      const lower = key.toLowerCase();
+      return (
+        lower.includes("walletconnect") || lower.includes("w3m") || lower.includes("appkit") || lower.includes("wc@2")
+      );
+    });
+    keysToRemove.forEach(key => window.localStorage.removeItem(key));
+  };
+
+  const handleDisconnect = async () => {
+    let disconnected = false;
+
+    try {
+      // Disconnect the specific Hedera namespace session first.
+      await disconnect({ namespace: hederaNamespace });
+      disconnected = true;
+    } catch (error) {
+      console.warn("Namespace disconnect failed, trying global disconnect", error);
+    }
+
+    try {
+      // Also disconnect any globally tracked AppKit session.
+      await disconnect();
+      disconnected = true;
+    } catch (error) {
+      console.warn("Global AppKit disconnect failed, trying provider disconnect", error);
+    }
+
+    try {
+      // Force-close WalletConnect sessions on the Hedera provider.
+      await provider?.disconnect();
+      disconnected = true;
+    } catch (error) {
+      console.warn("Provider disconnect failed", error);
+    }
+
+    // Ensure AppKit dropdown/modal doesn't show stale connected data.
+    clearWalletSessionStorage();
+    window.dispatchEvent(new Event("hedera-wallet-disconnected"));
+
+    if (!disconnected) {
+      window.location.reload();
+    }
+  };
+
+  if (!isConnected) {
+    return (
+      <button
+        className="btn btn-primary btn-sm"
+        onClick={() => void open({ view: "Connect", namespace: hederaNamespace })}
+        type="button"
+      >
+        Connect
+      </button>
+    );
+  }
+
+  const short = accountId ? `${accountId.slice(0, 6)}...${accountId.slice(-4)}` : "Connected";
 
   return (
-    <ConnectButton.Custom>
-      {({ account, chain, openConnectModal, mounted }) => {
-        const connected = mounted && account;
-        const networks = getTargetNetworks();
-        const connectedChain = (chain && networks.find(n => n.id === chain.id)) ?? targetNetwork;
-        const blockExplorerAddressLink =
-          account && connectedChain ? getBlockExplorerAddressLink(connectedChain, account.address) : undefined;
-
-        return (
-          <>
-            {(() => {
-              if (!connected) {
-                return (
-                  <button className="btn btn-primary btn-sm" onClick={openConnectModal} type="button">
-                    Connect Wallet
-                  </button>
-                );
-              }
-
-              const isWrongNetwork = !chain || chain.unsupported || chain.id !== targetNetwork.id;
-
-              return (
-                <>
-                  {isWrongNetwork && <WrongNetworkDropdown />}
-                  <div className="flex flex-col items-center mr-2">
-                    <Balance
-                      address={account.address as Address}
-                      chain={connectedChain}
-                      style={{
-                        minHeight: "0",
-                        height: "auto",
-                        fontSize: "0.8em",
-                      }}
-                    />
-                    <span className="text-xs" style={{ color: networkColor }}>
-                      {connectedChain.name}
-                    </span>
-                  </div>
-                  <AddressInfoDropdown
-                    address={account.address as Address}
-                    displayName={account.displayName}
-                    ensAvatar={account.ensAvatar}
-                    blockExplorerAddressLink={blockExplorerAddressLink}
-                    targetNetwork={connectedChain}
-                  />
-                  <RevealBurnerPKModal />
-                  <SetBurnerPKModal />
-                </>
-              );
-            })()}
-          </>
-        );
-      }}
-    </ConnectButton.Custom>
+    <div className="flex items-center gap-2">
+      <button
+        className="btn btn-ghost btn-sm"
+        onClick={() => void open({ view: "Account", namespace: hederaNamespace })}
+        type="button"
+      >
+        {short}
+      </button>
+      <button className="btn btn-outline btn-sm" onClick={() => void handleDisconnect()} type="button">
+        Disconnect
+      </button>
+    </div>
   );
 };
+
+// Backward-compatible alias while migrating imports.
+export const RainbowKitCustomConnectButton = AppKitConnectButton;

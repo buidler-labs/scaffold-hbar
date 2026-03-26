@@ -13,6 +13,18 @@ import { getMirrorBaseUrl } from "~~/services/mirrorNode";
 
 const BADGE_MILESTONES = [1, 5, 10, 25, 50, 100];
 
+function extractIdentity(raw: string): string {
+  const trimmed = raw.trim();
+  if (trimmed.startsWith("hedera:") || trimmed.startsWith("eip155:")) {
+    return trimmed.split(":").pop() ?? trimmed;
+  }
+  return trimmed;
+}
+
+function normalizeIdentity(raw: string): string {
+  return extractIdentity(raw).toLowerCase();
+}
+
 export type BadgeResult = {
   awarded: boolean;
   milestone?: number;
@@ -27,7 +39,7 @@ export type BadgeResult = {
  */
 async function countAuthorProofs(topicId: string, authorAddress: string, network: string): Promise<number> {
   const base = getMirrorBaseUrl(network);
-  const lower = authorAddress.toLowerCase();
+  const target = normalizeIdentity(authorAddress);
   let count = 0;
   let nextUrl: string | null = `${base}/api/v1/topics/${topicId}/messages?limit=100&order=asc`;
 
@@ -44,7 +56,7 @@ async function countAuthorProofs(topicId: string, authorAddress: string, network
         if (!msg.message) continue;
         const decoded = Buffer.from(msg.message, "base64").toString("utf-8");
         const payload = JSON.parse(decoded) as { author?: string };
-        if (payload.author?.toLowerCase() === lower) count++;
+        if (payload.author && normalizeIdentity(payload.author) === target) count++;
       } catch {
         // skip malformed messages
       }
@@ -115,14 +127,15 @@ export async function tryAwardBadge(
   }
 
   try {
-    const proofCount = await countAuthorProofs(topicId, authorAddress, network);
+    const normalizedAuthor = extractIdentity(authorAddress);
+    const proofCount = await countAuthorProofs(topicId, normalizedAuthor, network);
 
     if (!BADGE_MILESTONES.includes(proofCount)) {
       return { awarded: false, proofCount };
     }
 
-    const isEvm = authorAddress.startsWith("0x");
-    const recipientAccountId = isEvm ? await resolveEvmToAccountId(authorAddress, network) : authorAddress;
+    const isEvm = normalizedAuthor.startsWith("0x");
+    const recipientAccountId = isEvm ? await resolveEvmToAccountId(normalizedAuthor, network) : normalizedAuthor;
 
     if (!recipientAccountId) {
       return { awarded: false, proofCount, error: "Could not resolve author to Hedera account ID" };

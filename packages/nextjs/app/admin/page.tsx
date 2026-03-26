@@ -1,8 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { proofWallConfig } from "~~/config/proofWallConfig";
+import { useCreateToken } from "~~/hooks/useCreateToken";
+import { useCreateTopic } from "~~/hooks/useCreateTopic";
+import { useHederaSigner } from "~~/hooks/useHederaSigner";
 
 async function copyToClipboard(text: string): Promise<boolean> {
   try {
@@ -14,88 +17,45 @@ async function copyToClipboard(text: string): Promise<boolean> {
 }
 
 export default function AdminPage() {
-  const [operatorConfigured, setOperatorConfigured] = useState<boolean | null>(null);
+  const { accountId, isConnected } = useHederaSigner();
+  const createTopic = useCreateTopic();
+  const createToken = useCreateToken();
 
   const [topicMemo, setTopicMemo] = useState("Proof Wall");
-  const [topicLoading, setTopicLoading] = useState(false);
-  const [topicError, setTopicError] = useState<string | null>(null);
   const [topicSuccess, setTopicSuccess] = useState<string | null>(null);
   const [topicCopied, setTopicCopied] = useState(false);
 
   const [tokenName, setTokenName] = useState("ProofBadge");
   const [tokenSymbol, setTokenSymbol] = useState("PROOF");
   const [initialSupply, setInitialSupply] = useState("0");
-  const [tokenLoading, setTokenLoading] = useState(false);
-  const [tokenError, setTokenError] = useState<string | null>(null);
   const [tokenSuccess, setTokenSuccess] = useState<string | null>(null);
   const [tokenCopied, setTokenCopied] = useState(false);
 
-  useEffect(() => {
-    void fetch("/api/hedera/operator-status")
-      .then(r => r.json())
-      .then((d: { operatorConfigured?: boolean }) => setOperatorConfigured(Boolean(d.operatorConfigured)))
-      .catch(() => setOperatorConfigured(false));
-  }, []);
-
-  const handleCreateTopic = useCallback(async () => {
-    setTopicLoading(true);
-    setTopicError(null);
+  const handleCreateTopic = async () => {
     setTopicSuccess(null);
     setTopicCopied(false);
     try {
-      const res = await fetch("/api/hedera/create-topic", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ memo: topicMemo.trim() || "Proof Wall" }),
-      });
-      const data = (await res.json()) as { topicId?: string; error?: string };
-      if (!res.ok) {
-        setTopicError(data.error ?? `Request failed (${res.status})`);
-        return;
-      }
-      if (!data.topicId) {
-        setTopicError("No topic ID returned");
-        return;
-      }
-      setTopicSuccess(data.topicId);
-    } catch (e) {
-      setTopicError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setTopicLoading(false);
+      const data = await createTopic.mutateAsync({ memo: topicMemo.trim() || "Proof Wall" });
+      setTopicSuccess(data.transactionId);
+    } catch {
+      // Error state is handled by createTopic.isError.
     }
-  }, [topicMemo]);
+  };
 
-  const handleCreateToken = useCallback(async () => {
-    setTokenLoading(true);
-    setTokenError(null);
+  const handleCreateToken = async () => {
     setTokenSuccess(null);
     setTokenCopied(false);
     try {
-      const res = await fetch("/api/hedera/create-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: tokenName.trim(),
-          symbol: tokenSymbol.trim().toUpperCase(),
-          initialSupply: initialSupply.trim() || "0",
-        }),
+      const data = await createToken.mutateAsync({
+        name: tokenName.trim(),
+        symbol: tokenSymbol.trim().toUpperCase(),
+        initialSupply: initialSupply.trim() || "0",
       });
-      const data = (await res.json()) as { tokenId?: string; error?: string };
-      if (!res.ok) {
-        setTokenError(data.error ?? `Request failed (${res.status})`);
-        return;
-      }
-      if (!data.tokenId) {
-        setTokenError("No token ID returned");
-        return;
-      }
-      setTokenSuccess(data.tokenId);
-    } catch (e) {
-      setTokenError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setTokenLoading(false);
+      setTokenSuccess(data.transactionId);
+    } catch {
+      // Error state is handled by createToken.isError.
     }
-  }, [tokenName, tokenSymbol, initialSupply]);
+  };
 
   const envBlock = `NEXT_PUBLIC_PROOF_WALL_TOPIC_ID=0.0.xxxxx
 NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID=0.0.xxxxx
@@ -110,25 +70,19 @@ HEDERA_NETWORK=testnet`;
           <h1 className="text-3xl font-bold tracking-tight">Admin</h1>
           <p className="text-base-content/70 mt-2">
             Create an HCS topic for the Proof Wall and an HTS fungible token for Proof Badges. Transactions are signed
-            with the server-side operator key.
+            by your connected wallet.
           </p>
         </header>
 
-        {operatorConfigured === false && (
+        {!isConnected && (
           <div className="alert alert-warning mb-8 shadow-sm">
-            <span>
-              Operator key is not configured. Add{" "}
-              <code className="text-xs bg-base-200 px-1 rounded">HEDERA_OPERATOR_ID</code> and{" "}
-              <code className="text-xs bg-base-200 px-1 rounded">HEDERA_OPERATOR_PRIVATE_KEY</code> to{" "}
-              <code className="text-xs bg-base-200 px-1 rounded">packages/nextjs/.env.local</code>, then restart the dev
-              server.
-            </span>
+            <span>Connect a Hedera wallet to create topics and tokens.</span>
           </div>
         )}
 
-        {operatorConfigured === true && (
+        {isConnected && (
           <div className="alert alert-success mb-8 shadow-sm">
-            <span>Operator key is configured — you can create topics and tokens.</span>
+            <span>Wallet connected as {accountId}.</span>
           </div>
         )}
 
@@ -156,21 +110,21 @@ HEDERA_NETWORK=testnet`;
                   placeholder="Proof Wall"
                   value={topicMemo}
                   onChange={e => setTopicMemo(e.target.value)}
-                  disabled={topicLoading}
+                  disabled={createTopic.isPending || !isConnected}
                 />
               </div>
               <button
                 type="button"
                 className="btn btn-primary w-full sm:w-auto"
                 onClick={handleCreateTopic}
-                disabled={topicLoading}
+                disabled={createTopic.isPending || !isConnected}
               >
-                {topicLoading ? <span className="loading loading-spinner loading-sm" /> : null}
-                {topicLoading ? "Creating…" : "Create topic"}
+                {createTopic.isPending ? <span className="loading loading-spinner loading-sm" /> : null}
+                {createTopic.isPending ? "Waiting for wallet approval…" : "Create topic"}
               </button>
-              {topicError && (
+              {createTopic.isError && (
                 <div className="rounded-lg bg-error/10 border border-error/20 px-3 py-2 text-sm text-error">
-                  {topicError}
+                  {createTopic.error instanceof Error ? createTopic.error.message : "Create topic failed"}
                 </div>
               )}
               {topicSuccess && (
@@ -218,8 +172,7 @@ HEDERA_NETWORK=testnet`;
               Create HTS badge token
             </h2>
             <p className="text-sm text-base-content/60 mb-5">
-              Fungible token with 0 decimals, infinite supply. Treasury is your operator account — mint or airdrop from
-              there later.
+              Fungible token with 0 decimals, infinite supply. Treasury is your connected wallet account.
             </p>
             <div className="flex flex-col gap-4">
               <div className="form-control w-full">
@@ -233,7 +186,7 @@ HEDERA_NETWORK=testnet`;
                   placeholder="ProofBadge"
                   value={tokenName}
                   onChange={e => setTokenName(e.target.value)}
-                  disabled={tokenLoading}
+                  disabled={createToken.isPending || !isConnected}
                   maxLength={100}
                 />
               </div>
@@ -248,7 +201,7 @@ HEDERA_NETWORK=testnet`;
                   placeholder="PROOF"
                   value={tokenSymbol}
                   onChange={e => setTokenSymbol(e.target.value.replace(/[^a-zA-Z]/g, ""))}
-                  disabled={tokenLoading}
+                  disabled={createToken.isPending || !isConnected}
                   maxLength={10}
                 />
               </div>
@@ -265,21 +218,21 @@ HEDERA_NETWORK=testnet`;
                   placeholder="0"
                   value={initialSupply}
                   onChange={e => setInitialSupply(e.target.value.replace(/\D/g, "") || "0")}
-                  disabled={tokenLoading}
+                  disabled={createToken.isPending || !isConnected}
                 />
               </div>
               <button
                 type="button"
                 className="btn btn-primary w-full sm:w-auto"
                 onClick={handleCreateToken}
-                disabled={tokenLoading || !tokenName.trim() || !tokenSymbol.trim()}
+                disabled={createToken.isPending || !isConnected || !tokenName.trim() || !tokenSymbol.trim()}
               >
-                {tokenLoading ? <span className="loading loading-spinner loading-sm" /> : null}
-                {tokenLoading ? "Creating…" : "Create badge token"}
+                {createToken.isPending ? <span className="loading loading-spinner loading-sm" /> : null}
+                {createToken.isPending ? "Waiting for wallet approval…" : "Create badge token"}
               </button>
-              {tokenError && (
+              {createToken.isError && (
                 <div className="rounded-lg bg-error/10 border border-error/20 px-3 py-2 text-sm text-error">
-                  {tokenError}
+                  {createToken.error instanceof Error ? createToken.error.message : "Create token failed"}
                 </div>
               )}
               {tokenSuccess && (

@@ -4,6 +4,7 @@ import React from "react";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { proofWallConfig } from "~~/config/proofWallConfig";
 import type { TopicMessage } from "~~/hooks/useTopicMessages";
+import { isEvmAddress, truncateIdentity } from "~~/utils/scaffold-eth/identity";
 
 type ProofCardProps = {
   message: TopicMessage;
@@ -18,12 +19,6 @@ function formatConsensusTimestamp(ts: string): string {
     dateStyle: "medium",
     timeStyle: "short",
   });
-}
-
-function truncateAddress(addr: string, start = 6, end = 4): string {
-  if (!addr || addr.length <= start + end) return addr;
-  if (addr.startsWith("0x")) return `${addr.slice(0, start + 2)}…${addr.slice(-end)}`;
-  return `${addr.slice(0, start)}…${addr.slice(-end)}`;
 }
 
 export function ProofCard({ message }: ProofCardProps) {
@@ -41,17 +36,19 @@ export function ProofCard({ message }: ProofCardProps) {
 
   const hashScanUrl = proofWallConfig.hashScanBaseUrl;
   const txLink = timestamp ? `${hashScanUrl}/transaction/${timestamp}` : null;
-  const isEvmAddress = payload.author?.startsWith("0x") && payload.author.length === 42;
+  const author = payload.author ?? null;
+  const hasAuthor = Boolean(author);
+  const evmAuthor = isEvmAddress(author);
 
   return (
     <article className="bg-base-100 rounded-xl border border-base-300 p-5 shadow-sm hover:shadow-md transition-shadow">
       <p className="text-base-content whitespace-pre-wrap break-words leading-relaxed">{payload.text ?? "—"}</p>
       <footer className="mt-4 flex flex-wrap items-center gap-3 text-sm text-base-content/70">
-        {payload.author && (
+        {hasAuthor && author && (
           <span className="flex items-center gap-2 min-w-0">
-            {isEvmAddress && <BlockieAvatar address={payload.author} size={24} />}
-            <span className="font-mono truncate max-w-[220px]" title={payload.author}>
-              {isEvmAddress ? truncateAddress(payload.author) : truncateAddress(payload.author, 8, 6)}
+            <BlockieAvatar address={author} size={24} />
+            <span className="font-mono truncate max-w-[220px]" title={author}>
+              {truncateIdentity(author, evmAuthor ? 6 : 8, evmAuthor ? 4 : 6)}
             </span>
           </span>
         )}

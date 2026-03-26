@@ -1,5 +1,3 @@
-import "@rainbow-me/rainbowkit/styles.css";
-import "@scaffold-ui/components/styles.css";
 import { ScaffoldHbarAppWithProviders } from "~~/components/ScaffoldHbarAppWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
@@ -13,7 +11,7 @@ export const metadata = getMetadata({
 const ScaffoldHbarApp = ({ children }: { children: React.ReactNode }) => {
   return (
     <html suppressHydrationWarning>
-      <body>
+      <body className="min-h-screen">
         <ThemeProvider enableSystem>
           <ScaffoldHbarAppWithProviders>{children}</ScaffoldHbarAppWithProviders>
         </ThemeProvider>
