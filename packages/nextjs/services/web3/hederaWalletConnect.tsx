@@ -4,13 +4,17 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { getHederaProvider, initAppKit } from "./appKitHedera";
 import type { HederaProvider } from "@hashgraph/hedera-wallet-connect";
 import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
-import { useAppKitAccount } from "@reown/appkit/react";
+import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";
 
 type HederaWalletConnectContextValue = {
   provider: HederaProvider | null;
   accountId: string | null;
   isConnected: boolean;
   isInitializing: boolean;
+  isBusy: boolean;
+  prepareConnect: () => void;
+  connectWallet: () => Promise<void>;
+  disconnectWallet: () => Promise<void>;
 };
 
 const HederaWalletConnectContext = createContext<HederaWalletConnectContextValue | undefined>(undefined);
@@ -26,9 +30,12 @@ function ensureInit(): Promise<HederaProvider> {
 }
 
 export const HederaWalletConnectProvider = ({ children }: { children: React.ReactNode }) => {
+  const { disconnect } = useDisconnect();
   const [provider, setProvider] = useState<HederaProvider | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isBusy, setIsBusy] = useState(false);
   const [forceDisconnected, setForceDisconnected] = useState(false);
+  const { address, isConnected } = useAppKitAccount({ namespace: hederaNamespace });
 
   useEffect(() => {
     let mounted = true;
@@ -45,15 +52,51 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
     };
   }, []);
 
-  const { address, isConnected } = useAppKitAccount({ namespace: hederaNamespace });
+  const connectWallet = async () => {
+    // Connect is triggered from custom UI via AppKit modal open().
+    return Promise.resolve();
+  };
 
-  useEffect(() => {
-    const onManualDisconnect = () => {
+  const prepareConnect = () => {
+    setForceDisconnected(false);
+  };
+
+  const disconnectWallet = async () => {
+    if (isBusy) return;
+    setIsBusy(true);
+    try {
+      try {
+        await disconnect({ namespace: hederaNamespace });
+      } catch {
+        // Continue to global disconnect fallback.
+      }
+      try {
+        await disconnect();
+      } catch {
+        // Continue to provider-level fallback.
+      }
+      const p = provider as unknown as {
+        disconnect?: (params?: unknown) => Promise<unknown>;
+      };
+      if (typeof p.disconnect === "function") {
+        try {
+          await p.disconnect({ namespace: hederaNamespace });
+        } catch {
+          try {
+            await p.disconnect();
+          } catch (error) {
+            // Some providers throw here when no session was ever fully enabled.
+            console.warn("Provider disconnect fallback failed", error);
+          }
+        }
+      }
       setForceDisconnected(true);
-    };
-    window.addEventListener("hedera-wallet-disconnected", onManualDisconnect);
-    return () => window.removeEventListener("hedera-wallet-disconnected", onManualDisconnect);
-  }, []);
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const accountId = !forceDisconnected && isConnected && address ? address : null;
 
   useEffect(() => {
     if (isConnected && address) {
@@ -61,16 +104,18 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
     }
   }, [isConnected, address]);
 
-  const effectiveIsConnected = !forceDisconnected && isConnected && Boolean(address);
-
   const value = useMemo<HederaWalletConnectContextValue>(
     () => ({
       provider,
-      accountId: effectiveIsConnected ? (address ?? null) : null,
-      isConnected: effectiveIsConnected,
+      accountId,
+      isConnected: Boolean(accountId),
       isInitializing,
+      isBusy,
+      prepareConnect,
+      connectWallet,
+      disconnectWallet,
     }),
-    [provider, address, effectiveIsConnected, isInitializing],
+    [provider, accountId, isInitializing, isBusy],
   );
 
   // Don't render children until AppKit + HederaProvider are ready.

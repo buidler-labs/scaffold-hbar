@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bars3Icon, ChatBubbleLeftIcon, Cog6ToothIcon, UserCircleIcon } from "@heroicons/react/24/outline";
-import { AppKitConnectButton } from "~~/components/scaffold-eth";
+import { WalletConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 
 type HeaderMenuLink = {
@@ -101,7 +101,7 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end grow mr-4">
-        <AppKitConnectButton />
+        <WalletConnectButton />
       </div>
     </div>
   );
