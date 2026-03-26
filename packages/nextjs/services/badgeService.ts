@@ -86,9 +86,34 @@ async function resolveEvmToAccountId(evmAddress: string, network: string): Promi
 }
 
 /**
- * Execute the actual token airdrop (1 badge) from operator treasury to recipient.
+ * Read current badge token balance for recipient from Mirror Node.
  */
-async function executeAirdrop(tokenId: string, recipientAccountId: string): Promise<{ transactionId: string }> {
+async function getBadgeBalance(tokenId: string, accountId: string, network: string): Promise<number> {
+  const base = getMirrorBaseUrl(network);
+  try {
+    const res = await fetch(
+      `${base}/api/v1/accounts/${encodeURIComponent(accountId)}/tokens?token.id=${encodeURIComponent(tokenId)}`,
+      { cache: "no-store" },
+    );
+    if (!res.ok) return 0;
+    const data = (await res.json()) as {
+      tokens?: { token_id?: string; balance?: number }[];
+    };
+    const token = (data.tokens ?? []).find(t => t.token_id === tokenId);
+    return token?.balance ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Execute token airdrop from operator treasury to recipient.
+ */
+async function executeAirdrop(
+  tokenId: string,
+  recipientAccountId: string,
+  amount: number,
+): Promise<{ transactionId: string }> {
   const client = getHederaClient();
   const parsedTokenId = TokenId.fromString(tokenId);
   const parsedRecipient = AccountId.fromString(recipientAccountId);
@@ -96,13 +121,13 @@ async function executeAirdrop(tokenId: string, recipientAccountId: string): Prom
   let response;
   try {
     response = await new TokenAirdropTransaction()
-      .addTokenTransfer(parsedTokenId, client.operatorAccountId!, -1)
-      .addTokenTransfer(parsedTokenId, parsedRecipient, 1)
+      .addTokenTransfer(parsedTokenId, client.operatorAccountId!, -amount)
+      .addTokenTransfer(parsedTokenId, parsedRecipient, amount)
       .execute(client);
   } catch {
     response = await new TransferTransaction()
-      .addTokenTransfer(parsedTokenId, client.operatorAccountId!, -1)
-      .addTokenTransfer(parsedTokenId, parsedRecipient, 1)
+      .addTokenTransfer(parsedTokenId, client.operatorAccountId!, -amount)
+      .addTokenTransfer(parsedTokenId, parsedRecipient, amount)
       .execute(client);
   }
 
@@ -129,10 +154,7 @@ export async function tryAwardBadge(
   try {
     const normalizedAuthor = extractIdentity(authorAddress);
     const proofCount = await countAuthorProofs(topicId, normalizedAuthor, network);
-
-    if (!BADGE_MILESTONES.includes(proofCount)) {
-      return { awarded: false, proofCount };
-    }
+    const eligibleBadgeCount = BADGE_MILESTONES.filter(m => proofCount >= m).length;
 
     const isEvm = normalizedAuthor.startsWith("0x");
     const recipientAccountId = isEvm ? await resolveEvmToAccountId(normalizedAuthor, network) : normalizedAuthor;
@@ -141,15 +163,23 @@ export async function tryAwardBadge(
       return { awarded: false, proofCount, error: "Could not resolve author to Hedera account ID" };
     }
 
-    const { transactionId } = await executeAirdrop(badgeTokenId, recipientAccountId);
+    const currentBalance = await getBadgeBalance(badgeTokenId, recipientAccountId, network);
+    const missingBadges = Math.max(0, eligibleBadgeCount - currentBalance);
+
+    if (missingBadges <= 0) {
+      return { awarded: false, proofCount };
+    }
+
+    const { transactionId } = await executeAirdrop(badgeTokenId, recipientAccountId, missingBadges);
+    const milestone = [...BADGE_MILESTONES].reverse().find(m => proofCount >= m);
 
     console.log(
-      `[badge] Awarded badge to ${recipientAccountId} (milestone: ${proofCount} proofs, tx: ${transactionId})`,
+      `[badge] Awarded ${missingBadges} badge(s) to ${recipientAccountId} (proofs: ${proofCount}, tx: ${transactionId})`,
     );
 
     return {
       awarded: true,
-      milestone: proofCount,
+      milestone,
       proofCount,
       transactionId,
     };
