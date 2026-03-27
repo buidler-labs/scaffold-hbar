@@ -12,35 +12,43 @@ A Hedera-ready monorepo for building dApps with Next.js, Hardhat or Foundry, and
 ## Quick start
 
 1. **Create a new project** (recommended):
-
-   ```bash
+  ```bash
    npx create-hbar@latest
-   ```
-
-   Follow the prompts to pick a template (blank, hts-fungible, hts-nft, hcs-dao, defi-swap), frontend, Solidity framework (Hardhat or Foundry), and network.
-
+  ```
+   Follow the prompts to pick a template (`blank`, `payments-scheduler`, or `hedera-demo`), frontend, Solidity framework (Hardhat or Foundry), and network.
 2. **Or use this repo as the template** (e.g. after cloning or downloading):
-
-   ```bash
+  ```bash
    yarn install
    yarn chain    # terminal 1: start local node (Hardhat fork or Anvil)
    yarn deploy   # terminal 2: deploy contracts
    yarn start    # terminal 3: start Next.js app
-   ```
-
+  ```
    Open [http://localhost:3000](http://localhost:3000) and use the **Debug Contracts** page to interact with your contracts.
 
 ## Available templates (create-hbar)
 
-When using the CLI, you can choose:
+The `create-hbar` CLI resolves templates from this repository's template branches.
+Current built-in templates are:
 
-| Template       | Description                          |
-|----------------|--------------------------------------|
-| **blank**      | Minimal setup                        |
-| **hts-fungible** | Fungible token (HTS): deploy & manage |
-| **hts-nft**    | NFT collection via HTS               |
-| **hcs-dao**    | DAO governance (Hedera Consensus Service) |
-| **defi-swap**  | DeFi-style token exchange            |
+
+| Template               | Branch                         | What you get                                                                                                                                    |
+| ---------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **blank**              | `templates/blank-template`     | Minimal baseline scaffold with no opinionated app features; ideal starting point for custom products.                                           |
+| **payments-scheduler** | `templates/payments-scheduler` | Starter for scheduled-payment style flows, with app and contract structure tailored for recurring/payment orchestration patterns using HSS.     |
+| **hedera-demo**        | `templates/hedera-demo`        | Hedera demo/proofwall-style starter focused on showcasing Hedera integrations with Hedera Services[HTS, HCS, MirroNode] and end-to-end demo UX. |
+
+
+### Template selection examples
+
+```bash
+# Interactive
+npx create-hbar@latest
+
+# Explicit built-in template key
+npx create-hbar@latest --template blank
+npx create-hbar@latest --template payments-scheduler
+npx create-hbar@latest --template hedera-demo
+```
 
 ## Deploy and verify on Hedera
 
@@ -49,13 +57,14 @@ To deploy or verify on Hedera testnet, you need a deployer account with testnet 
 ### Hardhat
 
 - **Deploy to Hedera testnet:**  
-  From repo root (you will be prompted to decrypt your deployer key):
+From repo root (you will be prompted to decrypt your deployer key):
   ```bash
   yarn deploy --network hederaTestnet
   ```
   Or use `yarn deploy --network hedera_testnet` (same network, alternate name).
-- **Verify on Hashscan:**  
-  After deploy, run (no extra arguments needed; uses last deployment):
+-  **Verify on Hashscan:**
+ After deploy, run (no extra arguments needed; uses last deployment):
+
   ```bash
   yarn verify:testnet   # chain 296
   yarn verify:mainnet   # chain 295
@@ -64,19 +73,74 @@ To deploy or verify on Hedera testnet, you need a deployer account with testnet 
 ### Foundry
 
 - **Deploy to Hedera testnet:**  
-  Use a keystore with testnet HBAR (fund via [Hedera Portal faucet](https://portal.hedera.com/faucet)). From repo root or `packages/foundry`:
+Use a keystore with testnet HBAR (fund via [Hedera Portal faucet](https://portal.hedera.com/faucet)). From repo root or `packages/foundry`:
   ```bash
   yarn deploy --network hedera_testnet
   ```
   Or from `packages/foundry`: `make deploy` with `RPC_URL` and account set via env / Makefile.
 - **Verify on Hashscan:**  
-  After deploy, run (no extra arguments needed):
+After deploy, run (no extra arguments needed):
   ```bash
   yarn verify:testnet   # 296
   yarn verify:mainnet   # 295
   ```
 
 Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) or [Hashscan (mainnet)](https://hashscan.io/mainnet).
+
+## Local testing with Hedera forking
+
+You can test contracts and the app locally against a Hedera-forked execution environment before deploying to public networks.
+
+### Hardhat fork workflow
+
+1. Start a local chain (Hedera forking enabled in scripts):
+
+```bash
+yarn chain
+```
+
+2. Deploy contracts to the local fork:
+
+```bash
+yarn deploy
+```
+
+3. Run Hardhat tests on the forked environment:
+
+```bash
+yarn hardhat:test
+```
+
+4. Run the app against local contracts:
+
+```bash
+yarn start
+```
+
+Use `yarn fork` when you specifically want the mainnet-fork script variant.
+
+### Foundry fork workflow
+
+1. Start the local chain first:
+
+```bash
+yarn chain
+```
+
+2. Run Foundry tests against the local fork RPC:
+
+```bash
+yarn foundry:test:local
+```
+
+3. Optionally run direct Foundry tests against Hedera RPC endpoints:
+
+```bash
+yarn foundry:test:testnet
+yarn foundry:test:mainnet
+```
+
+These flows let you validate contract behavior and frontend integration in a deterministic local setup while keeping Hedera network parity.
 
 ## Project layout
 
@@ -92,3 +156,4 @@ Network and RPC URLs are in `packages/hardhat/hardhat.config.ts` or `packages/fo
 - [Hashscan](https://hashscan.io/) — block explorer
 - [Hedera Token Service (HTS)](https://docs.hedera.com/hedera/core-concepts/hedera-token-service-hts)
 - [create-hbar](https://github.com/hashgraph/create-hbar) — CLI to scaffold Hedera dApps
+
