@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bars3Icon, ChatBubbleLeftIcon, Cog6ToothIcon, UserCircleIcon } from "@heroicons/react/24/outline";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { WalletConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 
 type HeaderMenuLink = {
@@ -92,7 +92,7 @@ export const Header = () => {
           <div className="flex flex-col">
             <span className="font-bold leading-tight text-base">Proof Wall</span>
             <span className="hidden md:block text-[10px] tracking-wider uppercase text-base-content/50 font-medium">
-              Hedera Native Demo
+              Wallet-Signed Hedera Demo
             </span>
           </div>
         </Link>
@@ -101,7 +101,7 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end grow mr-4">
-        <RainbowKitCustomConnectButton />
+        <WalletConnectButton />
       </div>
     </div>
   );

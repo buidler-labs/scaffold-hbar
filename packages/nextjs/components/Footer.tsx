@@ -1,17 +1,12 @@
 import React from "react";
-import { hedera } from "viem/chains";
 import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
 import { SwitchTheme } from "~~/components/SwitchTheme";
-import { Faucet } from "~~/components/scaffold-eth";
 import { useFetchHbarPrice } from "~~/hooks/scaffold-eth";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
 /**
  * Site footer
  */
 export const Footer = () => {
-  const { targetNetwork } = useTargetNetwork();
-  const isTestnet = targetNetwork.id !== hedera.id;
   const { price: nativeCurrencyPrice } = useFetchHbarPrice();
 
   return (
@@ -27,7 +22,6 @@ export const Footer = () => {
                 </div>
               </div>
             )}
-            {isTestnet && <Faucet />}
           </div>
           <SwitchTheme className="pointer-events-auto" />
         </div>
