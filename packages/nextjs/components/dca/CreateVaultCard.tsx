@@ -1,15 +1,22 @@
 "use client";
 
 import { ShieldCheckIcon } from "@heroicons/react/24/outline";
+import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 export const CreateVaultCard = () => {
+  const { data: strategyInfo } = useDeployedContractInfo("MemejobDCAStrategy");
+
   const { writeContractAsync, isPending } = useScaffoldWriteContract({
-    contractName: "MemejobDCAFactory",
+    contractName: "ScheduledVaultFactory",
   });
 
   const handleCreateVault = async () => {
-    await writeContractAsync({ functionName: "createVault" });
+    if (!strategyInfo?.address) return;
+    await writeContractAsync({
+      functionName: "createVault",
+      args: [strategyInfo.address],
+    });
   };
 
   return (
@@ -44,7 +51,11 @@ export const CreateVaultCard = () => {
           </div>
         </div>
 
-        <button className="btn btn-primary btn-lg mt-4" onClick={handleCreateVault} disabled={isPending}>
+        <button
+          className="btn btn-primary btn-lg mt-4"
+          onClick={handleCreateVault}
+          disabled={isPending || !strategyInfo?.address}
+        >
           {isPending ? (
             <>
               <span className="loading loading-spinner loading-sm" />

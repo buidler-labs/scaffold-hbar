@@ -1,31 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { INTERVAL_PRESETS, MEME_TOKEN_DECIMALS, VAULT_ABI } from "./constants";
-import { Address, parseUnits } from "viem";
-import { useWriteContract } from "wagmi";
+import { DCA_CONFIG_PARAMS, INTERVAL_PRESETS, MEMEJOB_ADDRESSES, MEME_TOKEN_DECIMALS, VAULT_ABI } from "./constants";
+import { DCAConfig } from "./hooks/useVaultData";
+import { Address, encodeAbiParameters, maxUint256, parseEther, parseUnits } from "viem";
+import { useChainId, useWriteContract } from "wagmi";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
 import { useTransactor } from "~~/hooks/scaffold-eth";
 
 type DCAConfigFormProps = {
   vaultAddress: Address;
-  currentConfig?: {
-    memeToken: Address;
-    mode: number;
-    amountPerRun: bigint;
-    intervalSeconds: bigint;
-  };
+  currentConfig?: DCAConfig;
+  currentInterval?: bigint;
   hasConfig: boolean;
 };
 
-export const DCAConfigForm = ({ vaultAddress, currentConfig, hasConfig }: DCAConfigFormProps) => {
+export const DCAConfigForm = ({ vaultAddress, currentConfig, currentInterval, hasConfig }: DCAConfigFormProps) => {
+  const chainId = useChainId();
+  const defaultMemejob = MEMEJOB_ADDRESSES[chainId] ?? "";
+
+  const [memejobAddress, setMemejobAddress] = useState(hasConfig ? currentConfig!.memejob : defaultMemejob);
   const [memeToken, setMemeToken] = useState(hasConfig ? currentConfig!.memeToken : "");
-  const [mode, setMode] = useState<number>(currentConfig?.mode ?? 0);
+  const [isBuy, setIsBuy] = useState<boolean>(currentConfig?.isBuy ?? true);
   const [amountPerRun, setAmountPerRun] = useState(
     hasConfig ? (Number(currentConfig!.amountPerRun) / 10 ** MEME_TOKEN_DECIMALS).toString() : "",
   );
+  const [maxHbarIn, setMaxHbarIn] = useState(
+    hasConfig && currentConfig!.maxHbarIn !== maxUint256 ? (Number(currentConfig!.maxHbarIn) / 1e18).toString() : "",
+  );
   const [intervalSeconds, setIntervalSeconds] = useState<number>(
-    hasConfig ? Number(currentConfig!.intervalSeconds) : INTERVAL_PRESETS[3].seconds,
+    hasConfig && currentInterval ? Number(currentInterval) : INTERVAL_PRESETS[3].seconds,
   );
   const [customInterval, setCustomInterval] = useState("");
   const [useCustomInterval, setUseCustomInterval] = useState(false);
@@ -35,15 +39,27 @@ export const DCAConfigForm = ({ vaultAddress, currentConfig, hasConfig }: DCACon
 
   const handleConfigure = async () => {
     const tokenAddr = memeToken as Address;
+    const memejob = memejobAddress as Address;
     const amount = parseUnits(amountPerRun, MEME_TOKEN_DECIMALS);
     const interval = useCustomInterval ? BigInt(Number(customInterval) * 60) : BigInt(intervalSeconds);
+    const maxHbar = isBuy && maxHbarIn ? parseEther(maxHbarIn) : maxUint256;
+
+    const configBytes = encodeAbiParameters(DCA_CONFIG_PARAMS, [
+      {
+        memejob,
+        memeToken: tokenAddr,
+        isBuy,
+        amountPerRun: amount,
+        maxHbarIn: maxHbar,
+      },
+    ]);
 
     await writeTx(() =>
       writeContractAsync({
         address: vaultAddress,
         abi: VAULT_ABI,
-        functionName: "configureDCA",
-        args: [tokenAddr, mode, amount, interval],
+        functionName: "configure",
+        args: [configBytes, interval],
       }),
     );
   };
@@ -56,6 +72,19 @@ export const DCAConfigForm = ({ vaultAddress, currentConfig, hasConfig }: DCACon
       </div>
 
       <div className="flex flex-col gap-4">
+        <div className="form-control">
+          <label className="label py-1">
+            <span className="label-text font-medium">MemeJob Contract</span>
+          </label>
+          <input
+            type="text"
+            placeholder="0x..."
+            className="input input-bordered w-full font-mono text-sm"
+            value={memejobAddress}
+            onChange={e => setMemejobAddress(e.target.value)}
+          />
+        </div>
+
         <div className="form-control">
           <label className="label py-1">
             <span className="label-text font-medium">Meme Token Address</span>
@@ -75,15 +104,15 @@ export const DCAConfigForm = ({ vaultAddress, currentConfig, hasConfig }: DCACon
           </label>
           <div className="flex gap-2">
             <button
-              className={`btn btn-sm flex-1 ${mode === 0 ? "btn-success" : "btn-outline"}`}
-              onClick={() => setMode(0)}
+              className={`btn btn-sm flex-1 ${isBuy ? "btn-success" : "btn-outline"}`}
+              onClick={() => setIsBuy(true)}
               type="button"
             >
               BUY (HBAR &rarr; Token)
             </button>
             <button
-              className={`btn btn-sm flex-1 ${mode === 1 ? "btn-warning" : "btn-outline"}`}
-              onClick={() => setMode(1)}
+              className={`btn btn-sm flex-1 ${!isBuy ? "btn-warning" : "btn-outline"}`}
+              onClick={() => setIsBuy(false)}
               type="button"
             >
               SELL (Token &rarr; HBAR)
@@ -105,6 +134,24 @@ export const DCAConfigForm = ({ vaultAddress, currentConfig, hasConfig }: DCACon
             step="any"
           />
         </div>
+
+        {isBuy && (
+          <div className="form-control">
+            <label className="label py-1">
+              <span className="label-text font-medium">Max HBAR / run</span>
+              <span className="label-text-alt text-xs">slippage; empty = no limit</span>
+            </label>
+            <input
+              type="number"
+              placeholder="0"
+              className="input input-bordered w-full"
+              value={maxHbarIn}
+              onChange={e => setMaxHbarIn(e.target.value)}
+              min="0"
+              step="any"
+            />
+          </div>
+        )}
 
         <div className="form-control">
           <label className="label py-1">
@@ -152,7 +199,7 @@ export const DCAConfigForm = ({ vaultAddress, currentConfig, hasConfig }: DCACon
         <button
           className="btn btn-primary w-full mt-2"
           onClick={handleConfigure}
-          disabled={isPending || !memeToken || !amountPerRun}
+          disabled={isPending || !memeToken || !amountPerRun || !memejobAddress}
         >
           {isPending ? (
             <>

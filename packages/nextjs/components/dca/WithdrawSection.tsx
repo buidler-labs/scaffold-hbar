@@ -75,7 +75,7 @@ export const WithdrawSection = ({
   };
 
   return (
-    <div className="bg-base-100 rounded-2xl shadow-md border border-base-300 p-6">
+    <div className="bg-base-100 rounded-2xl shadow-md border border-base-300 p-6 flex-1 flex flex-col">
       <div className="flex items-center gap-2 mb-4">
         <ArrowUpTrayIcon className="h-5 w-5 text-error" />
         <h3 className="font-bold text-lg">Withdraw</h3>

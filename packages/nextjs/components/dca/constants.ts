@@ -1,8 +1,19 @@
 import externalContracts from "~~/contracts/externalContracts";
 
-type VaultAbi = typeof externalContracts extends { 296: { MemejobDCAVault: { abi: infer A } } } ? A : undefined;
+export const VAULT_ABI = externalContracts["296"]["ScheduledVault"]["abi"];
 
-export const VAULT_ABI = ((externalContracts as any)?.["296"]?.["MemejobDCAVault"]?.abi as VaultAbi) ?? undefined;
+export const DCA_CONFIG_PARAMS = [
+  {
+    type: "tuple",
+    components: [
+      { name: "memejob", type: "address" },
+      { name: "memeToken", type: "address" },
+      { name: "isBuy", type: "bool" },
+      { name: "amountPerRun", type: "uint256" },
+      { name: "maxHbarIn", type: "uint256" },
+    ],
+  },
+] as const;
 
 export const ERC20_ABI = [
   {
@@ -47,6 +58,24 @@ export const ERC20_ABI = [
     stateMutability: "view",
   },
 ] as const;
+
+export const MEMEJOB_ABI = [
+  {
+    type: "function",
+    name: "getAmountOut",
+    inputs: [
+      { name: "tokenAddress", type: "address" },
+      { name: "isBuy", type: "bool" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+] as const;
+
+export const MEMEJOB_ADDRESSES: Record<number, `0x${string}`> = {
+  296: "0xA3bf9adeC2Fb49fb65C8948Aed71C6bf1c4D61c8",
+};
 
 export const INTERVAL_PRESETS = [
   { label: "Every hour", seconds: 3600 },

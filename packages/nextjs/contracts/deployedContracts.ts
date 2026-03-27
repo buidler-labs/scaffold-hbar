@@ -6,24 +6,19 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
   296: {
-    MemejobDCAFactory: {
-      address: "0xfb541c64d5130f976eead6637a977acb386ac01a",
+    ScheduledVaultFactory: {
+      address: "0x17a05eb3b6cc2256c547bef0926ce2d52f1d3877",
       abi: [
         {
-          type: "constructor",
+          type: "function",
+          name: "createVault",
           inputs: [
             {
-              name: "_memejob",
+              name: "_strategy",
               type: "address",
               internalType: "address",
             },
           ],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "createVault",
-          inputs: [],
           outputs: [
             {
               name: "vault",
@@ -35,25 +30,17 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "memejob",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "userVault",
+          name: "userVaults",
           inputs: [
             {
               name: "",
               type: "address",
               internalType: "address",
+            },
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
             },
           ],
           outputs: [
@@ -78,7 +65,13 @@ const deployedContracts = {
             {
               name: "vault",
               type: "address",
-              indexed: false,
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "strategy",
+              type: "address",
+              indexed: true,
               internalType: "address",
             },
           ],
@@ -86,17 +79,106 @@ const deployedContracts = {
         },
         {
           type: "error",
-          name: "MemejobDCAFactory__AlreadyHasVault",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "MemejobDCAFactory__InvalidMemejob",
+          name: "ScheduledVaultFactory__InvalidStrategy",
           inputs: [],
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 32974435,
+      deployedOnBlock: 33190500,
+    },
+    MemejobDCAStrategy: {
+      address: "0x5e3fe767b959e73cb8f1b8e63757245da420b8ad",
+      abi: [
+        {
+          type: "function",
+          name: "plan",
+          inputs: [
+            {
+              name: "_config",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "tuple[]",
+              internalType: "struct IExecutionStrategy.Action[]",
+              components: [
+                {
+                  name: "target",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "value",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+                {
+                  name: "data",
+                  type: "bytes",
+                  internalType: "bytes",
+                },
+              ],
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "validateConfig",
+          inputs: [
+            {
+              name: "config",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "pure",
+        },
+        {
+          type: "error",
+          name: "MemejobDCAStrategy__InsufficientVaultBalance",
+          inputs: [
+            {
+              name: "required",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "available",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "MemejobDCAStrategy__SlippageExceeded",
+          inputs: [
+            {
+              name: "quoted",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "maxHbarIn",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 33190602,
     },
   },
 } as const;

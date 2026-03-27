@@ -1,20 +1,19 @@
 "use client";
 
 import { MEME_TOKEN_DECIMALS, formatInterval } from "./constants";
+import { DCAConfig } from "./hooks/useVaultData";
 import { Address, formatEther, formatUnits, zeroAddress } from "viem";
 
 type VaultStatusCardProps = {
   vaultAddress: Address;
   hbarBalance?: { value: bigint; decimals: number; formatted: string; symbol: string };
-  dcaConfig?: {
-    memeToken: Address;
-    mode: number;
-    amountPerRun: bigint;
-    intervalSeconds: bigint;
-  };
+  dcaConfig?: DCAConfig;
+  intervalSeconds?: bigint;
   hasConfig: boolean;
   nextSchedule?: Address;
   owner?: Address;
+  strategy?: Address;
+  consecutiveFailures?: bigint;
   tokenBalance?: bigint;
   tokenSymbol?: string;
   tokenDecimals?: number;
@@ -26,8 +25,11 @@ export const VaultStatusCard = ({
   vaultAddress,
   hbarBalance,
   dcaConfig,
+  intervalSeconds,
   hasConfig,
   nextSchedule,
+  strategy,
+  consecutiveFailures,
   tokenBalance,
   tokenSymbol,
   tokenDecimals,
@@ -36,12 +38,18 @@ export const VaultStatusCard = ({
 }: VaultStatusCardProps) => {
   const hasActiveSchedule = !!nextSchedule && nextSchedule !== zeroAddress;
   const decimals = tokenDecimals ?? MEME_TOKEN_DECIMALS;
+  const failures = consecutiveFailures ? Number(consecutiveFailures) : 0;
 
   return (
     <div className="bg-base-100 rounded-2xl shadow-md border border-base-300 p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-bold text-lg">Vault Overview</h3>
         <div className="flex items-center gap-2">
+          {failures > 0 && (
+            <div className="badge badge-error gap-1">
+              {failures} failure{failures > 1 ? "s" : ""}
+            </div>
+          )}
           {hasActiveSchedule ? (
             <div className="badge badge-success gap-1">
               <span className="w-2 h-2 rounded-full bg-success-content animate-pulse" />
@@ -55,7 +63,8 @@ export const VaultStatusCard = ({
         </div>
       </div>
 
-      <div className="text-xs text-base-content/50 font-mono mb-4 truncate">Vault: {vaultAddress}</div>
+      <div className="text-xs text-base-content/50 font-mono mb-1 truncate">Vault: {vaultAddress}</div>
+      {strategy && <div className="text-xs text-base-content/50 font-mono mb-4 truncate">Strategy: {strategy}</div>}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-base-200 rounded-xl p-4">
@@ -74,7 +83,7 @@ export const VaultStatusCard = ({
 
         <div className="bg-base-200 rounded-xl p-4">
           <p className="text-xs text-base-content/60 uppercase tracking-wider mb-1">Mode</p>
-          <p className="text-xl font-bold">{hasConfig ? (dcaConfig!.mode === 0 ? "BUY" : "SELL") : "—"}</p>
+          <p className="text-xl font-bold">{hasConfig ? (dcaConfig!.isBuy ? "BUY" : "SELL") : "—"}</p>
           <p className="text-xs text-base-content/50">
             {hasConfig ? `${formatUnits(dcaConfig!.amountPerRun, decimals)} / run` : "Not set"}
           </p>
@@ -82,11 +91,11 @@ export const VaultStatusCard = ({
 
         <div className="bg-base-200 rounded-xl p-4">
           <p className="text-xs text-base-content/60 uppercase tracking-wider mb-1">Interval</p>
-          <p className="text-xl font-bold">{hasConfig ? formatInterval(dcaConfig!.intervalSeconds) : "—"}</p>
+          <p className="text-xl font-bold">{hasConfig && intervalSeconds ? formatInterval(intervalSeconds) : "—"}</p>
           <p className="text-xs text-base-content/50">
-            {hasConfig && dcaConfig!.mode === 0 && buyCost
+            {hasConfig && dcaConfig!.isBuy && buyCost
               ? `~${Number(formatEther(buyCost)).toFixed(4)} HBAR/run`
-              : hasConfig && dcaConfig!.mode === 1 && sellReturn
+              : hasConfig && !dcaConfig!.isBuy && sellReturn
                 ? `~${Number(formatEther(sellReturn)).toFixed(4)} HBAR/run`
                 : "Per execution"}
           </p>

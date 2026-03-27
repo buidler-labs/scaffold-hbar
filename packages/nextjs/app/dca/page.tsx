@@ -5,11 +5,11 @@ import { useAccount } from "wagmi";
 import { CreateVaultCard } from "~~/components/dca/CreateVaultCard";
 import { VaultDashboard } from "~~/components/dca/VaultDashboard";
 import { VAULT_ABI } from "~~/components/dca/constants";
-import { useUserVault } from "~~/components/dca/hooks/useUserVault";
+import { useUserVaults } from "~~/components/dca/hooks/useUserVaults";
 
 const DCAPage: NextPage = () => {
   const { status } = useAccount();
-  const { vaultAddress, hasVault, isLoading: vaultLoading } = useUserVault();
+  const { vaultAddress, hasVault, isLoading: vaultLoading } = useUserVaults();
 
   const isConnected = status === "connected";
   const isConnecting = status === "reconnecting" || status === "connecting";

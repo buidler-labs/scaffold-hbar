@@ -29,11 +29,6 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/dca",
     icon: <ArrowPathIcon className="h-4 w-4" />,
   },
-  {
-    label: "Block Explorer",
-    href: "/blockexplorer",
-    icon: <MagnifyingGlassIcon className="h-4 w-4" />,
-  },
 ];
 
 export const HeaderMenuLinks = () => {

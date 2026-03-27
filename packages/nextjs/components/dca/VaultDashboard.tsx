@@ -17,8 +17,11 @@ export const VaultDashboard = ({ vaultAddress }: VaultDashboardProps) => {
     hbarBalance,
     dcaConfig,
     hasConfig,
+    intervalSeconds,
     nextSchedule,
     owner,
+    strategy,
+    consecutiveFailures,
     tokenBalance,
     tokenSymbol,
     tokenDecimals,
@@ -41,9 +44,12 @@ export const VaultDashboard = ({ vaultAddress }: VaultDashboardProps) => {
         vaultAddress={vaultAddress}
         hbarBalance={hbarBalance}
         dcaConfig={dcaConfig}
+        intervalSeconds={intervalSeconds}
         hasConfig={hasConfig}
         nextSchedule={nextSchedule}
         owner={owner}
+        strategy={strategy}
+        consecutiveFailures={consecutiveFailures}
         tokenBalance={tokenBalance}
         tokenSymbol={tokenSymbol}
         tokenDecimals={tokenDecimals}
@@ -52,7 +58,12 @@ export const VaultDashboard = ({ vaultAddress }: VaultDashboardProps) => {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DCAConfigForm vaultAddress={vaultAddress} currentConfig={dcaConfig} hasConfig={hasConfig} />
+        <DCAConfigForm
+          vaultAddress={vaultAddress}
+          currentConfig={dcaConfig}
+          currentInterval={intervalSeconds}
+          hasConfig={hasConfig}
+        />
 
         <div className="flex flex-col gap-6">
           <DepositSection
@@ -74,12 +85,7 @@ export const VaultDashboard = ({ vaultAddress }: VaultDashboardProps) => {
         </div>
       </div>
 
-      <ScheduleControls
-        vaultAddress={vaultAddress}
-        nextSchedule={nextSchedule}
-        hasConfig={hasConfig}
-        dcaMode={dcaConfig?.mode}
-      />
+      <ScheduleControls vaultAddress={vaultAddress} nextSchedule={nextSchedule} hasConfig={hasConfig} />
     </div>
   );
 };

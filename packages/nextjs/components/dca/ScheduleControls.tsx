@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { VAULT_ABI } from "./constants";
-import { Address, parseEther, zeroAddress } from "viem";
+import { Address, zeroAddress } from "viem";
 import { useWriteContract } from "wagmi";
 import { ClockIcon, PlayIcon, StopIcon } from "@heroicons/react/24/outline";
 import { useTransactor } from "~~/hooks/scaffold-eth";
@@ -12,27 +11,21 @@ type ScheduleControlsProps = {
   vaultAddress: Address;
   nextSchedule?: Address;
   hasConfig: boolean;
-  dcaMode?: number;
 };
 
-export const ScheduleControls = ({ vaultAddress, nextSchedule, hasConfig, dcaMode }: ScheduleControlsProps) => {
-  const [maxHbarIn, setMaxHbarIn] = useState("");
-
+export const ScheduleControls = ({ vaultAddress, nextSchedule, hasConfig }: ScheduleControlsProps) => {
   const writeTx = useTransactor();
   const { writeContractAsync, isPending } = useWriteContract();
 
   const hasActiveSchedule = !!nextSchedule && nextSchedule !== zeroAddress;
-  const isBuyMode = dcaMode === 0;
 
   const handleSchedule = async () => {
     try {
-      const maxHbar = isBuyMode && maxHbarIn ? parseEther(maxHbarIn) : 0n;
       await writeTx(() =>
         writeContractAsync({
           address: vaultAddress,
           abi: VAULT_ABI,
           functionName: "scheduleNextRun",
-          args: [maxHbar],
         }),
       );
     } catch {
@@ -56,17 +49,15 @@ export const ScheduleControls = ({ vaultAddress, nextSchedule, hasConfig, dcaMod
 
   const handleRunNow = async () => {
     try {
-      const maxHbar = isBuyMode && maxHbarIn ? parseEther(maxHbarIn) : 0n;
       await writeTx(() =>
         writeContractAsync({
           address: vaultAddress,
           abi: VAULT_ABI,
-          functionName: "runDCA",
-          args: [maxHbar],
+          functionName: "executeScheduled",
         }),
       );
     } catch {
-      notification.error("DCA run failed. Check vault balance and token configuration.");
+      notification.error("Execution failed. Check vault balance and token configuration.");
     }
   };
 
@@ -90,24 +81,6 @@ export const ScheduleControls = ({ vaultAddress, nextSchedule, hasConfig, dcaMod
               {hasActiveSchedule && <p className="text-xs text-base-content/50 font-mono truncate">{nextSchedule}</p>}
             </div>
           </div>
-
-          {isBuyMode && (
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-sm">Max HBAR per run (slippage protection)</span>
-                <span className="label-text-alt text-xs">0 = no limit</span>
-              </label>
-              <input
-                type="number"
-                placeholder="0"
-                className="input input-bordered input-sm w-full"
-                value={maxHbarIn}
-                onChange={e => setMaxHbarIn(e.target.value)}
-                min="0"
-                step="any"
-              />
-            </div>
-          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <button className="btn btn-primary btn-sm" onClick={handleSchedule} disabled={isPending}>

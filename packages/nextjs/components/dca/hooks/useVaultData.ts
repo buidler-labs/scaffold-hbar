@@ -1,8 +1,16 @@
-import { useEffect } from "react";
-import { ERC20_ABI, VAULT_ABI } from "../constants";
+import { useEffect, useMemo } from "react";
+import { DCA_CONFIG_PARAMS, ERC20_ABI, MEMEJOB_ABI, VAULT_ABI } from "../constants";
 import { useQueryClient } from "@tanstack/react-query";
-import { Address, zeroAddress } from "viem";
+import { Address, decodeAbiParameters, zeroAddress } from "viem";
 import { useBalance, useBlockNumber, useReadContract } from "wagmi";
+
+export type DCAConfig = {
+  memejob: Address;
+  memeToken: Address;
+  isBuy: boolean;
+  amountPerRun: bigint;
+  maxHbarIn: bigint;
+};
 
 export const useVaultData = (vaultAddress: Address | undefined) => {
   const queryClient = useQueryClient();
@@ -13,10 +21,17 @@ export const useVaultData = (vaultAddress: Address | undefined) => {
     query: { enabled: !!vaultAddress },
   });
 
-  const dcaConfigResult = useReadContract({
+  const strategyConfigResult = useReadContract({
     address: vaultAddress,
     abi: VAULT_ABI,
-    functionName: "dcaConfig",
+    functionName: "strategyConfig",
+    query: { enabled: !!vaultAddress },
+  });
+
+  const intervalResult = useReadContract({
+    address: vaultAddress,
+    abi: VAULT_ABI,
+    functionName: "intervalSeconds",
     query: { enabled: !!vaultAddress },
   });
 
@@ -34,17 +49,46 @@ export const useVaultData = (vaultAddress: Address | undefined) => {
     query: { enabled: !!vaultAddress },
   });
 
-  const rawConfig = dcaConfigResult.data;
-  const dcaConfig = rawConfig
-    ? {
-        memeToken: rawConfig[0] as Address,
-        mode: Number(rawConfig[1]),
-        amountPerRun: rawConfig[2] as bigint,
-        intervalSeconds: rawConfig[3] as bigint,
-      }
-    : undefined;
+  const strategyResult = useReadContract({
+    address: vaultAddress,
+    abi: VAULT_ABI,
+    functionName: "strategy",
+    query: { enabled: !!vaultAddress },
+  });
+
+  const consecutiveFailuresResult = useReadContract({
+    address: vaultAddress,
+    abi: VAULT_ABI,
+    functionName: "consecutiveFailures",
+    query: { enabled: !!vaultAddress },
+  });
+
+  const dcaConfig = useMemo<DCAConfig | undefined>(() => {
+    const rawBytes = strategyConfigResult.data as `0x${string}` | undefined;
+    if (!rawBytes || rawBytes === "0x") return undefined;
+    try {
+      const decoded = decodeAbiParameters(DCA_CONFIG_PARAMS, rawBytes);
+      const d = decoded[0] as {
+        memejob: Address;
+        memeToken: Address;
+        isBuy: boolean;
+        amountPerRun: bigint;
+        maxHbarIn: bigint;
+      };
+      return {
+        memejob: d.memejob,
+        memeToken: d.memeToken,
+        isBuy: d.isBuy,
+        amountPerRun: d.amountPerRun,
+        maxHbarIn: d.maxHbarIn,
+      };
+    } catch {
+      return undefined;
+    }
+  }, [strategyConfigResult.data]);
 
   const hasConfig = !!dcaConfig && dcaConfig.memeToken !== zeroAddress;
+  const intervalSeconds = intervalResult.data as bigint | undefined;
 
   const tokenBalanceResult = useReadContract({
     address: hasConfig ? dcaConfig!.memeToken : undefined,
@@ -69,26 +113,29 @@ export const useVaultData = (vaultAddress: Address | undefined) => {
   });
 
   const buyCostResult = useReadContract({
-    address: vaultAddress,
-    abi: VAULT_ABI,
-    functionName: "getBuyCost",
-    args: hasConfig ? [dcaConfig!.amountPerRun] : undefined,
-    query: { enabled: !!vaultAddress && hasConfig && dcaConfig!.mode === 0 },
+    address: hasConfig ? dcaConfig!.memejob : undefined,
+    abi: MEMEJOB_ABI,
+    functionName: "getAmountOut",
+    args: hasConfig ? [dcaConfig!.memeToken, true, dcaConfig!.amountPerRun] : undefined,
+    query: { enabled: hasConfig && dcaConfig!.isBuy },
   });
 
   const sellReturnResult = useReadContract({
-    address: vaultAddress,
-    abi: VAULT_ABI,
-    functionName: "getSellReturn",
-    args: hasConfig ? [dcaConfig!.amountPerRun] : undefined,
-    query: { enabled: !!vaultAddress && hasConfig && dcaConfig!.mode === 1 },
+    address: hasConfig ? dcaConfig!.memejob : undefined,
+    abi: MEMEJOB_ABI,
+    functionName: "getAmountOut",
+    args: hasConfig ? [dcaConfig!.memeToken, false, dcaConfig!.amountPerRun] : undefined,
+    query: { enabled: hasConfig && !dcaConfig!.isBuy },
   });
 
   const allQueryKeys = [
     balanceResult.queryKey,
-    dcaConfigResult.queryKey,
+    strategyConfigResult.queryKey,
+    intervalResult.queryKey,
     nextScheduleResult.queryKey,
     ownerResult.queryKey,
+    strategyResult.queryKey,
+    consecutiveFailuresResult.queryKey,
     tokenBalanceResult.queryKey,
     buyCostResult.queryKey,
     sellReturnResult.queryKey,
@@ -105,13 +152,16 @@ export const useVaultData = (vaultAddress: Address | undefined) => {
     hbarBalance: balanceResult.data,
     dcaConfig,
     hasConfig,
+    intervalSeconds,
     nextSchedule: nextScheduleResult.data as Address | undefined,
     owner: ownerResult.data as Address | undefined,
+    strategy: strategyResult.data as Address | undefined,
+    consecutiveFailures: consecutiveFailuresResult.data as bigint | undefined,
     tokenBalance: tokenBalanceResult.data as bigint | undefined,
     tokenSymbol: tokenSymbolResult.data as string | undefined,
     tokenDecimals: tokenDecimalsResult.data as number | undefined,
     buyCost: buyCostResult.data as bigint | undefined,
     sellReturn: sellReturnResult.data as bigint | undefined,
-    isLoading: dcaConfigResult.isLoading || ownerResult.isLoading,
+    isLoading: strategyConfigResult.isLoading || ownerResult.isLoading,
   };
 };
