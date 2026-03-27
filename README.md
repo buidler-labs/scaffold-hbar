@@ -17,7 +17,7 @@ A Hedera-ready monorepo for building dApps with Next.js, Hardhat or Foundry, and
    npx create-hbar@latest
    ```
 
-   Follow the prompts to pick a template (blank, hts-fungible, hts-nft, hcs-dao, defi-swap), frontend, Solidity framework (Hardhat or Foundry), and network.
+   Follow the prompts to pick a template (blank, hts-fungible, payments-scheduler), frontend, Solidity framework (Hardhat or Foundry), and network.
 
 2. **Or use this repo as the template** (e.g. after cloning or downloading):
 
@@ -38,9 +38,7 @@ When using the CLI, you can choose:
 |----------------|--------------------------------------|
 | **blank**      | Minimal setup                        |
 | **hts-fungible** | Fungible token (HTS): deploy & manage |
-| **hts-nft**    | NFT collection via HTS               |
-| **hcs-dao**    | DAO governance (Hedera Consensus Service) |
-| **defi-swap**  | DeFi-style token exchange            |
+| **payments-scheduler**    | NFT collection via HTS               |
 
 ## Deploy and verify on Hedera
 

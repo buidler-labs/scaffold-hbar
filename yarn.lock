@@ -4542,7 +4542,61 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "@scure/base@npm:1.2.6, @scure/base@npm:^1.1.3, @scure/base@npm:~1.2.5":
+=======
+"@scaffold-ui/components@file:../../../scaffold-ui/packages/components::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+  version: 0.1.8
+  resolution: "@scaffold-ui/components@file:../../../scaffold-ui/packages/components#../../../scaffold-ui/packages/components::hash=b96524&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  peerDependencies:
+    "@scaffold-ui/hooks": "workspace:*"
+    "@tanstack/react-query": ^5.59.15
+    "@types/react": ^19.0.7
+    react: ^19.2.3
+    viem: ^2.23.0
+    wagmi: ^2.14.11
+  checksum: 3f788c76768949b140070a2fb02feee9968abfba1ab63a323443ffc6ed644a4cf4cbe2517042036fef7b57fbc7698d98a24621d6aaad2c542432d6acf1bd37e1
+  languageName: node
+  linkType: hard
+
+"@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+  version: 0.1.7
+  resolution: "@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts#../../../scaffold-ui/packages/debug-contracts::hash=0bdb82&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  dependencies:
+    "@heroicons/react": ^2.2.0
+    react-hot-toast: ^2.5.2
+  peerDependencies:
+    "@scaffold-ui/components": "workspace:*"
+    "@scaffold-ui/hooks": "workspace:*"
+    "@tanstack/react-query": ^5.59.15
+    "@types/react": ^19.0.7
+    react: ^19.2.3
+    viem: ^2.23.0
+    wagmi: ^2.14.11
+  checksum: ef30f47ece4bfe5519dfbb5f6eb7289c2d6026cbae20742d95121969f0fa8b13f7fc03f118eb0be5b0fb9f8cfd3926d8c571a99f581889b0ca4477d22879bb64
+  languageName: node
+  linkType: hard
+
+"@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+  version: 0.1.6
+  resolution: "@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks#../../../scaffold-ui/packages/hooks::hash=0ffc3c&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  dependencies:
+    "@uniswap/sdk-core": ^7.7.2
+    "@uniswap/v2-sdk": ^4.15.2
+    blo: ^1.2.0
+    usehooks-ts: ^3.1.1
+  peerDependencies:
+    "@tanstack/react-query": ^5.59.15
+    "@types/react": ^19.0.7
+    react: ^19.2.3
+    viem: ^2.23.0
+    wagmi: ^2.14.11
+  checksum: ea2024870c5d8eedd012fe45fe60291bbe30daff87a97d483f7df30566c25af44a39929329b3e1c0f0ce7d76e20a8d69dbba050deaf25ce4e15e50468efda36e
+  languageName: node
+  linkType: hard
+
+"@scure/base@npm:^1.1.3, @scure/base@npm:~1.2.2, @scure/base@npm:~1.2.4, @scure/base@npm:~1.2.5":
+>>>>>>> 435c31f (chore: drop se-2 reference and replace with sh)
   version: 1.2.6
   resolution: "@scure/base@npm:1.2.6"
   checksum: 1058cb26d5e4c1c46c9cc0ae0b67cc66d306733baf35d6ebdd8ddaba242b80c3807b726e3b48cb0411bb95ec10d37764969063ea62188f86ae9315df8ea6b325
@@ -4619,6 +4673,7 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "@se-2/foundry@workspace:packages/foundry":
   version: 0.0.0-use.local
   resolution: "@se-2/foundry@workspace:packages/foundry"
@@ -4729,6 +4784,8 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+=======
+>>>>>>> 435c31f (chore: drop se-2 reference and replace with sh)
 "@sec-ant/readable-stream@npm:^0.4.1":
   version: 0.4.1
   resolution: "@sec-ant/readable-stream@npm:0.4.1"
@@ -4817,6 +4874,109 @@ __metadata:
   checksum: 27b259a136c664427641dd32ee3dc490553f3b5e92986accfa829d14063ebc69b191e92209ac9c40fbc367f74cfa17dc93b4c40981d666711fd57b4d51a82062
   languageName: node
   linkType: hard
+
+"@sh/foundry@workspace:packages/foundry":
+  version: 0.0.0-use.local
+  resolution: "@sh/foundry@workspace:packages/foundry"
+  dependencies:
+    "@openzeppelin/contracts": ~5.0.2
+    dotenv: ~16.3.1
+    envfile: ~6.18.0
+    ethers: ~5.7.1
+    prettier: ~2.8.8
+    qrcode: ~1.5.3
+    shx: ^0.3.4
+    toml: ~3.0.0
+  languageName: unknown
+  linkType: soft
+
+"@sh/hardhat@workspace:packages/hardhat":
+  version: 0.0.0-use.local
+  resolution: "@sh/hardhat@workspace:packages/hardhat"
+  dependencies:
+    "@ethersproject/abi": ~5.7.0
+    "@ethersproject/providers": ~5.7.2
+    "@hashgraph/system-contracts-forking": 0.1.2
+    "@inquirer/password": ^4.0.2
+    "@nomicfoundation/hardhat-chai-matchers": ~2.0.7
+    "@nomicfoundation/hardhat-ethers": ~3.0.8
+    "@nomicfoundation/hardhat-network-helpers": ~1.0.11
+    "@openzeppelin/contracts": ~5.0.2
+    "@typechain/ethers-v5": ~11.1.2
+    "@typechain/ethers-v6": ~0.5.1
+    "@typechain/hardhat": ~9.1.0
+    "@types/eslint": ~9.6.1
+    "@types/mocha": ~10.0.10
+    "@types/prettier": ~3.0.0
+    "@types/qrcode": ~1.5.5
+    "@typescript-eslint/eslint-plugin": ~8.27.0
+    "@typescript-eslint/parser": ~8.27.0
+    chai: ~4.5.0
+    dotenv: ~16.4.5
+    envfile: ~7.1.0
+    eslint: ~9.23.0
+    eslint-config-prettier: ~10.1.1
+    eslint-plugin-prettier: ~5.2.4
+    ethers: ~6.13.2
+    hardhat: 2.22.19
+    hardhat-deploy: ^1.0.4
+    hardhat-deploy-ethers: ~0.4.2
+    hardhat-gas-reporter: ~2.2.1
+    prettier: ^3.5.3
+    prettier-plugin-solidity: ~1.4.1
+    qrcode: ~1.5.4
+    solidity-coverage: ~0.8.13
+    ts-node: ~10.9.1
+    typechain: ~8.3.2
+    typescript: ^5.8.2
+  languageName: unknown
+  linkType: soft
+
+"@sh/nextjs@workspace:packages/nextjs":
+  version: 0.0.0-use.local
+  resolution: "@sh/nextjs@workspace:packages/nextjs"
+  dependencies:
+    "@heroicons/react": ^2.1.5
+    "@hiero-ledger/sdk": ^2.80.0
+    "@rainbow-me/rainbowkit": 2.2.9
+    "@react-native-async-storage/async-storage": ^2.2.0
+    "@scaffold-ui/components": "file:../../../scaffold-ui/packages/components"
+    "@scaffold-ui/debug-contracts": "file:../../../scaffold-ui/packages/debug-contracts"
+    "@scaffold-ui/hooks": "file:../../../scaffold-ui/packages/hooks"
+    "@tailwindcss/postcss": latest
+    "@tanstack/react-query": ^5.59.15
+    "@trivago/prettier-plugin-sort-imports": ^4.3.0
+    "@types/node": ^18.19.50
+    "@types/react": ^19.0.7
+    abitype: 1.0.6
+    bgipfs: ^0.0.12
+    blo: ^1.2.0
+    burner-connector: 0.0.20
+    daisyui: ^5.0.9
+    eslint: ^9.23.0
+    eslint-config-next: ^15.2.3
+    eslint-config-prettier: ^10.1.1
+    eslint-plugin-prettier: ^5.2.4
+    kubo-rpc-client: ^5.0.2
+    next: ^15.2.8
+    next-nprogress-bar: ^2.3.13
+    next-themes: ^0.3.0
+    postcss: ^8.4.45
+    prettier: ^3.5.3
+    qrcode.react: ^4.0.1
+    react: ^19.2.3
+    react-dom: ^19.2.3
+    react-hot-toast: ^2.4.0
+    tailwindcss: ^4.1.3
+    type-fest: ^4.26.1
+    typescript: ^5.8.2
+    usehooks-ts: ^3.1.0
+    vercel: ^39.1.3
+    viem: 2.39.0
+    wagmi: 2.19.5
+    zustand: ^5.0.0
+  languageName: unknown
+  linkType: soft
 
 "@sigstore/bundle@npm:^3.1.0":
   version: 3.1.0
@@ -17829,15 +17989,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"se-2@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "se-2@workspace:."
-  dependencies:
-    husky: ^9.1.6
-    lint-staged: ^15.2.10
-  languageName: unknown
-  linkType: soft
-
 "secp256k1@npm:^4.0.1":
   version: 4.0.4
   resolution: "secp256k1@npm:4.0.4"
@@ -17978,7 +18129,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "sha.js@npm:^2.4.0, sha.js@npm:^2.4.12, sha.js@npm:^2.4.8":
+=======
+"sh@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "sh@workspace:."
+  dependencies:
+    husky: ^9.1.6
+    lint-staged: ^15.2.10
+  languageName: unknown
+  linkType: soft
+
+"sha.js@npm:^2.4.0, sha.js@npm:^2.4.11, sha.js@npm:^2.4.12, sha.js@npm:^2.4.8":
+>>>>>>> 435c31f (chore: drop se-2 reference and replace with sh)
   version: 2.4.12
   resolution: "sha.js@npm:2.4.12"
   dependencies:
