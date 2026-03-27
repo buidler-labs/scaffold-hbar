@@ -1423,7 +1423,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/bignumber@npm:5.8.0, @ethersproject/bignumber@npm:^5.7.0, @ethersproject/bignumber@npm:^5.8.0":
+"@ethersproject/bignumber@npm:5.8.0, @ethersproject/bignumber@npm:^5.5.0, @ethersproject/bignumber@npm:^5.7.0, @ethersproject/bignumber@npm:^5.8.0":
   version: 5.8.0
   resolution: "@ethersproject/bignumber@npm:5.8.0"
   dependencies:
@@ -4414,44 +4414,44 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scaffold-ui/components@file:../../../scaffold-ui/packages/components::locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs":
-  version: 0.1.8
-  resolution: "@scaffold-ui/components@file:../../../scaffold-ui/packages/components#../../../scaffold-ui/packages/components::hash=0c696a&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+"@scaffold-ui/components@npm:^0.1.8":
+  version: 0.1.9
+  resolution: "@scaffold-ui/components@npm:0.1.9"
   peerDependencies:
-    "@scaffold-ui/hooks": "workspace:*"
+    "@scaffold-ui/hooks": 0.1.7
     "@tanstack/react-query": ^5.59.15
     "@types/react": ^19.0.7
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: 40055882ae49aed3cf26c1aa4f4ef5b029bb42fc8de899ecaffb348522845357abf7d458d754d9000f13f888866b4cbff0c9a25908d5a9cc9b2f6838fde12596
+  checksum: a51e49ed9d14c43a4a755ba6d522180545db8a3271509f7281e3a54a6469a99e57b6a59afe891294eeff01a3adebb3b20f983866098ee68bfe7843af83fdf2ef
   languageName: node
   linkType: hard
 
-"@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts::locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs":
-  version: 0.1.7
-  resolution: "@scaffold-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts#../../../scaffold-ui/packages/debug-contracts::hash=a20e77&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+"@scaffold-ui/debug-contracts@npm:^0.1.7":
+  version: 0.1.8
+  resolution: "@scaffold-ui/debug-contracts@npm:0.1.8"
   dependencies:
     "@heroicons/react": ^2.2.0
     react-hot-toast: ^2.5.2
   peerDependencies:
-    "@scaffold-ui/components": "workspace:*"
-    "@scaffold-ui/hooks": "workspace:*"
+    "@scaffold-ui/components": 0.1.9
+    "@scaffold-ui/hooks": 0.1.7
     "@tanstack/react-query": ^5.59.15
     "@types/react": ^19.0.7
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: 1827ad87f17776447ddb5794f8cffa4fa7c49110b2b2ea31650a02d39f3fc0746b564d4f0b3e3d7f8248fde35238e5bd0f28c3b103bb6de9cf693d7959d476f8
+  checksum: f5d6a607b6e954e2da765baec8fde178e52fb25f72603b196f73706457212b004f082aea976000f19fb2755968115c8b6cf215c103a297a3d0fe4419d72fbb35
   languageName: node
   linkType: hard
 
-"@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks::locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs":
-  version: 0.1.6
-  resolution: "@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks#../../../scaffold-ui/packages/hooks::hash=3f6c31&locator=%40se-2%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+"@scaffold-ui/hooks@npm:^0.1.6":
+  version: 0.1.7
+  resolution: "@scaffold-ui/hooks@npm:0.1.7"
   dependencies:
     "@uniswap/sdk-core": ^7.7.2
-    "@uniswap/v2-sdk": ^4.15.2
+    "@uniswap/v2-sdk": 4.19.1
     blo: ^1.2.0
     usehooks-ts: ^3.1.1
   peerDependencies:
@@ -4460,7 +4460,7 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: bb9110205ed2d4faddcb05961f0e218cf765d1774978c6b90d6fe4be82cf96f85efbd1f3d2fbbe2b18387d3f3b6f3693732456f7a62e78a94c03a84439d1cd6d
+  checksum: c8c76ee06827842178b4f5ff4d477dbe9a2aa31fc40af2cc5a3e24f7d67a6142a87d62bfe3c87fbbcc013c235e05438778b8cc18a2bc5774c8d4d9a92650678a
   languageName: node
   linkType: hard
 
@@ -4562,109 +4562,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@se-2/foundry@workspace:packages/foundry":
-  version: 0.0.0-use.local
-  resolution: "@se-2/foundry@workspace:packages/foundry"
-  dependencies:
-    "@openzeppelin/contracts": ~5.0.2
-    dotenv: ~16.3.1
-    envfile: ~6.18.0
-    ethers: ~5.7.1
-    prettier: ~2.8.8
-    qrcode: ~1.5.3
-    shx: ^0.3.4
-    toml: ~3.0.0
-  languageName: unknown
-  linkType: soft
-
-"@se-2/hardhat@workspace:packages/hardhat":
-  version: 0.0.0-use.local
-  resolution: "@se-2/hardhat@workspace:packages/hardhat"
-  dependencies:
-    "@ethersproject/abi": ~5.7.0
-    "@ethersproject/providers": ~5.7.2
-    "@hashgraph/system-contracts-forking": 0.1.2
-    "@inquirer/password": ^4.0.2
-    "@nomicfoundation/hardhat-chai-matchers": ~2.0.7
-    "@nomicfoundation/hardhat-ethers": ~3.0.8
-    "@nomicfoundation/hardhat-network-helpers": ~1.0.11
-    "@openzeppelin/contracts": ~5.0.2
-    "@typechain/ethers-v5": ~11.1.2
-    "@typechain/ethers-v6": ~0.5.1
-    "@typechain/hardhat": ~9.1.0
-    "@types/eslint": ~9.6.1
-    "@types/mocha": ~10.0.10
-    "@types/prettier": ~3.0.0
-    "@types/qrcode": ~1.5.5
-    "@typescript-eslint/eslint-plugin": ~8.27.0
-    "@typescript-eslint/parser": ~8.27.0
-    chai: ~4.5.0
-    dotenv: ~16.4.5
-    envfile: ~7.1.0
-    eslint: ~9.23.0
-    eslint-config-prettier: ~10.1.1
-    eslint-plugin-prettier: ~5.2.4
-    ethers: ~6.13.2
-    hardhat: 2.22.19
-    hardhat-deploy: ^1.0.4
-    hardhat-deploy-ethers: ~0.4.2
-    hardhat-gas-reporter: ~2.2.1
-    prettier: ^3.5.3
-    prettier-plugin-solidity: ~1.4.1
-    qrcode: ~1.5.4
-    solidity-coverage: ~0.8.13
-    ts-node: ~10.9.1
-    typechain: ~8.3.2
-    typescript: ^5.8.2
-  languageName: unknown
-  linkType: soft
-
-"@se-2/nextjs@workspace:packages/nextjs":
-  version: 0.0.0-use.local
-  resolution: "@se-2/nextjs@workspace:packages/nextjs"
-  dependencies:
-    "@heroicons/react": ^2.1.5
-    "@hiero-ledger/sdk": ^2.80.0
-    "@rainbow-me/rainbowkit": 2.2.9
-    "@react-native-async-storage/async-storage": ^2.2.0
-    "@scaffold-ui/components": "file:../../../scaffold-ui/packages/components"
-    "@scaffold-ui/debug-contracts": "file:../../../scaffold-ui/packages/debug-contracts"
-    "@scaffold-ui/hooks": "file:../../../scaffold-ui/packages/hooks"
-    "@tailwindcss/postcss": latest
-    "@tanstack/react-query": ^5.59.15
-    "@trivago/prettier-plugin-sort-imports": ^4.3.0
-    "@types/node": ^18.19.50
-    "@types/react": ^19.0.7
-    abitype: 1.0.6
-    bgipfs: ^0.0.12
-    blo: ^1.2.0
-    burner-connector: 0.0.20
-    daisyui: ^5.0.9
-    eslint: ^9.23.0
-    eslint-config-next: ^15.2.3
-    eslint-config-prettier: ^10.1.1
-    eslint-plugin-prettier: ^5.2.4
-    kubo-rpc-client: ^5.0.2
-    next: ^15.2.8
-    next-nprogress-bar: ^2.3.13
-    next-themes: ^0.3.0
-    postcss: ^8.4.45
-    prettier: ^3.5.3
-    qrcode.react: ^4.0.1
-    react: ^19.2.3
-    react-dom: ^19.2.3
-    react-hot-toast: ^2.4.0
-    tailwindcss: ^4.1.3
-    type-fest: ^4.26.1
-    typescript: ^5.8.2
-    usehooks-ts: ^3.1.0
-    vercel: ^39.1.3
-    viem: 2.39.0
-    wagmi: 2.19.5
-    zustand: ^5.0.0
-  languageName: unknown
-  linkType: soft
-
 "@sec-ant/readable-stream@npm:^0.4.1":
   version: 0.4.1
   resolution: "@sec-ant/readable-stream@npm:0.4.1"
@@ -4753,6 +4650,109 @@ __metadata:
   checksum: 27b259a136c664427641dd32ee3dc490553f3b5e92986accfa829d14063ebc69b191e92209ac9c40fbc367f74cfa17dc93b4c40981d666711fd57b4d51a82062
   languageName: node
   linkType: hard
+
+"@sh/foundry@workspace:packages/foundry":
+  version: 0.0.0-use.local
+  resolution: "@sh/foundry@workspace:packages/foundry"
+  dependencies:
+    "@openzeppelin/contracts": ~5.0.2
+    dotenv: ~16.3.1
+    envfile: ~6.18.0
+    ethers: ~5.7.1
+    prettier: ~2.8.8
+    qrcode: ~1.5.3
+    shx: ^0.3.4
+    toml: ~3.0.0
+  languageName: unknown
+  linkType: soft
+
+"@sh/hardhat@workspace:packages/hardhat":
+  version: 0.0.0-use.local
+  resolution: "@sh/hardhat@workspace:packages/hardhat"
+  dependencies:
+    "@ethersproject/abi": ~5.7.0
+    "@ethersproject/providers": ~5.7.2
+    "@hashgraph/system-contracts-forking": 0.1.2
+    "@inquirer/password": ^4.0.2
+    "@nomicfoundation/hardhat-chai-matchers": ~2.0.7
+    "@nomicfoundation/hardhat-ethers": ~3.0.8
+    "@nomicfoundation/hardhat-network-helpers": ~1.0.11
+    "@openzeppelin/contracts": ~5.0.2
+    "@typechain/ethers-v5": ~11.1.2
+    "@typechain/ethers-v6": ~0.5.1
+    "@typechain/hardhat": ~9.1.0
+    "@types/eslint": ~9.6.1
+    "@types/mocha": ~10.0.10
+    "@types/prettier": ~3.0.0
+    "@types/qrcode": ~1.5.5
+    "@typescript-eslint/eslint-plugin": ~8.27.0
+    "@typescript-eslint/parser": ~8.27.0
+    chai: ~4.5.0
+    dotenv: ~16.4.5
+    envfile: ~7.1.0
+    eslint: ~9.23.0
+    eslint-config-prettier: ~10.1.1
+    eslint-plugin-prettier: ~5.2.4
+    ethers: ~6.13.2
+    hardhat: 2.22.19
+    hardhat-deploy: ^1.0.4
+    hardhat-deploy-ethers: ~0.4.2
+    hardhat-gas-reporter: ~2.2.1
+    prettier: ^3.5.3
+    prettier-plugin-solidity: ~1.4.1
+    qrcode: ~1.5.4
+    solidity-coverage: ~0.8.13
+    ts-node: ~10.9.1
+    typechain: ~8.3.2
+    typescript: ^5.8.2
+  languageName: unknown
+  linkType: soft
+
+"@sh/nextjs@workspace:packages/nextjs":
+  version: 0.0.0-use.local
+  resolution: "@sh/nextjs@workspace:packages/nextjs"
+  dependencies:
+    "@heroicons/react": ^2.1.5
+    "@hiero-ledger/sdk": ^2.80.0
+    "@rainbow-me/rainbowkit": 2.2.9
+    "@react-native-async-storage/async-storage": ^2.2.0
+    "@scaffold-ui/components": ^0.1.8
+    "@scaffold-ui/debug-contracts": ^0.1.7
+    "@scaffold-ui/hooks": ^0.1.6
+    "@tailwindcss/postcss": latest
+    "@tanstack/react-query": ^5.59.15
+    "@trivago/prettier-plugin-sort-imports": ^4.3.0
+    "@types/node": ^18.19.50
+    "@types/react": ^19.0.7
+    abitype: 1.0.6
+    bgipfs: ^0.0.12
+    blo: ^1.2.0
+    burner-connector: 0.0.20
+    daisyui: ^5.0.9
+    eslint: ^9.23.0
+    eslint-config-next: ^15.2.3
+    eslint-config-prettier: ^10.1.1
+    eslint-plugin-prettier: ^5.2.4
+    kubo-rpc-client: ^5.0.2
+    next: ^15.2.8
+    next-nprogress-bar: ^2.3.13
+    next-themes: ^0.3.0
+    postcss: ^8.4.45
+    prettier: ^3.5.3
+    qrcode.react: ^4.0.1
+    react: ^19.2.3
+    react-dom: ^19.2.3
+    react-hot-toast: ^2.4.0
+    tailwindcss: ^4.1.3
+    type-fest: ^4.26.1
+    typescript: ^5.8.2
+    usehooks-ts: ^3.1.0
+    vercel: ^39.1.3
+    viem: 2.39.0
+    wagmi: 2.19.5
+    zustand: ^5.0.0
+  languageName: unknown
+  linkType: soft
 
 "@sigstore/bundle@npm:^3.1.0":
   version: 3.1.0
@@ -7113,7 +7113,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uniswap/sdk-core@npm:^7.11.0, @uniswap/sdk-core@npm:^7.7.2":
+"@uniswap/sdk-core@npm:^7.12.1":
+  version: 7.13.0
+  resolution: "@uniswap/sdk-core@npm:7.13.0"
+  dependencies:
+    "@ethersproject/address": ^5.0.2
+    "@ethersproject/bignumber": ^5.5.0
+    "@ethersproject/bytes": ^5.7.0
+    "@ethersproject/keccak256": 5.7.0
+    "@ethersproject/strings": 5.7.0
+    big.js: ^5.2.2
+    decimal.js-light: ^2.5.0
+    jsbi: ^3.1.4
+    tiny-invariant: ^1.1.0
+    toformat: ^2.0.0
+    tslib: ^2.3.0
+  checksum: 8e45a5a45b4470ddb94070f7aaed07eec88ec9a5e475a7aa23023d02ab513ff18a501d9ce651cf6ffbc539a8a4a8391635b5a7c75c3c7b2fe7c6cba7db5e8465
+  languageName: node
+  linkType: hard
+
+"@uniswap/sdk-core@npm:^7.7.2":
   version: 7.11.0
   resolution: "@uniswap/sdk-core@npm:7.11.0"
   dependencies:
@@ -7130,16 +7149,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uniswap/v2-sdk@npm:^4.15.2":
-  version: 4.18.0
-  resolution: "@uniswap/v2-sdk@npm:4.18.0"
+"@uniswap/v2-sdk@npm:4.19.1":
+  version: 4.19.1
+  resolution: "@uniswap/v2-sdk@npm:4.19.1"
   dependencies:
     "@ethersproject/address": ^5.0.2
     "@ethersproject/solidity": ^5.0.9
-    "@uniswap/sdk-core": ^7.11.0
+    "@uniswap/sdk-core": ^7.12.1
     tiny-invariant: ^1.1.0
     tiny-warning: ^1.0.3
-  checksum: 208ea312332fe0a139f6c47faa01bc9b4bb338957602e5abc2da3fc053e27b7cd41d9ce86c18c707a21a960de526230afbd1308037f3d52a9c8844f37629a411
+  checksum: 032a62c4b017663cddd04029cbd2393298dbc3b44bc79cc5a8f27879dc664cfac58e696594839ebb11f138971c759e9db16f1e5cb99b107408156284060c2cc0
   languageName: node
   linkType: hard
 
@@ -17984,15 +18003,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"se-2@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "se-2@workspace:."
-  dependencies:
-    husky: ^9.1.6
-    lint-staged: ^15.2.10
-  languageName: unknown
-  linkType: soft
-
 "secp256k1@npm:^4.0.1":
   version: 4.0.4
   resolution: "secp256k1@npm:4.0.4"
@@ -18123,6 +18133,15 @@ __metadata:
   checksum: be18cbbf70e7d8097c97f713a2e76edf84e87299b40d085c6bf8b65314e994cc15e2e317727342fa6996e38e1f52c59720b53fe621e2eb593a6847bf0356db89
   languageName: node
   linkType: hard
+
+"sh@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "sh@workspace:."
+  dependencies:
+    husky: ^9.1.6
+    lint-staged: ^15.2.10
+  languageName: unknown
+  linkType: soft
 
 "sha.js@npm:^2.4.0, sha.js@npm:^2.4.11, sha.js@npm:^2.4.12, sha.js@npm:^2.4.8":
   version: 2.4.12
@@ -19441,7 +19460,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.6.0, tslib@npm:^2.6.2, tslib@npm:^2.8.0, tslib@npm:^2.8.1":
+"tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0, tslib@npm:^2.6.0, tslib@npm:^2.6.2, tslib@npm:^2.8.0, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: e4aba30e632b8c8902b47587fd13345e2827fa639e7c3121074d5ee0880723282411a8838f830b55100cbe4517672f84a2472667d355b81e8af165a55dc6203a
