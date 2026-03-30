@@ -2,10 +2,6 @@
 
 Solidity contracts, Forge scripts, and tests for the Hedera EVM.
 
-This package is the **Foundry** path in the monorepo. The **Hardhat** path (`packages/hardhat`, `yarn hardhat:*`, root `yarn chain` → Hardhat node) is separate—see [`packages/hardhat/README.md`](../hardhat/README.md) if you scaffolded with Hardhat.
-
----
-
 ## Setup
 
 Forge dependencies are not committed to the repo. Install them locally from this package:
