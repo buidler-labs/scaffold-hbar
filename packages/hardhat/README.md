@@ -4,22 +4,32 @@ Hardhat config, contracts, deploy scripts, tests, and Hashscan verification for 
 
 ## Local development
 
-1. **Start the local chain** (terminal 1):
+Root scripts delegate to this package via the `@sh/hardhat` workspace (e.g. `yarn chain` → `hardhat:chain`).
+
+1. **Start the local chain** (terminal 1, from repo root):
    ```bash
    yarn chain
    ```
-   This runs a Hedera testnet fork.
+   This starts `hardhat node` with **Hedera testnet forking** (`HEDERA_FORKING=true` and `@hashgraph/system-contracts-forking`). JSON-RPC is served at **http://127.0.0.1:8545**.
 
-2. **Deploy to the local fork** (terminal 2):
+2. **Deploy to the running fork** (terminal 2):
    ```bash
-   yarn deploy --network hardhat
+   yarn deploy --network localhost
    ```
-   Deploying without `--network` may use the default; use `--network hardhat` to target the local node explicitly.
+   Use **`localhost`** so Hardhat connects to the long-running node on port 8545.
 
-3. **Run contract tests** (with the chain running):
+   **`yarn deploy` without `--network`** uses the default network `hardhat`, which is the **in-process ephemeral** Hardhat network—**not** the same process as `yarn chain`. For deploys against the forked node you started in step 1, always pass **`--network localhost`** while that node is running.
+
+3. **Run contract tests** (from repo root; tests use `HEDERA_FORKING=true` and can run against the fork or standalone):
    ```bash
    yarn test
    ```
+   Equivalent:
+   ```bash
+   yarn hardhat:test
+   ```
+
+4. **Mainnet-style fork** (optional): from repo root, `yarn fork` runs the Hardhat node with mainnet forking enabled (`MAINNET_FORKING_ENABLED=true HEDERA_FORKING=true`). Use when you need a mainnet fork instead of the default testnet fork.
 
 ## Deploy and verify on Hedera testnet/mainnet
 
@@ -60,6 +70,6 @@ You need a deployer account with HBAR on the target network. Without funds, depl
 - `deploy/` — hardhat-deploy scripts (e.g. `00_deploy_hedera_token.ts`)
 - `scripts/` — generateAccount, importAccount, verifyHedera.js, etc.
 - `test/` — contract tests
-- `hardhat.config.ts` — networks (hardhat, hederaTestnet, hedera_testnet, hederaMainnet)
+- `hardhat.config.ts` — networks (`hardhat`, `localhost` for RPC at 127.0.0.1:8545, `hederaTestnet`, `hederaMainnet`)
 
 Network and RPC URLs are in `hardhat.config.ts`. Deployer key is read from `.env` (encrypted) and decrypted at deploy time for live networks.

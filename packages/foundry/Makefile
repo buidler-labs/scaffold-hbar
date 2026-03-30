@@ -17,7 +17,7 @@ setup-deployer:
 	rm -rf broadcast/Deploy.s.sol/31337
 	cast wallet import --private-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6 --unsafe-password 'localhost' scaffold-eth-default
 
-# Deploy the contracts to the local Hedera-forked node (started by `yarn chain`)
+# Deploy the contracts to the local Hedera-forked node (start with `make fork` or `yarn fork` in this package)
 deploy: setup-deployer
 	@if [ ! -f "$(DEPLOY_SCRIPT)" ]; then \
 		echo "Error: Deploy script '$(DEPLOY_SCRIPT)' not found"; \
