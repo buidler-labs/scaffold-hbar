@@ -3,16 +3,16 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Abi, AbiEvent, ExtractAbiEventNames } from "abitype";
 import { BlockNumber, GetLogsParameters } from "viem";
 import { Config, UsePublicClientReturnType, useBlockNumber, usePublicClient } from "wagmi";
-import { useSelectedNetwork } from "~~/hooks/scaffold-eth";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
-import { AllowedChainIds } from "~~/utils/scaffold-eth";
-import { replacer } from "~~/utils/scaffold-eth/common";
+import { useSelectedNetwork } from "~~/hooks/scaffold-hbar";
+import { useDeployedContractInfo } from "~~/hooks/scaffold-hbar";
+import { AllowedChainIds } from "~~/utils/scaffold-hbar";
+import { replacer } from "~~/utils/scaffold-hbar/common";
 import {
   ContractAbi,
   ContractName,
   UseScaffoldEventHistoryConfig,
   UseScaffoldEventHistoryData,
-} from "~~/utils/scaffold-eth/contract";
+} from "~~/utils/scaffold-hbar/contract";
 
 const getEvents = async (
   getLogsParams: GetLogsParameters<AbiEvent | undefined, AbiEvent[] | undefined, boolean, BlockNumber, BlockNumber>,

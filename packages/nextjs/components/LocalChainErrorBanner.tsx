@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { hederaTestnet } from "viem/chains";
 import { useSwitchChain } from "wagmi";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import { useLocalChainConnectionError } from "~~/hooks/scaffold-eth/useLocalChainConnectionError";
+import { useLocalChainConnectionError } from "~~/hooks/scaffold-hbar/useLocalChainConnectionError";
 
 /**
  * Shows a banner when the user is on the local fork chain but yarn chain is not running.

@@ -3,7 +3,7 @@ import { rainbowkitBurnerWallet } from "burner-connector";
 import type { Hex } from "viem";
 import { useDisconnect } from "wagmi";
 import { KeyIcon, PencilSquareIcon, ShieldExclamationIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { getParsedError, notification } from "~~/utils/scaffold-eth";
+import { getParsedError, notification } from "~~/utils/scaffold-hbar";
 
 const BURNER_WALLET_PK_KEY = "burnerWallet.pk";
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { chainIdToHederaNetwork, getHederaAccountId } from "~~/utils/scaffold-eth";
+import { chainIdToHederaNetwork, getHederaAccountId } from "~~/utils/scaffold-hbar";
 
 export function useHederaAccountId(evmAddress: string | undefined, chainId?: number) {
   const [accountId, setAccountId] = useState<string | null>(null);

@@ -5,7 +5,7 @@ import { ContractTabs } from "./ContractTabs";
 import { Address, Balance } from "@scaffold-ui/components";
 import { Address as AddressType } from "viem";
 import { hardhat } from "viem/chains";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
 
 export const AddressComponent = ({
   address,

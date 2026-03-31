@@ -5,8 +5,8 @@ import Link from "next/link";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { HederaAddress } from "~~/components/scaffold-eth";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { HederaAddress } from "~~/components/scaffold-hbar";
+import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
 
 const Home: NextPage = () => {
   const { address: connectedAddress, status } = useAccount();

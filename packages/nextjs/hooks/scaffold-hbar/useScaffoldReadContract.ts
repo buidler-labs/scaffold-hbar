@@ -3,15 +3,15 @@ import { QueryObserverResult, RefetchOptions, useQueryClient } from "@tanstack/r
 import type { ExtractAbiFunctionNames } from "abitype";
 import { ReadContractErrorType } from "viem";
 import { useBlockNumber, useReadContract } from "wagmi";
-import { useSelectedNetwork } from "~~/hooks/scaffold-eth";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
-import { AllowedChainIds } from "~~/utils/scaffold-eth";
+import { useSelectedNetwork } from "~~/hooks/scaffold-hbar";
+import { useDeployedContractInfo } from "~~/hooks/scaffold-hbar";
+import { AllowedChainIds } from "~~/utils/scaffold-hbar";
 import {
   AbiFunctionReturnType,
   ContractAbi,
   ContractName,
   UseScaffoldReadConfig,
-} from "~~/utils/scaffold-eth/contract";
+} from "~~/utils/scaffold-hbar/contract";
 
 /**
  * Wrapper around wagmi's useContractRead hook which automatically loads (by name) the contract ABI and address from

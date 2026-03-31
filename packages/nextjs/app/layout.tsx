@@ -3,7 +3,7 @@ import "@scaffold-ui/components/styles.css";
 import { ScaffoldHbarAppWithProviders } from "~~/components/ScaffoldHbarAppWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
-import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
+import { getMetadata } from "~~/utils/scaffold-hbar/getMetadata";
 
 export const metadata = getMetadata({
   title: "Scaffold-HBAR",

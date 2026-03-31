@@ -4,8 +4,8 @@ import { Address } from "viem";
 import { hardhat } from "viem/chains";
 import { AddressComponent } from "~~/app/blockexplorer/_components/AddressComponent";
 import deployedContracts from "~~/contracts/deployedContracts";
-import { isZeroAddress } from "~~/utils/scaffold-eth/common";
-import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
+import { isZeroAddress } from "~~/utils/scaffold-hbar/common";
+import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 
 type PageProps = {
   params: Promise<{ address: Address }>;

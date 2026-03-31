@@ -5,10 +5,10 @@ import { PaginationButton, SearchBar, TransactionsTable } from "./_components";
 import type { NextPage } from "next";
 import { Block, Transaction, TransactionReceipt } from "viem";
 import { hardhat } from "viem/chains";
-import { useFetchBlocks } from "~~/hooks/scaffold-eth";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
-import { notification } from "~~/utils/scaffold-eth";
-import { useAllContracts } from "~~/utils/scaffold-eth/contractsData";
+import { useFetchBlocks } from "~~/hooks/scaffold-hbar";
+import { useTargetNetwork } from "~~/hooks/scaffold-hbar/useTargetNetwork";
+import { notification } from "~~/utils/scaffold-hbar";
+import { useAllContracts } from "~~/utils/scaffold-hbar/contractsData";
 
 const BlockExplorer: NextPage = () => {
   const { targetNetwork } = useTargetNetwork();

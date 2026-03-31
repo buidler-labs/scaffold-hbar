@@ -11,7 +11,7 @@ import { WagmiProvider } from "wagmi";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { LocalChainErrorBanner } from "~~/components/LocalChainErrorBanner";
-import { BlockieAvatar } from "~~/components/scaffold-eth";
+import { BlockieAvatar } from "~~/components/scaffold-hbar";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 
 const ScaffoldHbarApp = ({ children }: { children: React.ReactNode }) => {

@@ -4,8 +4,8 @@ import { getPublicClient } from "wagmi/actions";
 import { SendTransactionMutate } from "wagmi/query";
 import scaffoldConfig from "~~/scaffold.config";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
-import { AllowedChainIds, getBlockExplorerTxLink, notification } from "~~/utils/scaffold-eth";
-import { TransactorFuncOptions, getParsedErrorWithAllAbis } from "~~/utils/scaffold-eth/contract";
+import { AllowedChainIds, getBlockExplorerTxLink, notification } from "~~/utils/scaffold-hbar";
+import { TransactorFuncOptions, getParsedErrorWithAllAbis } from "~~/utils/scaffold-hbar/contract";
 
 type TransactionFunc = (
   tx: (() => Promise<Hash>) | Parameters<SendTransactionMutate<Config, undefined>>[0],

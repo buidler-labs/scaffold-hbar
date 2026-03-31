@@ -3,7 +3,7 @@ import { useTargetNetwork } from "./useTargetNetwork";
 import { Address, Log } from "viem";
 import { usePublicClient } from "wagmi";
 import deployedContracts from "~~/contracts/deployedContracts";
-import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
+import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 
 function getDeployedOnBlock(chainId: number, address: Address): bigint {
   const contracts = deployedContracts as GenericContractsDeclaration | null;

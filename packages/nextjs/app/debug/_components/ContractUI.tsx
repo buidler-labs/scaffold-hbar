@@ -2,9 +2,9 @@
 
 // @refresh reset
 import { Contract } from "@scaffold-ui/debug-contracts";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
-import { ContractName } from "~~/utils/scaffold-eth/contract";
+import { useDeployedContractInfo } from "~~/hooks/scaffold-hbar";
+import { useTargetNetwork } from "~~/hooks/scaffold-hbar/useTargetNetwork";
+import { ContractName } from "~~/utils/scaffold-hbar/contract";
 
 type ContractUIProps = {
   contractName: ContractName;

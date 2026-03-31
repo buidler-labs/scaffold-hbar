@@ -8,8 +8,8 @@ import { PaginationButton } from "./PaginationButton";
 import { TransactionsTable } from "./TransactionsTable";
 import { Address, createPublicClient, http } from "viem";
 import { hardhat } from "viem/chains";
-import { useFetchBlocks } from "~~/hooks/scaffold-eth";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
+import { useFetchBlocks } from "~~/hooks/scaffold-hbar";
+import { useTargetNetwork } from "~~/hooks/scaffold-hbar/useTargetNetwork";
 
 type AddressCodeTabProps = {
   bytecode: string;

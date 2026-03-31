@@ -12,10 +12,10 @@ import {
   DocumentDuplicateIcon,
   KeyIcon,
 } from "@heroicons/react/24/outline";
-import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { useCopyToClipboard, useOutsideClick } from "~~/hooks/scaffold-eth";
-import { getTargetNetworks } from "~~/utils/scaffold-eth";
-import { isENS } from "~~/utils/scaffold-eth/common";
+import { BlockieAvatar } from "~~/components/scaffold-hbar";
+import { useCopyToClipboard, useOutsideClick } from "~~/hooks/scaffold-hbar";
+import { getTargetNetworks } from "~~/utils/scaffold-hbar";
+import { isENS } from "~~/utils/scaffold-hbar/common";
 
 const allowedNetworks = getTargetNetworks();
 
