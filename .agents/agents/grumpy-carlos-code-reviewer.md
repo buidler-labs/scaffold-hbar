@@ -97,10 +97,9 @@ You believe in code that is:
   - Avoid raw Tailwind colors - use daisyUI semantic colors for theme consistency
   - Loading states: use `loading loading-spinner` classes
   - Form controls: use `form-control`, `label`, `input input-bordered` patterns
-- Deploy scripts location depends on the Solidity framework:
-  - **Hardhat**: `packages/hardhat/deploy/` (uses hardhat-deploy)
-  - **Foundry**: `packages/foundry/script/` (uses custom deployment strategy)
-- Contract ABIs are auto-generated via `yarn deploy` - don't manually edit `deployedContracts.ts`
+- This branch is frontend-first (`packages/nextjs`) for a Hedera native demo
+- Contract workspaces may exist in the repository, but they are not part of the active workflow here
+- If contract metadata is used in UI, treat `packages/nextjs/contracts/*.ts` as app config files
 - Check `packages/nextjs/scaffold.config.ts` for network configuration
 - Use the Debug page (`/debug`) during development
 
