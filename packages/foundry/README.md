@@ -133,7 +133,7 @@ Forking background: [Forking the Hedera network for local testing](https://docs.
   yarn deploy --file DeployFactory.s.sol --network hedera_testnet
   yarn deploy --file DeployMemejobDCAStrategy.s.sol --network hedera_testnet
   ```
-- **Make-only deploy** (same as `yarn deploy` on localhost when you set variables yourself): `make deploy` with `RPC_URL`, `DEPLOY_SCRIPT`, and `ETH_KEYSTORE_ACCOUNT` as in `make help`.
+- **Make-only deploy** (same as `yarn deploy` on localhost when you set variables yourself): `make deploy` with `RPC_URL`, `DEPLOY_SCRIPT`, and `ETH_KEYSTORE_ACCOUNT` (see `Makefile` and `scripts-js/parseArgs.js`).
 
 The Makefile uses `--slow` on non-localhost RPCs so transactions confirm in order (reduces `WRONG_NONCE` on Hedera).
 
@@ -174,22 +174,13 @@ Requires `forge build` so `out/<Contract>.sol/<Contract>.json` exists.
 3. Add `test/YourStrategy.t.sol` (mock external protocols / tokens as needed).
 4. Users call `ScheduledVaultFactory.createVault(address(yourStrategy))`, then `configure` with ABI-encoded config matching your struct(s). Encode off-chain the same shapes your strategy decodes (see `MemejobDCAStrategy` + tests for reference).
 
-## Makefile quick reference
-
-From **this directory**:
-
-```bash
-make help
-```
+## Make targets and variables
 
 Many `**yarn <script>**` entries in `[package.json](package.json)` call these Make targets. Common variables: `**RPC_URL**`, `**DEPLOY_SCRIPT**`, `**ETH_KEYSTORE_ACCOUNT**`, `**ACCOUNT_NAME**` (for `get-address`).
 
 ## Links
 
-- [Hedera documentation](https://docs.hedera.com/)
-- [Hashscan](https://hashscan.io/)
-- [Hedera Schedule Service / smart contract schedules](https://docs.hedera.com/hedera/core-concepts/smart-contracts/hedera-schedule-service)
-- [create-hbar](https://github.com/hashgraph/create-hbar)
+- [Hedera Schedule Service](https://docs.hedera.com/hedera/core-concepts/smart-contracts/system-smart-contracts/hedera-schedule-service)
 - [Foundry Book](https://book.getfoundry.sh/)
 
 ## Disclaimer
