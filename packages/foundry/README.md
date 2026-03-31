@@ -32,7 +32,8 @@ From the repo root, contract deploys for this package use **`yarn foundry:deploy
   yarn foundry:deploy --network localhost
   ```
 
-  `make fork` is equivalent to `yarn fork` (see `Makefile`). This uses the default keystore `scaffold-eth-default` where applicable (see `Makefile` / `parseArgs.js`).
+  `make fork` is equivalent to `yarn fork` (see `Makefile`). This uses the default keystore `scaffold-hbar-default` where applicable (see `Makefile` / `parseArgs.js`).
+  The deploy flow auto-creates the local `deployments/` directory before writing `deployments/<chainId>.json`.
 
 - **Plain Anvil (no Hedera fork):** `yarn chain` in this package runs plain `anvil`—useful for quick iteration, not for full Hedera/HTS parity.
 

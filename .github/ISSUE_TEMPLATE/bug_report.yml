@@ -1,28 +1,28 @@
 name: Bug Report
 description: File a bug/issue
-title: 'bug: <title>'
+title: "bug: <title>"
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report! The more info you provide, the more we can help you 🙌
+        Thanks for taking the time to fill out this bug report! The more info you provide, the more we can help you.
 
   - type: checkboxes
     attributes:
       label: Is there an existing issue for this?
       description: Please search to see if an issue already exists for the bug you encountered.
       options:
-        - label: I have looked through the [existing issues](https://github.com/scaffold-eth/scaffold-eth-2/issues)
+        - label: I have looked through the [existing issues](https://github.com/buidler-labs/scaffold-hbar/issues)
           required: true
 
   - type: dropdown
     attributes:
-      label: Which method was used to setup Scaffold-ETH 2 ?
-      description: You may select both, if the bug is present in both the methods.
+      label: How did you set up Scaffold-HBAR?
+      description: You may select more than one if the bug appears in multiple setups.
       multiple: true
       options:
         - git clone
-        - npx create-eth@latest
+        - npx create-hbar@latest
     validations:
       required: true
 
