@@ -1,7 +1,7 @@
 import React from "react";
 import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
 import { SwitchTheme } from "~~/components/SwitchTheme";
-import { useFetchHbarPrice } from "~~/hooks/scaffold-eth";
+import { useFetchHbarPrice } from "~~/hooks/scaffold-hbar";
 
 /**
  * Site footer
@@ -30,7 +30,7 @@ export const Footer = () => {
         <ul className="menu menu-horizontal w-full">
           <div className="flex justify-center items-center gap-3 text-sm w-full text-base-content/60">
             <a
-              href="https://github.com/buidler-labs/scaffold-eth-2"
+              href="https://github.com/buidler-labs/scaffold-hbar"
               target="_blank"
               rel="noreferrer"
               className="link hover:text-primary"

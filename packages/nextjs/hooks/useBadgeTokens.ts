@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { isEvmAddress, isHederaAccountId } from "~~/utils/scaffold-eth/identity";
+import { isEvmAddress, isHederaAccountId } from "~~/utils/scaffold-hbar/identity";
 
 /**
  * Query HTS badge token balance for an account.

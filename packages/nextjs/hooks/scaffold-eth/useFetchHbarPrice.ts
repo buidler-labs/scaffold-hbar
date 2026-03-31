@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { HBAR_PRICE_CACHE_DURATION_MS, fetchHbarPrice } from "~~/utils/scaffold-eth";
+import { HBAR_PRICE_CACHE_DURATION_MS, fetchHbarPrice } from "~~/utils/scaffold-hbar";
 
 export function useFetchHbarPrice(): { price: number; isLoading: boolean } {
   const [price, setPrice] = useState(0);

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useGlobalState } from "~~/services/store/store";
-import { ChainWithAttributes } from "~~/utils/scaffold-eth";
+import { ChainWithAttributes } from "~~/utils/scaffold-hbar";
 
 /**
  * Returns the currently selected target network from global state.

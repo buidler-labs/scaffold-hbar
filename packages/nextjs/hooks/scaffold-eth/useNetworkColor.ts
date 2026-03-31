@@ -1,6 +1,6 @@
 import { useTheme } from "next-themes";
-import { useSelectedNetwork } from "~~/hooks/scaffold-eth";
-import { AllowedChainIds, ChainWithAttributes } from "~~/utils/scaffold-eth";
+import { useSelectedNetwork } from "~~/hooks/scaffold-hbar";
+import { AllowedChainIds, ChainWithAttributes } from "~~/utils/scaffold-hbar";
 
 export const DEFAULT_NETWORK_COLOR: [string, string] = ["#666666", "#bbbbbb"];
 

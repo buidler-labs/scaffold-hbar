@@ -285,7 +285,7 @@ function main() {
 
   writeFileSync(
     join(NEXTJS_TARGET_DIR, "deployedContracts.ts"),
-    format(fileTemplate("~~/utils/scaffold-eth/contract"), {
+    format(fileTemplate("~~/utils/scaffold-hbar/contract"), {
       parser: "typescript",
     })
   );

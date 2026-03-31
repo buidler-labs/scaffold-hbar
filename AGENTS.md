@@ -4,7 +4,7 @@ This file provides guidance to coding agents working in this repository.
 
 ## Project Overview
 
-Scaffold-ETH 2 (SE-2) is a starter kit for building dApps on Ethereum. It comes in **two flavors** based on the Solidity framework:
+Scaffold-HBAR (Scaffold-HBAR) is a starter kit for building dApps on Hedera. It comes in **two flavors** based on the Solidity framework:
 
 - **Hardhat flavor**: Uses `packages/hardhat` with hardhat-deploy plugin
 - **Foundry flavor**: Uses `packages/foundry` with Forge scripts
@@ -47,7 +47,7 @@ yarn account:import      # Import existing private key
 yarn account             # View current account info
 
 # Deploy to live network
-yarn deploy --network <network>   # e.g., sepolia, mainnet, base
+yarn deploy --network <network>   # e.g., hederaTestnet, hederaMainnet
 
 yarn vercel:yolo --prod # for deployment of frontend
 ```
@@ -132,9 +132,9 @@ const { data: events, isLoading } = useScaffoldEventHistory({
 });
 ```
 
-SE-2 also provides other hooks to interact with blockchain data: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
+Scaffold-HBAR also provides other hooks to interact with blockchain data: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
 
-**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-eth` for contract interactions. Always refer to the hook names as they exist in the codebase.**
+**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-hbar` for contract interactions. Always refer to the hook names as they exist in the codebase.**
 
 ### UI Components
 
@@ -189,7 +189,7 @@ Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file a
 Use the `~~` path alias for imports in the nextjs package:
 
 ```tsx
-import { useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
 ```
 
 ### Creating Pages

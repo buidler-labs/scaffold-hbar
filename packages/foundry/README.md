@@ -15,7 +15,7 @@ forge install foundry-rs/forge-std gnsps/solidity-bytes-utils hashgraph/hedera-f
 
 ## Deploy
 
-- **Local (Hedera fork):** Start the chain (`yarn chain` from repo root), then `yarn deploy` (default network: localhost). Uses the default keystore `scaffold-eth-default` (prefunded on the fork).
+- **Local (Hedera fork):** Start the chain (`yarn chain` from repo root), then `yarn deploy` (default network: localhost). Uses the default keystore `scaffold-hbar-default` (prefunded on the fork).
 - **Hedera testnet/mainnet:** Use `yarn deploy --network hedera_testnet` (or `hedera_mainnet`). You **must** use a keystore whose address is a **Hedera-created account** (created and funded via [Hedera Portal](https://portal.hedera.com) or faucet). If you see `Requested resource not found. address '0x...'`, that address does not exist on Hedera—create an account with an ECDSA key, import it with `yarn account:import`, then deploy with `--keystore <name>`. For multi-contract deploys, the Makefile uses `--slow` so each transaction is confirmed before the next (avoids `WRONG_NONCE` on Hedera when both txs are in flight).
 
 ## Tests

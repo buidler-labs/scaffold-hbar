@@ -1,7 +1,7 @@
 import scaffoldConfig from "~~/scaffold.config";
 import { useGlobalState } from "~~/services/store/store";
-import { AllowedChainIds } from "~~/utils/scaffold-eth";
-import { ChainWithAttributes, NETWORKS_EXTRA_DATA } from "~~/utils/scaffold-eth/networks";
+import { AllowedChainIds } from "~~/utils/scaffold-hbar";
+import { ChainWithAttributes, NETWORKS_EXTRA_DATA } from "~~/utils/scaffold-hbar/networks";
 
 /**
  * Given a chainId, retrives the network object from `scaffold.config`,

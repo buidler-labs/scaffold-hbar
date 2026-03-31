@@ -7,7 +7,7 @@ import { proofWallConfig } from "~~/config/proofWallConfig";
 import { useHederaSigner } from "~~/hooks/useHederaSigner";
 import type { TopicMessage } from "~~/hooks/useTopicMessages";
 import { useTopicMessages } from "~~/hooks/useTopicMessages";
-import { normalizeIdentity } from "~~/utils/scaffold-eth/identity";
+import { normalizeIdentity } from "~~/utils/scaffold-hbar/identity";
 
 function filterMessagesByAuthor(messages: TopicMessage[], authors: string[]): TopicMessage[] {
   const normalizedAuthors = authors.map(normalizeIdentity).filter(Boolean);
