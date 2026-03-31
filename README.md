@@ -91,7 +91,7 @@ Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) o
 
 You can test contracts and the app locally against a Hedera-forked execution environment before deploying to public networks.
 
-### Hardhat fork workflow
+### Hardhat local workflow
 
 Details and rationale (including **`localhost` vs default `hardhat` network**) are in [`packages/hardhat/README.md`](packages/hardhat/README.md).
 
@@ -123,17 +123,14 @@ yarn hardhat:test
 yarn start
 ```
 
-Use `yarn fork` when you specifically want the mainnet-fork script variant (see [`packages/hardhat/README.md`](packages/hardhat/README.md)).
+### Foundry local workflow
 
-### Foundry fork workflow
+This path uses **Foundry** (`packages/foundry`) while sharing the same local JSON-RPC started by `yarn chain` from the repo root. Details: [`packages/foundry/README.md`](packages/foundry/README.md).
 
-This path uses **Foundry/Anvil** (`packages/foundry`). It is separate from the Hardhat fork workflow above. Details: [`packages/foundry/README.md`](packages/foundry/README.md).
-
-1. Start an Anvil fork against Hedera testnet (chain id 296 on port 8545):
+1. Start the local chain first:
 
 ```bash
-cd packages/foundry
-yarn fork
+yarn chain
 ```
 
 2. Run Foundry tests against that JSON-RPC:
@@ -149,7 +146,7 @@ yarn foundry:test:testnet
 yarn foundry:test:mainnet
 ```
 
-If you use the **Hardhat** node from the repo root (`yarn chain`) instead of `yarn fork` in `packages/foundry`, `yarn foundry:test:local` can still attach to the same port when chain id matches—see the Foundry README for when to prefer which stack.
+This keeps local testing on a single path and avoids chain id drift between different local node commands.
 
 ## Project layout
 

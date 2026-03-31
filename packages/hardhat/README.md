@@ -29,8 +29,6 @@ Root scripts delegate to this package via the `@sh/hardhat` workspace (e.g. `yar
    yarn hardhat:test
    ```
 
-4. **Mainnet-style fork** (optional): from repo root, `yarn fork` runs the Hardhat node with mainnet forking enabled (`MAINNET_FORKING_ENABLED=true HEDERA_FORKING=true`). Use when you need a mainnet fork instead of the default testnet fork.
-
 ## Deploy and verify on Hedera testnet/mainnet
 
 You need a deployer account with HBAR on the target network. Without funds, deploy and verify will fail with "Sender account not found".
