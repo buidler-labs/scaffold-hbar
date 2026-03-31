@@ -16,12 +16,12 @@
     "incremental": true,
     "paths": {
       "~~/*": ["./*"],
-      "~~/hooks/scaffold-hbar": ["./hooks/scaffold-eth/index.ts"],
-      "~~/hooks/scaffold-hbar/*": ["./hooks/scaffold-eth/*"],
-      "~~/utils/scaffold-hbar": ["./utils/scaffold-eth/index.ts"],
-      "~~/utils/scaffold-hbar/*": ["./utils/scaffold-eth/*"],
-      "~~/components/scaffold-hbar": ["./components/scaffold-eth/index.tsx"],
-      "~~/components/scaffold-hbar/*": ["./components/scaffold-eth/*"]
+      "~~/hooks/scaffold-hbar": ["./hooks/scaffold-hbar/index.ts"],
+      "~~/hooks/scaffold-hbar/*": ["./hooks/scaffold-hbar/*"],
+      "~~/utils/scaffold-hbar": ["./utils/scaffold-hbar/index.ts"],
+      "~~/utils/scaffold-hbar/*": ["./utils/scaffold-hbar/*"],
+      "~~/components/scaffold-hbar": ["./components/scaffold-hbar/index.tsx"],
+      "~~/components/scaffold-hbar/*": ["./components/scaffold-hbar/*"]
     },
     "plugins": [
       {
