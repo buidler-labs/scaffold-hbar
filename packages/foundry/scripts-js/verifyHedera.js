@@ -141,7 +141,12 @@ async function verifyContract(contractName, contractAddress, chainId) {
 
   const boundary = `----FormBoundary${Date.now().toString(16)}`;
   const body = buildMultipart(boundary, fields);
-  const { status, body: responseBody } = await postMultipart(HASHSCAN_VERIFY_HOST, HASHSCAN_VERIFY_PATH, body, boundary);
+  const { status, body: responseBody } = await postMultipart(
+    HASHSCAN_VERIFY_HOST,
+    HASHSCAN_VERIFY_PATH,
+    body,
+    boundary,
+  );
 
   let parsed;
   try {

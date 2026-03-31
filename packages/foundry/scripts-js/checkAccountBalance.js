@@ -8,8 +8,7 @@ import { readFileSync } from "fs";
 import { parse } from "toml";
 import { ethers } from "ethers";
 
-const ALCHEMY_API_KEY =
-  process.env.ALCHEMY_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
 
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
@@ -50,9 +49,7 @@ async function getBalanceForEachNetwork(address) {
         console.log("   Balance:", formattedBalance);
         console.log("   Nonce:", await provider.getTransactionCount(address));
       } catch (e) {
-        console.log(
-          `   ❌ Can't connect to network ${networkName}: ${e.message}`
-        );
+        console.log(`   ❌ Can't connect to network ${networkName}: ${e.message}`);
       }
     }
   } catch (error) {
@@ -65,7 +62,7 @@ async function checkAccountBalance() {
     // Step 1: List accounts and let user select one
     console.log("📋 Listing available accounts...");
     const selectedKeystore = await listKeystores(
-      "Select a keystore to display its balance (enter the number, e.g., 1): "
+      "Select a keystore to display its balance (enter the number, e.g., 1): ",
     );
 
     if (!selectedKeystore) {
@@ -95,7 +92,7 @@ async function checkAccountBalance() {
 
 // Run the function if this script is called directly
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  checkAccountBalance().catch((error) => {
+  checkAccountBalance().catch(error => {
     console.error(error);
     process.exit(1);
   });
