@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { clearWalletStorage, getHederaProvider, initAppKit, resetAppKitSession } from "./appKitHedera";
 import type { HederaProvider } from "@hashgraph/hedera-wallet-connect";
 import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
@@ -52,12 +52,12 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
     };
   }, []);
 
-  const connectWallet = async () => {
+  const connectWallet = useCallback(async () => {
     // Connect is triggered from custom UI via AppKit modal open().
     return Promise.resolve();
-  };
+  }, []);
 
-  const disconnectWallet = async () => {
+  const disconnectWallet = useCallback(async () => {
     if (isBusy) return;
     const addressWhenDisconnecting = address;
     setIsBusy(true);
@@ -103,7 +103,7 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
     } finally {
       setIsBusy(false);
     }
-  };
+  }, [isBusy, address, disconnect, provider]);
 
   const accountId = !forceDisconnected && isConnected && address ? address : null;
 
@@ -133,7 +133,7 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
       connectWallet,
       disconnectWallet,
     }),
-    [provider, accountId, isInitializing, isBusy],
+    [provider, accountId, isInitializing, isBusy, connectWallet, disconnectWallet],
   );
 
   // Don't render children until AppKit + HederaProvider are ready.
