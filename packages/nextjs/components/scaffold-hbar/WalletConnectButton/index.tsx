@@ -10,7 +10,7 @@ import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
  */
 export const WalletConnectButton = () => {
   const { open } = useAppKit();
-  const { accountId, isConnected, isBusy, prepareConnect, disconnectWallet } = useHederaWalletConnect();
+  const { accountId, isConnected, isBusy, disconnectWallet } = useHederaWalletConnect();
   const menuRef = useRef<HTMLDetailsElement>(null);
 
   if (!isConnected) {
@@ -18,7 +18,6 @@ export const WalletConnectButton = () => {
       <button
         className="btn btn-primary btn-sm"
         onClick={() => {
-          prepareConnect();
           void open({ view: "Connect", namespace: hederaNamespace });
         }}
         type="button"

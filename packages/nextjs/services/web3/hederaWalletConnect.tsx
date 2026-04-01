@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { getHederaProvider, initAppKit } from "./appKitHedera";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { clearWalletStorage, getHederaProvider, initAppKit, resetAppKitSession } from "./appKitHedera";
 import type { HederaProvider } from "@hashgraph/hedera-wallet-connect";
 import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
 import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";
@@ -12,7 +12,6 @@ type HederaWalletConnectContextValue = {
   isConnected: boolean;
   isInitializing: boolean;
   isBusy: boolean;
-  prepareConnect: () => void;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => Promise<void>;
 };
@@ -36,6 +35,7 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
   const [isBusy, setIsBusy] = useState(false);
   const [forceDisconnected, setForceDisconnected] = useState(false);
   const { address, isConnected } = useAppKitAccount({ namespace: hederaNamespace });
+  const prevAddressRef = useRef<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -57,12 +57,9 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
     return Promise.resolve();
   };
 
-  const prepareConnect = () => {
-    setForceDisconnected(false);
-  };
-
   const disconnectWallet = async () => {
     if (isBusy) return;
+    const addressWhenDisconnecting = address;
     setIsBusy(true);
     try {
       try {
@@ -90,7 +87,19 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
           }
         }
       }
+
+      clearWalletStorage();
+      await resetAppKitSession();
+      _initPromise = null;
+      // Keep last account on the ref so a stale isConnected+sameAddress frame cannot clear forceDisconnected.
+      prevAddressRef.current = addressWhenDisconnecting ?? null;
       setForceDisconnected(true);
+
+      void ensureInit()
+        .then(hp => {
+          setProvider(hp);
+        })
+        .catch(err => console.error("HederaWalletConnect re-init after disconnect failed", err));
     } finally {
       setIsBusy(false);
     }
@@ -100,9 +109,19 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
 
   useEffect(() => {
     if (isConnected && address) {
-      setForceDisconnected(false);
+      if (forceDisconnected && address === prevAddressRef.current) {
+        return;
+      }
+      if (forceDisconnected) {
+        setForceDisconnected(false);
+      }
+      prevAddressRef.current = address;
+      return;
     }
-  }, [isConnected, address]);
+    if (!isConnected) {
+      prevAddressRef.current = null;
+    }
+  }, [isConnected, address, forceDisconnected]);
 
   const value = useMemo<HederaWalletConnectContextValue>(
     () => ({
@@ -111,7 +130,6 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
       isConnected: Boolean(accountId),
       isInitializing,
       isBusy,
-      prepareConnect,
       connectWallet,
       disconnectWallet,
     }),

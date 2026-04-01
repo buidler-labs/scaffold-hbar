@@ -27,7 +27,7 @@ export default function AdminPage() {
 
   const [tokenName, setTokenName] = useState("ProofBadge");
   const [tokenSymbol, setTokenSymbol] = useState("PROOF");
-  const [initialSupply, setInitialSupply] = useState("0");
+  const [initialSupply, setInitialSupply] = useState("");
   const [tokenSuccess, setTokenSuccess] = useState<string | null>(null);
   const [tokenCopied, setTokenCopied] = useState(false);
 
@@ -225,13 +225,13 @@ HEDERA_NETWORK=testnet`;
                 </label>
                 <input
                   id="token-supply"
-                  type="number"
-                  min={0}
-                  step={1}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   className="input input-bordered w-full max-w-xs"
                   placeholder="0"
                   value={initialSupply}
-                  onChange={e => setInitialSupply(e.target.value.replace(/\D/g, "") || "0")}
+                  onChange={e => setInitialSupply(e.target.value.replace(/\D/g, ""))}
                   disabled={createToken.isPending || !isConnected}
                 />
               </div>
