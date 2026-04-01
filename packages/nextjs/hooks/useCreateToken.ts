@@ -1,10 +1,10 @@
 "use client";
 
-import { transactionToBase64String } from "@hashgraph/hedera-wallet-connect/dist/lib/shared/utils.js";
 import { AccountId, TokenCreateTransaction, TokenSupplyType, TokenType } from "@hiero-ledger/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { useHederaSigner } from "~~/hooks/useHederaSigner";
 import { hederaCaipId } from "~~/utils/scaffold-hbar/hederaIdentity";
+import { transactionToBase64String } from "~~/utils/scaffold-hbar/hederaTxUtils";
 
 type CreateTokenParams = { name: string; symbol: string; initialSupply?: string };
 
