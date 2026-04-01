@@ -2,9 +2,9 @@
 
 // @refresh reset
 import { Contract } from "@scaffold-ui/debug-contracts";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
-import { ContractName } from "~~/utils/scaffold-eth/contract";
+import { useDeployedContractInfo } from "~~/hooks/scaffold-hbar";
+import { useTargetNetwork } from "~~/hooks/scaffold-hbar/useTargetNetwork";
+import { ContractName } from "~~/utils/scaffold-hbar/contract";
 
 type ContractUIProps = {
   contractName: ContractName;
@@ -29,7 +29,7 @@ export const ContractUI = ({ contractName }: ContractUIProps) => {
   if (!deployedContractData) {
     return (
       <p className="text-3xl mt-14">
-        No contract found by the name of {contractName} on chain {targetNetwork.name}!
+        No contract found by the name of {String(contractName)} on chain {targetNetwork.name}!
       </p>
     );
   }

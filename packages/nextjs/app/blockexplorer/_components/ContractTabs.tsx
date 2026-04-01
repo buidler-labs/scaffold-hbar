@@ -8,7 +8,8 @@ import { PaginationButton } from "./PaginationButton";
 import { TransactionsTable } from "./TransactionsTable";
 import { Address, createPublicClient, http } from "viem";
 import { hardhat } from "viem/chains";
-import { useFetchBlocks } from "~~/hooks/scaffold-eth";
+import { useFetchBlocks } from "~~/hooks/scaffold-hbar";
+import { useTargetNetwork } from "~~/hooks/scaffold-hbar/useTargetNetwork";
 
 type AddressCodeTabProps = {
   bytecode: string;
@@ -26,18 +27,21 @@ const publicClient = createPublicClient({
 });
 
 export const ContractTabs = ({ address, contractData }: PageProps) => {
-  const { blocks, transactionReceipts, currentPage, totalBlocks, setCurrentPage } = useFetchBlocks();
+  const { targetNetwork } = useTargetNetwork();
+  const isLocalNetwork = targetNetwork.id === hardhat.id;
+  const { blocks, transactionReceipts, currentPage, totalBlocks, setCurrentPage } = useFetchBlocks(isLocalNetwork);
   const [activeTab, setActiveTab] = useState("transactions");
   const [isContract, setIsContract] = useState(false);
 
   useEffect(() => {
+    if (!isLocalNetwork) return;
     const checkIsContract = async () => {
       const contractCode = await publicClient.getBytecode({ address: address });
       setIsContract(contractCode !== undefined && contractCode !== "0x");
     };
 
     checkIsContract();
-  }, [address]);
+  }, [address, isLocalNetwork]);
 
   const filteredBlocks = blocks.filter(block =>
     block.transactions.some(tx => {

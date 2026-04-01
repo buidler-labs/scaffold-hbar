@@ -1,51 +1,36 @@
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
-import {
-  baseAccount,
-  ledgerWallet,
-  metaMaskWallet,
-  rainbowWallet,
-  safeWallet,
-  walletConnectWallet,
-} from "@rainbow-me/rainbowkit/wallets";
+import { metaMaskWallet, walletConnectWallet } from "@rainbow-me/rainbowkit/wallets";
 import { rainbowkitBurnerWallet } from "burner-connector";
 import * as chains from "viem/chains";
 import scaffoldConfig from "~~/scaffold.config";
 
-const { onlyLocalBurnerWallet, targetNetworks } = scaffoldConfig;
+const wallets = [metaMaskWallet, walletConnectWallet];
 
-const wallets = [
-  metaMaskWallet,
-  walletConnectWallet,
-  ledgerWallet,
-  baseAccount,
-  rainbowWallet,
-  safeWallet,
-  ...(!targetNetworks.some(network => network.id !== (chains.hardhat as chains.Chain).id) || !onlyLocalBurnerWallet
-    ? [rainbowkitBurnerWallet]
-    : []),
-];
+const DEV_CHAIN_IDS = new Set<number>([chains.hardhat.id, chains.foundry.id, chains.hederaTestnet.id]);
 
-/**
- * wagmi connectors for the wagmi context
- */
+const hasDevNetwork = scaffoldConfig.targetNetworks.some(n => DEV_CHAIN_IDS.has(n.id));
+
 export const wagmiConnectors = () => {
-  // Only create connectors on client-side to avoid SSR issues
-  // TODO: update when https://github.com/rainbow-me/rainbowkit/issues/2476 is resolved
   if (typeof window === "undefined") {
     return [];
   }
 
-  return connectorsForWallets(
-    [
-      {
-        groupName: "Supported Wallets",
-        wallets,
-      },
-    ],
-
+  const walletGroups = [
     {
-      appName: "scaffold-eth-2",
-      projectId: scaffoldConfig.walletConnectProjectId,
+      groupName: "Supported Wallets",
+      wallets,
     },
-  );
+  ];
+
+  if (scaffoldConfig.enableBurnerWallet && hasDevNetwork) {
+    walletGroups.push({
+      groupName: "Development",
+      wallets: [rainbowkitBurnerWallet],
+    });
+  }
+
+  return connectorsForWallets(walletGroups, {
+    appName: "scaffold-hbar",
+    projectId: scaffoldConfig.walletConnectProjectId,
+  });
 };

@@ -31,7 +31,10 @@ jobs:
         run: yarn install --immutable
 
       - name: Run hardhat node, deploy contracts (& generate contracts typescript output)
-        run: yarn chain & yarn deploy
+        run: |
+          yarn chain &
+          timeout 60s bash -c 'until curl -s -X POST http://127.0.0.1:8545 -H "Content-Type: application/json" --data "{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":1}" >/dev/null; do sleep 2; done'
+          yarn deploy --network localhost
 
       - name: Run nextjs lint
         run: yarn next:lint --max-warnings=0

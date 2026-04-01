@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
-import { useCopyToClipboard } from "~~/hooks/scaffold-eth/useCopyToClipboard";
+import { useCopyToClipboard } from "~~/hooks/scaffold-hbar/useCopyToClipboard";
 
 export const TransactionHash = ({ hash }: { hash: string }) => {
   const { copyToClipboard: copyAddressToClipboard, isCopiedToClipboard: isAddressCopiedToClipboard } =

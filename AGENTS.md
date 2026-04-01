@@ -1,10 +1,10 @@
-# AGENTS.md
+# [AGENTS.md](http://AGENTS.md)
 
 This file provides guidance to coding agents working in this repository.
 
 ## Project Overview
 
-Scaffold-ETH 2 (SE-2) is a starter kit for building dApps on Ethereum. It comes in **two flavors** based on the Solidity framework:
+Scaffold-HBAR (`sh`) is a starter kit for building dApps on Hedera. It comes in **two flavors** based on the Solidity framework:
 
 - **Hardhat flavor**: Uses `packages/hardhat` with hardhat-deploy plugin
 - **Foundry flavor**: Uses `packages/foundry` with Forge scripts
@@ -13,7 +13,7 @@ Both flavors share the same frontend package:
 
 - **packages/nextjs**: React frontend (Next.js App Router, not Pages Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS with DaisyUI)
 
-### Detecting Which Flavor You're Using
+### Detecting Which Flavor You're Usings
 
 Check which package exists in the repository:
 
@@ -47,7 +47,7 @@ yarn account:import      # Import existing private key
 yarn account             # View current account info
 
 # Deploy to live network
-yarn deploy --network <network>   # e.g., sepolia, mainnet, base
+yarn deploy --network <network>   # e.g., hederaTestnet, hederaMainnet
 
 yarn vercel:yolo --prod # for deployment of frontend
 ```
@@ -132,18 +132,18 @@ const { data: events, isLoading } = useScaffoldEventHistory({
 });
 ```
 
-SE-2 also provides other hooks to interact with blockchain data: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
+Scaffold-HBAR also provides other hooks to interact with blockchain data: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
 
-**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-eth` for contract interactions. Always refer to the hook names as they exist in the codebase.**
+**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-eth` for contract interactions (legacy path segment; project branding is Scaffold-HBAR / `sh`). Always refer to the hook names as they exist in the codebase.**
 
 ### UI Components
 
 **Always use `@scaffold-ui/components` library for web3 UI components:**
 
-- `Address`: Display ETH addresses with ENS resolution, blockie avatars, and explorer links
-- `AddressInput`: Input field with address validation and ENS resolution
-- `Balance`: Show ETH balance in ether and USD
-- `EtherInput`: Number input with ETH/USD conversion toggle
+- `Address`: Display Hedera EVM addresses with blockie avatars and explorer links
+- `AddressInput`: Input field with address validation
+- `Balance`: Show HBAR balance in tinybar/HBAR and fiat equivalent
+- `EtherInput`: Number input for EVM value entry (kept for EVM compatibility)
 - `IntegerInput`: Integer-only input with wei conversion
 
 ### Styling
@@ -177,12 +177,14 @@ Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file a
 
 ### Identifiers
 
+
 | Style            | Category                                                                                                               |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `UpperCamelCase` | class / interface / type / enum / decorator / type parameters / component functions in TSX / JSXElement type parameter |
 | `lowerCamelCase` | variable / parameter / function / property / module alias                                                              |
 | `CONSTANT_CASE`  | constant / enum / global variables                                                                                     |
 | `snake_case`     | for hardhat deploy files and foundry script files                                                                      |
+
 
 ### Import Paths
 
@@ -222,4 +224,5 @@ Use **Context7 MCP** tools to fetch up-to-date documentation for any library (Wa
 
 Use these specialized agents for specific tasks:
 
-- **`grumpy-carlos-code-reviewer`**: Use this agent for code reviews before finalizing changes
+- `**grumpy-carlos-code-reviewer`**: Use this agent for code reviews before finalizing changes
+
