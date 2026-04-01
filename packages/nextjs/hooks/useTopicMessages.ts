@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { TopicMessagesResponse } from "~~/services/mirrorNode";
 
 export type TopicMessage = {
   consensus_timestamp?: string;
@@ -27,7 +28,7 @@ export function useTopicMessages(topicId: string | null, options?: UseTopicMessa
       if (!topicId) return { messages: [] as TopicMessage[] };
       const res = await fetch(`/api/hedera/topic-messages?topicId=${encodeURIComponent(topicId)}`);
       if (!res.ok) throw new Error("Failed to fetch topic messages");
-      const data = (await res.json()) as { messages: TopicMessage[] };
+      const data = (await res.json()) as TopicMessagesResponse;
 
       if (pendingSeqRef.current != null) {
         const found = data.messages.some(m => m.sequence_number != null && m.sequence_number >= pendingSeqRef.current!);

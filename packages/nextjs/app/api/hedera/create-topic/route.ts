@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     // Read and discard body to keep request shape compatibility.
-    await req.json();
+    (await req.json()) as unknown;
   } catch {
     // No-op: route is deprecated regardless of body validity.
   }

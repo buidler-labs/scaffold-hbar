@@ -1,6 +1,12 @@
 export const HBAR_PRICE_CACHE_DURATION_MS = 60 * 1000;
 export const HBAR_PRICE_URL = "https://api.coingecko.com/api/v3/coins/hedera-hashgraph";
 
+type CoingeckoHbarResponse = {
+  market_data?: {
+    current_price?: { usd?: number };
+  };
+};
+
 type HbarPriceCache = {
   price: number;
   timestamp: number;
@@ -16,8 +22,8 @@ export async function fetchHbarPrice(): Promise<number> {
 
   try {
     const response = await fetch(HBAR_PRICE_URL);
-    const data = await response.json();
-    const price = data?.market_data?.current_price?.usd ?? 0;
+    const data = (await response.json()) as CoingeckoHbarResponse;
+    const price = data.market_data?.current_price?.usd ?? 0;
     cache = { price, timestamp: now };
     return price;
   } catch (error) {

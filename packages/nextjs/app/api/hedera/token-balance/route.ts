@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getMirrorBaseUrl } from "~~/services/mirrorNode";
+import type { MirrorAccountTokensResponse } from "~~/types/hederaFetchJson";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -16,7 +17,7 @@ export async function GET(req: Request) {
     const url = `${base}/api/v1/accounts/${accountId}/tokens?token.id=${tokenId}`;
     const res = await fetch(url, { next: { revalidate: 60 } });
     if (!res.ok) return NextResponse.json({ balance: 0 });
-    const data = (await res.json()) as { tokens?: { balance?: number }[] };
+    const data = (await res.json()) as MirrorAccountTokensResponse;
     const balance = data.tokens?.[0]?.balance ?? 0;
     return NextResponse.json({ accountId, tokenId, balance });
   } catch (e) {
