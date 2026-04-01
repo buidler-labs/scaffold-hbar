@@ -149,7 +149,12 @@ async function verifyContract(contractName, contractAddress, chainId) {
 
   const boundary = `----FormBoundary${Date.now().toString(16)}`;
   const body = buildMultipart(boundary, fields);
-  const { status, body: responseBody } = await postMultipart(HASHSCAN_VERIFY_HOST, HASHSCAN_VERIFY_PATH, body, boundary);
+  const { status, body: responseBody } = await postMultipart(
+    HASHSCAN_VERIFY_HOST,
+    HASHSCAN_VERIFY_PATH,
+    body,
+    boundary,
+  );
 
   let parsed;
   try {
@@ -211,7 +216,7 @@ async function main() {
   const tx = creates.find(t => t.contractName === contractName);
   if (!tx) {
     console.error(
-      `Error: No CREATE transaction found for '${contractName}' in broadcast for ${networkArg} (chain ${chainId}).`
+      `Error: No CREATE transaction found for '${contractName}' in broadcast for ${networkArg} (chain ${chainId}).`,
     );
     console.error(`Available contracts: ${creates.map(t => t.contractName).join(", ") || "none"}`);
     process.exit(1);

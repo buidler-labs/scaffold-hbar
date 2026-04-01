@@ -1,22 +1,21 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.19;
 
 import { ScaffoldETHDeploy } from "./DeployHelpers.s.sol";
-import { HederaToken } from "../contracts/HederaToken.sol";
-import { HtsTokenCreator } from "../contracts/HtsTokenCreator.sol";
+import { ScheduledVaultFactory } from "../contracts/ScheduledVaultFactory.sol";
+import { MemejobDCAStrategy } from "../contracts/strategies/MemejobDCAStrategy.sol";
 
 /**
- * @notice Main deployment script for all contracts
- * @dev Run this when you want to deploy multiple contracts at once
- *
- * Example: yarn deploy # runs this script(without `--file` flag)
+ * @notice One-shot deploy: ScheduledVaultFactory + MemejobDCAStrategy (default `yarn deploy`)
+ * @dev For individual deploys use `DeployFactory.s.sol` or `DeployMemejobDCAStrategy.s.sol`
  */
 contract DeployScript is ScaffoldETHDeploy {
-  function run() external ScaffoldEthDeployerRunner {
-    HederaToken hederaToken = new HederaToken(deployer);
-    deployments.push(Deployment({ name: "HederaToken", addr: address(hederaToken) }));
+    function run() external ScaffoldEthDeployerRunner {
+        ScheduledVaultFactory factory = new ScheduledVaultFactory();
+        deployments.push(Deployment({ name: "ScheduledVaultFactory", addr: address(factory) }));
 
-    HtsTokenCreator creator = new HtsTokenCreator();
-    deployments.push(Deployment({ name: "HtsTokenCreator", addr: address(creator) }));
-  }
+        MemejobDCAStrategy strategy = new MemejobDCAStrategy();
+        deployments.push(Deployment({ name: "MemejobDCAStrategy", addr: address(strategy) }));
+    }
 }
