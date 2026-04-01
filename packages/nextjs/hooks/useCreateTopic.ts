@@ -4,13 +4,9 @@ import { transactionToBase64String } from "@hashgraph/hedera-wallet-connect/dist
 import { TopicCreateTransaction } from "@hiero-ledger/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { useHederaSigner } from "~~/hooks/useHederaSigner";
+import { hederaCaipId } from "~~/utils/scaffold-hbar/hederaIdentity";
 
 type CreateTopicParams = { memo?: string };
-
-function hederaCaipId(accountId: string): string {
-  const network = process.env.NEXT_PUBLIC_HEDERA_NETWORK ?? "testnet";
-  return `hedera:${network}:${accountId}`;
-}
 
 export function useCreateTopic() {
   const { requireProvider } = useHederaSigner();

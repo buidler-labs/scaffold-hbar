@@ -10,16 +10,9 @@
 import { AccountId, TokenAirdropTransaction, TokenId, TransferTransaction } from "@hiero-ledger/sdk";
 import { getHederaClient } from "~~/services/hederaClient";
 import { getMirrorBaseUrl } from "~~/services/mirrorNode";
+import { extractIdentity } from "~~/utils/scaffold-hbar/hederaIdentity";
 
 const BADGE_MILESTONES = [1, 5, 10, 25, 50, 100];
-
-function extractIdentity(raw: string): string {
-  const trimmed = raw.trim();
-  if (trimmed.startsWith("hedera:") || trimmed.startsWith("eip155:")) {
-    return trimmed.split(":").pop() ?? trimmed;
-  }
-  return trimmed;
-}
 
 function normalizeIdentity(raw: string): string {
   return extractIdentity(raw).toLowerCase();

@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { extractIdentity } from "~~/utils/scaffold-hbar/hederaIdentity";
 import { isEvmAddress, isHederaAccountId } from "~~/utils/scaffold-hbar/identity";
 
 /**
@@ -9,14 +10,6 @@ import { isEvmAddress, isHederaAccountId } from "~~/utils/scaffold-hbar/identity
  */
 export function useBadgeTokens(tokenId: string | null, accountIdOrEvm: string | null) {
   const network = process.env.NEXT_PUBLIC_HEDERA_NETWORK ?? "testnet";
-
-  const extractIdentity = (value: string): string => {
-    const trimmed = value.trim();
-    if (trimmed.startsWith("hedera:") || trimmed.startsWith("eip155:")) {
-      return trimmed.split(":").pop() ?? trimmed;
-    }
-    return trimmed;
-  };
 
   return useQuery({
     queryKey: ["badge-tokens", tokenId, accountIdOrEvm],

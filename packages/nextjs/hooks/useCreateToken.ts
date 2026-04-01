@@ -4,15 +4,11 @@ import { transactionToBase64String } from "@hashgraph/hedera-wallet-connect/dist
 import { AccountId, TokenCreateTransaction, TokenSupplyType, TokenType } from "@hiero-ledger/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { useHederaSigner } from "~~/hooks/useHederaSigner";
+import { hederaCaipId } from "~~/utils/scaffold-hbar/hederaIdentity";
 
 type CreateTokenParams = { name: string; symbol: string; initialSupply?: string };
 
 const TOKEN_SYMBOL_REGEX = /^[A-Z0-9]{1,10}$/;
-
-function hederaCaipId(accountId: string): string {
-  const network = process.env.NEXT_PUBLIC_HEDERA_NETWORK ?? "testnet";
-  return `hedera:${network}:${accountId}`;
-}
 
 export function useCreateToken() {
   const { requireProvider } = useHederaSigner();

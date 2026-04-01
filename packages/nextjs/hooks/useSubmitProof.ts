@@ -4,6 +4,7 @@ import { transactionToBase64String } from "@hashgraph/hedera-wallet-connect/dist
 import { TopicId, TopicMessageSubmitTransaction } from "@hiero-ledger/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { useHederaSigner } from "~~/hooks/useHederaSigner";
+import { extractIdentity, hederaCaipId } from "~~/utils/scaffold-hbar/hederaIdentity";
 
 type SubmitProofParams = {
   topicId: string;
@@ -13,20 +14,6 @@ type SubmitProofParams = {
 
 const MAX_MESSAGE_BYTES = 1024;
 const TOPIC_ID_REGEX = /^\d+\.\d+\.\d+$/;
-
-function extractIdentity(value: string): string {
-  const trimmed = value.trim();
-  if (trimmed.startsWith("hedera:") || trimmed.startsWith("eip155:")) {
-    return trimmed.split(":").pop() ?? trimmed;
-  }
-  return trimmed;
-}
-
-function hederaCaipId(accountIdLike: string): string {
-  const network = process.env.NEXT_PUBLIC_HEDERA_NETWORK ?? "testnet";
-  const accountId = extractIdentity(accountIdLike);
-  return `hedera:${network}:${accountId}`;
-}
 
 export function useSubmitProof() {
   const { requireProvider, accountId } = useHederaSigner();
