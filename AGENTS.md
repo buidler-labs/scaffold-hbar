@@ -134,7 +134,7 @@ const { data: events, isLoading } = useScaffoldEventHistory({
 
 Scaffold-HBAR also provides other hooks to interact with blockchain data: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
 
-**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-eth` for contract interactions (legacy path segment; project branding is Scaffold-HBAR / `sh`). Always refer to the hook names as they exist in the codebase.**
+**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-hbar` for contract interactions (legacy path segment; project branding is Scaffold-HBAR / `sh`). Always refer to the hook names as they exist in the codebase.**
 
 ### UI Components
 
@@ -191,7 +191,7 @@ Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file a
 Use the `~~` path alias for imports in the nextjs package:
 
 ```tsx
-import { useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
 ```
 
 ### Creating Pages

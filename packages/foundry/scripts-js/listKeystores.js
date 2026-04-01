@@ -15,7 +15,7 @@ async function listKeystores(
 
   try {
     const keystores = readdirSync(keystorePath).filter(
-      (keystore) => keystore !== "scaffold-eth-default"
+      (keystore) => keystore !== "scaffold-hbar-default"
     );
 
     if (keystores.length === 0) {
