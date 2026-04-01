@@ -1,0 +1,152 @@
+/* Styrene A Web – Hedera brand font (fallback: Montserrat per brand.hedera.com) */
+@font-face {
+  font-family: "Styrene A Web";
+  src:
+    url("https://db.onlinewebfonts.com/t/819f612977ba7ba86c14b739b908c73f.woff2") format("woff2"),
+    url("https://db.onlinewebfonts.com/t/819f612977ba7ba86c14b739b908c73f.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap");
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  --shadow-center: 0 0 12px -2px rgb(0 0 0 / 0.05);
+  --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --font-sans: "Styrene A Web", "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --color-hedera-ultraviolet: #8259ef;
+  --color-hedera-azure: #0031ff;
+  --color-hedera-charcoal: #11151d;
+  --color-hedera-indigo: #00156e;
+  --color-hedera-cobalt: #2d84eb;
+  --color-hedera-violet: #4f46e5;
+  --color-hedera-smoke: #9b9b9d;
+}
+
+@plugin "daisyui" {
+  themes:
+    light,
+    dark --prefersdark;
+}
+
+@plugin "daisyui/theme" {
+  name: "light";
+
+  --color-primary: #4f46e5;
+  --color-primary-content: #ffffff;
+  --color-secondary: #8259ef;
+  --color-secondary-content: #ffffff;
+  --color-accent: #2d84eb;
+  --color-accent-content: #ffffff;
+  --color-neutral: #11151d;
+  --color-neutral-content: #ffffff;
+  --color-base-100: #ffffff;
+  --color-base-200: #f7f7f8;
+  --color-base-300: #e8e8ec;
+  --color-base-content: #11151d;
+  --color-info: #2d84eb;
+  --color-success: #34eeb6;
+  --color-warning: #ffcf72;
+  --color-error: #ff8863;
+
+  --radius-field: 9999rem;
+  --radius-box: 1rem;
+  --tt-tailw: 6px;
+}
+
+@plugin "daisyui/theme" {
+  name: "dark";
+
+  --color-primary: #8259ef;
+  --color-primary-content: #ffffff;
+  --color-secondary: #4f46e5;
+  --color-secondary-content: #ffffff;
+  --color-accent: #2d84eb;
+  --color-accent-content: #ffffff;
+  --color-neutral: #ffffff;
+  --color-neutral-content: #11151d;
+  --color-base-100: #181c27;
+  --color-base-200: #11151d;
+  --color-base-300: #0a0d14;
+  --color-base-content: #f0f0f2;
+  --color-info: #2d84eb;
+  --color-success: #34eeb6;
+  --color-warning: #ffcf72;
+  --color-error: #ff8863;
+
+  --radius-field: 9999rem;
+  --radius-box: 1rem;
+
+  --tt-tailw: 6px;
+  --tt-bg: var(--color-primary);
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  p {
+    margin: 1rem 0;
+  }
+
+  body {
+    min-height: 100vh;
+    font-family: "Styrene A Web", "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin-bottom: 0.5rem;
+    line-height: 1;
+  }
+}
+
+:root,
+[data-theme] {
+  background: var(--color-base-200);
+}
+
+.btn {
+  @apply shadow-md;
+}
+
+.btn.btn-ghost {
+  @apply shadow-none;
+}
+
+.link {
+  text-underline-offset: 2px;
+}
+
+.link:hover {
+  opacity: 80%;
+}
+
+.hedera-gradient {
+  background: linear-gradient(135deg, #8259ef 0%, #0031ff 100%);
+}
+
+.hedera-gradient-text {
+  background: linear-gradient(135deg, #8259ef 0%, #0031ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

@@ -1,0 +1,55 @@
+{
+  "name": "sh",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/nextjs",
+      "packages/foundry"
+    ]
+  },
+  "scripts": {
+    "account": "yarn foundry:account",
+    "account:import": "yarn workspace @sh/hardhat account:import",
+    "account:generate": "yarn workspace @sh/hardhat account:generate",
+    "account:reveal-pk": "yarn workspace @sh/hardhat account:reveal-pk",
+    "chain": "yarn foundry:chain",
+    "compile": "yarn foundry:compile",
+    "deploy": "yarn foundry:deploy",
+    "foundry:compile": "yarn workspace @sh/foundry compile",
+    "foundry:test": "yarn workspace @sh/foundry test",
+    "foundry:test:local": "yarn workspace @sh/foundry test:local",
+    "foundry:test:testnet": "yarn workspace @sh/foundry test:testnet",
+    "foundry:test:mainnet": "yarn workspace @sh/foundry test:mainnet",
+    "foundry:deploy": "yarn workspace @sh/foundry deploy",
+    "foundry:clean": "yarn workspace @sh/foundry clean",
+    "fork": "yarn foundry:fork",
+    "format": "yarn next:format",
+    "generate": "yarn account:generate",
+    "lint": "yarn next:lint",
+    "next:build": "yarn workspace @sh/nextjs build",
+    "next:check-types": "yarn workspace @sh/nextjs check-types",
+    "next:format": "yarn workspace @sh/nextjs format",
+    "next:lint": "yarn workspace @sh/nextjs lint",
+    "next:serve": "yarn workspace @sh/nextjs serve",
+    "postinstall": "husky",
+    "precommit": "lint-staged",
+    "lint-staged": "lint-staged",
+    "start": "yarn workspace @sh/nextjs dev",
+    "test": "yarn foundry:test",
+    "test:foundry": "yarn foundry:test",
+    "vercel": "yarn workspace @sh/nextjs vercel",
+    "vercel:yolo": "yarn workspace @sh/nextjs vercel:yolo",
+    "ipfs": "yarn workspace @sh/nextjs ipfs",
+    "vercel:login": "yarn workspace @sh/nextjs vercel:login",
+    "verify": "yarn foundry:verify"
+  },
+  "packageManager": "yarn@3.2.3",
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10"
+  },
+  "engines": {
+    "node": ">=20.18.3"
+  }
+}
