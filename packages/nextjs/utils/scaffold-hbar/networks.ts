@@ -33,26 +33,13 @@ export const NETWORKS_EXTRA_DATA: Record<string, ChainAttributes> = {
 /**
  * Gives the block explorer transaction URL.
  */
-export function getBlockExplorerTxLink(chainId: number, txnHash: string) {
-  const chainNames = Object.keys(chains);
-
-  const targetChainArr = chainNames.filter(chainName => {
-    const wagmiChain = chains[chainName as keyof typeof chains];
-    return wagmiChain.id === chainId;
-  });
-
-  if (targetChainArr.length === 0) {
-    return "";
-  }
-
-  const targetChain = targetChainArr[0] as keyof typeof chains;
-  const blockExplorerTxURL = chains[targetChain]?.blockExplorers?.default?.url;
-
-  if (!blockExplorerTxURL) {
-    return "";
-  }
-
-  return `${blockExplorerTxURL}/tx/${txnHash}`;
+export function getBlockExplorerTxLink(chainId: number, txnHash: string): string {
+  const chain = Object.values(chains).find(
+    c => typeof c === "object" && c !== null && "id" in c && (c as { id: number }).id === chainId,
+  ) as chains.Chain | undefined;
+  const baseUrl = chain?.blockExplorers?.default?.url;
+  if (!baseUrl) return "";
+  return `${baseUrl}/tx/${txnHash}`;
 }
 
 /**
