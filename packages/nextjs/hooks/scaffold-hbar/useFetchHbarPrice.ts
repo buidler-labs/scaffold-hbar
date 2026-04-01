@@ -12,8 +12,10 @@ export function useFetchHbarPrice(): { price: number; isLoading: boolean } {
   }, []);
 
   useEffect(() => {
-    refresh();
-    const interval = setInterval(refresh, HBAR_PRICE_CACHE_DURATION_MS);
+    void refresh();
+    const interval = setInterval(() => {
+      void refresh();
+    }, HBAR_PRICE_CACHE_DURATION_MS);
     return () => clearInterval(interval);
   }, [refresh]);
 

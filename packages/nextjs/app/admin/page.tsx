@@ -57,6 +57,20 @@ export default function AdminPage() {
     }
   };
 
+  const handleCopyTopicEnvLine = async () => {
+    if (!topicSuccess) return;
+    const ok = await copyToClipboard(`NEXT_PUBLIC_PROOF_WALL_TOPIC_ID=${topicSuccess}`);
+    setTopicCopied(ok);
+    if (ok) setTimeout(() => setTopicCopied(false), 2000);
+  };
+
+  const handleCopyTokenEnvLine = async () => {
+    if (!tokenSuccess) return;
+    const ok = await copyToClipboard(`NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID=${tokenSuccess}`);
+    setTokenCopied(ok);
+    if (ok) setTimeout(() => setTokenCopied(false), 2000);
+  };
+
   const envBlock = `NEXT_PUBLIC_PROOF_WALL_TOPIC_ID=0.0.xxxxx
 NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID=0.0.xxxxx
 HEDERA_OPERATOR_ID=0.0.xxxxx
@@ -116,7 +130,9 @@ HEDERA_NETWORK=testnet`;
               <button
                 type="button"
                 className="btn btn-primary w-full sm:w-auto"
-                onClick={handleCreateTopic}
+                onClick={() => {
+                  void handleCreateTopic();
+                }}
                 disabled={createTopic.isPending || !isConnected}
               >
                 {createTopic.isPending ? <span className="loading loading-spinner loading-sm" /> : null}
@@ -141,10 +157,8 @@ HEDERA_NETWORK=testnet`;
                     <button
                       type="button"
                       className="btn btn-sm btn-outline"
-                      onClick={async () => {
-                        const ok = await copyToClipboard(`NEXT_PUBLIC_PROOF_WALL_TOPIC_ID=${topicSuccess}`);
-                        setTopicCopied(ok);
-                        if (ok) setTimeout(() => setTopicCopied(false), 2000);
+                      onClick={() => {
+                        void handleCopyTopicEnvLine();
                       }}
                     >
                       {topicCopied ? "Copied!" : "Copy env line"}
@@ -224,7 +238,9 @@ HEDERA_NETWORK=testnet`;
               <button
                 type="button"
                 className="btn btn-primary w-full sm:w-auto"
-                onClick={handleCreateToken}
+                onClick={() => {
+                  void handleCreateToken();
+                }}
                 disabled={createToken.isPending || !isConnected || !tokenName.trim() || !tokenSymbol.trim()}
               >
                 {createToken.isPending ? <span className="loading loading-spinner loading-sm" /> : null}
@@ -249,10 +265,8 @@ HEDERA_NETWORK=testnet`;
                     <button
                       type="button"
                       className="btn btn-sm btn-outline"
-                      onClick={async () => {
-                        const ok = await copyToClipboard(`NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID=${tokenSuccess}`);
-                        setTokenCopied(ok);
-                        if (ok) setTimeout(() => setTokenCopied(false), 2000);
+                      onClick={() => {
+                        void handleCopyTokenEnvLine();
                       }}
                     >
                       {tokenCopied ? "Copied!" : "Copy env line"}

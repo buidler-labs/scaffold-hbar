@@ -39,7 +39,7 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
 
   useEffect(() => {
     let mounted = true;
-    ensureInit()
+    void ensureInit()
       .then(hp => {
         if (mounted) setProvider(hp);
       })
