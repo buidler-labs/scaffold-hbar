@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { MirrorAccountResponse } from "~~/types/hederaFetchJson";
 
 const MIRROR_BASE: Record<string, string> = {
   testnet: process.env.HEDERA_MIRROR_TESTNET_URL ?? "https://testnet.mirrornode.hedera.com",
@@ -29,7 +30,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Mirror node request failed", status: res.status }, { status: 502 });
     }
 
-    const data = (await res.json()) as { evm_address?: string; alias?: string };
+    const data = (await res.json()) as MirrorAccountResponse;
     const evmAddress =
       typeof data.evm_address === "string"
         ? data.evm_address

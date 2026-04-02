@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { tryAwardBadge } from "~~/services/badgeService";
 import { hasOperatorKey } from "~~/services/hederaClient";
+import type { CheckBadgeRequestBody } from "~~/types/hederaFetchJson";
 
 const TOPIC_ID_REGEX = /^\d+\.\d+\.\d+$/;
 const BADGE_TOKEN_ID = process.env.NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID ?? "";
@@ -27,9 +28,9 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: { topicId?: string; author?: string };
+  let body: CheckBadgeRequestBody;
   try {
-    body = (await req.json()) as { topicId?: string; author?: string };
+    body = (await req.json()) as CheckBadgeRequestBody;
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }

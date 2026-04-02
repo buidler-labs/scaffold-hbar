@@ -27,7 +27,7 @@ export default function AdminPage() {
 
   const [tokenName, setTokenName] = useState("ProofBadge");
   const [tokenSymbol, setTokenSymbol] = useState("PROOF");
-  const [initialSupply, setInitialSupply] = useState("0");
+  const [initialSupply, setInitialSupply] = useState("");
   const [tokenSuccess, setTokenSuccess] = useState<string | null>(null);
   const [tokenCopied, setTokenCopied] = useState(false);
 
@@ -55,6 +55,20 @@ export default function AdminPage() {
     } catch {
       // Error state is handled by createToken.isError.
     }
+  };
+
+  const handleCopyTopicEnvLine = async () => {
+    if (!topicSuccess) return;
+    const ok = await copyToClipboard(`NEXT_PUBLIC_PROOF_WALL_TOPIC_ID=${topicSuccess}`);
+    setTopicCopied(ok);
+    if (ok) setTimeout(() => setTopicCopied(false), 2000);
+  };
+
+  const handleCopyTokenEnvLine = async () => {
+    if (!tokenSuccess) return;
+    const ok = await copyToClipboard(`NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID=${tokenSuccess}`);
+    setTokenCopied(ok);
+    if (ok) setTimeout(() => setTokenCopied(false), 2000);
   };
 
   const envBlock = `NEXT_PUBLIC_PROOF_WALL_TOPIC_ID=0.0.xxxxx
@@ -116,7 +130,9 @@ HEDERA_NETWORK=testnet`;
               <button
                 type="button"
                 className="btn btn-primary w-full sm:w-auto"
-                onClick={handleCreateTopic}
+                onClick={() => {
+                  void handleCreateTopic();
+                }}
                 disabled={createTopic.isPending || !isConnected}
               >
                 {createTopic.isPending ? <span className="loading loading-spinner loading-sm" /> : null}
@@ -141,10 +157,8 @@ HEDERA_NETWORK=testnet`;
                     <button
                       type="button"
                       className="btn btn-sm btn-outline"
-                      onClick={async () => {
-                        const ok = await copyToClipboard(`NEXT_PUBLIC_PROOF_WALL_TOPIC_ID=${topicSuccess}`);
-                        setTopicCopied(ok);
-                        if (ok) setTimeout(() => setTopicCopied(false), 2000);
+                      onClick={() => {
+                        void handleCopyTopicEnvLine();
                       }}
                     >
                       {topicCopied ? "Copied!" : "Copy env line"}
@@ -211,20 +225,22 @@ HEDERA_NETWORK=testnet`;
                 </label>
                 <input
                   id="token-supply"
-                  type="number"
-                  min={0}
-                  step={1}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   className="input input-bordered w-full max-w-xs"
                   placeholder="0"
                   value={initialSupply}
-                  onChange={e => setInitialSupply(e.target.value.replace(/\D/g, "") || "0")}
+                  onChange={e => setInitialSupply(e.target.value.replace(/\D/g, ""))}
                   disabled={createToken.isPending || !isConnected}
                 />
               </div>
               <button
                 type="button"
                 className="btn btn-primary w-full sm:w-auto"
-                onClick={handleCreateToken}
+                onClick={() => {
+                  void handleCreateToken();
+                }}
                 disabled={createToken.isPending || !isConnected || !tokenName.trim() || !tokenSymbol.trim()}
               >
                 {createToken.isPending ? <span className="loading loading-spinner loading-sm" /> : null}
@@ -249,10 +265,8 @@ HEDERA_NETWORK=testnet`;
                     <button
                       type="button"
                       className="btn btn-sm btn-outline"
-                      onClick={async () => {
-                        const ok = await copyToClipboard(`NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID=${tokenSuccess}`);
-                        setTokenCopied(ok);
-                        if (ok) setTimeout(() => setTokenCopied(false), 2000);
+                      onClick={() => {
+                        void handleCopyTokenEnvLine();
                       }}
                     >
                       {tokenCopied ? "Copied!" : "Copy env line"}

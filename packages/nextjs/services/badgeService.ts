@@ -9,17 +9,15 @@
  */
 import { AccountId, TokenAirdropTransaction, TokenId, TransferTransaction } from "@hiero-ledger/sdk";
 import { getHederaClient } from "~~/services/hederaClient";
-import { getMirrorBaseUrl } from "~~/services/mirrorNode";
+import { type TopicMessagesResponse, getMirrorBaseUrl } from "~~/services/mirrorNode";
+import type {
+  MirrorAccountResponse,
+  MirrorAccountTokensResponse,
+  ProofWallMessagePayload,
+} from "~~/types/hederaFetchJson";
+import { extractIdentity } from "~~/utils/scaffold-hbar/hederaIdentity";
 
 const BADGE_MILESTONES = [1, 5, 10, 25, 50, 100];
-
-function extractIdentity(raw: string): string {
-  const trimmed = raw.trim();
-  if (trimmed.startsWith("hedera:") || trimmed.startsWith("eip155:")) {
-    return trimmed.split(":").pop() ?? trimmed;
-  }
-  return trimmed;
-}
 
 function normalizeIdentity(raw: string): string {
   return extractIdentity(raw).toLowerCase();
@@ -46,16 +44,13 @@ async function countAuthorProofs(topicId: string, authorAddress: string, network
   while (nextUrl) {
     const res = await fetch(nextUrl, { cache: "no-store" });
     if (!res.ok) break;
-    const data = (await res.json()) as {
-      messages?: { message?: string }[];
-      links?: { next: string | null };
-    };
+    const data = (await res.json()) as TopicMessagesResponse;
 
     for (const msg of data.messages ?? []) {
       try {
         if (!msg.message) continue;
         const decoded = Buffer.from(msg.message, "base64").toString("utf-8");
-        const payload = JSON.parse(decoded) as { author?: string };
+        const payload = JSON.parse(decoded) as ProofWallMessagePayload;
         if (payload.author && normalizeIdentity(payload.author) === target) count++;
       } catch {
         // skip malformed messages
@@ -78,7 +73,7 @@ async function resolveEvmToAccountId(evmAddress: string, network: string): Promi
   try {
     const res = await fetch(`${base}/api/v1/accounts/${evmAddress}`, { cache: "no-store" });
     if (!res.ok) return null;
-    const data = (await res.json()) as { account?: string };
+    const data = (await res.json()) as MirrorAccountResponse;
     return data.account ?? null;
   } catch {
     return null;
@@ -96,9 +91,7 @@ async function getBadgeBalance(tokenId: string, accountId: string, network: stri
       { cache: "no-store" },
     );
     if (!res.ok) return 0;
-    const data = (await res.json()) as {
-      tokens?: { token_id?: string; balance?: number }[];
-    };
+    const data = (await res.json()) as MirrorAccountTokensResponse;
     const token = (data.tokens ?? []).find(t => t.token_id === tokenId);
     return token?.balance ?? 0;
   } catch {

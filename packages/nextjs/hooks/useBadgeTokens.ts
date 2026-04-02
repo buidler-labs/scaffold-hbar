@@ -1,6 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import type { HederaAccountLookupApiResponse, HederaTokenBalanceApiResponse } from "~~/types/hederaFetchJson";
+import { extractIdentity } from "~~/utils/scaffold-hbar/hederaIdentity";
 import { isEvmAddress, isHederaAccountId } from "~~/utils/scaffold-hbar/identity";
 
 /**
@@ -9,14 +11,6 @@ import { isEvmAddress, isHederaAccountId } from "~~/utils/scaffold-hbar/identity
  */
 export function useBadgeTokens(tokenId: string | null, accountIdOrEvm: string | null) {
   const network = process.env.NEXT_PUBLIC_HEDERA_NETWORK ?? "testnet";
-
-  const extractIdentity = (value: string): string => {
-    const trimmed = value.trim();
-    if (trimmed.startsWith("hedera:") || trimmed.startsWith("eip155:")) {
-      return trimmed.split(":").pop() ?? trimmed;
-    }
-    return trimmed;
-  };
 
   return useQuery({
     queryKey: ["badge-tokens", tokenId, accountIdOrEvm],
@@ -29,7 +23,7 @@ export function useBadgeTokens(tokenId: string | null, accountIdOrEvm: string | 
           `/api/hedera/account?evm=${encodeURIComponent(identity)}&network=${encodeURIComponent(network)}`,
         );
         if (!res.ok) return null;
-        const data = (await res.json()) as { accountId: string | null };
+        const data = (await res.json()) as HederaAccountLookupApiResponse;
         accountId = data.accountId;
       } else if (isHederaAccountId(identity)) {
         accountId = identity;
@@ -41,7 +35,7 @@ export function useBadgeTokens(tokenId: string | null, accountIdOrEvm: string | 
         `/api/hedera/token-balance?tokenId=${encodeURIComponent(tokenId)}&accountId=${encodeURIComponent(accountId)}&network=${encodeURIComponent(network)}`,
       );
       if (!balanceRes.ok) return null;
-      const balanceData = (await balanceRes.json()) as { balance?: number };
+      const balanceData = (await balanceRes.json()) as HederaTokenBalanceApiResponse;
       return { accountId, balance: balanceData.balance ?? 0 };
     },
     enabled: Boolean(tokenId && accountIdOrEvm),

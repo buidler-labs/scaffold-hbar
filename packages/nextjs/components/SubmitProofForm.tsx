@@ -47,7 +47,12 @@ export function SubmitProofForm({ topicId, onSuccess }: SubmitProofFormProps) {
             <p className="text-sm mt-1">Your address will be recorded as the author of the proof.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form
+            onSubmit={e => {
+              void handleSubmit(e);
+            }}
+            className="flex flex-col gap-4"
+          >
             <div className="relative">
               <textarea
                 className="textarea textarea-bordered w-full min-h-[130px] resize-y text-sm sm:text-base leading-relaxed p-4"
