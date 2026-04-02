@@ -196,7 +196,6 @@ async function main() {
 
   if (!contractName) {
     console.error("Usage: node scripts-js/verifyHederaContract.js <ContractName> [testnet|mainnet]");
-    console.error("Example: node scripts-js/verifyHederaContract.js HederaToken testnet");
     process.exit(1);
   }
 
