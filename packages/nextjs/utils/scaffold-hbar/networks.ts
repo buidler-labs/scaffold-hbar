@@ -1,6 +1,9 @@
 import * as chains from "viem/chains";
 import scaffoldConfig from "~~/scaffold.config";
 
+/** Deep import avoids the package barrel (which pulls in `wagmi`); this module only needs viem + `blo`. */
+export { getBlockExplorerAddressLink } from "@scaffold-ui/hooks/dist/esm/useAddress.js";
+
 type ChainAttributes = {
   // color | [lightThemeColor, darkThemeColor]
   color: string | [string, string];
@@ -11,9 +14,6 @@ type ChainAttributes = {
 
 export type ChainWithAttributes = chains.Chain & Partial<ChainAttributes>;
 export type AllowedChainIds = (typeof scaffoldConfig.targetNetworks)[number]["id"];
-
-// Local fork (31337) is Hedera-shaped; account ID resolution uses optional local mirror
-const HEDERA_CHAIN_IDS: Set<number> = new Set([chains.hedera.id, chains.hederaTestnet.id, 31337]);
 
 export const NETWORKS_EXTRA_DATA: Record<string, ChainAttributes> = {
   [chains.mainnet.id]: {
@@ -40,21 +40,6 @@ export function getBlockExplorerTxLink(chainId: number, txnHash: string): string
   const baseUrl = chain?.blockExplorers?.default?.url;
   if (!baseUrl) return "";
   return `${baseUrl}/tx/${txnHash}`;
-}
-
-/**
- * Gives the block explorer URL for a given address.
- * HashScan uses /account/ instead of /address/ for Hedera chains.
- */
-export function getBlockExplorerAddressLink(network: chains.Chain, address: string) {
-  const blockExplorerBaseURL = network.blockExplorers?.default?.url;
-
-  if (!blockExplorerBaseURL) {
-    return `https://hashscan.io/testnet/account/${address}`;
-  }
-
-  const pathSegment = HEDERA_CHAIN_IDS.has(network.id) ? "account" : "address";
-  return `${blockExplorerBaseURL}/${pathSegment}/${address}`;
 }
 
 /**
