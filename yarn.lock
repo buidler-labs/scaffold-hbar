@@ -3590,7 +3590,7 @@ __metadata:
 
 "@scaffold-ui/components@file:../../../scaffold-ui/packages/components::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
   version: 0.1.8
-  resolution: "@scaffold-ui/components@file:../../../scaffold-ui/packages/components#../../../scaffold-ui/packages/components::hash=6fe7f2&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-ui/components@file:../../../scaffold-ui/packages/components#../../../scaffold-ui/packages/components::hash=648047&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   peerDependencies:
     "@scaffold-ui/hooks": "workspace:*"
     "@tanstack/react-query": ^5.59.15
@@ -3598,25 +3598,26 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: d41761f6740ade25e256136d0a2165f2f10e076d874fc2c1f79e0a9161c3326f01c727ad548eaa42f32057078253e68f3c2d9a314bd3120390a41e41b8035643
+  checksum: 7e4e0a7f73080a3c38f26d86c7f78a046f4826ef1aa0622bdd1a7155b5bd64d0c763f1fe5c7a85628d4182d0669288adae3e89eaecac225fa23fc2166c9be888
   languageName: node
   linkType: hard
 
 "@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
   version: 0.1.6
-  resolution: "@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks#../../../scaffold-ui/packages/hooks::hash=8a85e1&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks#../../../scaffold-ui/packages/hooks::hash=af225c&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   dependencies:
     "@uniswap/sdk-core": ^7.7.2
     "@uniswap/v2-sdk": ^4.15.2
     blo: ^1.2.0
     usehooks-ts: ^3.1.1
   peerDependencies:
+    "@hiero-ledger/sdk": ^2.0.0
     "@tanstack/react-query": ^5.59.15
     "@types/react": ^19.0.7
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: a3a8435dd110e66ae5226cc9e3b755654954e69610764cca3c8a05fdaf5de9a5137a7a6588bd8576b873c3806d8c531d3e97d7dc3ab672827acc8d52c7b78e6f
+  checksum: ef992ec3641acb7f4bb5cec509c894ab8d855be9cd179172c4a3b7af6a2e39ecf31c5a9ccf9f43244948f8f77d940cae84217ad3917d4547136dadcad099190b
   languageName: node
   linkType: hard
 
