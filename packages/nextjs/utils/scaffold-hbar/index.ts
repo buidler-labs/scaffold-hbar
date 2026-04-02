@@ -3,4 +3,4 @@ export * from "./notification";
 export * from "./block";
 export * from "./decodeTxData";
 export * from "./getParsedError";
-export { fetchHbarPrice, HBAR_PRICE_CACHE_DURATION_MS } from "@scaffold-ui/hooks/dist/esm/hbarPrice.js";
+export { fetchHbarPrice, HBAR_PRICE_CACHE_DURATION_MS } from "@scaffold-ui/hooks";

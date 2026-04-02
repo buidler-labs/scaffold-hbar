@@ -1,5 +1,5 @@
 export * from "./useCopyToClipboard";
-export { useFetchHbarPrice } from "@scaffold-ui/hooks/dist/esm/useFetchHbarPrice.js";
+export { useFetchHbarPrice } from "@scaffold-ui/hooks";
 export * from "./useNetworkColor";
 export * from "./useOutsideClick";
 export * from "./useSelectedNetwork";

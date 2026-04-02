@@ -3604,7 +3604,7 @@ __metadata:
 
 "@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
   version: 0.1.6
-  resolution: "@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks#../../../scaffold-ui/packages/hooks::hash=d44d9b&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks#../../../scaffold-ui/packages/hooks::hash=8a85e1&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   dependencies:
     "@uniswap/sdk-core": ^7.7.2
     "@uniswap/v2-sdk": ^4.15.2
@@ -3616,7 +3616,7 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: abf91a2ed8d18295a655f6133dd5f401b6b63250cbba7f57bdf1f1d17010f137ad9085d287ca6f560d9c06a10bcf2523ccc7c4a3f13d1c2d91097dc0f2056eb3
+  checksum: a3a8435dd110e66ae5226cc9e3b755654954e69610764cca3c8a05fdaf5de9a5137a7a6588bd8576b873c3806d8c531d3e97d7dc3ab672827acc8d52c7b78e6f
   languageName: node
   linkType: hard
 
