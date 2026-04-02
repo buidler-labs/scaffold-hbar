@@ -5,7 +5,7 @@ import { useDeployedContractInfo } from "~~/hooks/scaffold-hbar";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-hbar";
 
 export const CreateVaultCard = () => {
-  const { data: strategyInfo } = useDeployedContractInfo("MemejobDCAStrategy");
+  const { data: strategyInfo } = useDeployedContractInfo({ contractName: "MemejobDCAStrategy" });
 
   const { writeContractAsync, isPending } = useScaffoldWriteContract({
     contractName: "ScheduledVaultFactory",
