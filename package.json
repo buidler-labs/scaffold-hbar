@@ -9,10 +9,10 @@
     ]
   },
   "scripts": {
-    "account": "yarn foundry:account",
-    "account:import": "yarn workspace @sh/hardhat account:import",
-    "account:generate": "yarn workspace @sh/hardhat account:generate",
-    "account:reveal-pk": "yarn workspace @sh/hardhat account:reveal-pk",
+    "account": "yarn workspace @sh/foundry account",
+    "account:import": "yarn workspace @sh/foundry account:import",
+    "account:generate": "yarn workspace @sh/foundry account:generate",
+    "account:reveal-pk": "yarn workspace @sh/foundry account:reveal-pk",
     "chain": "yarn foundry:chain",
     "compile": "yarn foundry:compile",
     "deploy": "yarn foundry:deploy",
