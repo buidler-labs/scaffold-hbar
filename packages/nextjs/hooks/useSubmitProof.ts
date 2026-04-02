@@ -1,10 +1,10 @@
 "use client";
 
 import { TopicId, TopicMessageSubmitTransaction } from "@hiero-ledger/sdk";
+import { useNativeTransaction } from "@scaffold-ui/hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useHederaSigner } from "~~/hooks/useHederaSigner";
-import { extractIdentity, hederaCaipId } from "~~/utils/scaffold-hbar/hederaIdentity";
-import { transactionToBase64String } from "~~/utils/scaffold-hbar/hederaTxUtils";
+import { extractIdentity } from "~~/utils/scaffold-hbar/hederaIdentity";
 
 type SubmitProofParams = {
   topicId: string;
@@ -17,10 +17,11 @@ const TOPIC_ID_REGEX = /^\d+\.\d+\.\d+$/;
 
 export function useSubmitProof() {
   const { requireProvider, accountId } = useHederaSigner();
+  const { sendTransaction } = useNativeTransaction();
 
   return useMutation({
     mutationFn: async (params: SubmitProofParams) => {
-      const { provider, accountId: connectedId } = requireProvider();
+      const { accountId: connectedId } = requireProvider();
 
       const topicId = params.topicId?.trim();
       const text = params.text?.trim();
@@ -36,10 +37,7 @@ export function useSubmitProof() {
 
       const tx = new TopicMessageSubmitTransaction().setTopicId(TopicId.fromString(topicId)).setMessage(payload);
 
-      const result = await provider.hedera_signAndExecuteTransaction({
-        signerAccountId: hederaCaipId(connectedId),
-        transactionList: transactionToBase64String(tx),
-      });
+      const result = await sendTransaction(tx);
 
       // Best-effort server-side badge check
       void fetch("/api/hedera/check-badge", {
