@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { BaseInput } from "@scaffold-ui/components/Input/BaseInput";
+import { BaseInput } from "@scaffold-ui/components";
 import { proofWallConfig } from "~~/config/proofWallConfig";
 
 type TopicSelectorProps = {
