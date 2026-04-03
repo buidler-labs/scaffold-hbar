@@ -16,13 +16,16 @@
     "chain": "yarn foundry:chain",
     "compile": "yarn foundry:compile",
     "deploy": "yarn foundry:deploy",
+    "foundry:chain": "yarn workspace @sh/foundry chain",
     "foundry:compile": "yarn workspace @sh/foundry compile",
+    "foundry:fork": "yarn workspace @sh/foundry fork",
     "foundry:test": "yarn workspace @sh/foundry test",
     "foundry:test:local": "yarn workspace @sh/foundry test:local",
     "foundry:test:testnet": "yarn workspace @sh/foundry test:testnet",
     "foundry:test:mainnet": "yarn workspace @sh/foundry test:mainnet",
     "foundry:deploy": "yarn workspace @sh/foundry deploy",
     "foundry:clean": "yarn workspace @sh/foundry clean",
+    "foundry:verify": "yarn workspace @sh/foundry verify",
     "fork": "yarn foundry:fork",
     "format": "yarn next:format",
     "generate": "yarn account:generate",
@@ -42,7 +45,10 @@
     "vercel:yolo": "yarn workspace @sh/nextjs vercel:yolo",
     "ipfs": "yarn workspace @sh/nextjs ipfs",
     "vercel:login": "yarn workspace @sh/nextjs vercel:login",
-    "verify": "yarn foundry:verify"
+    "verify": "yarn foundry:verify",
+    "verify:testnet": "yarn workspace @sh/foundry verify:testnet",
+    "verify:mainnet": "yarn workspace @sh/foundry verify:mainnet",
+    "verify:contract": "yarn workspace @sh/foundry verify:contract"
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {

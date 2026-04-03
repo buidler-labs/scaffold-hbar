@@ -1,11 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Address, formatEther, formatUnits, parseEther, parseUnits } from "viem";
+import { useQueryClient } from "@tanstack/react-query";
+import { Address, formatUnits, parseUnits } from "viem";
 import { useWriteContract } from "wagmi";
 import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { useTransactor } from "~~/hooks/scaffold-hbar";
-import { MEME_TOKEN_DECIMALS, VAULT_ABI } from "~~/utils/scaffold-hbar/constants";
+import {
+  HBAR_TINYBAR_DECIMALS,
+  HBAR_WEIBAR_PER_TINYBAR,
+  MEME_TOKEN_DECIMALS,
+  VAULT_ABI,
+} from "~~/utils/scaffold-hbar/constants";
+import { invalidateVaultQueries } from "~~/utils/scaffold-hbar/invalidateVaultQueries";
 
 type WithdrawSectionProps = {
   vaultAddress: Address;
@@ -26,6 +33,7 @@ export const WithdrawSection = ({
   tokenSymbol,
   tokenDecimals,
 }: WithdrawSectionProps) => {
+  const queryClient = useQueryClient();
   const [hbarAmount, setHbarAmount] = useState("");
   const [tokenAmount, setTokenAmount] = useState("");
   const [activeTab, setActiveTab] = useState<"hbar" | "token">("hbar");
@@ -36,7 +44,8 @@ export const WithdrawSection = ({
   const decimals = tokenDecimals ?? MEME_TOKEN_DECIMALS;
 
   const handleWithdrawHbar = async () => {
-    const amount = parseEther(hbarAmount);
+    const amount = parseUnits(hbarAmount, HBAR_TINYBAR_DECIMALS);
+
     await writeTx(() =>
       writeContractAsync({
         address: vaultAddress,
@@ -45,6 +54,7 @@ export const WithdrawSection = ({
         args: [amount],
       }),
     );
+    await invalidateVaultQueries(queryClient);
     setHbarAmount("");
   };
 
@@ -59,12 +69,14 @@ export const WithdrawSection = ({
         args: [memeToken, amount],
       }),
     );
+    await invalidateVaultQueries(queryClient);
     setTokenAmount("");
   };
 
   const handleMaxHbar = () => {
     if (hbarBalance) {
-      setHbarAmount(formatEther(hbarBalance.value));
+      const tinybar = hbarBalance.value / HBAR_WEIBAR_PER_TINYBAR;
+      setHbarAmount(formatUnits(tinybar, HBAR_TINYBAR_DECIMALS));
     }
   };
 

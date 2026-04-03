@@ -4,7 +4,6 @@ pragma solidity ^0.8.19;
 
 import { Test } from "forge-std/Test.sol";
 import { ScheduledVault } from "../contracts/ScheduledVault.sol";
-import { IExecutionStrategy } from "../contracts/interfaces/IExecutionStrategy.sol";
 import { MockExecutionStrategy } from "./mocks/MockExecutionStrategy.sol";
 import { MockHederaScheduleService } from "./mocks/MockHederaScheduleService.sol";
 import { MockERC20 } from "./mocks/MockERC20.sol";
@@ -279,25 +278,6 @@ contract ScheduledVaultTest is Test {
     function test_executeScheduledRevertsIfNotConfigured() public {
         vm.expectRevert(ScheduledVault.ScheduledVault__NotConfigured.selector);
         vault.executeScheduled();
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                          PREVIEW
-    //////////////////////////////////////////////////////////////*/
-
-    function test_previewExecutionReturnsPlan() public {
-        MockERC20 target = new MockERC20("X", "X", 18);
-        bytes memory callData = abi.encodeCall(MockERC20.mint, (address(vault), 1e18));
-        mockStrategy.pushAction(address(target), 0, callData);
-
-        vm.prank(owner);
-        vault.configure(validConfig, 1 days);
-
-        IExecutionStrategy.Action[] memory actions = vault.previewExecution();
-        assertEq(actions.length, 1);
-        assertEq(actions[0].target, address(target));
-        assertEq(actions[0].value, 0);
-        assertEq(actions[0].data, callData);
     }
 
     /*//////////////////////////////////////////////////////////////

@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Address, parseEther, parseUnits } from "viem";
 import { useWriteContract } from "wagmi";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { useTransactor } from "~~/hooks/scaffold-hbar";
 import { ERC20_ABI, MEME_TOKEN_DECIMALS, VAULT_ABI } from "~~/utils/scaffold-hbar/constants";
+import { invalidateVaultQueries } from "~~/utils/scaffold-hbar/invalidateVaultQueries";
 
 type DepositSectionProps = {
   vaultAddress: Address;
@@ -22,6 +24,7 @@ export const DepositSection = ({
   tokenSymbol,
   tokenDecimals,
 }: DepositSectionProps) => {
+  const queryClient = useQueryClient();
   const [hbarAmount, setHbarAmount] = useState("");
   const [tokenAmount, setTokenAmount] = useState("");
   const [activeTab, setActiveTab] = useState<"hbar" | "token">("hbar");
@@ -39,6 +42,7 @@ export const DepositSection = ({
         value,
       }),
     );
+    await invalidateVaultQueries(queryClient);
     setHbarAmount("");
   };
 
@@ -64,6 +68,7 @@ export const DepositSection = ({
         args: [memeToken, amount],
       }),
     );
+    await invalidateVaultQueries(queryClient);
     setTokenAmount("");
   };
 

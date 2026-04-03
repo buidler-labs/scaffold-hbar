@@ -77,7 +77,9 @@ contract ScheduledVault is ReentrancyGuard, Ownable {
     /// @param interval Seconds between each scheduled execution
     function configure(bytes calldata config, uint256 interval) external onlyOwner {
         if (interval == ZERO_AMOUNT) revert ScheduledVault__InvalidConfig();
-        if (!strategy.validateConfig(config)) revert ScheduledVault__InvalidConfig();
+        if (!strategy.validateConfig(config)) {
+            revert ScheduledVault__InvalidConfig();
+        }
         _cancelPendingSchedule();
         strategyConfig = config;
         intervalSeconds = interval;
@@ -110,7 +112,9 @@ contract ScheduledVault is ReentrancyGuard, Ownable {
 
     /// @notice Called by HSS at the scheduled time. Executes the strategy plan, then auto-reschedules.
     function executeScheduled() external nonReentrant {
-        if (strategyConfig.length == ZERO_AMOUNT) revert ScheduledVault__NotConfigured();
+        if (strategyConfig.length == ZERO_AMOUNT) {
+            revert ScheduledVault__NotConfigured();
+        }
 
         bool success;
         try strategy.plan(strategyConfig) returns (IExecutionStrategy.Action[] memory actions) {
@@ -140,11 +144,6 @@ contract ScheduledVault is ReentrancyGuard, Ownable {
         _tryReschedule();
     }
 
-    /// @notice Dry-run the strategy plan. Call from Hashscan / ethers.js to debug before execution.
-    function previewExecution() external view returns (IExecutionStrategy.Action[] memory) {
-        return strategy.plan(strategyConfig);
-    }
-
     /*//////////////////////////////////////////////////////////////
                           FUND MANAGEMENT
     //////////////////////////////////////////////////////////////*/
@@ -157,14 +156,20 @@ contract ScheduledVault is ReentrancyGuard, Ownable {
 
     /// @notice Deposit ERC20/HTS tokens into the vault.
     function depositTokens(address token, uint256 amount) external onlyOwner nonReentrant {
-        if (token == ZERO_ADDRESS || amount == ZERO_AMOUNT) revert ScheduledVault__ZeroAmount();
-        if (!IERC20(token).transferFrom(msg.sender, address(this), amount)) revert ScheduledVault__TransferFailed();
+        if (token == ZERO_ADDRESS || amount == ZERO_AMOUNT) {
+            revert ScheduledVault__ZeroAmount();
+        }
+        if (!IERC20(token).transferFrom(msg.sender, address(this), amount)) {
+            revert ScheduledVault__TransferFailed();
+        }
         emit TokensDeposited(msg.sender, token, amount);
     }
 
     /// @notice Withdraw HBAR to the owner.
     function withdraw(uint256 amount) external onlyOwner nonReentrant {
-        if (amount > address(this).balance) revert ScheduledVault__InsufficientBalance();
+        if (amount > address(this).balance) {
+            revert ScheduledVault__InsufficientBalance();
+        }
         address ownerAddr = owner();
         (bool ok,) = ownerAddr.call{ value: amount }("");
         if (!ok) revert ScheduledVault__TransferFailed();
@@ -173,10 +178,16 @@ contract ScheduledVault is ReentrancyGuard, Ownable {
 
     /// @notice Withdraw ERC20/HTS tokens to the owner.
     function withdrawTokens(address token, uint256 amount) external onlyOwner nonReentrant {
-        if (token == ZERO_ADDRESS || amount == ZERO_AMOUNT) revert ScheduledVault__ZeroAmount();
-        if (IERC20(token).balanceOf(address(this)) < amount) revert ScheduledVault__InsufficientBalance();
+        if (token == ZERO_ADDRESS || amount == ZERO_AMOUNT) {
+            revert ScheduledVault__ZeroAmount();
+        }
+        if (IERC20(token).balanceOf(address(this)) < amount) {
+            revert ScheduledVault__InsufficientBalance();
+        }
         address ownerAddr = owner();
-        if (!IERC20(token).transfer(ownerAddr, amount)) revert ScheduledVault__TransferFailed();
+        if (!IERC20(token).transfer(ownerAddr, amount)) {
+            revert ScheduledVault__TransferFailed();
+        }
         emit TokensWithdrawn(ownerAddr, token, amount);
     }
 
@@ -185,7 +196,9 @@ contract ScheduledVault is ReentrancyGuard, Ownable {
     //////////////////////////////////////////////////////////////*/
 
     function _schedule() internal {
-        if (strategyConfig.length == ZERO_AMOUNT) revert ScheduledVault__NotConfigured();
+        if (strategyConfig.length == ZERO_AMOUNT) {
+            revert ScheduledVault__NotConfigured();
+        }
 
         uint256 expirySecond = block.timestamp + intervalSeconds;
         if (!HSS.hasScheduleCapacity(expirySecond, SCHEDULE_GAS_LIMIT)) {

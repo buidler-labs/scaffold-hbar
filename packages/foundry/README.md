@@ -158,7 +158,15 @@ Single contract:
 yarn verify:contract MemejobDCAStrategy testnet
 ```
 
-Requires `forge build` so `out/<Contract>.sol/<Contract>.json` exists.
+For any contract **in this package** (you have its build artifact under `out/` after `forge build`), if it is **already on-chain** at a known address but **not** present in the deployment broadcast, verify it by passing the **address as a third argument**. The tool uses `out/<Contract>.sol/<Contract>.json` for metadata instead of resolving a `CREATE` from `run-latest.json`:
+
+```bash
+yarn verify:contract ScheduledVault testnet 0xYourVaultAddress
+# network and address can be swapped:
+yarn verify:contract ScheduledVault 0xYourVaultAddress mainnet
+```
+
+Requires `forge build` so `out/<Contract>.sol/<Contract>.json` exists. The on-chain bytecode must match that build (same compiler settings and sources).
 
 **Note:** `make verify RPC_URL=localhost` does not use Hashscan. For Hedera verification use `**yarn verify:testnet`** / `**yarn verify:mainnet`**, or `make verify` with `RPC_URL=hedera_testnet` or `hedera_mainnet`.
 
@@ -178,7 +186,7 @@ Requires `forge build` so `out/<Contract>.sol/<Contract>.json` exists.
 
 ## Make targets and variables
 
-Many `**yarn <script>`** entries in `[package.json](package.json)` call these Make targets. Common variables: `**RPC_URL**`, `**DEPLOY_SCRIPT**`, `**ETH_KEYSTORE_ACCOUNT**`, `**ACCOUNT_NAME**` (for `get-address`).
+Many `**yarn <script>`** entries in `[package.json](package.json)` call these Make targets. Common variables: `**RPC_URL`**, `**DEPLOY_SCRIPT**`, `**ETH_KEYSTORE_ACCOUNT**`, `**ACCOUNT_NAME**` (for `get-address`).
 
 ## Links
 

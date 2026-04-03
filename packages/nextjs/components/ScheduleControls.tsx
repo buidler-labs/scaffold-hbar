@@ -1,10 +1,12 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { Address, zeroAddress } from "viem";
 import { useWriteContract } from "wagmi";
 import { ClockIcon, PlayIcon, StopIcon } from "@heroicons/react/24/outline";
 import { useTransactor } from "~~/hooks/scaffold-hbar";
 import { VAULT_ABI } from "~~/utils/scaffold-hbar/constants";
+import { invalidateVaultQueries } from "~~/utils/scaffold-hbar/invalidateVaultQueries";
 import { notification } from "~~/utils/scaffold-hbar/notification";
 
 type ScheduleControlsProps = {
@@ -14,6 +16,7 @@ type ScheduleControlsProps = {
 };
 
 export const ScheduleControls = ({ vaultAddress, nextSchedule, hasConfig }: ScheduleControlsProps) => {
+  const queryClient = useQueryClient();
   const writeTx = useTransactor();
   const { writeContractAsync, isPending } = useWriteContract();
 
@@ -28,6 +31,7 @@ export const ScheduleControls = ({ vaultAddress, nextSchedule, hasConfig }: Sche
           functionName: "scheduleNextRun",
         }),
       );
+      await invalidateVaultQueries(queryClient);
     } catch {
       notification.error("Failed to schedule. Check vault balance and HSS capacity.");
     }
@@ -42,6 +46,7 @@ export const ScheduleControls = ({ vaultAddress, nextSchedule, hasConfig }: Sche
           functionName: "cancelNextSchedule",
         }),
       );
+      await invalidateVaultQueries(queryClient);
     } catch {
       notification.error("Cancel failed — the schedule may have already been executed or expired on Hedera.");
     }
@@ -56,6 +61,7 @@ export const ScheduleControls = ({ vaultAddress, nextSchedule, hasConfig }: Sche
           functionName: "executeScheduled",
         }),
       );
+      await invalidateVaultQueries(queryClient);
     } catch {
       notification.error("Execution failed. Check vault balance and token configuration.");
     }

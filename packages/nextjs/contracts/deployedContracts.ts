@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 const deployedContracts = {
   296: {
     ScheduledVaultFactory: {
-      address: "0x0da8c5275ddec5faae2d4a0317e0a46d7be47534",
+      address: "0xbe652d6f59e555cffbe6899f80dbbe800986badb",
       abi: [
         {
           type: "function",
@@ -27,6 +27,44 @@ const deployedContracts = {
             },
           ],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "getLatestUserVault",
+          inputs: [
+            {
+              name: "user",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getUserVaultCount",
+          inputs: [
+            {
+              name: "user",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
         },
         {
           type: "function",
@@ -84,10 +122,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 33501256,
+      deployedOnBlock: 33544409,
     },
     MemejobDCAStrategy: {
-      address: "0x842aef5267cf3367fbd4797d5378294df5f7ebaf",
+      address: "0xbdd9ac787528251509038f22b6c0de7562652832",
       abi: [
         {
           type: "function",
@@ -178,7 +216,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 33501259,
+      deployedOnBlock: 33544412,
     },
   },
 } as const;

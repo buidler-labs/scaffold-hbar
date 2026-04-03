@@ -1,18 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Address, encodeAbiParameters, maxUint256, parseEther, parseUnits } from "viem";
+import { useQueryClient } from "@tanstack/react-query";
+import { Address, encodeAbiParameters, formatUnits, maxUint256, parseUnits } from "viem";
 import { useChainId, useWriteContract } from "wagmi";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
 import { useTransactor } from "~~/hooks/scaffold-hbar";
 import { DCAConfig } from "~~/hooks/scaffold-hbar/useVaultData";
 import {
   DCA_CONFIG_PARAMS,
+  HBAR_TINYBAR_DECIMALS,
   INTERVAL_PRESETS,
   MEMEJOB_ADDRESSES,
   MEME_TOKEN_DECIMALS,
   VAULT_ABI,
 } from "~~/utils/scaffold-hbar/constants";
+import { invalidateVaultQueries } from "~~/utils/scaffold-hbar/invalidateVaultQueries";
 
 type DCAConfigFormProps = {
   vaultAddress: Address;
@@ -22,7 +25,9 @@ type DCAConfigFormProps = {
 };
 
 export const DCAConfigForm = ({ vaultAddress, currentConfig, currentInterval, hasConfig }: DCAConfigFormProps) => {
+  const queryClient = useQueryClient();
   const chainId = useChainId();
+
   const defaultMemejob = MEMEJOB_ADDRESSES[chainId] ?? "";
 
   const [memejobAddress, setMemejobAddress] = useState(hasConfig ? currentConfig!.memejob : defaultMemejob);
@@ -32,7 +37,9 @@ export const DCAConfigForm = ({ vaultAddress, currentConfig, currentInterval, ha
     hasConfig ? (Number(currentConfig!.amountPerRun) / 10 ** MEME_TOKEN_DECIMALS).toString() : "",
   );
   const [maxHbarIn, setMaxHbarIn] = useState(
-    hasConfig && currentConfig!.maxHbarIn !== maxUint256 ? (Number(currentConfig!.maxHbarIn) / 1e18).toString() : "",
+    hasConfig && currentConfig!.maxHbarIn !== maxUint256
+      ? formatUnits(currentConfig!.maxHbarIn, HBAR_TINYBAR_DECIMALS)
+      : "",
   );
   const [intervalSeconds, setIntervalSeconds] = useState<number>(
     hasConfig && currentInterval ? Number(currentInterval) : INTERVAL_PRESETS[3].seconds,
@@ -47,8 +54,8 @@ export const DCAConfigForm = ({ vaultAddress, currentConfig, currentInterval, ha
     const tokenAddr = memeToken as Address;
     const memejob = memejobAddress as Address;
     const amount = parseUnits(amountPerRun, MEME_TOKEN_DECIMALS);
-    const interval = useCustomInterval ? BigInt(Number(customInterval) * 60) : BigInt(intervalSeconds);
-    const maxHbar = isBuy && maxHbarIn ? parseEther(maxHbarIn) : maxUint256;
+    const interval = useCustomInterval ? BigInt(Number(customInterval)) : BigInt(intervalSeconds);
+    const maxHbar = isBuy && maxHbarIn ? parseUnits(maxHbarIn, HBAR_TINYBAR_DECIMALS) : maxUint256;
 
     const configBytes = encodeAbiParameters(DCA_CONFIG_PARAMS, [
       {
@@ -68,6 +75,7 @@ export const DCAConfigForm = ({ vaultAddress, currentConfig, currentInterval, ha
         args: [configBytes, interval],
       }),
     );
+    await invalidateVaultQueries(queryClient);
   };
 
   return (
@@ -184,14 +192,14 @@ export const DCAConfigForm = ({ vaultAddress, currentConfig, currentInterval, ha
                 onChange={e => setCustomInterval(e.target.value)}
                 min="1"
               />
-              <span className="text-sm text-base-content/60">minutes</span>
+              <span className="text-sm text-base-content/60">seconds</span>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {INTERVAL_PRESETS.map(preset => (
                 <button
                   key={preset.seconds}
-                  className={`btn btn-sm ${intervalSeconds === preset.seconds ? "btn-primary" : "btn-outline"}`}
+                  className={`btn btn-sm whitespace-nowrap text-xs sm:text-sm ${intervalSeconds === preset.seconds ? "btn-primary" : "btn-outline"}`}
                   onClick={() => setIntervalSeconds(preset.seconds)}
                   type="button"
                 >

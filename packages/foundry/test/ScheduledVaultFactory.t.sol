@@ -56,6 +56,32 @@ contract ScheduledVaultFactoryTest is Test {
         assertEq(factory.userVaults(user1, 1), vault2);
     }
 
+    function test_getUserVaultCount() public {
+        assertEq(factory.getUserVaultCount(user1), 0);
+
+        vm.startPrank(user1);
+        factory.createVault(address(strategyA));
+        assertEq(factory.getUserVaultCount(user1), 1);
+        factory.createVault(address(strategyB));
+        assertEq(factory.getUserVaultCount(user1), 2);
+        vm.stopPrank();
+
+        assertEq(factory.getUserVaultCount(user2), 0);
+    }
+
+    function test_getLatestUserVault() public {
+        assertEq(factory.getLatestUserVault(user1), address(0));
+
+        vm.startPrank(user1);
+        address vault1 = factory.createVault(address(strategyA));
+        assertEq(factory.getLatestUserVault(user1), vault1);
+        address vault2 = factory.createVault(address(strategyB));
+        assertEq(factory.getLatestUserVault(user1), vault2);
+        vm.stopPrank();
+
+        assertEq(factory.getLatestUserVault(user2), address(0));
+    }
+
     function test_userVaultsRevertsWhenEmpty() public {
         vm.expectRevert();
         factory.userVaults(user1, 0);

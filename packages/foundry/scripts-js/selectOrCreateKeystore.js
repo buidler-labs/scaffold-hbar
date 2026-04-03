@@ -15,11 +15,15 @@ async function selectOrCreateKeystore() {
 
   try {
     const keystores = existsSync(keystorePath)
-      ? readdirSync(keystorePath).filter(keystore => keystore !== "scaffold-hbar-default")
+      ? readdirSync(keystorePath).filter(
+          (keystore) => keystore !== "scaffold-hbar-default",
+        )
       : [];
 
     if (keystores.length === 0) {
-      console.log("\n❌ No keystores found in ~/.foundry/keystores, please select 0 to create a new keystore");
+      console.log(
+        "\n❌ No keystores found in ~/.foundry/keystores, please select 0 to create a new keystore",
+      );
     }
 
     console.log("\n🔑 Available keystores:");
@@ -31,8 +35,11 @@ async function selectOrCreateKeystore() {
       return { keystore };
     });
 
-    const answer = await new Promise(resolve => {
-      rl.question("\nSelect a keystore or create new (enter number): ", resolve);
+    const answer = await new Promise((resolve) => {
+      rl.question(
+        "\nSelect a keystore or create new (enter number): ",
+        resolve,
+      );
     });
 
     const selection = parseInt(answer);
@@ -43,13 +50,16 @@ async function selectOrCreateKeystore() {
       });
 
       if (newWalletResult.error || newWalletResult.status !== 0) {
-        console.error("\n❌ Error generating new wallet:", newWalletResult.stderr || newWalletResult.error);
+        console.error(
+          "\n❌ Error generating new wallet:",
+          newWalletResult.stderr || newWalletResult.error,
+        );
         process.exit(1);
       }
 
       const privateKey = newWalletResult.stdout
         .split("\n")
-        .find(line => line.includes("Private key:"))
+        .find((line) => line.includes("Private key:"))
         ?.split(":")[1]
         ?.trim();
 
@@ -58,7 +68,7 @@ async function selectOrCreateKeystore() {
         process.exit(1);
       }
 
-      const keystoreName = await new Promise(resolve => {
+      const keystoreName = await new Promise((resolve) => {
         rl.question("\nEnter name for new keystore: ", resolve);
       });
 
@@ -66,13 +76,19 @@ async function selectOrCreateKeystore() {
       rl.close();
 
       return new Promise((resolve, reject) => {
-        const importProcess = spawn("cast", ["wallet", "import", keystoreName, "--private-key", privateKey], {
-          stdio: "inherit",
-        });
+        const importProcess = spawn(
+          "cast",
+          ["wallet", "import", keystoreName, "--private-key", privateKey],
+          {
+            stdio: "inherit",
+          },
+        );
 
-        importProcess.on("close", code => {
+        importProcess.on("close", (code) => {
           if (code === 0) {
-            console.log("\n💰 Fund the address and re-run the deploy command to use this keystore.");
+            console.log(
+              "\n💰 Fund the address and re-run the deploy command to use this keystore.",
+            );
             console.log(
               `\nTIP: Use \`yarn account\` and select \`${keystoreName}\` keystore to check if the address is funded.`,
             );
@@ -106,10 +122,10 @@ async function selectOrCreateKeystore() {
 // Run the selection if this script is called directly
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   selectKeystore()
-    .then(keystore => {
+    .then((keystore) => {
       console.log("\n🔑 Selected keystore:", keystore);
     })
-    .catch(error => {
+    .catch((error) => {
       console.error(error);
       process.exit(1);
     });

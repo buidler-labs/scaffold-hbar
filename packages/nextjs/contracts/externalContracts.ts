@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 const externalContracts = {
   296: {
     ScheduledVault: {
-      address: "",
+      address: "0x2AcCAb30b15b791aedeD69D6fB14E671bfEe8fc4",
       abi: [
         {
           type: "constructor",
@@ -74,24 +74,6 @@ const externalContracts = {
           name: "owner",
           inputs: [],
           outputs: [{ name: "", type: "address", internalType: "address" }],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "previewExecution",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "tuple[]",
-              internalType: "struct IExecutionStrategy.Action[]",
-              components: [
-                { name: "target", type: "address", internalType: "address" },
-                { name: "value", type: "uint256", internalType: "uint256" },
-                { name: "data", type: "bytes", internalType: "bytes" },
-              ],
-            },
-          ],
           stateMutability: "view",
         },
         { type: "function", name: "renounceOwnership", inputs: [], outputs: [], stateMutability: "nonpayable" },

@@ -1,8 +1,8 @@
 "use client";
 
-import { Address, formatEther, formatUnits, zeroAddress } from "viem";
+import { Address, formatUnits, zeroAddress } from "viem";
 import { DCAConfig } from "~~/hooks/scaffold-hbar/useVaultData";
-import { MEME_TOKEN_DECIMALS, formatInterval } from "~~/utils/scaffold-hbar/constants";
+import { HBAR_TINYBAR_DECIMALS, MEME_TOKEN_DECIMALS, formatInterval } from "~~/utils/scaffold-hbar/constants";
 
 type VaultStatusCardProps = {
   vaultAddress: Address;
@@ -94,9 +94,9 @@ export const VaultStatusCard = ({
           <p className="text-xl font-bold">{hasConfig && intervalSeconds ? formatInterval(intervalSeconds) : "—"}</p>
           <p className="text-xs text-base-content/50">
             {hasConfig && dcaConfig!.isBuy && buyCost
-              ? `~${Number(formatEther(buyCost)).toFixed(4)} HBAR/run`
+              ? `~${Number(formatUnits(buyCost, HBAR_TINYBAR_DECIMALS)).toFixed(4)} HBAR/run`
               : hasConfig && !dcaConfig!.isBuy && sellReturn
-                ? `~${Number(formatEther(sellReturn)).toFixed(4)} HBAR/run`
+                ? `~${Number(formatUnits(sellReturn, HBAR_TINYBAR_DECIMALS)).toFixed(4)} HBAR/run`
                 : "Per execution"}
           </p>
         </div>

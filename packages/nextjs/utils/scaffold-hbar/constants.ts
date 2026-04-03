@@ -88,6 +88,11 @@ export const INTERVAL_PRESETS = [
 
 export const MEME_TOKEN_DECIMALS = 8;
 
+/** HBAR amounts in Solidity / `withdraw(uint256)` (tinybar). */
+export const HBAR_TINYBAR_DECIMALS = 8;
+
+export const HBAR_WEIBAR_PER_TINYBAR = 10n ** 10n;
+
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
 
 export function formatInterval(seconds: number | bigint): string {

@@ -1,24 +1,13 @@
 "use client";
 
 import { ShieldCheckIcon } from "@heroicons/react/24/outline";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-hbar";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-hbar";
+import { CreateVaultButton } from "~~/components/CreateVaultButton";
 
-export const CreateVaultCard = () => {
-  const { data: strategyInfo } = useDeployedContractInfo({ contractName: "MemejobDCAStrategy" });
+type CreateVaultCardProps = {
+  onVaultCreated?: () => void;
+};
 
-  const { writeContractAsync, isPending } = useScaffoldWriteContract({
-    contractName: "ScheduledVaultFactory",
-  });
-
-  const handleCreateVault = async () => {
-    if (!strategyInfo?.address) return;
-    await writeContractAsync({
-      functionName: "createVault",
-      args: [strategyInfo.address],
-    });
-  };
-
+export const CreateVaultCard = ({ onVaultCreated }: CreateVaultCardProps) => {
   return (
     <div className="bg-base-100 rounded-2xl shadow-lg p-8 max-w-xl mx-auto border border-base-300">
       <div className="flex flex-col items-center text-center gap-4">
@@ -51,20 +40,14 @@ export const CreateVaultCard = () => {
           </div>
         </div>
 
-        <button
-          className="btn btn-primary btn-lg mt-4"
-          onClick={handleCreateVault}
-          disabled={isPending || !strategyInfo?.address}
-        >
-          {isPending ? (
-            <>
-              <span className="loading loading-spinner loading-sm" />
-              Creating Vault...
-            </>
-          ) : (
-            "Create Vault"
-          )}
-        </button>
+        <CreateVaultButton
+          className="mt-4 w-full sm:w-auto"
+          size="lg"
+          variant="primary"
+          onSuccess={onVaultCreated}
+          idleLabel="Create vault"
+          pendingLabel="Creating vault…"
+        />
       </div>
     </div>
   );

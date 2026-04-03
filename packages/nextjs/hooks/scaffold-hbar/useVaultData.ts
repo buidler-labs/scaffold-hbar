@@ -1,8 +1,10 @@
-import { useEffect, useMemo } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Address, decodeAbiParameters, zeroAddress } from "viem";
-import { useBalance, useBlockNumber, useReadContract } from "wagmi";
+import { useBalance, useReadContract } from "wagmi";
 import { DCA_CONFIG_PARAMS, ERC20_ABI, MEMEJOB_ABI, VAULT_ABI } from "~~/utils/scaffold-hbar/constants";
+
+/** On-chain polling for vault dashboard (balances, quotes, schedule). Much cheaper than refetch every block. */
+const VAULT_ONCHAIN_POLL_MS = 15_000;
 
 export type DCAConfig = {
   memejob: Address;
@@ -13,54 +15,51 @@ export type DCAConfig = {
 };
 
 export const useVaultData = (vaultAddress: Address | undefined) => {
-  const queryClient = useQueryClient();
-  const { data: blockNumber } = useBlockNumber({ watch: true });
-
   const balanceResult = useBalance({
     address: vaultAddress,
-    query: { enabled: !!vaultAddress },
+    query: { enabled: !!vaultAddress, refetchInterval: VAULT_ONCHAIN_POLL_MS },
   });
 
   const strategyConfigResult = useReadContract({
     address: vaultAddress,
     abi: VAULT_ABI,
     functionName: "strategyConfig",
-    query: { enabled: !!vaultAddress },
+    query: { enabled: !!vaultAddress, refetchInterval: VAULT_ONCHAIN_POLL_MS },
   });
 
   const intervalResult = useReadContract({
     address: vaultAddress,
     abi: VAULT_ABI,
     functionName: "intervalSeconds",
-    query: { enabled: !!vaultAddress },
+    query: { enabled: !!vaultAddress, refetchInterval: VAULT_ONCHAIN_POLL_MS },
   });
 
   const nextScheduleResult = useReadContract({
     address: vaultAddress,
     abi: VAULT_ABI,
     functionName: "nextSchedule",
-    query: { enabled: !!vaultAddress },
+    query: { enabled: !!vaultAddress, refetchInterval: VAULT_ONCHAIN_POLL_MS },
   });
 
   const ownerResult = useReadContract({
     address: vaultAddress,
     abi: VAULT_ABI,
     functionName: "owner",
-    query: { enabled: !!vaultAddress },
+    query: { enabled: !!vaultAddress, refetchInterval: VAULT_ONCHAIN_POLL_MS },
   });
 
   const strategyResult = useReadContract({
     address: vaultAddress,
     abi: VAULT_ABI,
     functionName: "strategy",
-    query: { enabled: !!vaultAddress },
+    query: { enabled: !!vaultAddress, refetchInterval: VAULT_ONCHAIN_POLL_MS },
   });
 
   const consecutiveFailuresResult = useReadContract({
     address: vaultAddress,
     abi: VAULT_ABI,
     functionName: "consecutiveFailures",
-    query: { enabled: !!vaultAddress },
+    query: { enabled: !!vaultAddress, refetchInterval: VAULT_ONCHAIN_POLL_MS },
   });
 
   const dcaConfig = useMemo<DCAConfig | undefined>(() => {
@@ -95,7 +94,7 @@ export const useVaultData = (vaultAddress: Address | undefined) => {
     abi: ERC20_ABI,
     functionName: "balanceOf",
     args: vaultAddress ? [vaultAddress] : undefined,
-    query: { enabled: !!vaultAddress && hasConfig },
+    query: { enabled: !!vaultAddress && hasConfig, refetchInterval: VAULT_ONCHAIN_POLL_MS },
   });
 
   const tokenSymbolResult = useReadContract({
@@ -117,7 +116,7 @@ export const useVaultData = (vaultAddress: Address | undefined) => {
     abi: MEMEJOB_ABI,
     functionName: "getAmountOut",
     args: hasConfig ? [dcaConfig!.memeToken, true, dcaConfig!.amountPerRun] : undefined,
-    query: { enabled: hasConfig && dcaConfig!.isBuy },
+    query: { enabled: hasConfig && dcaConfig!.isBuy, refetchInterval: VAULT_ONCHAIN_POLL_MS },
   });
 
   const sellReturnResult = useReadContract({
@@ -125,28 +124,8 @@ export const useVaultData = (vaultAddress: Address | undefined) => {
     abi: MEMEJOB_ABI,
     functionName: "getAmountOut",
     args: hasConfig ? [dcaConfig!.memeToken, false, dcaConfig!.amountPerRun] : undefined,
-    query: { enabled: hasConfig && !dcaConfig!.isBuy },
+    query: { enabled: hasConfig && !dcaConfig!.isBuy, refetchInterval: VAULT_ONCHAIN_POLL_MS },
   });
-
-  const allQueryKeys = [
-    balanceResult.queryKey,
-    strategyConfigResult.queryKey,
-    intervalResult.queryKey,
-    nextScheduleResult.queryKey,
-    ownerResult.queryKey,
-    strategyResult.queryKey,
-    consecutiveFailuresResult.queryKey,
-    tokenBalanceResult.queryKey,
-    buyCostResult.queryKey,
-    sellReturnResult.queryKey,
-  ];
-
-  useEffect(() => {
-    if (blockNumber) {
-      allQueryKeys.forEach(key => queryClient.invalidateQueries({ queryKey: key }));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blockNumber]);
 
   return {
     hbarBalance: balanceResult.data,

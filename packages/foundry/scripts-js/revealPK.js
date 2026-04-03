@@ -31,7 +31,7 @@ async function revealPk() {
   }
 }
 
-revealPk().catch(error => {
+revealPk().catch((error) => {
   console.error("\n❌ Unexpected error:", error);
   process.exit(1);
 });

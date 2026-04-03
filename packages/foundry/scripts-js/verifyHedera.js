@@ -30,11 +30,14 @@ function buildMultipart(boundary, fields) {
   const parts = [];
 
   for (const { name, filename, contentType, value } of fields) {
-    const content = typeof value === "string" ? Buffer.from(value, "utf8") : value;
+    const content =
+      typeof value === "string" ? Buffer.from(value, "utf8") : value;
     let header = `--${boundary}${CRLF}`;
     if (filename) {
       header += `Content-Disposition: form-data; name="${name}"; filename="${filename}"${CRLF}`;
-      header += `Content-Type: ${contentType || "application/octet-stream"}${CRLF}`;
+      header += `Content-Type: ${
+        contentType || "application/octet-stream"
+      }${CRLF}`;
     } else {
       header += `Content-Disposition: form-data; name="${name}"${CRLF}`;
     }
@@ -58,10 +61,15 @@ function postMultipart(host, path, body, boundary) {
         "Content-Length": body.length,
       },
     };
-    const req = https.request(options, res => {
+    const req = https.request(options, (res) => {
       const chunks = [];
-      res.on("data", chunk => chunks.push(chunk));
-      res.on("end", () => resolve({ status: res.statusCode, body: Buffer.concat(chunks).toString("utf8") }));
+      res.on("data", (chunk) => chunks.push(chunk));
+      res.on("end", () =>
+        resolve({
+          status: res.statusCode,
+          body: Buffer.concat(chunks).toString("utf8"),
+        }),
+      );
     });
     req.on("error", reject);
     req.write(body);
@@ -72,17 +80,32 @@ function postMultipart(host, path, body, boundary) {
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
 function loadBroadcast(chainId) {
-  const broadcastPath = join(foundryRoot, "broadcast", "Deploy.s.sol", String(chainId), "run-latest.json");
+  const broadcastPath = join(
+    foundryRoot,
+    "broadcast",
+    "Deploy.s.sol",
+    String(chainId),
+    "run-latest.json",
+  );
   if (!existsSync(broadcastPath)) {
-    throw new Error(`Broadcast file not found: ${broadcastPath}\nDeploy to chain ${chainId} first.`);
+    throw new Error(
+      `Broadcast file not found: ${broadcastPath}\nDeploy to chain ${chainId} first.`,
+    );
   }
   return JSON.parse(readFileSync(broadcastPath, "utf8"));
 }
 
 function loadArtifact(contractName) {
-  const artifactPath = join(foundryRoot, "out", `${contractName}.sol`, `${contractName}.json`);
+  const artifactPath = join(
+    foundryRoot,
+    "out",
+    `${contractName}.sol`,
+    `${contractName}.json`,
+  );
   if (!existsSync(artifactPath)) {
-    throw new Error(`Artifact not found: ${artifactPath}\nRun 'forge build' first.`);
+    throw new Error(
+      `Artifact not found: ${artifactPath}\nRun 'forge build' first.`,
+    );
   }
   return JSON.parse(readFileSync(artifactPath, "utf8"));
 }
@@ -103,12 +126,16 @@ function readSourceFile(sourcePath) {
 // ─── verify one contract ──────────────────────────────────────────────────────
 
 async function verifyContract(contractName, contractAddress, chainId) {
-  console.log(`\nVerifying ${contractName} at ${contractAddress} on chain ${chainId}...`);
+  console.log(
+    `\nVerifying ${contractName} at ${contractAddress} on chain ${chainId}...`,
+  );
 
   const artifact = loadArtifact(contractName);
   const rawMetadata = artifact.rawMetadata;
   if (!rawMetadata) {
-    throw new Error(`No rawMetadata in artifact for ${contractName}. Run 'forge build' first.`);
+    throw new Error(
+      `No rawMetadata in artifact for ${contractName}. Run 'forge build' first.`,
+    );
   }
 
   const metadata = JSON.parse(rawMetadata);
@@ -118,7 +145,12 @@ async function verifyContract(contractName, contractAddress, chainId) {
   const fields = [
     { name: "address", value: contractAddress },
     { name: "chain", value: String(chainId) },
-    { name: "files", filename: "metadata.json", contentType: "application/json", value: rawMetadata },
+    {
+      name: "files",
+      filename: "metadata.json",
+      contentType: "application/json",
+      value: rawMetadata,
+    },
   ];
 
   let sourceCount = 0;
@@ -133,7 +165,9 @@ async function verifyContract(contractName, contractAddress, chainId) {
       });
       sourceCount++;
     } catch (err) {
-      console.warn(`  Warning: could not read source ${sourcePath}: ${err.message}`);
+      console.warn(
+        `  Warning: could not read source ${sourcePath}: ${err.message}`,
+      );
     }
   }
 
@@ -159,7 +193,10 @@ async function verifyContract(contractName, contractAddress, chainId) {
   const hashscanUrl = `https://hashscan.io/${explorer}/contract/${contractAddress}`;
 
   // Already verified
-  if (status === 409 || (parsed?.error && parsed.error.toLowerCase().includes("already verified"))) {
+  if (
+    status === 409 ||
+    (parsed?.error && parsed.error.toLowerCase().includes("already verified"))
+  ) {
     console.log(`  ✓ Already verified: ${hashscanUrl}`);
     return true;
   }
@@ -178,7 +215,8 @@ async function verifyContract(contractName, contractAddress, chainId) {
     }
   }
 
-  const errorMsg = parsed?.error || parsed?.message || responseBody.slice(0, 400);
+  const errorMsg =
+    parsed?.error || parsed?.message || responseBody.slice(0, 400);
   console.error(`  ✗ Verification failed (HTTP ${status}): ${errorMsg}`);
   return false;
 }
@@ -189,18 +227,26 @@ async function main() {
   const chainId = parseInt(process.argv[2] || "296", 10);
 
   if (chainId !== 295 && chainId !== 296) {
-    console.error(`Error: chainId must be 295 (mainnet) or 296 (testnet), got ${chainId}`);
+    console.error(
+      `Error: chainId must be 295 (mainnet) or 296 (testnet), got ${chainId}`,
+    );
     process.exit(1);
   }
 
   console.log(`Hedera contract verification — chain ${chainId}`);
-  console.log(`Verifier: https://${HASHSCAN_VERIFY_HOST}${HASHSCAN_VERIFY_PATH}`);
+  console.log(
+    `Verifier: https://${HASHSCAN_VERIFY_HOST}${HASHSCAN_VERIFY_PATH}`,
+  );
 
   const broadcast = loadBroadcast(chainId);
-  const creates = (broadcast.transactions || []).filter(tx => tx.transactionType === "CREATE");
+  const creates = (broadcast.transactions || []).filter(
+    (tx) => tx.transactionType === "CREATE",
+  );
 
   if (creates.length === 0) {
-    console.log("No CREATE transactions found in broadcast. Nothing to verify.");
+    console.log(
+      "No CREATE transactions found in broadcast. Nothing to verify.",
+    );
     return;
   }
 
@@ -213,7 +259,9 @@ async function main() {
     const name = tx.contractName;
     const addr = tx.contractAddress;
     if (!name || !addr) {
-      console.warn("Skipping transaction with missing contractName or contractAddress");
+      console.warn(
+        "Skipping transaction with missing contractName or contractAddress",
+      );
       continue;
     }
     try {
@@ -230,7 +278,7 @@ async function main() {
   if (failed > 0) process.exit(1);
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error("Fatal:", err.message);
   process.exit(1);
 });

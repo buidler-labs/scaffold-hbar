@@ -1,24 +1,27 @@
-import { Address } from "viem";
+import { Address, zeroAddress } from "viem";
 import { useAccount } from "wagmi";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-hbar";
 
-export const useUserVaults = () => {
+export const useLatestUserVault = () => {
   const { address } = useAccount();
 
   const {
-    data: firstVault,
+    data: latestVault,
     isLoading,
     isError,
   } = useScaffoldReadContract({
     contractName: "ScheduledVaultFactory",
-    functionName: "userVaults",
-    args: [address, 0n],
-    query: { enabled: !!address },
+    functionName: "getLatestUserVault",
+    args: [address],
+    watch: false,
+    query: {
+      enabled: !!address,
+      retry: false,
+    },
   });
 
-  // userVaults(addr, 0) reverts when the array is empty (out-of-bounds),
-  // so an error means the user simply has no vaults yet.
-  const vaultAddress = firstVault as Address | undefined;
+  const raw = latestVault as Address | undefined;
+  const vaultAddress = raw && raw !== zeroAddress ? raw : undefined;
   const hasVault = !!vaultAddress;
 
   return {

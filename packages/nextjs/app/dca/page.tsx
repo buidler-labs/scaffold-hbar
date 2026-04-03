@@ -3,13 +3,14 @@
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { CreateVaultCard } from "~~/components/CreateVaultCard";
+import { DcaVaultToolbar } from "~~/components/DcaVaultToolbar";
 import { VaultDashboard } from "~~/components/VaultDashboard";
-import { useUserVaults } from "~~/hooks/scaffold-hbar/useUserVaults";
+import { useLatestUserVault } from "~~/hooks/scaffold-hbar/useLatestUserVault";
 import { VAULT_ABI } from "~~/utils/scaffold-hbar/constants";
 
 const DCAPage: NextPage = () => {
   const { status } = useAccount();
-  const { vaultAddress, hasVault, isLoading: vaultLoading } = useUserVaults();
+  const { vaultAddress, hasVault, isLoading: vaultLoading } = useLatestUserVault();
 
   const isConnected = status === "connected";
   const isConnecting = status === "reconnecting" || status === "connecting";
@@ -43,7 +44,10 @@ const DCAPage: NextPage = () => {
             <p className="mt-4 text-base-content/60">Loading vault...</p>
           </div>
         ) : vaultAbiReady && hasVault && vaultAddress ? (
-          <VaultDashboard vaultAddress={vaultAddress} />
+          <>
+            <DcaVaultToolbar />
+            <VaultDashboard vaultAddress={vaultAddress} />
+          </>
         ) : (
           <CreateVaultCard />
         )}
