@@ -8,12 +8,15 @@
  * Uses only Node.js built-ins — no extra dependencies.
  *
  * Usage:
- *   node scripts/verifyHederaContract.js <ContractName> [testnet|mainnet]
- *   Network defaults to testnet.
+ *   node scripts/verifyHederaContract.js <ContractName> [testnet|mainnet] [0xAddress]
+ *   Network defaults to testnet. If you pass a contract address, the artifact's
+ *   address is ignored.
  *
  * Example:
  *   node scripts/verifyHederaContract.js HederaToken
  *   node scripts/verifyHederaContract.js HederaToken mainnet
+ *   node scripts/verifyHederaContract.js HederaToken testnet 0xabc...
+ *   node scripts/verifyHederaContract.js HederaToken 0xabc... testnet
  *   yarn verify:contract HederaToken testnet
  */
 
@@ -37,6 +40,39 @@ const NETWORK_TO_HARDHAT_NAME = {
   testnet: "hederaTestnet",
   mainnet: "hederaMainnet",
 };
+
+function isEvmAddress(s) {
+  return typeof s === "string" && s.startsWith("0x") && /^0x[a-fA-F0-9]{40}$/.test(s);
+}
+
+/**
+ * Resolves network + optional address from argv after contract name.
+ * Accepts [network] [address] or [address] [network]; address skips using artifact.address.
+ */
+function parseVerifyArgs(argvSlice) {
+  const tokens = argvSlice.filter(Boolean);
+  let networkArg = "testnet";
+  let addressOverride = null;
+
+  for (const t of tokens) {
+    const lower = t.toLowerCase();
+    if (NETWORK_TO_CHAIN_ID[lower] !== undefined) {
+      networkArg = lower;
+    } else if (isEvmAddress(t)) {
+      addressOverride = t;
+    } else {
+      throw new Error(`Unrecognized argument '${t}'. Use testnet|mainnet and/or 0x-prefixed 20-byte address.`);
+    }
+  }
+
+  return { networkArg, addressOverride };
+}
+
+function metadataToJsonString(rawMetadata) {
+  if (rawMetadata == null) return null;
+  if (typeof rawMetadata === "string") return rawMetadata;
+  return JSON.stringify(rawMetadata);
+}
 
 function buildMultipart(boundary, fields) {
   const CRLF = "\r\n";
@@ -74,7 +110,12 @@ function postMultipart(host, path, body, boundary) {
     const req = https.request(options, res => {
       const chunks = [];
       res.on("data", chunk => chunks.push(chunk));
-      res.on("end", () => resolve({ status: res.statusCode, body: Buffer.concat(chunks).toString("utf8") }));
+      res.on("end", () =>
+        resolve({
+          status: res.statusCode,
+          body: Buffer.concat(chunks).toString("utf8"),
+        }),
+      );
     });
     req.on("error", reject);
     req.write(body);
@@ -82,14 +123,14 @@ function postMultipart(host, path, body, boundary) {
   });
 }
 
-async function verifyContract(contractName, artifact, chainId) {
-  const address = artifact.address;
+async function verifyContract(contractName, artifact, chainId, verifyAddress) {
+  const address = verifyAddress;
   if (!address) {
-    console.warn(`  Skipping ${contractName}: no address in artifact`);
+    console.warn(`  Skipping ${contractName}: no address`);
     return false;
   }
 
-  const rawMetadata = artifact.metadata;
+  const rawMetadata = metadataToJsonString(artifact.metadata);
   if (!rawMetadata) {
     console.error(`  ✗ ${contractName}: no metadata in artifact. Recompile and redeploy.`);
     return false;
@@ -97,7 +138,7 @@ async function verifyContract(contractName, artifact, chainId) {
 
   let metadata;
   try {
-    metadata = typeof rawMetadata === "string" ? JSON.parse(rawMetadata) : rawMetadata;
+    metadata = JSON.parse(rawMetadata);
   } catch {
     console.error(`  ✗ ${contractName}: invalid metadata JSON`);
     return false;
@@ -172,16 +213,20 @@ async function verifyContract(contractName, artifact, chainId) {
 
 async function main() {
   const contractName = process.argv[2];
-  const networkArg = (process.argv[3] || "testnet").toLowerCase();
+  const extraArgs = process.argv.slice(3);
 
   if (!contractName) {
-    console.error("Usage: node scripts/verifyHederaContract.js <ContractName> [testnet|mainnet]");
-    console.error("Example: node scripts/verifyHederaContract.js HederaToken testnet");
+    console.error("Usage: node scripts/verifyHederaContract.js <ContractName> [testnet|mainnet] [0xAddress]");
+    console.error("  With 0xAddress: verify that instance; artifact address field is ignored.");
     process.exit(1);
   }
 
-  if (!NETWORK_TO_CHAIN_ID[networkArg]) {
-    console.error(`Error: network must be 'testnet' or 'mainnet', got '${networkArg}'`);
+  let networkArg;
+  let addressOverride;
+  try {
+    ({ networkArg, addressOverride } = parseVerifyArgs(extraArgs));
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
     process.exit(1);
   }
 
@@ -200,9 +245,24 @@ async function main() {
   }
 
   const artifact = JSON.parse(readFileSync(artifactPath, "utf8"));
+  const artifactAddr = artifact.address;
+
+  let verifyAddress = addressOverride;
+  if (!verifyAddress) {
+    if (!artifactAddr) {
+      console.error(`Error: No address in artifact and none provided on CLI.`);
+      process.exit(1);
+    }
+    verifyAddress = artifactAddr;
+  } else {
+    console.log(`Using provided address (artifact address ignored): ${verifyAddress}`);
+    if (artifactAddr && artifactAddr.toLowerCase() !== verifyAddress.toLowerCase()) {
+      console.log(`  (artifact stored address: ${artifactAddr})`);
+    }
+  }
 
   try {
-    const ok = await verifyContract(contractName, artifact, chainId);
+    const ok = await verifyContract(contractName, artifact, chainId, verifyAddress);
     if (!ok) process.exit(1);
   } catch (err) {
     console.error(`Fatal: ${err.message}`);
