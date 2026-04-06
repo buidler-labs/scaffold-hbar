@@ -11,7 +11,10 @@
       "solidityFramework": "none"
     },
     "outro": {
-      "includeLocalChainGuide": false
+      "steps": [
+        "Hedera native services: no contract deploy is required to run or test this demo.",
+        "+Start the frontend: {run:start}"
+      ]
     }
   }
 }
