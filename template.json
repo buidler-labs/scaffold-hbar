@@ -1,0 +1,17 @@
+{
+  "name": "payments-scheduler",
+  "description": "HTS payments scheduler template with Foundry contracts.",
+  "create-scaffold-hbar": {
+    "capabilities": {
+      "frontend": ["nextjs-app"],
+      "solidityFramework": ["foundry"]
+    },
+    "defaults": {
+      "frontend": "nextjs-app",
+      "solidityFramework": "foundry"
+    },
+    "outro": {
+      "includeLocalChainGuide": false
+    }
+  }
+}
