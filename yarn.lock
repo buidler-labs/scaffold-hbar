@@ -4414,53 +4414,54 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scaffold-ui/components@npm:^0.1.8":
-  version: 0.1.9
-  resolution: "@scaffold-ui/components@npm:0.1.9"
+"@scaffold-hbar-ui/components@file:../../../scaffold-ui/packages/components::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+  version: 1.0.0
+  resolution: "@scaffold-hbar-ui/components@file:../../../scaffold-ui/packages/components#../../../scaffold-ui/packages/components::hash=adb868&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   peerDependencies:
-    "@scaffold-ui/hooks": 0.1.7
+    "@scaffold-hbar-ui/hooks": "workspace:*"
     "@tanstack/react-query": ^5.59.15
     "@types/react": ^19.0.7
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: a51e49ed9d14c43a4a755ba6d522180545db8a3271509f7281e3a54a6469a99e57b6a59afe891294eeff01a3adebb3b20f983866098ee68bfe7843af83fdf2ef
+  checksum: 0ca8a1d7c61cef5aae16b574ea7bcd0c687e9a4a3a605e82c769be8580222825a156c0755cddaf7ef3582f1bc3603a2a16bf7b22032ecd5507e7369a1515fb51
   languageName: node
   linkType: hard
 
-"@scaffold-ui/debug-contracts@npm:^0.1.7":
-  version: 0.1.8
-  resolution: "@scaffold-ui/debug-contracts@npm:0.1.8"
+"@scaffold-hbar-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+  version: 1.0.0
+  resolution: "@scaffold-hbar-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts#../../../scaffold-ui/packages/debug-contracts::hash=49ada0&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   dependencies:
     "@heroicons/react": ^2.2.0
     react-hot-toast: ^2.5.2
   peerDependencies:
-    "@scaffold-ui/components": 0.1.9
-    "@scaffold-ui/hooks": 0.1.7
+    "@scaffold-hbar-ui/components": "workspace:*"
+    "@scaffold-hbar-ui/hooks": "workspace:*"
     "@tanstack/react-query": ^5.59.15
     "@types/react": ^19.0.7
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: f5d6a607b6e954e2da765baec8fde178e52fb25f72603b196f73706457212b004f082aea976000f19fb2755968115c8b6cf215c103a297a3d0fe4419d72fbb35
+  checksum: 1556a93fa861f69cc8516873c69cccffa778ff9cc542cf4aab3080453264ed434c7b8a91533c3f65d85d7840ddc442a60f88df443247103860160eb0d8bdae7a
   languageName: node
   linkType: hard
 
-"@scaffold-ui/hooks@npm:^0.1.6":
-  version: 0.1.7
-  resolution: "@scaffold-ui/hooks@npm:0.1.7"
+"@scaffold-hbar-ui/hooks@file:../../../scaffold-ui/packages/hooks::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+  version: 1.0.0
+  resolution: "@scaffold-hbar-ui/hooks@file:../../../scaffold-ui/packages/hooks#../../../scaffold-ui/packages/hooks::hash=8b2a3d&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   dependencies:
     "@uniswap/sdk-core": ^7.7.2
-    "@uniswap/v2-sdk": 4.19.1
+    "@uniswap/v2-sdk": ^4.15.2
     blo: ^1.2.0
     usehooks-ts: ^3.1.1
   peerDependencies:
+    "@hiero-ledger/sdk": ^2.0.0
     "@tanstack/react-query": ^5.59.15
     "@types/react": ^19.0.7
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: c8c76ee06827842178b4f5ff4d477dbe9a2aa31fc40af2cc5a3e24f7d67a6142a87d62bfe3c87fbbcc013c235e05438778b8cc18a2bc5774c8d4d9a92650678a
+  checksum: d76d1f87836aec9e9271bb755eeff683c87e7fc58026b7bd84d5866900a35a0aade80f70d876e5d28870c0914435aceaa166f45c4cedff5b06436191d1d5fbe5
   languageName: node
   linkType: hard
 
@@ -4716,9 +4717,9 @@ __metadata:
     "@hiero-ledger/sdk": ^2.80.0
     "@rainbow-me/rainbowkit": 2.2.9
     "@react-native-async-storage/async-storage": ^2.2.0
-    "@scaffold-ui/components": ^0.1.8
-    "@scaffold-ui/debug-contracts": ^0.1.7
-    "@scaffold-ui/hooks": ^0.1.6
+    "@scaffold-hbar-ui/components": "file:../../../scaffold-ui/packages/components"
+    "@scaffold-hbar-ui/debug-contracts": "file:../../../scaffold-ui/packages/debug-contracts"
+    "@scaffold-hbar-ui/hooks": "file:../../../scaffold-ui/packages/hooks"
     "@tailwindcss/postcss": latest
     "@tanstack/react-query": ^5.59.15
     "@trivago/prettier-plugin-sort-imports": ^4.3.0
@@ -7113,7 +7114,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uniswap/sdk-core@npm:^7.12.1":
+"@uniswap/sdk-core@npm:^7.13.0":
   version: 7.13.0
   resolution: "@uniswap/sdk-core@npm:7.13.0"
   dependencies:
@@ -7149,16 +7150,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uniswap/v2-sdk@npm:4.19.1":
-  version: 4.19.1
-  resolution: "@uniswap/v2-sdk@npm:4.19.1"
+"@uniswap/v2-sdk@npm:^4.15.2":
+  version: 4.20.0
+  resolution: "@uniswap/v2-sdk@npm:4.20.0"
   dependencies:
     "@ethersproject/address": ^5.0.2
+    "@ethersproject/bignumber": ^5.5.0
     "@ethersproject/solidity": ^5.0.9
-    "@uniswap/sdk-core": ^7.12.1
+    "@uniswap/sdk-core": ^7.13.0
+    jsbi: ^3.1.4
     tiny-invariant: ^1.1.0
     tiny-warning: ^1.0.3
-  checksum: 032a62c4b017663cddd04029cbd2393298dbc3b44bc79cc5a8f27879dc664cfac58e696594839ebb11f138971c759e9db16f1e5cb99b107408156284060c2cc0
+    tslib: ^2.3.0
+  checksum: b098b0bd55afd655d6c198fa6a6a267d3b199931a8184e8f4ffb68dcfce7fefb9c36aee9b5e903246806e759d7768f384e3af36585798562c601b64ca87e0832
   languageName: node
   linkType: hard
 

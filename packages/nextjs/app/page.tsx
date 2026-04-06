@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { HederaPortalFaucet } from "@scaffold-hbar-ui/components";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -129,14 +130,7 @@ const Home: NextPage = () => {
                 <span className="font-bold text-primary text-lg leading-none mt-0.5">3</span>
                 <div>
                   <p className="m-0 font-medium">Get testnet HBAR</p>
-                  <a
-                    href="https://portal.hedera.com/faucet"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs link text-primary"
-                  >
-                    portal.hedera.com/faucet
-                  </a>
+                  <HederaPortalFaucet variant="link" label="portal.hedera.com/faucet" showIcon={false} />
                 </div>
               </div>
               <div className="flex items-start gap-3">
