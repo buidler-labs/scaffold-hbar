@@ -11,7 +11,13 @@
       "solidityFramework": "foundry"
     },
     "outro": {
-      "includeLocalChainGuide": false
+      "steps": [
+        "Hedera precompiles are not available under Foundry forking yet, so deploy and run this template on Hedera testnet or mainnet—not on a local chain or forked Hedera.",
+        "+Testnet: set your deployer key (e.g. {run:generate}), then {run:deploy} --network hedera_testnet",
+        "+Mainnet: {run:deploy} --network hedera_mainnet (use your production keystore as documented in the Foundry package).",
+        "After deploy, verify on Hashscan: {run:verify:testnet} or {run:verify:mainnet} as appropriate.",
+        "+Start the frontend: {run:start}"
+      ]
     }
   }
 }
