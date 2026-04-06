@@ -110,7 +110,7 @@ Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) a
 - App routes live under [`packages/nextjs/app/`](packages/nextjs/app/) (App Router). The **DCA** example is [`packages/nextjs/app/dca/page.tsx`](packages/nextjs/app/dca/page.tsx) with components such as `CreateVaultCard`, `DepositSection`, `ScheduleControls`, etc.
 - **Navigation:** add links in [`packages/nextjs/components/Header.tsx`](packages/nextjs/components/Header.tsx) (`menuLinks`).
 - **Styling:** prefer **DaisyUI** component classes over one-off Tailwind.
-- **@scaffold-ui/components** — use `Address`, `Balance`, `EtherInput`, and related components for consistent web3 UX.
+- **@scaffold-hbar-ui/components** — use `Address`, `Balance`, `HederaAddressInput`, and related components for consistent web3 UX.
 
 ## Use cases and how to customize them
 
