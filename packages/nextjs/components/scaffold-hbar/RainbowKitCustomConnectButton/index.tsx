@@ -6,7 +6,7 @@ import { RevealBurnerPKModal } from "./RevealBurnerPKModal";
 import { SetBurnerPKModal } from "./SetBurnerPKModal";
 import { WrongNetworkDropdown } from "./WrongNetworkDropdown";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Balance } from "@scaffold-ui/components";
+import { Balance } from "@scaffold-hbar-ui/components";
 import { Address } from "viem";
 import { useNetworkColor } from "~~/hooks/scaffold-hbar";
 import { useTargetNetwork } from "~~/hooks/scaffold-hbar/useTargetNetwork";

@@ -2,7 +2,7 @@
 
 import { BackButton } from "./BackButton";
 import { ContractTabs } from "./ContractTabs";
-import { Address, Balance } from "@scaffold-ui/components";
+import { Address, Balance } from "@scaffold-hbar-ui/components";
 import { Address as AddressType } from "viem";
 import { hardhat } from "viem/chains";
 import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
@@ -28,7 +28,6 @@ export const AddressComponent = ({
                 <Address
                   address={address}
                   format="long"
-                  onlyEnsOrAddress
                   blockExplorerAddressLink={
                     targetNetwork.id === hardhat.id ? `/blockexplorer/address/${address}` : undefined
                   }

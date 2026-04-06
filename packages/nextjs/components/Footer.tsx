@@ -1,5 +1,5 @@
 import React from "react";
-import { HederaPortalFaucet } from "@scaffold-ui/components";
+import { HederaPortalFaucet } from "@scaffold-hbar-ui/components";
 import { hedera } from "viem/chains";
 import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
 import { SwitchTheme } from "~~/components/SwitchTheme";
