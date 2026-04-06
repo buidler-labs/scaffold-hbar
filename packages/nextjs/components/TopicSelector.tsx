@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { BaseInput } from "@scaffold-ui/components";
 import { proofWallConfig } from "~~/config/proofWallConfig";
 
 type TopicSelectorProps = {
@@ -23,14 +24,15 @@ export function TopicSelector({ topicId, onTopicIdChange, readOnly }: TopicSelec
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <label className="text-sm font-medium">Topic</label>
-      <input
-        type="text"
-        className="input input-bordered input-sm font-mono max-w-xs"
-        placeholder="0.0.12345"
-        value={topicId || configuredTopicId}
-        onChange={e => onTopicIdChange(e.target.value)}
-      />
+      <span className="text-sm font-medium">Topic</span>
+      <div className="max-w-xs w-full min-w-[12rem]">
+        <BaseInput<string>
+          name="proof-wall-topic-id"
+          placeholder="0.0.12345"
+          value={topicId || configuredTopicId}
+          onChange={onTopicIdChange}
+        />
+      </div>
     </div>
   );
 }

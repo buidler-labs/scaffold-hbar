@@ -48,6 +48,10 @@ export type FetchTopicMessagesOptions = {
   sequenceNumber?: number;
   /** Return messages with consensus_timestamp >= value (e.g. "1234567890.000000001"). */
   timestamp?: string;
+  /** Extra `fetch` init (e.g. Next.js `next: { revalidate }`, `cache`, headers). */
+  fetchOptions?: RequestInit;
+  /** Abort signal; merged into the fetch init and overrides `fetchOptions.signal` when set. */
+  signal?: AbortSignal;
 };
 
 const TOPIC_ID_REGEX = /^\d+\.\d+\.\d+$/;
@@ -61,7 +65,7 @@ function assertValidTopicId(topicId: string): void {
 /**
  * Fetch topic messages from the Mirror Node REST API.
  * @param topicId - HCS topic ID (e.g. "0.0.12345")
- * @param options - limit, order, optional sequence/timestamp filters
+ * @param options - limit, order, optional sequence/timestamp filters, optional `fetch` init / signal
  */
 export async function fetchTopicMessages(
   topicId: string,
@@ -69,7 +73,7 @@ export async function fetchTopicMessages(
 ): Promise<TopicMessagesResponse> {
   assertValidTopicId(topicId);
 
-  const { network = "testnet", limit = 50, order = "desc", sequenceNumber, timestamp } = options;
+  const { network = "testnet", limit = 50, order = "desc", sequenceNumber, timestamp, fetchOptions, signal } = options;
 
   const base = getMirrorBaseUrl(network);
   const params = new URLSearchParams();
@@ -79,7 +83,10 @@ export async function fetchTopicMessages(
   if (timestamp) params.set("timestamp", timestamp);
 
   const url = `${base}/api/v1/topics/${topicId}/messages?${params.toString()}`;
-  const res = await fetch(url, { next: { revalidate: 30 } });
+  const res = await fetch(url, {
+    ...fetchOptions,
+    ...(signal !== undefined ? { signal } : {}),
+  });
 
   if (!res.ok) {
     const text = await res.text();
@@ -96,13 +103,19 @@ export async function fetchTopicMessages(
 /**
  * Generic GET against the Mirror Node base URL.
  * Use for future endpoints (accounts, tokens, etc.) with consistent base and error handling.
+ * Pass Next.js cache options via `fetchOptions` when calling from a Route Handler.
  */
-export async function mirrorGet<T>(path: string, network: string = "testnet", fetchOptions?: RequestInit): Promise<T> {
+export async function mirrorGet<T>(
+  path: string,
+  network: string = "testnet",
+  fetchOptions?: RequestInit,
+  signal?: AbortSignal,
+): Promise<T> {
   const base = getMirrorBaseUrl(network).replace(/\/$/, "");
   const url = path.startsWith("/") ? `${base}${path}` : `${base}/${path}`;
   const res = await fetch(url, {
     ...fetchOptions,
-    next: (fetchOptions?.next as { revalidate?: number }) ?? { revalidate: 60 },
+    ...(signal !== undefined ? { signal } : {}),
   });
 
   if (!res.ok) {

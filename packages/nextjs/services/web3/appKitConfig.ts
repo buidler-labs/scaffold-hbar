@@ -1,1 +1,1 @@
-export { nativeNetworks, getHederaProvider, initAppKit, resetAppKitSession } from "./appKitHedera";
+export { clearWalletStorage, nativeNetworks, getHederaProvider, initAppKit, resetAppKitSession } from "./appKitHedera";

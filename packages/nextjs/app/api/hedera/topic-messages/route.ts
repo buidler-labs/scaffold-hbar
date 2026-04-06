@@ -21,6 +21,8 @@ export async function GET(req: Request) {
       order,
       sequenceNumber: sequenceNumber != null ? Number(sequenceNumber) : undefined,
       timestamp,
+      fetchOptions: { next: { revalidate: 30 } },
+      signal: req.signal,
     });
     return NextResponse.json(result);
   } catch (e) {

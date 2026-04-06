@@ -52,6 +52,40 @@ export async function initAppKit() {
   return _appKit;
 }
 
+/**
+ * Removes AppKit and WalletConnect persistence from the browser so a prior
+ * session cannot resurrect after disconnect.
+ */
+export function clearWalletStorage(): void {
+  if (typeof window === "undefined") return;
+
+  const appKitPrefix = "@appkit/";
+  const extraKeys = new Set(["WALLETCONNECT_DEEPLINK_CHOICE", "wc_storage_version"]);
+
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const key = localStorage.key(i);
+    if (!key) continue;
+    const lower = key.toLowerCase();
+    const isWcLegacy =
+      lower.includes("wc@") ||
+      lower.includes("walletconnect") ||
+      lower.includes("wc_") ||
+      lower.includes("wallet_connect");
+    if (key.startsWith(appKitPrefix) || extraKeys.has(key) || isWcLegacy) {
+      localStorage.removeItem(key);
+    }
+  }
+
+  try {
+    const request = indexedDB.deleteDatabase("WALLET_CONNECT_V2_INDEXED_DB");
+    request.onerror = () => {
+      console.warn("Failed to clear WalletConnect IndexedDB");
+    };
+  } catch {
+    // IndexedDB may not be available (SSR, private mode, etc.)
+  }
+}
+
 export async function resetAppKitSession() {
   try {
     await _provider?.disconnect();

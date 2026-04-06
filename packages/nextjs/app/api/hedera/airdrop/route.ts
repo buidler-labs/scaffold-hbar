@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { AccountId, TokenAirdropTransaction, TokenId, TransferTransaction } from "@hiero-ledger/sdk";
 import { getHederaClient, hasOperatorKey } from "~~/services/hederaClient";
+import type { AirdropRequestBody } from "~~/types/hederaFetchJson";
 
 const ID_REGEX = /^\d+\.\d+\.\d+$/;
 
@@ -9,13 +10,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Operator key not configured" }, { status: 503 });
   }
 
-  let body: { tokenId: string; recipientAccountId: string; amount: string };
+  let body: AirdropRequestBody;
   try {
-    body = (await req.json()) as {
-      tokenId: string;
-      recipientAccountId: string;
-      amount: string;
-    };
+    body = (await req.json()) as AirdropRequestBody;
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
