@@ -68,6 +68,10 @@ const config: HardhatUserConfig = {
   sourcify: {
     enabled: false,
   },
+  typechain: {
+    outDir: "typechain-types",
+    target: "ethers-v6",
+  },
 };
 
 // Extend the deploy task to also generate TypeScript ABIs after deployment.
