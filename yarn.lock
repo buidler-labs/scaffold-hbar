@@ -4414,9 +4414,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scaffold-hbar-ui/components@file:../../../scaffold-ui/packages/components::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+"@scaffold-hbar-ui/components@npm:^1.0.0":
   version: 1.0.0
-  resolution: "@scaffold-hbar-ui/components@file:../../../scaffold-ui/packages/components#../../../scaffold-ui/packages/components::hash=adb868&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-hbar-ui/components@npm:1.0.0"
   peerDependencies:
     "@scaffold-hbar-ui/hooks": "workspace:*"
     "@tanstack/react-query": ^5.59.15
@@ -4424,13 +4424,13 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: 0ca8a1d7c61cef5aae16b574ea7bcd0c687e9a4a3a605e82c769be8580222825a156c0755cddaf7ef3582f1bc3603a2a16bf7b22032ecd5507e7369a1515fb51
+  checksum: 4fecbd3d63f2ad7888fd62945b7ea33d02e01e5c886afdadd132ac485cffe3f1eadbfb65ce4ef9dc1d1eddecccdc6d97bf448a07afd5247ea292ab2f2b388ad8
   languageName: node
   linkType: hard
 
-"@scaffold-hbar-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+"@scaffold-hbar-ui/debug-contracts@npm:^1.0.0":
   version: 1.0.0
-  resolution: "@scaffold-hbar-ui/debug-contracts@file:../../../scaffold-ui/packages/debug-contracts#../../../scaffold-ui/packages/debug-contracts::hash=49ada0&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-hbar-ui/debug-contracts@npm:1.0.0"
   dependencies:
     "@heroicons/react": ^2.2.0
     react-hot-toast: ^2.5.2
@@ -4442,13 +4442,13 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: 1556a93fa861f69cc8516873c69cccffa778ff9cc542cf4aab3080453264ed434c7b8a91533c3f65d85d7840ddc442a60f88df443247103860160eb0d8bdae7a
+  checksum: 1745b5bc3334f79e683296e2a6f5cd5f49363092f7492f277dbdf4d64d0a982b47e0b415363996c423f312f68706b750f4ef6937c90bbfe6d102e41429dfaa95
   languageName: node
   linkType: hard
 
-"@scaffold-hbar-ui/hooks@file:../../../scaffold-ui/packages/hooks::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+"@scaffold-hbar-ui/hooks@npm:^1.0.0":
   version: 1.0.0
-  resolution: "@scaffold-hbar-ui/hooks@file:../../../scaffold-ui/packages/hooks#../../../scaffold-ui/packages/hooks::hash=8b2a3d&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-hbar-ui/hooks@npm:1.0.0"
   dependencies:
     "@uniswap/sdk-core": ^7.7.2
     "@uniswap/v2-sdk": ^4.15.2
@@ -4461,7 +4461,7 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: d76d1f87836aec9e9271bb755eeff683c87e7fc58026b7bd84d5866900a35a0aade80f70d876e5d28870c0914435aceaa166f45c4cedff5b06436191d1d5fbe5
+  checksum: cc32074769ec9f63683abccfa59a0a9106894cc907b9b2b61f0bbea8c453893e0ada0877913c7cc373455d64add18daf1b2cc8d4bfccf1e24a5dfd7e5ce9b6ba
   languageName: node
   linkType: hard
 
@@ -4717,9 +4717,9 @@ __metadata:
     "@hiero-ledger/sdk": ^2.80.0
     "@rainbow-me/rainbowkit": 2.2.9
     "@react-native-async-storage/async-storage": ^2.2.0
-    "@scaffold-hbar-ui/components": "file:../../../scaffold-ui/packages/components"
-    "@scaffold-hbar-ui/debug-contracts": "file:../../../scaffold-ui/packages/debug-contracts"
-    "@scaffold-hbar-ui/hooks": "file:../../../scaffold-ui/packages/hooks"
+    "@scaffold-hbar-ui/components": ^1.0.0
+    "@scaffold-hbar-ui/debug-contracts": ^1.0.0
+    "@scaffold-hbar-ui/hooks": ^1.0.0
     "@tailwindcss/postcss": latest
     "@tanstack/react-query": ^5.59.15
     "@trivago/prettier-plugin-sort-imports": ^4.3.0
