@@ -34,4 +34,4 @@ Open [http://localhost:3000](http://localhost:3000).
 
 - [Hedera Documentation](https://docs.hedera.com/)
 - [Hashscan](https://hashscan.io/)
-- [create-hbar](https://github.com/buidler-labs/create-hbar)
+- [create-scaffold-hbar](https://github.com/buidler-labs/create-scaffold-hbar)
