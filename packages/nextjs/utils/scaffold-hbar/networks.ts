@@ -1,7 +1,7 @@
 import * as chains from "viem/chains";
 import scaffoldConfig from "~~/scaffold.config";
 
-export { getBlockExplorerAddressLink, getBlockExplorerTxLink } from "@scaffold-ui/hooks";
+export { getBlockExplorerAddressLink, getBlockExplorerTxLink } from "@scaffold-hbar-ui/hooks";
 
 type ChainAttributes = {
   // color | [lightThemeColor, darkThemeColor]

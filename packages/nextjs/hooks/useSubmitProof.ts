@@ -1,7 +1,7 @@
 "use client";
 
 import { TopicId, TopicMessageSubmitTransaction } from "@hiero-ledger/sdk";
-import { useNativeTransaction } from "@scaffold-ui/hooks";
+import { useNativeTransaction } from "@scaffold-hbar-ui/hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useHederaSigner } from "~~/hooks/useHederaSigner";
 import { extractIdentity } from "~~/utils/scaffold-hbar/hederaIdentity";

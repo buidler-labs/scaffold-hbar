@@ -2,13 +2,13 @@
 
 import { type ReactNode, useEffect, useRef } from "react";
 import type { Transaction } from "@hiero-ledger/sdk";
-import { CapabilityError, setNativeTransactionSigner } from "@scaffold-ui/hooks";
+import { CapabilityError, setNativeTransactionSigner } from "@scaffold-hbar-ui/hooks";
 import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
 import { hederaCaipId } from "~~/utils/scaffold-hbar/hederaIdentity";
 import { transactionToBase64String } from "~~/utils/scaffold-hbar/hederaTxUtils";
 
 /**
- * Registers scaffold-ui's native transaction signer with the current Hedera WalletConnect
+ * Registers scaffold-hbar-ui's native transaction signer with the current Hedera WalletConnect
  * session. Refs keep the signer closure stable while always seeing the latest provider/account.
  */
 export function NativeTransactionSignerBridge({ children }: { children: ReactNode }) {
