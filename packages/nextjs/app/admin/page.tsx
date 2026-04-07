@@ -3,9 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { proofWallConfig } from "~~/config/proofWallConfig";
+import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
 import { useCreateToken } from "~~/hooks/useCreateToken";
 import { useCreateTopic } from "~~/hooks/useCreateTopic";
 import { useHederaSigner } from "~~/hooks/useHederaSigner";
+import { getHederaNetworkNameFromChainId } from "~~/utils/scaffold-hbar";
+import { resolveTopicIdFromTransactionId } from "~~/utils/scaffold-hbar/resolveTopicIdFromTransactionId";
 
 async function copyToClipboard(text: string): Promise<boolean> {
   try {
@@ -18,11 +21,13 @@ async function copyToClipboard(text: string): Promise<boolean> {
 
 export default function AdminPage() {
   const { accountId, isConnected } = useHederaSigner();
+  const { targetNetwork } = useTargetNetwork();
   const createTopic = useCreateTopic();
   const createToken = useCreateToken();
 
   const [topicMemo, setTopicMemo] = useState("Proof Wall");
   const [topicSuccess, setTopicSuccess] = useState<string | null>(null);
+  const [topicPendingMessage, setTopicPendingMessage] = useState<string | null>(null);
   const [topicCopied, setTopicCopied] = useState(false);
 
   const [tokenName, setTokenName] = useState("ProofBadge");
@@ -33,10 +38,21 @@ export default function AdminPage() {
 
   const handleCreateTopic = async () => {
     setTopicSuccess(null);
+    setTopicPendingMessage(null);
     setTopicCopied(false);
     try {
       const data = await createTopic.mutateAsync({ memo: topicMemo.trim() || "Proof Wall" });
-      setTopicSuccess(data.transactionId);
+      const network = getHederaNetworkNameFromChainId(targetNetwork.id);
+      const status = await resolveTopicIdFromTransactionId(data.transactionId, network);
+      if (status.topicId) {
+        setTopicSuccess(status.topicId);
+        return;
+      }
+      if (status.pending) {
+        setTopicPendingMessage(
+          "Topic transaction was submitted, but Mirror Node is still indexing it. Please wait a few seconds and click Create topic again.",
+        );
+      }
     } catch {
       // Error state is handled by createTopic.isError.
     }
@@ -143,12 +159,17 @@ HEDERA_NETWORK=testnet`;
                   {createTopic.error instanceof Error ? createTopic.error.message : "Create topic failed"}
                 </div>
               )}
+              {topicPendingMessage && (
+                <div className="rounded-lg bg-info/10 border border-info/20 px-3 py-2 text-sm text-info">
+                  {topicPendingMessage}
+                </div>
+              )}
               {topicSuccess && (
                 <div className="rounded-lg bg-success/10 border border-success/20 px-3 py-3 text-sm">
                   <p className="font-medium text-success">Topic created</p>
                   <p className="font-mono break-all mt-1">{topicSuccess}</p>
                   <p className="text-base-content/70 mt-2">
-                    Add to <code className="text-xs bg-base-200 px-1 rounded">.env.local</code>:
+                    Add to <code className="text-xs bg-base-200 px-1 rounded">.env</code>:
                   </p>
                   <pre className="mt-1 p-2 rounded bg-base-200 text-xs overflow-x-auto whitespace-pre-wrap break-all">
                     NEXT_PUBLIC_PROOF_WALL_TOPIC_ID={topicSuccess}
@@ -256,7 +277,7 @@ HEDERA_NETWORK=testnet`;
                   <p className="font-medium text-success">Token created</p>
                   <p className="font-mono break-all mt-1">{tokenSuccess}</p>
                   <p className="text-base-content/70 mt-2">
-                    Add to <code className="text-xs bg-base-200 px-1 rounded">.env.local</code>:
+                    Add to <code className="text-xs bg-base-200 px-1 rounded">.env</code>:
                   </p>
                   <pre className="mt-1 p-2 rounded bg-base-200 text-xs overflow-x-auto whitespace-pre-wrap break-all">
                     NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID={tokenSuccess}
@@ -295,7 +316,7 @@ HEDERA_NETWORK=testnet`;
             </h2>
             <p className="text-base-content/60 mb-3">
               Values from <code className="text-xs bg-base-200 px-1 rounded">NEXT_PUBLIC_*</code> at build time. Restart
-              dev server after changing <code className="text-xs bg-base-200 px-1 rounded">.env.local</code>.
+              dev server after changing <code className="text-xs bg-base-200 px-1 rounded">.env</code>.
             </p>
             <dl className="space-y-2">
               <div>
@@ -316,7 +337,7 @@ HEDERA_NETWORK=testnet`;
               </div>
             </dl>
             <p className="mt-4 text-base-content/50 text-xs">
-              Example <code className="bg-base-200 px-1 rounded">.env.local</code> keys:
+              Example <code className="bg-base-200 px-1 rounded">.env</code> keys:
             </p>
             <pre className="mt-1 p-3 rounded bg-base-200 text-xs overflow-x-auto whitespace-pre-wrap">{envBlock}</pre>
           </section>

@@ -3604,7 +3604,7 @@ __metadata:
 
 "@scaffold-hbar-ui/hooks@file:../../../scaffold-hbar-ui/packages/hooks::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
   version: 1.0.0
-  resolution: "@scaffold-hbar-ui/hooks@file:../../../scaffold-hbar-ui/packages/hooks#../../../scaffold-hbar-ui/packages/hooks::hash=6892a3&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-hbar-ui/hooks@file:../../../scaffold-hbar-ui/packages/hooks#../../../scaffold-hbar-ui/packages/hooks::hash=189a0e&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   dependencies:
     "@uniswap/sdk-core": ^7.7.2
     "@uniswap/v2-sdk": ^4.15.2
@@ -3617,7 +3617,7 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: 67bf86d01f8abbbcf5aa0271e019cca6720c4c7f0ef240314795e94c938b62476882b0258f2e4f71b1e3dcdb0378ad884ca4cc82a32bf16d268bcc9d711ce0e2
+  checksum: 4999756b7e8af84ea0c08a25d2c657f5534e620cf0350d9519be0f69e517ad11ae74faf4e93f5b53dfafa2154da47622fe69725e155209501011cda3a6749cc6
   languageName: node
   linkType: hard
 
