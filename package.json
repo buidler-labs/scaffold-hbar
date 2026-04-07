@@ -2,13 +2,14 @@
   "name": "sh",
   "version": "0.0.1",
   "private": true,
-  "workspaces": [
-    "packages/hardhat",
-    "packages/nextjs",
-    "packages/foundry"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/hardhat",
+      "packages/nextjs",
+      "packages/foundry"
+    ]
+  },
   "scripts": {
-<<<<<<< HEAD
     "foundry:account": "yarn workspace @sh/foundry account",
     "foundry:account:generate": "yarn workspace @sh/foundry account:generate",
     "foundry:account:import": "yarn workspace @sh/foundry account:import",
@@ -65,58 +66,8 @@
     "postinstall": "husky",
     "precommit": "lint-staged",
     "lint-staged": "lint-staged"
-=======
-    "account": "npm run hardhat:account",
-    "account:import": "npm run --workspace=packages/hardhat account:import",
-    "account:generate": "npm run --workspace=packages/hardhat account:generate",
-    "account:reveal-pk": "npm run --workspace=packages/hardhat account:reveal-pk",
-    "chain": "npm run hardhat:chain",
-    "compile": "npm run hardhat:compile",
-    "deploy": "npm run hardhat:deploy",
-    "foundry:compile": "npm run --workspace=packages/foundry compile",
-    "foundry:test": "npm run --workspace=packages/foundry test",
-    "foundry:test:local": "npm run --workspace=packages/foundry test:local",
-    "foundry:test:testnet": "npm run --workspace=packages/foundry test:testnet",
-    "foundry:test:mainnet": "npm run --workspace=packages/foundry test:mainnet",
-    "foundry:deploy": "npm run --workspace=packages/foundry deploy",
-    "foundry:clean": "npm run --workspace=packages/foundry clean",
-    "fork": "npm run hardhat:fork",
-    "format": "npm run next:format && npm run hardhat:format",
-    "generate": "npm run account:generate",
-    "hardhat:account": "npm run --workspace=packages/hardhat account",
-    "hardhat:chain": "npm run --workspace=packages/hardhat chain",
-    "hardhat:check-types": "npm run --workspace=packages/hardhat check-types",
-    "hardhat:clean": "npm run --workspace=packages/hardhat clean",
-    "hardhat:compile": "npm run --workspace=packages/hardhat compile",
-    "hardhat:deploy": "npm run --workspace=packages/hardhat deploy",
-    "hardhat:flatten": "npm run --workspace=packages/hardhat flatten",
-    "hardhat:fork": "npm run --workspace=packages/hardhat fork",
-    "hardhat:format": "npm run --workspace=packages/hardhat format",
-    "hardhat:generate": "npm run --workspace=packages/hardhat generate",
-    "hardhat:hardhat-verify": "npm run --workspace=packages/hardhat hardhat-verify",
-    "hardhat:lint": "npm run --workspace=packages/hardhat lint",
-    "hardhat:lint-staged": "npm run --workspace=packages/hardhat lint-staged",
-    "hardhat:test": "npm run --workspace=packages/hardhat test",
-    "hardhat:verify": "npm run --workspace=packages/hardhat verify",
-    "lint": "npm run next:lint && npm run hardhat:lint",
-    "next:build": "npm run --workspace=packages/nextjs build",
-    "next:check-types": "npm run --workspace=packages/nextjs check-types",
-    "next:format": "npm run --workspace=packages/nextjs format",
-    "next:lint": "npm run --workspace=packages/nextjs lint",
-    "next:serve": "npm run --workspace=packages/nextjs serve",
-    "postinstall": "husky",
-    "precommit": "lint-staged",
-    "lint-staged": "lint-staged",
-    "start": "npm run --workspace=packages/nextjs dev",
-    "test": "npm run hardhat:test",
-    "test:foundry": "npm run foundry:test",
-    "vercel": "npm run --workspace=packages/nextjs vercel",
-    "vercel:yolo": "npm run --workspace=packages/nextjs vercel:yolo",
-    "ipfs": "npm run --workspace=packages/nextjs ipfs",
-    "vercel:login": "npm run --workspace=packages/nextjs vercel:login",
-    "verify": "npm run hardhat:verify"
->>>>>>> 56d6abf (chore: replace yarn workspace delegation with npm run --workspace)
   },
+  "packageManager": "yarn@3.2.3",
   "devDependencies": {
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10"
