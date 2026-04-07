@@ -10,6 +10,12 @@ import { useHederaSigner } from "~~/hooks/useHederaSigner";
 import { getHederaNetworkNameFromChainId } from "~~/utils/scaffold-hbar";
 import { resolveTopicIdFromTransactionId } from "~~/utils/scaffold-hbar/resolveTopicIdFromTransactionId";
 
+type TopicState =
+  | { status: "idle" }
+  | { status: "resolving" }
+  | { status: "pending"; message: string }
+  | { status: "success"; topicId: string; network: "testnet" | "mainnet" };
+
 async function copyToClipboard(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
@@ -26,8 +32,7 @@ export default function AdminPage() {
   const createToken = useCreateToken();
 
   const [topicMemo, setTopicMemo] = useState("Proof Wall");
-  const [topicSuccess, setTopicSuccess] = useState<string | null>(null);
-  const [topicPendingMessage, setTopicPendingMessage] = useState<string | null>(null);
+  const [topicState, setTopicState] = useState<TopicState>({ status: "idle" });
   const [topicCopied, setTopicCopied] = useState(false);
 
   const [tokenName, setTokenName] = useState("ProofBadge");
@@ -37,24 +42,37 @@ export default function AdminPage() {
   const [tokenCopied, setTokenCopied] = useState(false);
 
   const handleCreateTopic = async () => {
-    setTopicSuccess(null);
-    setTopicPendingMessage(null);
+    setTopicState({ status: "idle" });
     setTopicCopied(false);
     try {
       const data = await createTopic.mutateAsync({ memo: topicMemo.trim() || "Proof Wall" });
       const network = getHederaNetworkNameFromChainId(targetNetwork.id);
+      setTopicState({ status: "resolving" });
       const status = await resolveTopicIdFromTransactionId(data.transactionId, network);
       if (status.topicId) {
-        setTopicSuccess(status.topicId);
+        setTopicState({ status: "success", topicId: status.topicId, network });
         return;
       }
       if (status.pending) {
-        setTopicPendingMessage(
-          "Topic transaction was submitted, but Mirror Node is still indexing it. Please wait a few seconds and click Create topic again.",
-        );
+        setTopicState({
+          status: "pending",
+          message:
+            "Topic transaction was submitted. We retried automatically, but Mirror Node is still indexing it. Wait 10-20 seconds, then click Create topic again to resolve it.",
+        });
+        return;
       }
-    } catch {
-      // Error state is handled by createTopic.isError.
+      setTopicState({
+        status: "pending",
+        message: "Topic transaction was submitted, but we could not resolve the topic ID from Mirror Node right now.",
+      });
+    } catch (error) {
+      setTopicState({
+        status: "pending",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Topic transaction was submitted, but we could not resolve the topic ID right now.",
+      });
     }
   };
 
@@ -74,8 +92,8 @@ export default function AdminPage() {
   };
 
   const handleCopyTopicEnvLine = async () => {
-    if (!topicSuccess) return;
-    const ok = await copyToClipboard(`NEXT_PUBLIC_PROOF_WALL_TOPIC_ID=${topicSuccess}`);
+    if (topicState.status !== "success") return;
+    const ok = await copyToClipboard(`NEXT_PUBLIC_PROOF_WALL_TOPIC_ID=${topicState.topicId}`);
     setTopicCopied(ok);
     if (ok) setTimeout(() => setTopicCopied(false), 2000);
   };
@@ -140,7 +158,7 @@ HEDERA_NETWORK=testnet`;
                   placeholder="Proof Wall"
                   value={topicMemo}
                   onChange={e => setTopicMemo(e.target.value)}
-                  disabled={createTopic.isPending || !isConnected}
+                  disabled={createTopic.isPending || topicState.status === "resolving" || !isConnected}
                 />
               </div>
               <button
@@ -149,30 +167,36 @@ HEDERA_NETWORK=testnet`;
                 onClick={() => {
                   void handleCreateTopic();
                 }}
-                disabled={createTopic.isPending || !isConnected}
+                disabled={createTopic.isPending || topicState.status === "resolving" || !isConnected}
               >
-                {createTopic.isPending ? <span className="loading loading-spinner loading-sm" /> : null}
-                {createTopic.isPending ? "Waiting for wallet approval…" : "Create topic"}
+                {createTopic.isPending || topicState.status === "resolving" ? (
+                  <span className="loading loading-spinner loading-sm" />
+                ) : null}
+                {createTopic.isPending
+                  ? "Waiting for wallet approval…"
+                  : topicState.status === "resolving"
+                    ? "Resolving topic ID…"
+                    : "Create topic"}
               </button>
               {createTopic.isError && (
                 <div className="rounded-lg bg-error/10 border border-error/20 px-3 py-2 text-sm text-error">
                   {createTopic.error instanceof Error ? createTopic.error.message : "Create topic failed"}
                 </div>
               )}
-              {topicPendingMessage && (
+              {topicState.status === "pending" && (
                 <div className="rounded-lg bg-info/10 border border-info/20 px-3 py-2 text-sm text-info">
-                  {topicPendingMessage}
+                  {topicState.message}
                 </div>
               )}
-              {topicSuccess && (
+              {topicState.status === "success" && (
                 <div className="rounded-lg bg-success/10 border border-success/20 px-3 py-3 text-sm">
                   <p className="font-medium text-success">Topic created</p>
-                  <p className="font-mono break-all mt-1">{topicSuccess}</p>
+                  <p className="font-mono break-all mt-1">{topicState.topicId}</p>
                   <p className="text-base-content/70 mt-2">
                     Add to <code className="text-xs bg-base-200 px-1 rounded">.env</code>:
                   </p>
                   <pre className="mt-1 p-2 rounded bg-base-200 text-xs overflow-x-auto whitespace-pre-wrap break-all">
-                    NEXT_PUBLIC_PROOF_WALL_TOPIC_ID={topicSuccess}
+                    NEXT_PUBLIC_PROOF_WALL_TOPIC_ID={topicState.topicId}
                   </pre>
                   <div className="flex flex-wrap gap-2 mt-3">
                     <button
@@ -185,7 +209,7 @@ HEDERA_NETWORK=testnet`;
                       {topicCopied ? "Copied!" : "Copy env line"}
                     </button>
                     <a
-                      href={`https://hashscan.io/testnet/topic/${topicSuccess}`}
+                      href={`https://hashscan.io/${topicState.network}/topic/${topicState.topicId}`}
                       target="_blank"
                       rel="noreferrer"
                       className="btn btn-sm btn-ghost"

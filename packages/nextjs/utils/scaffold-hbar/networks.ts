@@ -43,5 +43,6 @@ export function getTargetNetworks(): ChainWithAttributes[] {
 export function getHederaNetworkNameFromChainId(chainId: number): HederaNetworkName {
   if (chainId === chains.hedera.id) return "mainnet";
   if (chainId === chains.hederaTestnet.id) return "testnet";
-  return "testnet";
+  if (chainId === 31337) return "testnet";
+  throw new Error(`Unsupported Hedera chain ID: ${chainId}`);
 }

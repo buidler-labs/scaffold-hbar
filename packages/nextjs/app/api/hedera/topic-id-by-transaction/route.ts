@@ -18,12 +18,19 @@ function normalizeNetwork(value: string | null | undefined): HederaMirrorNetwork
   return getDefaultNetwork();
 }
 
+function isValidTransactionId(value: string): boolean {
+  return /^\d+\.\d+\.\d+@\d+\.\d+$/.test(value);
+}
+
 export async function GET(req: NextRequest) {
   const txId = req.nextUrl.searchParams.get("transactionId")?.trim();
   const network = normalizeNetwork(req.nextUrl.searchParams.get("network"));
 
   if (!txId) {
     return NextResponse.json({ error: "Missing transactionId" }, { status: 400 });
+  }
+  if (!isValidTransactionId(txId)) {
+    return NextResponse.json({ error: "Invalid transactionId format (expected 0.0.x@seconds.nanos)" }, { status: 400 });
   }
 
   try {
@@ -36,6 +43,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(status);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[api/hedera/topic-id-by-transaction]", error);
+    return NextResponse.json({ error: message }, { status: 502 });
   }
 }
