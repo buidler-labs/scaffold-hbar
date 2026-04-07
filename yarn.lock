@@ -3588,23 +3588,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scaffold-ui/components@file:../../../scaffold-ui/packages/components::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
-  version: 0.1.8
-  resolution: "@scaffold-ui/components@file:../../../scaffold-ui/packages/components#../../../scaffold-ui/packages/components::hash=648047&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+"@scaffold-hbar-ui/components@file:../../../scaffold-hbar-ui/packages/components::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+  version: 1.0.0
+  resolution: "@scaffold-hbar-ui/components@file:../../../scaffold-hbar-ui/packages/components#../../../scaffold-hbar-ui/packages/components::hash=f36db8&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   peerDependencies:
-    "@scaffold-ui/hooks": "workspace:*"
+    "@scaffold-hbar-ui/hooks": "workspace:*"
     "@tanstack/react-query": ^5.59.15
     "@types/react": ^19.0.7
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: 7e4e0a7f73080a3c38f26d86c7f78a046f4826ef1aa0622bdd1a7155b5bd64d0c763f1fe5c7a85628d4182d0669288adae3e89eaecac225fa23fc2166c9be888
+  checksum: dd0cac3ca74201c1efba82751d8f39afb370f5579b3b994b2058614cbd8735561aabf2ff573492ed6d9365a3b6ee717bc1a620e3abc852162ed367a9a532da1c
   languageName: node
   linkType: hard
 
-"@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
-  version: 0.1.6
-  resolution: "@scaffold-ui/hooks@file:../../../scaffold-ui/packages/hooks#../../../scaffold-ui/packages/hooks::hash=af225c&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+"@scaffold-hbar-ui/hooks@file:../../../scaffold-hbar-ui/packages/hooks::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+  version: 1.0.0
+  resolution: "@scaffold-hbar-ui/hooks@file:../../../scaffold-hbar-ui/packages/hooks#../../../scaffold-hbar-ui/packages/hooks::hash=6892a3&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
   dependencies:
     "@uniswap/sdk-core": ^7.7.2
     "@uniswap/v2-sdk": ^4.15.2
@@ -3617,7 +3617,7 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: ef992ec3641acb7f4bb5cec509c894ab8d855be9cd179172c4a3b7af6a2e39ecf31c5a9ccf9f43244948f8f77d940cae84217ad3917d4547136dadcad099190b
+  checksum: 67bf86d01f8abbbcf5aa0271e019cca6720c4c7f0ef240314795e94c938b62476882b0258f2e4f71b1e3dcdb0378ad884ca4cc82a32bf16d268bcc9d711ce0e2
   languageName: node
   linkType: hard
 
@@ -3696,8 +3696,8 @@ __metadata:
     "@reown/appkit": ^1.8.19
     "@reown/appkit-controllers": ^1.8.19
     "@reown/walletkit": ^1.5.4
-    "@scaffold-ui/components": "file:../../../scaffold-ui/packages/components"
-    "@scaffold-ui/hooks": "file:../../../scaffold-ui/packages/hooks"
+    "@scaffold-hbar-ui/components": "file:../../../scaffold-hbar-ui/packages/components"
+    "@scaffold-hbar-ui/hooks": "file:../../../scaffold-hbar-ui/packages/hooks"
     "@tailwindcss/postcss": latest
     "@tanstack/react-query": ^5.59.15
     "@trivago/prettier-plugin-sort-imports": ^4.3.0
