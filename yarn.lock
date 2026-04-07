@@ -3588,9 +3588,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scaffold-hbar-ui/components@file:../../../scaffold-hbar-ui/packages/components::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+"@scaffold-hbar-ui/components@npm:1.0.0":
   version: 1.0.0
-  resolution: "@scaffold-hbar-ui/components@file:../../../scaffold-hbar-ui/packages/components#../../../scaffold-hbar-ui/packages/components::hash=f36db8&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-hbar-ui/components@npm:1.0.0"
   peerDependencies:
     "@scaffold-hbar-ui/hooks": "workspace:*"
     "@tanstack/react-query": ^5.59.15
@@ -3598,13 +3598,13 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: dd0cac3ca74201c1efba82751d8f39afb370f5579b3b994b2058614cbd8735561aabf2ff573492ed6d9365a3b6ee717bc1a620e3abc852162ed367a9a532da1c
+  checksum: 4fecbd3d63f2ad7888fd62945b7ea33d02e01e5c886afdadd132ac485cffe3f1eadbfb65ce4ef9dc1d1eddecccdc6d97bf448a07afd5247ea292ab2f2b388ad8
   languageName: node
   linkType: hard
 
-"@scaffold-hbar-ui/hooks@file:../../../scaffold-hbar-ui/packages/hooks::locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs":
+"@scaffold-hbar-ui/hooks@npm:1.0.0":
   version: 1.0.0
-  resolution: "@scaffold-hbar-ui/hooks@file:../../../scaffold-hbar-ui/packages/hooks#../../../scaffold-hbar-ui/packages/hooks::hash=189a0e&locator=%40sh%2Fnextjs%40workspace%3Apackages%2Fnextjs"
+  resolution: "@scaffold-hbar-ui/hooks@npm:1.0.0"
   dependencies:
     "@uniswap/sdk-core": ^7.7.2
     "@uniswap/v2-sdk": ^4.15.2
@@ -3617,7 +3617,7 @@ __metadata:
     react: ^19.2.3
     viem: ^2.23.0
     wagmi: ^2.14.11
-  checksum: 4999756b7e8af84ea0c08a25d2c657f5534e620cf0350d9519be0f69e517ad11ae74faf4e93f5b53dfafa2154da47622fe69725e155209501011cda3a6749cc6
+  checksum: cc32074769ec9f63683abccfa59a0a9106894cc907b9b2b61f0bbea8c453893e0ada0877913c7cc373455d64add18daf1b2cc8d4bfccf1e24a5dfd7e5ce9b6ba
   languageName: node
   linkType: hard
 
@@ -3696,8 +3696,8 @@ __metadata:
     "@reown/appkit": ^1.8.19
     "@reown/appkit-controllers": ^1.8.19
     "@reown/walletkit": ^1.5.4
-    "@scaffold-hbar-ui/components": "file:../../../scaffold-hbar-ui/packages/components"
-    "@scaffold-hbar-ui/hooks": "file:../../../scaffold-hbar-ui/packages/hooks"
+    "@scaffold-hbar-ui/components": 1.0.0
+    "@scaffold-hbar-ui/hooks": 1.0.0
     "@tailwindcss/postcss": latest
     "@tanstack/react-query": ^5.59.15
     "@trivago/prettier-plugin-sort-imports": ^4.3.0

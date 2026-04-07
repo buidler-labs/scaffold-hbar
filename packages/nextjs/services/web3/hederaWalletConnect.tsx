@@ -34,6 +34,9 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
   const [isInitializing, setIsInitializing] = useState(true);
   const [isBusy, setIsBusy] = useState(false);
   const [forceDisconnected, setForceDisconnected] = useState(false);
+  // Incremented whenever the WC session changes so React re-evaluates
+  // providerHasSession without relying on object-mutation detection.
+  const [sessionTick, setSessionTick] = useState(0);
   const { address, isConnected } = useAppKitAccount({ namespace: hederaNamespace });
   const prevAddressRef = useRef<string | null>(null);
 
@@ -51,6 +54,33 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
       mounted = false;
     };
   }, []);
+
+  // When the provider reference changes, subscribe to WalletConnect session
+  // events so React re-renders when session is established or deleted. Without
+  // this the providerHasSession check would be stuck on the value captured at
+  // render time because provider.session is mutated externally by the WC lib.
+  useEffect(() => {
+    if (!provider) return;
+    const bump = () => setSessionTick(t => t + 1);
+    const providerWithEvents = provider as unknown as {
+      on?: (event: string, cb: () => void) => void;
+      off?: (event: string, cb: () => void) => void;
+    };
+    if (typeof providerWithEvents.on === "function") {
+      providerWithEvents.on("session_update", bump);
+      providerWithEvents.on("session_delete", bump);
+      providerWithEvents.on("connect", bump);
+      providerWithEvents.on("disconnect", bump);
+    }
+    return () => {
+      if (typeof providerWithEvents.off === "function") {
+        providerWithEvents.off("session_update", bump);
+        providerWithEvents.off("session_delete", bump);
+        providerWithEvents.off("connect", bump);
+        providerWithEvents.off("disconnect", bump);
+      }
+    };
+  }, [provider]);
 
   const connectWallet = useCallback(async () => {
     // Connect is triggered from custom UI via AppKit modal open().
@@ -72,15 +102,15 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
       } catch {
         // Continue to provider-level fallback.
       }
-      const p = provider as unknown as {
+      const providerWithDisconnect = provider as unknown as {
         disconnect?: (params?: unknown) => Promise<unknown>;
       };
-      if (typeof p.disconnect === "function") {
+      if (typeof providerWithDisconnect.disconnect === "function") {
         try {
-          await p.disconnect({ namespace: hederaNamespace });
+          await providerWithDisconnect.disconnect({ namespace: hederaNamespace });
         } catch {
           try {
-            await p.disconnect();
+            await providerWithDisconnect.disconnect();
           } catch (error) {
             // Some providers throw here when no session was ever fully enabled.
             console.warn("Provider disconnect fallback failed", error);
@@ -95,17 +125,30 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
       prevAddressRef.current = addressWhenDisconnecting ?? null;
       setForceDisconnected(true);
 
-      void ensureInit()
-        .then(hp => {
-          setProvider(hp);
-        })
-        .catch(err => console.error("HederaWalletConnect re-init after disconnect failed", err));
+      // Await re-init so isBusy stays true (and the UI stays blocked) until
+      // the provider is fully ready. Fire-and-forgetting this was the cause of
+      // a race where AppKit reported "connected" while provider was still null.
+      try {
+        const hp = await ensureInit();
+        setProvider(hp);
+      } catch (err) {
+        console.error("HederaWalletConnect re-init after disconnect failed", err);
+      }
     } finally {
       setIsBusy(false);
     }
   }, [isBusy, address, disconnect, provider]);
 
-  const accountId = !forceDisconnected && isConnected && address ? address : null;
+  // provider.session is the WalletConnect session object set by the library
+  // after a successful connect(). AppKit can report isConnected=true before
+  // the session is available (e.g. on page refresh while the provider is still
+  // initialising, or in the brief window after reconnect). We only expose a
+  // non-null accountId when the provider session is confirmed to be live.
+  // sessionTick is read here to force React to re-evaluate after WC events.
+  const providerHasSession = Boolean(
+    sessionTick >= 0 && provider && (provider as unknown as { session?: unknown }).session,
+  );
+  const accountId = !forceDisconnected && isConnected && address && providerHasSession ? address : null;
 
   useEffect(() => {
     if (isConnected && address) {
