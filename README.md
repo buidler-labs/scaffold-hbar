@@ -1,6 +1,6 @@
 # Scaffold-HBAR — Payments scheduler (Hedera)
 
-A Hedera-ready monorepo for building dApps with **Next.js**, **Foundry**, and Hedera networks (testnet, mainnet). This repository is the source for [create-hbar](https://github.com/buidler-labs/create-hbar) templates; **it** uses the **Foundry** stack and ships the **payments-scheduler** pattern: a generic **ScheduledVault** plus pluggable strategies (example: DCA) driven by the **Hedera Schedule Service (HSS)**.
+A Hedera-ready monorepo for building dApps with **Next.js**, **Foundry**, and Hedera networks (testnet, mainnet). This repository is the source for [create-scaffold-hbar](https://github.com/buidler-labs/create-scaffold-hbar) templates; **it** uses the **Foundry** stack and ships the **payments-scheduler** pattern: a generic **ScheduledVault** plus pluggable strategies (example: DCA) driven by the **Hedera Schedule Service (HSS)**.
 
 ### Target networks: Hedera testnet and mainnet
 
@@ -133,7 +133,7 @@ Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) a
 - [Hedera Documentation](https://docs.hedera.com/)
 - [Hedera Schedule Service](https://docs.hedera.com/hedera/core-concepts/smart-contracts/system-smart-contracts/hedera-schedule-service)
 - [Hashscan](https://hashscan.io/)
-- [create-hbar](https://github.com/buidler-labs/create-hbar)
+- [create-scaffold-hbar](https://github.com/buidler-labs/create-scaffold-hbar)
 
 ## License
 
