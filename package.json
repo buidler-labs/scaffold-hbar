@@ -2,26 +2,29 @@
   "name": "sh",
   "version": "0.0.1",
   "private": true,
-  "workspaces": [
-    "packages/nextjs"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/nextjs"
+    ]
+  },
   "scripts": {
-    "format": "npm run next:format",
-    "lint": "npm run next:lint",
-    "next:build": "npm run --workspace=packages/nextjs build",
-    "next:check-types": "npm run --workspace=packages/nextjs check-types",
-    "next:format": "npm run --workspace=packages/nextjs format",
-    "next:lint": "npm run --workspace=packages/nextjs lint",
-    "next:serve": "npm run --workspace=packages/nextjs serve",
+    "format": "yarn next:format",
+    "lint": "yarn next:lint",
+    "next:build": "yarn workspace @sh/nextjs build",
+    "next:check-types": "yarn workspace @sh/nextjs check-types",
+    "next:format": "yarn workspace @sh/nextjs format",
+    "next:lint": "yarn workspace @sh/nextjs lint",
+    "next:serve": "yarn workspace @sh/nextjs serve",
     "postinstall": "husky",
     "precommit": "lint-staged",
     "lint-staged": "lint-staged",
-    "start": "npm run --workspace=packages/nextjs dev",
-    "vercel": "npm run --workspace=packages/nextjs vercel",
-    "vercel:yolo": "npm run --workspace=packages/nextjs vercel:yolo",
-    "ipfs": "npm run --workspace=packages/nextjs ipfs",
-    "vercel:login": "npm run --workspace=packages/nextjs vercel:login"
+    "start": "yarn workspace @sh/nextjs dev",
+    "vercel": "yarn workspace @sh/nextjs vercel",
+    "vercel:yolo": "yarn workspace @sh/nextjs vercel:yolo",
+    "ipfs": "yarn workspace @sh/nextjs ipfs",
+    "vercel:login": "yarn workspace @sh/nextjs vercel:login"
   },
+  "packageManager": "yarn@3.2.3",
   "devDependencies": {
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10"
