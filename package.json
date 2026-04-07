@@ -67,7 +67,6 @@
     "precommit": "lint-staged",
     "lint-staged": "lint-staged"
   },
-  "packageManager": "yarn@3.2.3",
   "devDependencies": {
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10"

@@ -2,12 +2,15 @@
 node_modules
 
 # yarn
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+.yarn/
+.yarnrc.yml
+yarn.lock
+
+# npm
+package-lock.json
+
+# pnpm
+pnpm-lock.yaml
 
 # eslint
 .eslintcache
