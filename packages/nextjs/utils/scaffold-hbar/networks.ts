@@ -13,6 +13,7 @@ type ChainAttributes = {
 
 export type ChainWithAttributes = chains.Chain & Partial<ChainAttributes>;
 export type AllowedChainIds = (typeof scaffoldConfig.targetNetworks)[number]["id"];
+export type HederaNetworkName = "testnet" | "mainnet";
 
 export const NETWORKS_EXTRA_DATA: Record<string, ChainAttributes> = {
   [chains.mainnet.id]: {
@@ -37,4 +38,11 @@ export function getTargetNetworks(): ChainWithAttributes[] {
     ...targetNetwork,
     ...NETWORKS_EXTRA_DATA[targetNetwork.id],
   }));
+}
+
+export function getHederaNetworkNameFromChainId(chainId: number): HederaNetworkName {
+  if (chainId === chains.hedera.id) return "mainnet";
+  if (chainId === chains.hederaTestnet.id) return "testnet";
+  if (chainId === 31337) return "testnet";
+  throw new Error(`Unsupported Hedera chain ID: ${chainId}`);
 }
