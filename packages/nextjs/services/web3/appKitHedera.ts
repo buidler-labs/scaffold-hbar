@@ -51,29 +51,29 @@ export async function getHederaProvider(): Promise<HederaProvider> {
  * `initProviders()` again.
  */
 function ensureProvidersInitialized(provider: HederaProvider): void {
-  const p = provider as unknown as {
+  const providerInternals = provider as unknown as {
     session?: { namespaces?: Record<string, unknown> };
     namespaces?: Record<string, unknown>;
     nativeProvider?: unknown;
     initProviders?: () => void;
   };
 
-  if (!p.session?.namespaces) return;
+  if (!providerInternals.session?.namespaces) return;
 
-  const sessionNamespaceKeys = Object.keys(p.session.namespaces);
-  const currentNamespaceKeys = Object.keys(p.namespaces ?? {});
+  const sessionNamespaceKeys = Object.keys(providerInternals.session.namespaces);
+  const currentNamespaceKeys = Object.keys(providerInternals.namespaces ?? {});
 
   // If initProviders already ran (nativeProvider is set) there is nothing to do.
-  if (p.nativeProvider) return;
+  if (providerInternals.nativeProvider) return;
 
   // namespaces is empty but the session has namespace data — populate from session.
   if (sessionNamespaceKeys.length > 0 && currentNamespaceKeys.length === 0) {
-    p.namespaces = { ...p.session.namespaces };
+    providerInternals.namespaces = { ...providerInternals.session.namespaces };
   }
 
-  if (typeof p.initProviders === "function") {
+  if (typeof providerInternals.initProviders === "function") {
     try {
-      p.initProviders();
+      providerInternals.initProviders();
     } catch (err) {
       console.warn("ensureProvidersInitialized: initProviders() failed", err);
     }

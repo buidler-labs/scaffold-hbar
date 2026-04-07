@@ -62,22 +62,22 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
   useEffect(() => {
     if (!provider) return;
     const bump = () => setSessionTick(t => t + 1);
-    const p = provider as unknown as {
+    const providerWithEvents = provider as unknown as {
       on?: (event: string, cb: () => void) => void;
       off?: (event: string, cb: () => void) => void;
     };
-    if (typeof p.on === "function") {
-      p.on("session_update", bump);
-      p.on("session_delete", bump);
-      p.on("connect", bump);
-      p.on("disconnect", bump);
+    if (typeof providerWithEvents.on === "function") {
+      providerWithEvents.on("session_update", bump);
+      providerWithEvents.on("session_delete", bump);
+      providerWithEvents.on("connect", bump);
+      providerWithEvents.on("disconnect", bump);
     }
     return () => {
-      if (typeof p.off === "function") {
-        p.off("session_update", bump);
-        p.off("session_delete", bump);
-        p.off("connect", bump);
-        p.off("disconnect", bump);
+      if (typeof providerWithEvents.off === "function") {
+        providerWithEvents.off("session_update", bump);
+        providerWithEvents.off("session_delete", bump);
+        providerWithEvents.off("connect", bump);
+        providerWithEvents.off("disconnect", bump);
       }
     };
   }, [provider]);
@@ -102,15 +102,15 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
       } catch {
         // Continue to provider-level fallback.
       }
-      const p = provider as unknown as {
+      const providerWithDisconnect = provider as unknown as {
         disconnect?: (params?: unknown) => Promise<unknown>;
       };
-      if (typeof p.disconnect === "function") {
+      if (typeof providerWithDisconnect.disconnect === "function") {
         try {
-          await p.disconnect({ namespace: hederaNamespace });
+          await providerWithDisconnect.disconnect({ namespace: hederaNamespace });
         } catch {
           try {
-            await p.disconnect();
+            await providerWithDisconnect.disconnect();
           } catch (error) {
             // Some providers throw here when no session was ever fully enabled.
             console.warn("Provider disconnect fallback failed", error);
