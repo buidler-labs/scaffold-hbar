@@ -98,6 +98,7 @@ export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as cons
 export function formatInterval(seconds: number | bigint): string {
   const s = Number(seconds);
   if (s === 0) return "Not set";
+  if (s < 60) return `${s}s`;
   if (s < 3600) return `${Math.floor(s / 60)}m`;
   if (s < 86_400) {
     const h = Math.floor(s / 3600);
