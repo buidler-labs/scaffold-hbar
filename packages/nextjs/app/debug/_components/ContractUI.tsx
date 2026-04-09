@@ -1,7 +1,7 @@
 "use client";
 
 // @refresh reset
-import { Contract } from "@scaffold-ui/debug-contracts";
+import { Contract } from "@scaffold-hbar-ui/debug-contracts";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-hbar";
 import { useTargetNetwork } from "~~/hooks/scaffold-hbar/useTargetNetwork";
 import { ContractName } from "~~/utils/scaffold-hbar/contract";

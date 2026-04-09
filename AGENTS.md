@@ -138,7 +138,7 @@ Scaffold-HBAR also provides other hooks to interact with blockchain data: `useSc
 
 ### UI Components
 
-**Always use `@scaffold-ui/components` library for web3 UI components:**
+**Always use `@scaffold-hbar-ui/components` library for web3 UI components:**
 
 - `Address`: Display Hedera EVM addresses with blockie avatars and explorer links
 - `AddressInput`: Input field with address validation

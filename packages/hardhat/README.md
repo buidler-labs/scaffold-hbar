@@ -56,10 +56,12 @@ You need a deployer account with HBAR on the target network. Without funds, depl
    ```
    You will be prompted to enter the password to decrypt your deployer key.
 
-4. **Verify on Hashscan** (no extra arguments; uses last deployment artifacts):
+4. **Verify on Hashscan** (uses deployment JSON under `deployments/<network>/`, which includes compiler metadata and sources):
    ```bash
-   yarn verify:testnet   # chain 296
-   yarn verify:mainnet   # chain 295
+   yarn verify:testnet   # all contracts on chain 296
+   yarn verify:mainnet   # all contracts on chain 295
+   yarn workspace @sh/hardhat verify:contract -- HederaToken testnet
+   yarn workspace @sh/hardhat verify:contract -- HederaToken testnet 0xYourContractAddress
    ```
 
 ## Layout
