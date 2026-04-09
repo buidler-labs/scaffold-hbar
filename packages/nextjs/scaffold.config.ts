@@ -21,10 +21,9 @@ const hederaLocalFork = {
   },
 } as const satisfies chains.Chain;
 
-const targetNetworks: readonly [chains.Chain, ...chains.Chain[]] = [
-  chains.hederaTestnet,
-  chains.hedera,
-  hederaLocalFork,
+const targetNetworks = [chains.hederaTestnet, chains.hedera, hederaLocalFork] as const satisfies readonly [
+  chains.Chain,
+  ...chains.Chain[],
 ];
 
 const scaffoldConfig = {

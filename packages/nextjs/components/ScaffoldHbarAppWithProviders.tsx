@@ -45,15 +45,35 @@ export const ScaffoldHbarAppWithProviders = ({ children }: { children: React.Rea
     setMounted(true);
   }, []);
 
+  const rainbowKitTheme = mounted
+    ? isDarkMode
+      ? darkTheme({
+          accentColor: "#8259ef",
+          accentColorForeground: "white",
+          borderRadius: "large",
+          fontStack: "system",
+          overlayBlur: "small",
+        })
+      : lightTheme({
+          accentColor: "#4f46e5",
+          accentColorForeground: "white",
+          borderRadius: "large",
+          fontStack: "system",
+          overlayBlur: "small",
+        })
+    : lightTheme({
+        accentColor: "#4f46e5",
+        accentColorForeground: "white",
+        borderRadius: "large",
+        fontStack: "system",
+        overlayBlur: "small",
+      });
+
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <ProgressBar height="3px" color="#2299dd" />
-        <RainbowKitProvider
-          avatar={BlockieAvatar}
-          initialChain={hederaTestnet}
-          theme={mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()}
-        >
+        <RainbowKitProvider avatar={BlockieAvatar} coolMode initialChain={hederaTestnet} theme={rainbowKitTheme}>
           <ScaffoldHbarApp>{children}</ScaffoldHbarApp>
         </RainbowKitProvider>
       </QueryClientProvider>

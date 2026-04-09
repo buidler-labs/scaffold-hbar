@@ -1,8 +1,8 @@
 import React from "react";
+import { HederaPortalFaucet } from "@scaffold-hbar-ui/components";
 import { hedera } from "viem/chains";
 import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
 import { SwitchTheme } from "~~/components/SwitchTheme";
-import { Faucet } from "~~/components/scaffold-hbar";
 import { useFetchHbarPrice } from "~~/hooks/scaffold-hbar";
 import { useTargetNetwork } from "~~/hooks/scaffold-hbar/useTargetNetwork";
 
@@ -27,7 +27,7 @@ export const Footer = () => {
                 </div>
               </div>
             )}
-            {isTestnet && <Faucet />}
+            {isTestnet && <HederaPortalFaucet showIcon />}
           </div>
           <SwitchTheme className="pointer-events-auto" />
         </div>
