@@ -12,11 +12,11 @@ import { HtsTokenCreator } from "../contracts/HtsTokenCreator.sol";
  * Example: yarn deploy # runs this script(without `--file` flag)
  */
 contract DeployScript is ScaffoldETHDeploy {
-  function run() external ScaffoldEthDeployerRunner {
-    HederaToken hederaToken = new HederaToken(deployer);
-    deployments.push(Deployment({ name: "HederaToken", addr: address(hederaToken) }));
+    function run() external ScaffoldEthDeployerRunner {
+        HederaToken hederaToken = new HederaToken(deployer);
+        deployments.push(Deployment({ name: "HederaToken", addr: address(hederaToken) }));
 
-    HtsTokenCreator creator = new HtsTokenCreator();
-    deployments.push(Deployment({ name: "HtsTokenCreator", addr: address(creator) }));
-  }
+        HtsTokenCreator creator = new HtsTokenCreator();
+        deployments.push(Deployment({ name: "HtsTokenCreator", addr: address(creator) }));
+    }
 }

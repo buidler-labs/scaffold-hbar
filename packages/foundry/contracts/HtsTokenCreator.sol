@@ -16,12 +16,11 @@ contract HtsTokenCreator {
     /// Creates a fungible HTS token. Treasury and initial supply recipient is msg.sender.
     /// Sends msg.value as HBAR to the HTS precompile (required for creation fee).
     /// @param initialSupply In smallest units (e.g. 10000 * 10**decimals for 10000 tokens).
-    function createToken(
-        string calldata name,
-        string calldata symbol,
-        uint256 initialSupply,
-        uint8 decimals
-    ) external payable returns (address tokenAddress) {
+    function createToken(string calldata name, string calldata symbol, uint256 initialSupply, uint8 decimals)
+        external
+        payable
+        returns (address tokenAddress)
+    {
         IHederaTokenService.HederaToken memory token = IHederaTokenService.HederaToken({
             name: name,
             symbol: symbol,
@@ -51,12 +50,13 @@ contract HtsTokenCreator {
 
     /// Mints additional supply to the token's treasury. Caller must hold supply key.
     function mintToken(address token, uint256 amount) external returns (int64 newTotalSupply) {
-        (int64 responseCode, int64 newSupply, ) = IHederaTokenService(HTS).mintToken(
-            token,
-            // forge-lint: disable-next-line(unsafe-typecast)
-            int64(uint64(amount)),
-            new bytes[](0)
-        );
+        (int64 responseCode, int64 newSupply,) = IHederaTokenService(HTS)
+            .mintToken(
+                token,
+                // forge-lint: disable-next-line(unsafe-typecast)
+                int64(uint64(amount)),
+                new bytes[](0)
+            );
 
         if (responseCode != SUCCESS) {
             revert HtsMintFailed(responseCode);
@@ -83,11 +83,7 @@ contract HtsTokenCreator {
     }
 
     function _defaultExpiry() internal view returns (IHederaTokenService.Expiry memory) {
-        return IHederaTokenService.Expiry({
-            second: 0,
-            autoRenewAccount: msg.sender,
-            autoRenewPeriod: 7890000
-        });
+        return IHederaTokenService.Expiry({ second: 0, autoRenewAccount: msg.sender, autoRenewPeriod: 7890000 });
     }
 
     error HtsCreateFailed(int64 responseCode);

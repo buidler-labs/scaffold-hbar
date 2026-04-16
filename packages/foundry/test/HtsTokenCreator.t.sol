@@ -29,34 +29,22 @@ contract HtsTokenCreatorTest is Test {
 
     function test_createToken_returnsNonZeroAddress() public {
         uint256 initialSupply = parseHtsUnits(10000);
-        address tokenAddress = creator.createToken{ value: HTS_CREATE_VALUE }(
-            "Test HTS Token",
-            "THT",
-            initialSupply,
-            DECIMALS
-        );
+        address tokenAddress =
+            creator.createToken{ value: HTS_CREATE_VALUE }("Test HTS Token", "THT", initialSupply, DECIMALS);
         assertNotEq(tokenAddress, address(0));
     }
 
     function test_createToken_callerIsTreasury() public {
         uint256 initialSupply = parseHtsUnits(1000);
-        address tokenAddress = creator.createToken{ value: HTS_CREATE_VALUE }(
-            "Treasury Token",
-            "TRS",
-            initialSupply,
-            DECIMALS
-        );
+        address tokenAddress =
+            creator.createToken{ value: HTS_CREATE_VALUE }("Treasury Token", "TRS", initialSupply, DECIMALS);
         assertNotEq(tokenAddress, address(0));
     }
 
     function test_mintToken_emitsTokenMinted() public {
         uint256 initialSupply = parseHtsUnits(1000);
-        address tokenAddress = creator.createToken{ value: HTS_CREATE_VALUE }(
-            "Mintable Token",
-            "MNT",
-            initialSupply,
-            DECIMALS
-        );
+        address tokenAddress =
+            creator.createToken{ value: HTS_CREATE_VALUE }("Mintable Token", "MNT", initialSupply, DECIMALS);
 
         uint256 mintAmount = parseHtsUnits(500);
         vm.expectEmit(true, true, true, true);

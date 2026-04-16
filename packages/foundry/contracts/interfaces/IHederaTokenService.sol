@@ -38,18 +38,15 @@ interface IHederaTokenService {
     /// Creates a Fungible Token with the specified properties.
     /// @return responseCode SUCCESS is 22.
     /// @return tokenAddress The created token's address.
-    function createFungibleToken(
-        HederaToken memory token,
-        int64 initialTotalSupply,
-        int32 decimals
-    ) external payable returns (int64 responseCode, address tokenAddress);
+    function createFungibleToken(HederaToken memory token, int64 initialTotalSupply, int32 decimals)
+        external
+        payable
+        returns (int64 responseCode, address tokenAddress);
 
     /// Mints an amount of the token to the treasury account.
     /// @param metadata For NFTs only; use empty array for fungible.
     /// @return responseCode SUCCESS is 22.
-    function mintToken(
-        address token,
-        int64 amount,
-        bytes[] memory metadata
-    ) external returns (int64 responseCode, int64 newTotalSupply, int64[] memory serialNumbers);
+    function mintToken(address token, int64 amount, bytes[] memory metadata)
+        external
+        returns (int64 responseCode, int64 newTotalSupply, int64[] memory serialNumbers);
 }
