@@ -92,7 +92,7 @@ export function useScaffoldWriteContract<TContractName extends ContractName>(
   ) => {
     if (!deployedContractData) {
       notification.error(
-        "Target Contract is not deployed, did you forget to deploy your contracts from the repo root?",
+        "Target Contract is not deployed. Deploy your contracts first with `yarn hardhat:deploy` or `yarn foundry:deploy`.",
       );
       return;
     }
@@ -156,7 +156,7 @@ export function useScaffoldWriteContract<TContractName extends ContractName>(
   ) => {
     if (!deployedContractData) {
       notification.error(
-        "Target Contract is not deployed, did you forget to deploy your contracts from the repo root?",
+        "Target Contract is not deployed. Deploy your contracts first with `yarn hardhat:deploy` or `yarn foundry:deploy`.",
       );
       return;
     }

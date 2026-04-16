@@ -29,7 +29,7 @@ From the repo root, use the explicit `hardhat:*` scripts for this package. Insid
 
 You need a deployer account with HBAR on the target network. Without funds, deploy and verify will fail with "Sender account not found".
 
-1. **Generate or import an account** (from repo root or this package):
+1. **Generate or import an account** (from the repo root):
    ```bash
    yarn hardhat:account:generate
    ```
