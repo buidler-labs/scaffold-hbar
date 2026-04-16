@@ -19,9 +19,9 @@ A Hedera-ready monorepo for building dApps with Next.js, Hardhat or Foundry, and
 2. **Or use this repo as the template** (e.g. after cloning or downloading):
   ```bash
    yarn install
-   yarn chain    # terminal 1: start local node (Hardhat fork or Anvil)
-   yarn deploy --network localhost   # terminal 2: deploy to the running fork (8545)
-   yarn start    # terminal 3: start Next.js app
+   yarn hardhat:chain    # terminal 1: start local Hedera-forked node
+   yarn hardhat:deploy --network localhost   # terminal 2: deploy to the running fork (8545)
+   yarn next:start    # terminal 3: start Next.js app
   ```
    Open [http://localhost:3000](http://localhost:3000) and use the **Debug Contracts** page to interact with your contracts.
 
@@ -52,22 +52,22 @@ npx create-hbar@latest --template hedera-demo
 
 ## Deploy and verify on Hedera
 
-To deploy or verify on Hedera testnet, you need a deployer account with testnet HBAR. Generate an account with `yarn generate` or `yarn account:import` (in the contract package), then fund it using the [Hedera Portal faucet](https://portal.hedera.com/faucet). Without funds, deploy and verify will fail with "Sender account not found".
+To deploy or verify on Hedera testnet, you need a deployer account with testnet HBAR. Generate or import one with your selected framework command, such as `yarn hardhat:account:generate`, `yarn hardhat:account:import`, `yarn foundry:account:generate`, or `yarn foundry:account:import`, then fund it using the [Hedera Portal faucet](https://portal.hedera.com/faucet). Without funds, deploy and verify will fail with "Sender account not found".
 
 ### Hardhat
 
 - **Deploy to Hedera testnet:**  
 From repo root (you will be prompted to decrypt your deployer key):
   ```bash
-  yarn deploy --network hederaTestnet
+  yarn hardhat:deploy --network hederaTestnet
   ```
-  Or use `yarn deploy --network hedera_testnet` (same network, alternate name).
+  Or use `yarn hardhat:deploy --network hedera_testnet` (same network, alternate name).
 -  **Verify on Hashscan:**
  After deploy, run (no extra arguments needed; uses last deployment):
 
   ```bash
-  yarn verify:testnet   # chain 296
-  yarn verify:mainnet   # chain 295
+  yarn hardhat:verify:testnet   # chain 296
+  yarn hardhat:verify:mainnet   # chain 295
   ```
 
 ### Foundry
@@ -75,14 +75,14 @@ From repo root (you will be prompted to decrypt your deployer key):
 - **Deploy to Hedera testnet:**  
 Use a keystore with testnet HBAR (fund via [Hedera Portal faucet](https://portal.hedera.com/faucet)). From repo root or `packages/foundry`:
   ```bash
-  yarn deploy --network hedera_testnet
+  yarn foundry:deploy --network hedera_testnet
   ```
   Or from `packages/foundry`: `make deploy` with `RPC_URL` and account set via env / Makefile.
 - **Verify on Hashscan:**  
 After deploy, run (no extra arguments needed):
   ```bash
-  yarn verify:testnet   # 296
-  yarn verify:mainnet   # 295
+  yarn foundry:verify:testnet   # 296
+  yarn foundry:verify:mainnet   # 295
   ```
 
 Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) or [Hashscan (mainnet)](https://hashscan.io/mainnet).
@@ -98,16 +98,16 @@ Details and rationale (including **`localhost` vs default `hardhat` network**) a
 1. Start a local chain (Hedera forking enabled in scripts):
 
 ```bash
-yarn chain
+yarn hardhat:chain
 ```
 
 2. Deploy contracts to the **running** node on http://127.0.0.1:8545:
 
 ```bash
-yarn deploy --network localhost
+yarn hardhat:deploy --network localhost
 ```
 
-`yarn deploy` without `--network` targets the in-process `hardhat` network, not this long-running fork.
+`yarn hardhat:deploy` without `--network localhost` targets the in-process `hardhat` network, not this long-running fork.
 
 3. Run Hardhat tests:
 
@@ -115,22 +115,20 @@ yarn deploy --network localhost
 yarn hardhat:test
 ```
 
-(Same as `yarn test`.)
-
 4. Run the app against local contracts:
 
 ```bash
-yarn start
+yarn next:start
 ```
 
 ### Foundry local workflow
 
-This path uses **Foundry** (`packages/foundry`) while sharing the same local JSON-RPC started by `yarn chain` from the repo root. Details: [`packages/foundry/README.md`](packages/foundry/README.md).
+This path uses **Foundry** (`packages/foundry`) while sharing the same local JSON-RPC started by `yarn hardhat:chain` from the repo root. Details: [`packages/foundry/README.md`](packages/foundry/README.md).
 
 1. Start the local chain first:
 
 ```bash
-yarn chain
+yarn hardhat:chain
 ```
 
 2. Run Foundry tests against that JSON-RPC:

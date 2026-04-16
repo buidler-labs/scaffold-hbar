@@ -100,7 +100,7 @@ You believe in code that is:
 - Deploy scripts location depends on the Solidity framework:
   - **Hardhat**: `packages/hardhat/deploy/` (uses hardhat-deploy)
   - **Foundry**: `packages/foundry/script/` (uses custom deployment strategy)
-- Contract ABIs are auto-generated via `yarn deploy` - don't manually edit `deployedContracts.ts`
+- Contract ABIs are auto-generated via `yarn hardhat:deploy` or `yarn foundry:deploy` - don't manually edit `deployedContracts.ts`
 - Check `packages/nextjs/scaffold.config.ts` for network configuration
 - Use the Debug page (`/debug`) during development
 

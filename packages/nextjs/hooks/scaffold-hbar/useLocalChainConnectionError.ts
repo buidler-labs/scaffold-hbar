@@ -6,7 +6,7 @@ import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 
 /**
  * Returns true when the user is on the local fork chain and the connection fails
- * (e.g. yarn chain is not running).
+ * (e.g. yarn hardhat:chain is not running).
  */
 export function useLocalChainConnectionError(): boolean {
   const { chain, isConnected } = useAccount();

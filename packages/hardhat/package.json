@@ -14,10 +14,10 @@
     "flatten": "hardhat flatten",
     "fork": "MAINNET_FORKING_ENABLED=true HEDERA_FORKING=true hardhat node --network hardhat --no-deploy",
     "format": "prettier --write './**/*.(ts|sol)'",
-    "generate": "yarn account:generate",
     "lint": "eslint",
     "lint-staged": "eslint",
     "test": "HEDERA_FORKING=true REPORT_GAS=true hardhat test",
+    "verify": "node scripts/verifyHedera.js",
     "verify:testnet": "node scripts/verifyHedera.js 296",
     "verify:mainnet": "node scripts/verifyHedera.js 295",
     "verify:contract": "node scripts/verifyHederaContract.js"
