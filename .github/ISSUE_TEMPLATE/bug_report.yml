@@ -22,7 +22,7 @@ body:
       multiple: true
       options:
         - git clone
-        - npx create-hbar@latest
+        - npx create-scaffold-hbar@latest
     validations:
       required: true
 
