@@ -137,7 +137,14 @@ const Home: NextPage = () => {
                 <span className="font-bold text-primary text-lg leading-none mt-0.5">4</span>
                 <div>
                   <p className="m-0 font-medium">Deploy to Hedera</p>
-                  <code className="text-xs bg-base-200 px-2 py-1 rounded">yarn deploy --network hederaTestnet</code>
+                  <div className="flex flex-col gap-1">
+                    <code className="text-xs bg-base-200 px-2 py-1 rounded">
+                      yarn hardhat:deploy --network hederaTestnet
+                    </code>
+                    <code className="text-xs bg-base-200 px-2 py-1 rounded">
+                      yarn foundry:deploy --network hedera_testnet
+                    </code>
+                  </div>
                 </div>
               </div>
             </div>

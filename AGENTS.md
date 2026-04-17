@@ -22,34 +22,42 @@ Check which package exists in the repository:
 
 ## Common Commands
 
-Commands work the same for both flavors unless noted otherwise:
+Use explicit package-prefixed scripts for package-specific work. Keep only truly cross-workspace commands unprefixed.
 
 ```bash
 # Development workflow (run each in separate terminal)
-yarn chain          # Start local blockchain (Hardhat or Anvil)
-yarn deploy         # Deploy contracts to local network
-yarn start          # Start Next.js frontend at http://localhost:3000
+yarn hardhat:chain   # Start local Hedera-forked Hardhat node
+yarn hardhat:deploy  # Deploy contracts with Hardhat
+yarn foundry:chain   # Start plain Anvil from the Foundry package
+yarn foundry:deploy  # Deploy contracts with Foundry
+yarn next:start      # Start Next.js frontend at http://localhost:3000
 
 # Code quality
-yarn lint           # Lint both packages
-yarn format         # Format both packages
+yarn lint            # Lint all present packages
+yarn format          # Format all present packages
 
 # Building
-yarn next:build     # Build frontend
-yarn compile        # Compile Solidity contracts
+yarn next:build      # Build frontend
+yarn hardhat:compile # Compile Solidity contracts with Hardhat
+yarn foundry:compile # Compile Solidity contracts with Foundry
 
-# Contract verification (works for both)
-yarn verify --network <network>
+# Contract verification
+yarn hardhat:verify:testnet
+yarn foundry:verify:testnet
 
-# Account management (works for both)
-yarn generate            # Generate new deployer account
-yarn account:import      # Import existing private key
-yarn account             # View current account info
+# Account management
+yarn hardhat:account:generate
+yarn hardhat:account:import
+yarn hardhat:account
+yarn foundry:account:generate
+yarn foundry:account:import
+yarn foundry:account
 
 # Deploy to live network
-yarn deploy --network <network>   # e.g., hederaTestnet, hederaMainnet
+yarn hardhat:deploy --network <network>   # e.g., hederaTestnet, hederaMainnet
+yarn foundry:deploy --network <network>   # e.g., hedera_testnet, hedera_mainnet
 
-yarn vercel:yolo --prod # for deployment of frontend
+yarn next:vercel:yolo --prod # deploy frontend
 ```
 
 ## Architecture
@@ -68,7 +76,7 @@ yarn vercel:yolo --prod # for deployment of frontend
     // In packages/hardhat/deploy/01_deploy_my_contract.ts
     deployMyContract.tags = ["MyContract"];
     ```
-  - `yarn deploy --tags MyContract`
+ - `yarn hardhat:deploy --tags MyContract`
 
 #### Foundry Flavor
 
@@ -78,11 +86,11 @@ yarn vercel:yolo --prod # for deployment of frontend
 - Tests: `packages/foundry/test/`
 - Config: `packages/foundry/foundry.toml`
 - Deploying a specific contract:
-  - Create a separate deployment script and run `yarn deploy --file DeployYourContract.s.sol`
+ - Create a separate deployment script and run `yarn foundry:deploy --file DeployYourContract.s.sol`
 
 #### Both Flavors
 
-- After `yarn deploy`, ABIs are auto-generated to `packages/nextjs/contracts/deployedContracts.ts`
+- After `yarn hardhat:deploy` or `yarn foundry:deploy`, ABIs are auto-generated to `packages/nextjs/contracts/deployedContracts.ts`
 
 ### Frontend Contract Interaction
 

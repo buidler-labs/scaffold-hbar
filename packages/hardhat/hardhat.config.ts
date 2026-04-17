@@ -7,7 +7,7 @@ import "@nomicfoundation/hardhat-chai-matchers";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
-// Only load the Hedera forking plugin when starting the local node (yarn chain / yarn fork).
+// Only load the Hedera forking plugin when starting the local node (yarn hardhat:chain / yarn hardhat:fork).
 // Deploying to an already-running node doesn't need it and would fail with EADDRINUSE.
 if (process.env.HEDERA_FORKING === "true") {
   // eslint-disable-next-line @typescript-eslint/no-require-imports -- conditional plugin load
@@ -21,7 +21,7 @@ import generateTsAbis from "./scripts/generateTsAbis";
 // Hedera JSON-RPC URL (testnet default). Set HEDERA_RPC_URL in .env for mainnet.
 const hederaRpcUrl = process.env.HEDERA_RPC_URL || "https://testnet.hashio.io/api";
 
-// Deployer key: run `yarn generate` or `yarn account:import`, or set __RUNTIME_DEPLOYER_PRIVATE_KEY at runtime.
+// Deployer key: run `yarn account:generate` or `yarn account:import`, or set __RUNTIME_DEPLOYER_PRIVATE_KEY at runtime.
 const deployerPrivateKey =
   process.env.__RUNTIME_DEPLOYER_PRIVATE_KEY ?? "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 

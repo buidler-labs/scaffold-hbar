@@ -139,7 +139,7 @@ if (selectedKeystore === "scaffold-hbar-default" && network !== "localhost") {
 To deploy to ${network}, please follow these steps:
 
 1. If you haven't generated a keystore account yet:
-   $ yarn generate
+   $ yarn account:generate
 
 2. Run the deployment command again.
 
