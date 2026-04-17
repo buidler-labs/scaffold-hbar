@@ -4,14 +4,12 @@ Solidity contracts, Forge scripts, and tests for the Hedera EVM.
 
 ## Setup
 
-Forge dependencies are not committed to the repo. Install them locally from this package:
+Forge dependencies are tracked as git submodules under `packages/foundry/lib`.
+Initialize them from the repo root:
 
 ```bash
-cd packages/foundry
-forge install foundry-rs/forge-std gnsps/solidity-bytes-utils hashgraph/hedera-forking
+git submodule update --init --recursive
 ```
-
-(OpenZeppelin contracts are provided via `node_modules`; install with `yarn` from the repo root.)
 
 ---
 
