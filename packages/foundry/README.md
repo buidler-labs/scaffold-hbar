@@ -8,10 +8,8 @@ Forge dependencies are not committed to the repo. Install them locally from this
 
 ```bash
 cd packages/foundry
-forge install foundry-rs/forge-std gnsps/solidity-bytes-utils hashgraph/hedera-forking
+forge install foundry-rs/forge-std gnsps/solidity-bytes-utils hashgraph/hedera-forking OpenZeppelin/openzeppelin-contracts
 ```
-
-(OpenZeppelin contracts are provided via `node_modules`; install with `yarn` from the repo root.)
 
 ---
 

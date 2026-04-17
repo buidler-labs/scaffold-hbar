@@ -1,7 +1,7 @@
 [profile.default]
 src = 'contracts'
 out = 'out'
-libs = ['lib', 'node_modules']
+libs = ['lib']
 fs_permissions = [
     { access = "read-write", path = "deployments" },
     { access = "read-write", path = "./" }

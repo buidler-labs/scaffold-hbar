@@ -16,6 +16,7 @@
     "foundry:account:reveal-pk": "yarn workspace @sh/foundry account:reveal-pk",
     "foundry:chain": "yarn workspace @sh/foundry chain",
     "foundry:clean": "yarn workspace @sh/foundry clean",
+    "foundry:compile": "yarn workspace @sh/foundry compile",
     "foundry:test": "yarn workspace @sh/foundry test",
     "foundry:test:local": "yarn workspace @sh/foundry test:local",
     "foundry:test:testnet": "yarn workspace @sh/foundry test:testnet",
