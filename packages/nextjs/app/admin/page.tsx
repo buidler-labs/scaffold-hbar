@@ -8,6 +8,7 @@ import { useCreateToken } from "~~/hooks/useCreateToken";
 import { useCreateTopic } from "~~/hooks/useCreateTopic";
 import { useHederaSigner } from "~~/hooks/useHederaSigner";
 import { getHederaNetworkNameFromChainId } from "~~/utils/scaffold-hbar";
+import { resolveTokenIdFromTransactionId } from "~~/utils/scaffold-hbar/resolveTokenIdFromTransactionId";
 import { resolveTopicIdFromTransactionId } from "~~/utils/scaffold-hbar/resolveTopicIdFromTransactionId";
 
 type TopicState =
@@ -15,6 +16,12 @@ type TopicState =
   | { status: "resolving" }
   | { status: "pending"; message: string }
   | { status: "success"; topicId: string; network: "testnet" | "mainnet" };
+
+type TokenState =
+  | { status: "idle" }
+  | { status: "resolving" }
+  | { status: "pending"; message: string }
+  | { status: "success"; tokenId: string; network: "testnet" | "mainnet" };
 
 async function copyToClipboard(text: string): Promise<boolean> {
   try {
@@ -38,14 +45,16 @@ export default function AdminPage() {
   const [tokenName, setTokenName] = useState("ProofBadge");
   const [tokenSymbol, setTokenSymbol] = useState("PROOF");
   const [initialSupply, setInitialSupply] = useState("");
-  const [tokenSuccess, setTokenSuccess] = useState<string | null>(null);
+  const [tokenState, setTokenState] = useState<TokenState>({ status: "idle" });
   const [tokenCopied, setTokenCopied] = useState(false);
 
   const handleCreateTopic = async () => {
     setTopicState({ status: "idle" });
     setTopicCopied(false);
+    let topicTransactionId: string | null = null;
     try {
       const data = await createTopic.mutateAsync({ memo: topicMemo.trim() || "Proof Wall" });
+      topicTransactionId = data.transactionId;
       const network = getHederaNetworkNameFromChainId(targetNetwork.id);
       setTopicState({ status: "resolving" });
       const status = await resolveTopicIdFromTransactionId(data.transactionId, network);
@@ -66,6 +75,9 @@ export default function AdminPage() {
         message: "Topic transaction was submitted, but we could not resolve the topic ID from Mirror Node right now.",
       });
     } catch (error) {
+      if (!topicTransactionId) {
+        return;
+      }
       setTopicState({
         status: "pending",
         message:
@@ -77,17 +89,46 @@ export default function AdminPage() {
   };
 
   const handleCreateToken = async () => {
-    setTokenSuccess(null);
+    setTokenState({ status: "idle" });
     setTokenCopied(false);
+    let tokenTransactionId: string | null = null;
     try {
       const data = await createToken.mutateAsync({
         name: tokenName.trim(),
         symbol: tokenSymbol.trim().toUpperCase(),
         initialSupply: initialSupply.trim() || "0",
       });
-      setTokenSuccess(data.transactionId);
-    } catch {
-      // Error state is handled by createToken.isError.
+      tokenTransactionId = data.transactionId;
+      const network = getHederaNetworkNameFromChainId(targetNetwork.id);
+      setTokenState({ status: "resolving" });
+      const status = await resolveTokenIdFromTransactionId(data.transactionId, network);
+      if (status.tokenId) {
+        setTokenState({ status: "success", tokenId: status.tokenId, network });
+        return;
+      }
+      if (status.pending) {
+        setTokenState({
+          status: "pending",
+          message:
+            "Token transaction was submitted. We retried automatically, but Mirror Node is still indexing it. Wait 10-20 seconds, then click Create badge token again to resolve it.",
+        });
+        return;
+      }
+      setTokenState({
+        status: "pending",
+        message: "Token transaction was submitted, but we could not resolve the token ID from Mirror Node right now.",
+      });
+    } catch (error) {
+      if (!tokenTransactionId) {
+        return;
+      }
+      setTokenState({
+        status: "pending",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Token transaction was submitted, but we could not resolve the token ID right now.",
+      });
     }
   };
 
@@ -99,8 +140,8 @@ export default function AdminPage() {
   };
 
   const handleCopyTokenEnvLine = async () => {
-    if (!tokenSuccess) return;
-    const ok = await copyToClipboard(`NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID=${tokenSuccess}`);
+    if (tokenState.status !== "success") return;
+    const ok = await copyToClipboard(`NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID=${tokenState.tokenId}`);
     setTokenCopied(ok);
     if (ok) setTimeout(() => setTokenCopied(false), 2000);
   };
@@ -245,7 +286,7 @@ HEDERA_NETWORK=testnet`;
                   placeholder="ProofBadge"
                   value={tokenName}
                   onChange={e => setTokenName(e.target.value)}
-                  disabled={createToken.isPending || !isConnected}
+                  disabled={createToken.isPending || tokenState.status === "resolving" || !isConnected}
                   maxLength={100}
                 />
               </div>
@@ -260,7 +301,7 @@ HEDERA_NETWORK=testnet`;
                   placeholder="PROOF"
                   value={tokenSymbol}
                   onChange={e => setTokenSymbol(e.target.value.replace(/[^a-zA-Z]/g, ""))}
-                  disabled={createToken.isPending || !isConnected}
+                  disabled={createToken.isPending || tokenState.status === "resolving" || !isConnected}
                   maxLength={10}
                 />
               </div>
@@ -277,7 +318,7 @@ HEDERA_NETWORK=testnet`;
                   placeholder="0"
                   value={initialSupply}
                   onChange={e => setInitialSupply(e.target.value.replace(/\D/g, ""))}
-                  disabled={createToken.isPending || !isConnected}
+                  disabled={createToken.isPending || tokenState.status === "resolving" || !isConnected}
                 />
               </div>
               <button
@@ -286,25 +327,42 @@ HEDERA_NETWORK=testnet`;
                 onClick={() => {
                   void handleCreateToken();
                 }}
-                disabled={createToken.isPending || !isConnected || !tokenName.trim() || !tokenSymbol.trim()}
+                disabled={
+                  createToken.isPending ||
+                  tokenState.status === "resolving" ||
+                  !isConnected ||
+                  !tokenName.trim() ||
+                  !tokenSymbol.trim()
+                }
               >
-                {createToken.isPending ? <span className="loading loading-spinner loading-sm" /> : null}
-                {createToken.isPending ? "Waiting for wallet approval…" : "Create badge token"}
+                {createToken.isPending || tokenState.status === "resolving" ? (
+                  <span className="loading loading-spinner loading-sm" />
+                ) : null}
+                {createToken.isPending
+                  ? "Waiting for wallet approval…"
+                  : tokenState.status === "resolving"
+                    ? "Resolving token ID…"
+                    : "Create badge token"}
               </button>
               {createToken.isError && (
                 <div className="rounded-lg bg-error/10 border border-error/20 px-3 py-2 text-sm text-error">
                   {createToken.error instanceof Error ? createToken.error.message : "Create token failed"}
                 </div>
               )}
-              {tokenSuccess && (
+              {tokenState.status === "pending" && (
+                <div className="rounded-lg bg-info/10 border border-info/20 px-3 py-2 text-sm text-info">
+                  {tokenState.message}
+                </div>
+              )}
+              {tokenState.status === "success" && (
                 <div className="rounded-lg bg-success/10 border border-success/20 px-3 py-3 text-sm">
                   <p className="font-medium text-success">Token created</p>
-                  <p className="font-mono break-all mt-1">{tokenSuccess}</p>
+                  <p className="font-mono break-all mt-1">{tokenState.tokenId}</p>
                   <p className="text-base-content/70 mt-2">
                     Add to <code className="text-xs bg-base-200 px-1 rounded">.env</code>:
                   </p>
                   <pre className="mt-1 p-2 rounded bg-base-200 text-xs overflow-x-auto whitespace-pre-wrap break-all">
-                    NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID={tokenSuccess}
+                    NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID={tokenState.tokenId}
                   </pre>
                   <div className="flex flex-wrap gap-2 mt-3">
                     <button
@@ -317,7 +375,7 @@ HEDERA_NETWORK=testnet`;
                       {tokenCopied ? "Copied!" : "Copy env line"}
                     </button>
                     <a
-                      href={`https://hashscan.io/testnet/token/${tokenSuccess}`}
+                      href={`https://hashscan.io/${tokenState.network}/token/${tokenState.tokenId}`}
                       target="_blank"
                       rel="noreferrer"
                       className="btn btn-sm btn-ghost"
