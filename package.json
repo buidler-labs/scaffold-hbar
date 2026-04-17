@@ -10,19 +10,20 @@
   "scripts": {
     "format": "yarn next:format",
     "lint": "yarn next:lint",
+    "postinstall": "husky",
+    "precommit": "lint-staged",
+    "lint-staged": "lint-staged",
     "next:build": "yarn workspace @sh/nextjs build",
     "next:check-types": "yarn workspace @sh/nextjs check-types",
     "next:format": "yarn workspace @sh/nextjs format",
     "next:lint": "yarn workspace @sh/nextjs lint",
     "next:serve": "yarn workspace @sh/nextjs serve",
-    "postinstall": "husky",
-    "precommit": "lint-staged",
-    "lint-staged": "lint-staged",
-    "start": "yarn workspace @sh/nextjs dev",
-    "vercel": "yarn workspace @sh/nextjs vercel",
-    "vercel:yolo": "yarn workspace @sh/nextjs vercel:yolo",
-    "ipfs": "yarn workspace @sh/nextjs ipfs",
-    "vercel:login": "yarn workspace @sh/nextjs vercel:login"
+    "next:dev": "yarn workspace @sh/nextjs dev",
+    "next:start": "yarn workspace @sh/nextjs dev",
+    "next:vercel": "yarn workspace @sh/nextjs vercel",
+    "next:vercel:yolo": "yarn workspace @sh/nextjs vercel:yolo",
+    "next:ipfs": "yarn workspace @sh/nextjs ipfs",
+    "next:vercel:login": "yarn workspace @sh/nextjs vercel:login"
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {

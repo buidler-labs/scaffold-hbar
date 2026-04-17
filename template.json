@@ -13,7 +13,7 @@
     "outro": {
       "steps": [
         "Hedera native services: no contract deploy is required to run or test this demo.",
-        "+Start the frontend: {run:start}"
+        "+Start the frontend: {run:next:dev}"
       ]
     }
   }
