@@ -1,0 +1,52 @@
+{
+  "name": "sh",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/foundry"
+    ]
+  },
+  "scripts": {
+    "foundry:account": "yarn workspace @sh/foundry account",
+    "foundry:account:generate": "yarn workspace @sh/foundry account:generate",
+    "foundry:account:import": "yarn workspace @sh/foundry account:import",
+    "foundry:account:reveal-pk": "yarn workspace @sh/foundry account:reveal-pk",
+    "foundry:chain": "yarn workspace @sh/foundry chain",
+    "foundry:clean": "yarn workspace @sh/foundry clean",
+    "foundry:compile": "yarn workspace @sh/foundry compile",
+    "foundry:test": "yarn workspace @sh/foundry test",
+    "foundry:test:local": "yarn workspace @sh/foundry test:local",
+    "foundry:test:testnet": "yarn workspace @sh/foundry test:testnet",
+    "foundry:test:mainnet": "yarn workspace @sh/foundry test:mainnet",
+    "foundry:deploy": "yarn workspace @sh/foundry deploy",
+    "foundry:flatten": "yarn workspace @sh/foundry flatten",
+    "foundry:fork": "yarn workspace @sh/foundry fork",
+    "foundry:format": "yarn workspace @sh/foundry format",
+    "foundry:lint": "yarn workspace @sh/foundry lint",
+    "foundry:lint-staged": "yarn workspace @sh/foundry lint-staged",
+    "foundry:verify": "yarn workspace @sh/foundry verify",
+    "foundry:verify:testnet": "yarn workspace @sh/foundry verify:testnet",
+    "foundry:verify:mainnet": "yarn workspace @sh/foundry verify:mainnet",
+    "foundry:verify:contract": "yarn workspace @sh/foundry verify:contract",
+    "format": "yarn workspace @sh/foundry format",
+    "lint": "yarn workspace @sh/foundry lint",
+    "next:dev": "yarn workspace @sh/nextjs dev",
+    "next:ipfs": "yarn workspace @sh/nextjs ipfs",
+    "next:start": "yarn workspace @sh/nextjs start",
+    "next:vercel": "yarn workspace @sh/nextjs vercel",
+    "next:vercel:login": "yarn workspace @sh/nextjs vercel:login",
+    "next:vercel:yolo": "yarn workspace @sh/nextjs vercel:yolo",
+    "postinstall": "husky",
+    "precommit": "lint-staged",
+    "lint-staged": "lint-staged"
+  },
+  "packageManager": "yarn@3.2.3",
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10"
+  },
+  "engines": {
+    "node": ">=20.18.3"
+  }
+}
