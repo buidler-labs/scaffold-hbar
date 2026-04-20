@@ -16,7 +16,7 @@
  *   node scripts-js/verifyHederaContract.js HederaToken mainnet
  *   node scripts-js/verifyHederaContract.js Vault testnet 0xabc...
  *   node scripts-js/verifyHederaContract.js Vault 0xabc... mainnet
- *   yarn verify:contract HederaToken testnet
+ *   yarn foundry:verify:contract HederaToken testnet
  */
 
 import { readFileSync, existsSync } from "fs";

@@ -90,7 +90,7 @@ async function selectOrCreateKeystore() {
               "\n💰 Fund the address and re-run the deploy command to use this keystore.",
             );
             console.log(
-              `\nTIP: Use \`yarn account\` and select \`${keystoreName}\` keystore to check if the address is funded.`,
+              `\nTIP: Use \`yarn foundry:account\` and select \`${keystoreName}\` keystore to check if the address is funded.`,
             );
             process.exit(0);
           } else {
@@ -121,7 +121,7 @@ async function selectOrCreateKeystore() {
 
 // Run the selection if this script is called directly
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  selectKeystore()
+  selectOrCreateKeystore()
     .then((keystore) => {
       console.log("\n🔑 Selected keystore:", keystore);
     })

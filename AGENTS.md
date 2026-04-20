@@ -26,9 +26,9 @@ Commands work the same for both flavors unless noted otherwise:
 
 ```bash
 # Development workflow (run each in separate terminal)
-yarn chain          # Start local blockchain (Hardhat or Anvil)
-yarn deploy         # Deploy contracts to local network
-yarn start          # Start Next.js frontend at http://localhost:3000
+yarn foundry:chain    # Start local blockchain (Anvil)
+yarn foundry:deploy   # Deploy contracts to local network
+yarn next:dev         # Start Next.js frontend at http://localhost:3000
 
 # Code quality
 yarn lint           # Lint both packages
@@ -36,20 +36,21 @@ yarn format         # Format both packages
 
 # Building
 yarn next:build     # Build frontend
-yarn compile        # Compile Solidity contracts
+yarn foundry:compile # Compile Solidity contracts
 
 # Contract verification (works for both)
-yarn verify --network <network>
+yarn foundry:verify:testnet
+yarn foundry:verify:mainnet
 
 # Account management (works for both)
-yarn generate            # Generate new deployer account
-yarn account:import      # Import existing private key
-yarn account             # View current account info
+yarn foundry:account:generate   # Generate new deployer account
+yarn foundry:account:import     # Import existing private key
+yarn foundry:account            # View current account info
 
 # Deploy to live network
-yarn deploy --network <network>   # e.g., hederaTestnet, hederaMainnet
+yarn foundry:deploy --network <network>   # e.g., hedera_testnet, hedera_mainnet
 
-yarn vercel:yolo --prod # for deployment of frontend
+yarn next:vercel:yolo --prod # for deployment of frontend
 ```
 
 ## Architecture
@@ -68,7 +69,7 @@ yarn vercel:yolo --prod # for deployment of frontend
     // In packages/hardhat/deploy/01_deploy_my_contract.ts
     deployMyContract.tags = ["MyContract"];
     ```
-  - `yarn deploy --tags MyContract`
+  - `yarn foundry:deploy --tags MyContract`
 
 #### Foundry Flavor
 
@@ -78,11 +79,11 @@ yarn vercel:yolo --prod # for deployment of frontend
 - Tests: `packages/foundry/test/`
 - Config: `packages/foundry/foundry.toml`
 - Deploying a specific contract:
-  - Create a separate deployment script and run `yarn deploy --file DeployYourContract.s.sol`
+  - Create a separate deployment script and run `yarn foundry:deploy --file DeployYourContract.s.sol`
 
 #### Both Flavors
 
-- After `yarn deploy`, ABIs are auto-generated to `packages/nextjs/contracts/deployedContracts.ts`
+- After `yarn foundry:deploy`, ABIs are auto-generated to `packages/nextjs/contracts/deployedContracts.ts`
 
 ### Frontend Contract Interaction
 
