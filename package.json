@@ -27,7 +27,6 @@
     "foundry:fork": "yarn workspace @sh/foundry fork",
     "foundry:format": "yarn workspace @sh/foundry format",
     "foundry:lint": "yarn workspace @sh/foundry lint",
-    "foundry:lint-staged": "yarn workspace @sh/foundry lint-staged",
     "foundry:verify": "yarn workspace @sh/foundry verify",
     "foundry:verify:testnet": "yarn workspace @sh/foundry verify:testnet",
     "foundry:verify:mainnet": "yarn workspace @sh/foundry verify:mainnet",
