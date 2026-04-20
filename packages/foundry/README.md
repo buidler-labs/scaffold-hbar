@@ -90,7 +90,7 @@ forge install foundry-rs/forge-std gnsps/solidity-bytes-utils hashgraph/hedera-f
 ```bash
 make compile
 # or
-yarn compile
+yarn foundry:compile
 # or
 forge build
 ```
@@ -109,66 +109,66 @@ Solidity style is defined by `[fmt]` in `[foundry.toml](foundry.toml)`. The repo
 
 | Command                    | What it does                                                                                                                                                                                                                                                                           |
 | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `yarn test` / `forge test` | Default Forge profile: unit tests with **mock HSS** etched at `0x16b` (`ScheduledVault`, factory, `MemejobDCAStrategy` tests).                                                                                                                                                         |
+| `yarn foundry:test` / `forge test` | Default Forge profile: unit tests with **mock HSS** etched at `0x16b` (`ScheduledVault`, factory, `MemejobDCAStrategy` tests).                                                                                                                                                         |
 | `forge coverage`           | Same default suite as `forge test`, with **line/branch coverage** (slower). Flags: `--report summary` (compact table), `--report lcov --report-file lcov.info` (Codecov / genhtml).                                                                                                    |
-| `yarn test:local`          | Forks `http://127.0.0.1:8545` with chain id **296** and `--ffi`. Start a **Hedera-aligned** RPC on that port first: `make fork` or `yarn fork` (Anvil forked from Hashio testnet). Do **not** use `make chain` / `yarn chain` for these tests (that is vanilla Anvil, wrong chain id). |
-| `yarn test:testnet`        | Fork Hedera testnet RPC (`HEDERA_RPC_URL` or default in `foundry.toml`) + `--ffi`.                                                                                                                                                                                                     |
-| `yarn test:mainnet`        | Fork Hedera mainnet (read-heavy / snapshot style checks).                                                                                                                                                                                                                              |
+| `yarn foundry:test:local`  | Forks `http://127.0.0.1:8545` with chain id **296** and `--ffi`. Start a **Hedera-aligned** RPC on that port first: `make fork` or `yarn foundry:fork` (Anvil forked from Hashio testnet). Do **not** use `make chain` / `yarn foundry:chain` for these tests (that is vanilla Anvil, wrong chain id). |
+| `yarn foundry:test:testnet`| Fork Hedera testnet RPC (`HEDERA_RPC_URL` or default in `foundry.toml`) + `--ffi`.                                                                                                                                                                                                     |
+| `yarn foundry:test:mainnet`| Fork Hedera mainnet (read-heavy / snapshot style checks).                                                                                                                                                                                                                              |
 
 
 Forking background: [Forking the Hedera network for local testing](https://docs.hedera.com/hedera/core-concepts/smart-contracts/forking-hedera-network-for-local-testing).
 
 ## Deploy
 
-- **Localhost:** `make chain` or `yarn chain` starts **vanilla Anvil** (chain id 31337). Default deploy uses keystore `**scaffold-hbar-default`** (imported by the Makefile with password `localhost`).
+- **Localhost:** `make chain` or `yarn foundry:chain` starts **vanilla Anvil** (chain id 31337). Default deploy uses keystore `**scaffold-hbar-default`** (imported by the Makefile with password `localhost`).
   ```bash
-  yarn deploy
+  yarn foundry:deploy
   ```
   This runs **`script/Deploy.s.sol`** (factory + **example** `MemejobDCAStrategy`) unless you pass `--file`. Under the hood this invokes `make deploy` with the right `RPC_URL` / `DEPLOY_SCRIPT` / keystore env (see `scripts-js/parseArgs.js`).
-- **Hedera testnet / mainnet:** use a keystore whose address is a **Hedera-created** account (portal / faucet). If you see `Requested resource not found. address '0x...'`, create/import an account with `yarn account:import` and deploy with `--keystore <name>`.
+- **Hedera testnet / mainnet:** use a keystore whose address is a **Hedera-created** account (portal / faucet). If you see `Requested resource not found. address '0x...'`, create/import an account with `yarn foundry:account:import` and deploy with `--keystore <name>`.
   ```bash
-  yarn deploy --network hedera_testnet
-  yarn deploy --network hedera_mainnet --keystore my-account
+  yarn foundry:deploy --network hedera_testnet
+  yarn foundry:deploy --network hedera_mainnet --keystore my-account
   ```
 - **Split deploys** (same as `Deploy.s.sol` but separate transactions / broadcasts):
   ```bash
-  yarn deploy --file DeployFactory.s.sol --network hedera_testnet
-  yarn deploy --file DeployMemejobDCAStrategy.s.sol --network hedera_testnet
+  yarn foundry:deploy --file DeployFactory.s.sol --network hedera_testnet
+  yarn foundry:deploy --file DeployMemejobDCAStrategy.s.sol --network hedera_testnet
   ```
-- **Make-only deploy** (same as `yarn deploy` on localhost when you set variables yourself): `make deploy` with `RPC_URL`, `DEPLOY_SCRIPT`, and `ETH_KEYSTORE_ACCOUNT` (see `Makefile` and `scripts-js/parseArgs.js`).
+- **Make-only deploy** (same as `yarn foundry:deploy` on localhost when you set variables yourself): `make deploy` with `RPC_URL`, `DEPLOY_SCRIPT`, and `ETH_KEYSTORE_ACCOUNT` (see `Makefile` and `scripts-js/parseArgs.js`).
 
 The Makefile uses `--slow` on non-localhost RPCs so transactions confirm in order (reduces `WRONG_NONCE` on Hedera).
 
-`yarn deploy` also runs `**generate-abis`** (`scripts-js/generateTsAbis.js`), which merges `broadcast/` and `deployments/` into generated bindings (see the script for output paths). You can run `**make generate-abis`** alone if needed.
+`yarn foundry:deploy` also runs `**generate-abis`** (`scripts-js/generateTsAbis.js`), which merges `broadcast/` and `deployments/` into generated bindings (see the script for output paths). You can run `**make generate-abis`** alone if needed.
 
 ## Verify (Hashscan / Sourcify v1)
 
 After deploying to Hedera testnet (296) or mainnet (295):
 
 ```bash
-yarn verify:testnet   # chain 296
-yarn verify:mainnet   # chain 295
+yarn foundry:verify:testnet   # chain 296
+yarn foundry:verify:mainnet   # chain 295
 ```
 
-Verification reads `broadcast/Deploy.s.sol/<chainId>/run-latest.json` (same path as a default `**yarn deploy**`). If you only used split deploy scripts, run a full deploy with `**Deploy.s.sol**` on that network before `**yarn verify:***`, or verify contracts manually on Hashscan.
+Verification reads `broadcast/Deploy.s.sol/<chainId>/run-latest.json` (same path as a default `**yarn foundry:deploy**`). If you only used split deploy scripts, run a full deploy with `**Deploy.s.sol**` on that network before `**yarn foundry:verify:***`, or verify contracts manually on Hashscan.
 
 Single contract:
 
 ```bash
-yarn verify:contract MemejobDCAStrategy testnet
+yarn foundry:verify:contract MemejobDCAStrategy testnet
 ```
 
 For any contract **in this package** (you have its build artifact under `out/` after `forge build`), if it is **already on-chain** at a known address but **not** present in the deployment broadcast, verify it by passing the **address as a third argument**. The tool uses `out/<Contract>.sol/<Contract>.json` for metadata instead of resolving a `CREATE` from `run-latest.json`:
 
 ```bash
-yarn verify:contract ScheduledVault testnet 0xYourVaultAddress
+yarn foundry:verify:contract ScheduledVault testnet 0xYourVaultAddress
 # network and address can be swapped:
-yarn verify:contract ScheduledVault 0xYourVaultAddress mainnet
+yarn foundry:verify:contract ScheduledVault 0xYourVaultAddress mainnet
 ```
 
 Requires `forge build` so `out/<Contract>.sol/<Contract>.json` exists. The on-chain bytecode must match that build (same compiler settings and sources).
 
-**Note:** `make verify RPC_URL=localhost` does not use Hashscan. For Hedera verification use `**yarn verify:testnet`** / `**yarn verify:mainnet`**, or `make verify` with `RPC_URL=hedera_testnet` or `hedera_mainnet`.
+**Note:** `make verify RPC_URL=localhost` does not use Hashscan. For Hedera verification use `**yarn foundry:verify:testnet`** / `**yarn foundry:verify:mainnet`**, or `make verify` with `RPC_URL=hedera_testnet` or `hedera_mainnet`.
 
 ## Using this repo as a starter
 

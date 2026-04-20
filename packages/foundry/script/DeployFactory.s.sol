@@ -7,7 +7,7 @@ import { ScheduledVaultFactory } from "../contracts/ScheduledVaultFactory.sol";
 
 /**
  * @notice Deploys the ScheduledVaultFactory (one-time infra deployment)
- * @dev yarn deploy --file DeployFactory.s.sol
+ * @dev yarn foundry:deploy --file DeployFactory.s.sol
  */
 contract DeployFactoryScript is ScaffoldETHDeploy {
     function run() external ScaffoldEthDeployerRunner {

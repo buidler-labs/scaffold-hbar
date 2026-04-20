@@ -22,7 +22,7 @@ async function listKeystores(
       console.error(
         "\n❌ No keystores found in ~/.foundry/keystores, please create a new keystore by running:",
       );
-      console.log("\n\tyarn account:generate\n");
+      console.log("\n\tyarn foundry:account:generate\n");
       process.exit(1);
     }
 

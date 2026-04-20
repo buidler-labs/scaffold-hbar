@@ -20,7 +20,7 @@ This template—including **contracts, frontend, and tooling**—is **experiment
 After cloning, install JS dependencies from the repo root. In `packages/foundry`, install Solidity dependencies once (see [`packages/foundry/README.md`](packages/foundry/README.md)):
 
 ```bash
-forge install foundry-rs/forge-std gnsps/solidity-bytes-utils hashgraph/hedera-forking
+forge install foundry-rs/forge-std gnsps/solidity-bytes-utils hashgraph/hedera-forking OpenZeppelin/openzeppelin-contracts
 ```
 
 ## How to start
@@ -38,7 +38,7 @@ From the repository root:
 2. **Deploy on Hedera testnet** — use a keystore with a **Hedera-created** account and fund it via the [Hedera Portal faucet](https://portal.hedera.com/faucet) (see [`packages/foundry/README.md`](packages/foundry/README.md) for keystores and flags):
 
    ```bash
-   yarn deploy --network hedera_testnet
+   yarn foundry:deploy --network hedera_testnet
    ```
 
    This compiles, broadcasts the default deploy script, and regenerates [`packages/nextjs/contracts/deployedContracts.ts`](packages/nextjs/contracts/deployedContracts.ts).
@@ -46,13 +46,13 @@ From the repository root:
 3. **App**
 
    ```bash
-   yarn start
+   yarn next:dev
    ```
 
 Open [http://localhost:3000](http://localhost:3000), connect a wallet on **Hedera testnet**, and use **Debug Contracts** (`/debug`) or **DCA** (`/dca`) against the addresses you deployed.
 
 
-**Useful commands:** `yarn compile`, `yarn test`, `yarn lint`, `yarn format`, `yarn next:build`. Accounts: `yarn generate`, `yarn account:import`, `yarn account`.
+**Useful commands:** `yarn foundry:compile`, `yarn foundry:test`, `yarn lint`, `yarn format`, `yarn next:build`. Accounts: `yarn foundry:account:generate`, `yarn foundry:account:import`, `yarn foundry:account`.
 
 ## How to use this template
 
@@ -67,13 +67,13 @@ A practical order that matches how teams usually iterate:
 ### 2. Compile
 
 ```bash
-yarn compile
+yarn foundry:compile
 ```
 
 ### 3. Test
 
 ```bash
-yarn test
+yarn foundry:test
 ```
 
 
@@ -81,13 +81,13 @@ yarn test
 
 Deploy to **Hedera testnet** or **mainnet** as in [How to start](#how-to-start). Keystores, `--keystore`, and split deploy scripts (`DeployFactory.s.sol`, etc.) are covered in [`packages/foundry/README.md`](packages/foundry/README.md).
 
-`yarn deploy` also runs ABI generation (see `packages/foundry/scripts-js/generateTsAbis.js`) so the UI stays in sync with `broadcast/` / deployments.
+`yarn foundry:deploy` also runs ABI generation (see `packages/foundry/scripts-js/generateTsAbis.js`) so the UI stays in sync with `broadcast/` / deployments.
 
 ### 5. Verify (optional, on Hashscan)
 
 ```bash
-yarn verify:testnet   # chain 296
-yarn verify:mainnet   # chain 295
+yarn foundry:verify:testnet   # chain 296
+yarn foundry:verify:mainnet   # chain 295
 ```
 
 Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) and [Hashscan (mainnet)](https://hashscan.io/mainnet)

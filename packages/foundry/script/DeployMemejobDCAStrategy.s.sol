@@ -7,7 +7,7 @@ import { MemejobDCAStrategy } from "../contracts/strategies/MemejobDCAStrategy.s
 
 /**
  * @notice Deploys the MemejobDCAStrategy (example execution plugin)
- * @dev yarn deploy --file DeployMemejobDCAStrategy.s.sol
+ * @dev yarn foundry:deploy --file DeployMemejobDCAStrategy.s.sol
  */
 contract DeployMemejobDCAStrategyScript is ScaffoldETHDeploy {
     function run() external ScaffoldEthDeployerRunner {

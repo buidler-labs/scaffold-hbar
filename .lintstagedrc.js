@@ -6,10 +6,13 @@ const buildNextEslintCommand = (filenames) =>
     .join(" --file ")}`;
 
 const checkTypesNextCommand = () => "yarn next:check-types";
-
-const buildHardhatEslintCommand = (filenames) =>
-  `yarn hardhat:lint-staged --fix ${filenames
-    .map((f) => path.relative(path.join("packages", "hardhat"), f))
+const buildFoundryFmtCommand = (filenames) =>
+  `yarn workspace @sh/foundry exec forge fmt ${filenames
+    .map((f) => path.relative(path.join("packages", "foundry"), f))
+    .join(" ")}`;
+const buildFoundryLintCommand = (filenames) =>
+  `yarn workspace @sh/foundry exec forge fmt --check ${filenames
+    .map((f) => path.relative(path.join("packages", "foundry"), f))
     .join(" ")}`;
 
 module.exports = {
@@ -17,5 +20,8 @@ module.exports = {
     buildNextEslintCommand,
     checkTypesNextCommand,
   ],
-  "packages/hardhat/**/*.{ts,tsx}": [buildHardhatEslintCommand],
+  "packages/foundry/**/*.sol": [
+    buildFoundryFmtCommand,
+    buildFoundryLintCommand,
+  ],
 };

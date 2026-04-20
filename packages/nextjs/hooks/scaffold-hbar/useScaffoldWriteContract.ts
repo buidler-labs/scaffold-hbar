@@ -91,7 +91,7 @@ export function useScaffoldWriteContract<TContractName extends ContractName>(
     options?: ScaffoldWriteContractOptions,
   ) => {
     if (!deployedContractData) {
-      notification.error("Target Contract is not deployed, did you forget to run `yarn deploy`?");
+      notification.error("Target Contract is not deployed, did you forget to run `yarn foundry:deploy`?");
       return;
     }
 
@@ -153,7 +153,7 @@ export function useScaffoldWriteContract<TContractName extends ContractName>(
     options?: Omit<ScaffoldWriteContractOptions, "onBlockConfirmation" | "blockConfirmations">,
   ) => {
     if (!deployedContractData) {
-      notification.error("Target Contract is not deployed, did you forget to run `yarn deploy`?");
+      notification.error("Target Contract is not deployed, did you forget to run `yarn foundry:deploy`?");
       return;
     }
     if (!accountChain?.id) {
