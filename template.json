@@ -13,10 +13,10 @@
     "outro": {
       "steps": [
         "This template uses Hedera Schedule Service, which is not yet available in Foundry Hedera forking, so run it on Hedera testnet or mainnet (not on a local chain or forked Hedera network).",
-        "+Testnet: set your deployer key (for example, {run:generate}), then run {run:deploy} --network hedera_testnet.",
-        "+Mainnet: run {run:deploy} --network hedera_mainnet (using your production keystore as documented in the Foundry package).",
-        "After deployment, verify contracts on Hashscan: {run:verify:testnet} or {run:verify:mainnet}.",
-        "+Start the frontend with {run:start}."
+        "+Testnet: set your deployer key (for example, {run:foundry:account:generate}), then run {run:foundry:deploy:testnet}.",
+        "+Mainnet: run {run:foundry:deploy:mainnet} (using your production keystore as documented in the Foundry package).",
+        "After deployment, verify contracts on Hashscan: {run:foundry:verify:testnet} or {run:foundry:verify:mainnet}.",
+        "+Start the frontend with {run:next:dev}."
       ]
     }
   }

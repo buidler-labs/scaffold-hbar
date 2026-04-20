@@ -21,6 +21,8 @@
     "foundry:test:testnet": "yarn workspace @sh/foundry test:testnet",
     "foundry:test:mainnet": "yarn workspace @sh/foundry test:mainnet",
     "foundry:deploy": "yarn workspace @sh/foundry deploy",
+    "foundry:deploy:testnet": "yarn foundry:deploy --network hedera_testnet",
+    "foundry:deploy:mainnet": "yarn foundry:deploy --network hedera_mainnet",
     "foundry:flatten": "yarn workspace @sh/foundry flatten",
     "foundry:fork": "yarn workspace @sh/foundry fork",
     "foundry:format": "yarn workspace @sh/foundry format",
