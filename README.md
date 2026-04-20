@@ -20,7 +20,7 @@ This template—including **contracts, frontend, and tooling**—is **experiment
 After cloning, install JS dependencies from the repo root. In `packages/foundry`, install Solidity dependencies once (see [`packages/foundry/README.md`](packages/foundry/README.md)):
 
 ```bash
-forge install foundry-rs/forge-std gnsps/solidity-bytes-utils hashgraph/hedera-forking
+forge install foundry-rs/forge-std gnsps/solidity-bytes-utils hashgraph/hedera-forking OpenZeppelin/openzeppelin-contracts
 ```
 
 ## How to start
