@@ -45,6 +45,7 @@ async function countAuthorProofs(topicId: string, authorAddress: string, network
     const res = await fetch(nextUrl, { cache: "no-store" });
     if (!res.ok) break;
     const data = (await res.json()) as TopicMessagesResponse;
+    console.log("data", data);
 
     for (const msg of data.messages ?? []) {
       try {

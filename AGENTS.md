@@ -13,7 +13,7 @@ This branch is a **Hedera-native Next.js demo**. Contract workspaces are not par
 Use these commands at repo root:
 
 ```bash
-yarn start            # Start Next.js frontend at http://localhost:3000
+yarn next:dev         # Start Next.js frontend at http://localhost:3000 (same as yarn next:start)
 
 # Code quality
 yarn lint             # Lint frontend package
@@ -23,7 +23,7 @@ yarn format           # Format frontend package
 yarn next:check-types  # TypeScript checks
 yarn next:build        # Build frontend
 
-yarn vercel:yolo --prod # for deployment of frontend
+yarn next:vercel:yolo --prod # for deployment of frontend
 ```
 
 ## Architecture
