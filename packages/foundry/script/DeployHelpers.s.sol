@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import { Script } from "forge-std/Script.sol";
 import { Vm } from "forge-std/Vm.sol";
 
-contract ScaffoldETHDeploy is Script {
+contract ScaffoldHbarDeploy is Script {
     error InvalidChain();
     error DeployerHasNoBalance();
     error InvalidPrivateKey(string);
@@ -26,7 +26,7 @@ contract ScaffoldETHDeploy is Script {
     address deployer;
 
     /// @notice Use this modifier on your run() function on your deploy scripts
-    modifier ScaffoldEthDeployerRunner() {
+    modifier ScaffoldHbarDeployerRunner() {
         deployer = _startBroadcast();
         if (deployer == address(0)) {
             revert InvalidPrivateKey("Invalid private key");

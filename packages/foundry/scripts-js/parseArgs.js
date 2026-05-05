@@ -11,7 +11,7 @@ config();
 
 // Get all arguments after the script name
 const args = process.argv.slice(2);
-let fileName = "Deploy.s.sol";
+let fileName = null;
 let network = "localhost";
 let keystoreArg = null;
 
@@ -20,15 +20,19 @@ if (args.includes("--help") || args.includes("-h")) {
   console.log(`
 Usage: yarn deploy [options]
 Options:
-  --file <filename>     Specify the deployment script file (default: Deploy.s.sol)
+  --file <filename>     Specify the deployment script file
   --network <network>   Specify the network (default: localhost)
   --keystore <name>     Specify the keystore account to use (bypasses selection prompt)
   --help, -h           Show this help message
 Examples:
-  yarn deploy --file DeployYourContract.s.sol --network sepolia
-  yarn deploy --network sepolia --keystore my-account
-  yarn deploy --file DeployYourContract.s.sol
-  yarn deploy
+  yarn deploy --file axelar/DeployBridgeTokens.s.sol --network sepolia
+  yarn deploy --file ccip/TokenAndPoolDeployer.s.sol --network hedera_testnet --keystore my-account
+  yarn deploy --file layerzero/DeployOFT.s.sol --network sepolia
+
+Bridge helpers:
+  make axelar-help
+  make ccip-help
+  make layerzero-help
   `);
   process.exit(0);
 }
@@ -45,6 +49,23 @@ for (let i = 0; i < args.length; i++) {
     keystoreArg = args[i + 1];
     i++; // Skip next arg since we used it
   }
+}
+
+if (!fileName) {
+  console.log(`
+This bridge template does not ship a default script/Deploy.s.sol.
+
+Use a protocol-specific deploy script with --file, or run one of the helper menus:
+  make axelar-help
+  make ccip-help
+  make layerzero-help
+
+Examples:
+  yarn deploy --file axelar/DeployBridgeTokens.s.sol --network sepolia
+  yarn deploy --file ccip/TokenAndPoolDeployer.s.sol --network hedera_testnet
+  yarn deploy --file layerzero/DeployOFT.s.sol --network sepolia
+`);
+  process.exit(0);
 }
 
 // Function to check if a keystore exists

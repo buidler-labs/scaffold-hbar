@@ -28,16 +28,21 @@ async function getBalanceForEachNetwork(address) {
     // Extract rpc_endpoints from parsedToml
     const rpcEndpoints = parsedToml.rpc_endpoints;
 
-    // Replace placeholders in the rpc_endpoints section
-    function replaceENVAlchemyKey(input) {
-      return input.replace("${ALCHEMY_API_KEY}", ALCHEMY_API_KEY);
+    // Expand any ${VAR} placeholder against process.env (populated from .env
+    // by dotenv.config above).  Keeps a sane default for ALCHEMY_API_KEY so
+    // the script still works out of the box.
+    function expandEnvPlaceholders(input) {
+      const env = { ALCHEMY_API_KEY, ...process.env };
+      return input.replace(/\$\{([A-Z0-9_]+)\}/gi, (match, name) =>
+        env[name] !== undefined ? env[name] : match
+      );
     }
 
     console.log(await toString(address, { type: "terminal", small: true }));
     console.log(`\n📊 Address: ${address}`);
 
     for (const networkName in rpcEndpoints) {
-      const networkUrl = replaceENVAlchemyKey(rpcEndpoints[networkName]);
+      const networkUrl = expandEnvPlaceholders(rpcEndpoints[networkName]);
       console.log(`\n--${networkName}-- 📡`);
 
       try {

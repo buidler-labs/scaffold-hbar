@@ -1,13 +1,18 @@
-PHONY: build deploy deploy-and-generate-abis generate-abis get-address account chain fork compile flatten format lint test verify
+.PHONY: build deploy deploy-and-generate-abis generate-abis get-address account chain fork compile flatten format lint test verify
 
-DEPLOY_SCRIPT ?= script/Deploy.s.sol
+DEPLOY_SCRIPT ?=
+FOUNDRY_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+
+include script/axelar/bridge-axelar.mk
+include script/ccip/bridge-ccip.mk
+include script/layerzero/bridge-layerzero.mk
 
 # Start a plain local Anvil chain (no fork)
 chain:
 	anvil
 
 fork:
-	@FORK_URL=$${FORK_URL:-$${HEDERA_RPC_URL:-https://testnet.hashio.io/api}}; \
+	@FORK_URL=$${FORK_URL:-hedera_testnet}; \
 	echo "Starting Anvil fork against $$FORK_URL with chain-id 296..."; \
 	anvil --fork-url $$FORK_URL --chain-id 296
 
@@ -18,11 +23,18 @@ setup-deployer:
 	cast wallet import --private-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6 --unsafe-password 'localhost' scaffold-hbar-default
 
 # Deploy the contracts to the local Hedera-forked node (start with `make fork` or `yarn fork` in this package)
-deploy: setup-deployer
+deploy:
+	@if [ -z "$(DEPLOY_SCRIPT)" ]; then \
+		echo "Error: no deploy script specified."; \
+		echo "Use DEPLOY_SCRIPT=script/<protocol>/<Script>.s.sol make deploy"; \
+		echo "or run: make axelar-help, make ccip-help, make layerzero-help"; \
+		exit 1; \
+	fi
 	@if [ ! -f "$(DEPLOY_SCRIPT)" ]; then \
 		echo "Error: Deploy script '$(DEPLOY_SCRIPT)' not found"; \
 		exit 1; \
 	fi
+	@$(MAKE) setup-deployer
 	@mkdir -p deployments
 	@if [ "$(RPC_URL)" = "localhost" ]; then \
 		rm -rf broadcast/Deploy.s.sol/31337; \

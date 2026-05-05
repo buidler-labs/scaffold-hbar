@@ -4,9 +4,10 @@ out = 'out'
 libs = ['lib']
 fs_permissions = [
     { access = "read-write", path = "deployments" },
-    { access = "read-write", path = "./" }
+    { access = "read-write", path = "./" },
 ]
 ffi = true
+solc_version = "0.8.24"
 
 # Suppress style lints for API/modifier names we don't control
 [lint]
@@ -14,8 +15,9 @@ exclude_lints = ["mixed-case-variable", "mixed-case-function"]
 
 [rpc_endpoints]
 localhost = "http://127.0.0.1:8545"
-hedera_testnet = "https://testnet.hashio.io/api"
-hedera_mainnet = "https://mainnet.hashio.io/api"
+hedera_testnet = "${HEDERA_TESTNET_RPC_URL}"
+hedera_mainnet = "${HEDERA_MAINNET_RPC_URL}"
+sepolia = "${SEPOLIA_RPC_URL}"
 
 [fmt]
 line_length = 120

@@ -10,3 +10,27 @@
 [submodule "packages/foundry/lib/openzeppelin-contracts"]
 	path = packages/foundry/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "packages/foundry/lib/chainlink-evm"]
+	path = packages/foundry/lib/chainlink-evm
+	url = https://github.com/smartcontractkit/chainlink-evm
+[submodule "packages/foundry/lib/chainlink-local"]
+	path = packages/foundry/lib/chainlink-local
+	url = https://github.com/smartcontractkit/chainlink-local
+[submodule "packages/foundry/lib/ccip"]
+	path = packages/foundry/lib/ccip
+	url = https://github.com/smartcontractkit/ccip
+[submodule "packages/foundry/lib/LayerZero-v2"]
+	path = packages/foundry/lib/LayerZero-v2
+	url = https://github.com/LayerZero-Labs/LayerZero-v2
+[submodule "packages/foundry/lib/openzeppelin-contracts-upgradeable"]
+	path = packages/foundry/lib/openzeppelin-contracts-upgradeable
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable
+[submodule "packages/foundry/lib/hardhat-deploy"]
+	path = packages/foundry/lib/hardhat-deploy
+	url = https://github.com/wighawag/hardhat-deploy
+[submodule "packages/foundry/lib/interchain-token-service"]
+	path = packages/foundry/lib/interchain-token-service
+	url = https://github.com/axelarnetwork/interchain-token-service
+[submodule "packages/foundry/lib/axelar-gmp-sdk-solidity"]
+	path = packages/foundry/lib/axelar-gmp-sdk-solidity
+	url = https://github.com/axelarnetwork/axelar-gmp-sdk-solidity

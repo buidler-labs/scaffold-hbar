@@ -1,8 +1,38 @@
 {
+  "lib/LayerZero-v2": {
+    "rev": "9c741e7f9790639537b1710a203bcdfd73b0b9ac"
+  },
+  "lib/axelar-gmp-sdk-solidity": {
+    "tag": {
+      "name": "v6.0.6",
+      "rev": "00682b6c3db0cc922ec0c4ea3791852c93d7ae31"
+    }
+  },
+  "lib/ccip": {
+    "rev": "5e7b2096586bc32c6e975fc13f4c411eb687f833"
+  },
+  "lib/chainlink-ccip": {
+    "rev": "0e3e0fc5c0f70f0d50dca66b139142ddf3009294"
+  },
+  "lib/chainlink-evm": {
+    "rev": "86aa5a1d34b20eda8d18fe6eb0e4882948e545ba"
+  },
+  "lib/chainlink-local": {
+    "tag": {
+      "name": "v0.2.7",
+      "rev": "a3ace4e17336e84c4d1261f2da45d5e8963af714"
+    }
+  },
   "lib/forge-std": {
     "tag": {
-      "name": "v1.16.1",
-      "rev": "620536fa5277db4e3fd46772d5cbc1ea0696fb43"
+      "name": "v1.15.0",
+      "rev": "0844d7e1fc5e60d77b68e469bff60265f236c398"
+    }
+  },
+  "lib/hardhat-deploy": {
+    "tag": {
+      "name": "v1.0.4",
+      "rev": "7530f4a9651292b6fbae9425adda218c36209cf1"
     }
   },
   "lib/hedera-forking": {
@@ -11,10 +41,22 @@
       "rev": "1de85d382e44170f974cb6de2ff211fecbc88b37"
     }
   },
+  "lib/interchain-token-service": {
+    "tag": {
+      "name": "v2.2.0",
+      "rev": "51cc72ca925441aa262b4a6c2392f7872c407b18"
+    }
+  },
   "lib/openzeppelin-contracts": {
     "tag": {
       "name": "v5.6.1",
       "rev": "5fd1781b1454fd1ef8e722282f86f9293cacf256"
+    }
+  },
+  "lib/openzeppelin-contracts-upgradeable": {
+    "tag": {
+      "name": "v5.6.1",
+      "rev": "7bf4727aacdbfaa0f36cbd664654d0c9e1dc52bf"
     }
   },
   "lib/solidity-bytes-utils": {
