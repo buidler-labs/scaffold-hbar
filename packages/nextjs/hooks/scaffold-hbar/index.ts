@@ -1,7 +1,5 @@
-export * from "./useContractLogs";
 export * from "./useCopyToClipboard";
 export * from "./useDeployedContractInfo";
-export * from "./useFetchBlocks";
 export * from "./useFetchHbarPrice";
 export * from "./useNetworkColor";
 export * from "./useOutsideClick";

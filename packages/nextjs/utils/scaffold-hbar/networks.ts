@@ -12,17 +12,14 @@ type ChainAttributes = {
 export type ChainWithAttributes = chains.Chain & Partial<ChainAttributes>;
 export type AllowedChainIds = (typeof scaffoldConfig.targetNetworks)[number]["id"];
 
-const HEDERA_CHAIN_IDS: Set<number> = new Set([chains.hedera.id, chains.hederaTestnet.id]);
+const HEDERA_CHAIN_IDS: Set<number> = new Set([chains.hederaTestnet.id]);
 
 export const NETWORKS_EXTRA_DATA: Record<string, ChainAttributes> = {
-  [chains.mainnet.id]: {
-    color: "#ff8b9e",
-  },
-  [chains.hedera.id]: {
-    color: "#8259EF",
-  },
   [chains.hederaTestnet.id]: {
     color: ["#8259EF", "#A98AFF"],
+  },
+  [chains.sepolia.id]: {
+    color: ["#2d84eb", "#74a7f1"],
   },
 };
 

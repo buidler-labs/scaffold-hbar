@@ -1,17 +1,14 @@
 import React from "react";
 import { HederaPortalFaucet } from "@scaffold-hbar-ui/components";
-import { hedera } from "viem/chains";
 import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
+import { SepoliaFaucet } from "~~/components/SepoliaFaucet";
 import { SwitchTheme } from "~~/components/SwitchTheme";
 import { useFetchHbarPrice } from "~~/hooks/scaffold-hbar";
-import { useTargetNetwork } from "~~/hooks/scaffold-hbar/useTargetNetwork";
 
 /**
  * Site footer
  */
 export const Footer = () => {
-  const { targetNetwork } = useTargetNetwork();
-  const isTestnet = targetNetwork.id !== hedera.id;
   const { price: nativeCurrencyPrice } = useFetchHbarPrice();
 
   return (
@@ -27,7 +24,8 @@ export const Footer = () => {
                 </div>
               </div>
             )}
-            {isTestnet && <HederaPortalFaucet showIcon />}
+            <HederaPortalFaucet showIcon />
+            <SepoliaFaucet />
           </div>
           <SwitchTheme className="pointer-events-auto" />
         </div>

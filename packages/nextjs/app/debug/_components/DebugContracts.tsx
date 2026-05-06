@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo } from "react";
 import { ContractUI } from "./ContractUI";
-import "@scaffold-hbar-ui/debug-contracts/styles.css";
 import { useSessionStorage } from "usehooks-ts";
 import { BarsArrowUpIcon } from "@heroicons/react/20/solid";
 import { ContractName, GenericContract } from "~~/utils/scaffold-hbar/contract";
