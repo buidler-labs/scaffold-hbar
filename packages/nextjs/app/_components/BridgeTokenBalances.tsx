@@ -1,20 +1,20 @@
 "use client";
 
-import type { CcipTokenAccountStatus, CcipTokenBalance } from "~~/services/bridge";
+import type { BridgeTokenAccountStatus, BridgeTokenBalance } from "~~/services/bridge";
 
-type BridgeCcipTokenBalancesProps = {
-  destinationToken?: CcipTokenBalance;
+type BridgeTokenBalancesProps = {
+  destinationToken?: BridgeTokenBalance;
   showHtsAssociationNotice: boolean;
-  sourceToken?: CcipTokenBalance;
-  status: CcipTokenAccountStatus;
+  sourceToken?: BridgeTokenBalance;
+  status: BridgeTokenAccountStatus;
 };
 
-const getBalanceText = (token: CcipTokenBalance | undefined) => {
+const getBalanceText = (token: BridgeTokenBalance | undefined) => {
   if (!token?.tokenAddress) return "Not configured";
   return token.balanceLabel ?? "0";
 };
 
-const TokenBalanceRow = ({ token }: { token?: CcipTokenBalance }) => (
+const TokenBalanceRow = ({ token }: { token?: BridgeTokenBalance }) => (
   <div className="min-w-0">
     <div className="flex min-w-0 items-center gap-2">
       <p className="m-0 truncate text-[0.68rem] font-semibold uppercase tracking-wide text-base-content/40">
@@ -28,12 +28,12 @@ const TokenBalanceRow = ({ token }: { token?: CcipTokenBalance }) => (
   </div>
 );
 
-export const BridgeCcipTokenBalances = ({
+export const BridgeTokenBalances = ({
   destinationToken,
   showHtsAssociationNotice,
   sourceToken,
   status,
-}: BridgeCcipTokenBalancesProps) => {
+}: BridgeTokenBalancesProps) => {
   if (status === "idle") return null;
 
   return (

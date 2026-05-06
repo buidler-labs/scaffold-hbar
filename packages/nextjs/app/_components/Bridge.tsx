@@ -2,13 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { BridgeAmountInput } from "./BridgeAmountInput";
-import { BridgeCcipApprovals } from "./BridgeCcipApprovals";
-import { BridgeCcipQuote } from "./BridgeCcipQuote";
-import { BridgeCcipSubmission } from "./BridgeCcipSubmission";
-import { BridgeCcipTokenBalances } from "./BridgeCcipTokenBalances";
+import { BridgeApprovals } from "./BridgeApprovals";
 import { BridgeDirectionSelector } from "./BridgeDirectionSelector";
 import { BridgeProviderSelector } from "./BridgeProviderSelector";
+import { BridgeQuote } from "./BridgeQuote";
 import { BridgeStatus } from "./BridgeStatus";
+import { BridgeSubmission } from "./BridgeSubmission";
+import { BridgeTokenBalances } from "./BridgeTokenBalances";
 import { Address, Balance } from "@scaffold-hbar-ui/components";
 import { useAccount, useSwitchChain } from "wagmi";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
@@ -20,6 +20,7 @@ import {
   type CcipApprovalStatus,
   type CcipQuoteStatus,
   type CcipSendStatus,
+  getBridgeProvider,
   getDefaultBridgeDirection,
   getRouteConfigIssues,
   useBridgeReadiness,
@@ -95,6 +96,7 @@ export const Bridge = () => {
   const { route, readiness, isChecking } = useBridgeReadiness(providerId, direction, chain?.id);
   const sourceNetwork = BRIDGE_NETWORKS[route.sourceChainId];
   const destinationNetwork = BRIDGE_NETWORKS[route.destinationChainId];
+  const selectedProvider = getBridgeProvider(providerId);
   const configIssues = useMemo(() => getRouteConfigIssues(route), [route]);
   const ccipQuote = useCcipQuote({
     amount,
@@ -170,7 +172,7 @@ export const Bridge = () => {
             <BridgeDirectionSelector direction={direction} onChangeDirection={setDirection} />
 
             <BridgeAmountInput amount={amount} onChangeAmount={setAmount} />
-            <BridgeCcipTokenBalances
+            <BridgeTokenBalances
               destinationToken={ccipTokenAccount.destinationToken}
               showHtsAssociationNotice={ccipTokenAccount.showHtsAssociationNotice}
               sourceToken={ccipTokenAccount.sourceToken}
@@ -227,10 +229,16 @@ export const Bridge = () => {
               <BridgeStatus isChecking={isChecking} isConnected={isConnected} readiness={readiness} />
             )}
 
-            <BridgeCcipQuote quote={ccipQuote} />
-            <BridgeCcipApprovals status={ccipApprovals.status} steps={ccipApprovals.steps} />
-            <BridgeCcipSubmission
+            <BridgeQuote providerLabel={selectedProvider.label} quote={ccipQuote} />
+            <BridgeApprovals
+              providerLabel={selectedProvider.label}
+              status={ccipApprovals.status}
+              steps={ccipApprovals.steps}
+            />
+            <BridgeSubmission
               accountAddress={address}
+              providerExplorerUrl={selectedProvider.trackerUrl}
+              providerLabel={selectedProvider.label}
               sourceChainId={route.sourceChainId}
               status={ccipSend.status}
               txHash={ccipSend.submittedHash}

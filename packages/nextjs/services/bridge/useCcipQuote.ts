@@ -1,8 +1,10 @@
 "use client";
 
-import { ccipRouterAbi, erc20BridgeAbi } from "./ccipAbi";
+import { isQuotableDecimalAmount, normalizeBridgeAmount } from "./amount";
+import { ccipRouterAbi } from "./ccipAbi";
 import { buildCcipMessage, getHederaRelayValue } from "./ccipMessage";
 import { HEDERA_TESTNET_CHAIN_ID } from "./constants";
+import { erc20BridgeAbi } from "./erc20Abi";
 import type { BridgeRoute } from "./types";
 import { useQuery } from "@tanstack/react-query";
 import { formatUnits, parseUnits } from "viem";
@@ -36,17 +38,6 @@ type UseCcipQuoteArgs = {
 };
 
 const initialQuote: CcipQuote = { status: "idle" };
-const DECIMAL_AMOUNT_INPUT_PATTERN = /^\d*(?:\.\d*)?$/;
-const QUOTABLE_DECIMAL_AMOUNT_PATTERN = /^(?:\d+|\d+\.\d+|\.\d+)$/;
-
-export const isDecimalAmountInput = (value: string) => DECIMAL_AMOUNT_INPUT_PATTERN.test(value);
-
-const normalizeQuoteAmount = (value: string) => {
-  const trimmedValue = value.trim();
-  return trimmedValue.startsWith(".") ? `0${trimmedValue}` : trimmedValue;
-};
-
-const isQuotableDecimalAmount = (value: string) => QUOTABLE_DECIMAL_AMOUNT_PATTERN.test(value);
 
 const getQuoteFailureReason = () => "Unable to quote CCIP fee. Check the route config and RPC connection.";
 
@@ -68,7 +59,7 @@ const getCcipFeeQuote = async ({
     abi: erc20BridgeAbi,
     functionName: "decimals",
   });
-  const amountInBaseUnits = parseUnits(normalizeQuoteAmount(amount), tokenDecimals);
+  const amountInBaseUnits = parseUnits(normalizeBridgeAmount(amount), tokenDecimals);
 
   if (amountInBaseUnits <= 0n) {
     return { status: "invalid_amount", reason: "Enter an amount greater than zero." };

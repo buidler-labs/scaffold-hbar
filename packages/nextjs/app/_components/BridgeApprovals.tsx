@@ -1,19 +1,20 @@
 "use client";
 
-import type { CcipApprovalStatus, CcipApprovalStep } from "~~/services/bridge";
+import type { BridgeApprovalStatus, BridgeApprovalStep } from "~~/services/bridge";
 
-type BridgeCcipApprovalsProps = {
-  status: CcipApprovalStatus;
-  steps: CcipApprovalStep[];
+type BridgeApprovalsProps = {
+  providerLabel: string;
+  status: BridgeApprovalStatus;
+  steps: BridgeApprovalStep[];
 };
 
-const getStepClassName = (step: CcipApprovalStep, status: CcipApprovalStatus) => {
+const getStepClassName = (step: BridgeApprovalStep, status: BridgeApprovalStatus) => {
   if (step.isApproved) return "badge badge-success badge-sm";
   if (status === "approving") return "badge badge-warning badge-sm";
   return "badge badge-ghost badge-sm";
 };
 
-export const BridgeCcipApprovals = ({ status, steps }: BridgeCcipApprovalsProps) => {
+export const BridgeApprovals = ({ providerLabel, status, steps }: BridgeApprovalsProps) => {
   const hasSteps = steps.length > 0;
   const isReady = status === "approvals_ready";
 
@@ -22,7 +23,7 @@ export const BridgeCcipApprovals = ({ status, steps }: BridgeCcipApprovalsProps)
   return (
     <div className="rounded-2xl border border-base-300 bg-base-200 p-4 text-sm">
       <div className="flex items-center justify-between gap-3">
-        <p className="m-0 font-semibold">CCIP approvals</p>
+        <p className="m-0 font-semibold">{providerLabel} approvals</p>
         <span className={isReady ? "badge badge-success badge-sm" : "badge badge-info badge-sm"}>
           {isReady ? "Ready" : "Required"}
         </span>

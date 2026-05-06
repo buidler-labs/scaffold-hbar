@@ -1,38 +1,48 @@
 "use client";
 
 import type { Hash } from "viem";
-import type { CcipSendStatus } from "~~/services/bridge";
 import { getBlockExplorerTxLink } from "~~/utils/scaffold-hbar";
 
-type BridgeCcipSubmissionProps = {
+type BridgeSendStatus = "idle" | "sending" | "submitted" | "failed";
+
+type BridgeSubmissionProps = {
   accountAddress?: string;
+  providerExplorerUrl: string;
+  providerLabel: string;
   sourceChainId: number;
-  status: CcipSendStatus;
+  status: BridgeSendStatus;
   txHash?: Hash;
 };
 
-export const BridgeCcipSubmission = ({ accountAddress, sourceChainId, status, txHash }: BridgeCcipSubmissionProps) => {
+export const BridgeSubmission = ({
+  accountAddress,
+  providerExplorerUrl,
+  providerLabel,
+  sourceChainId,
+  status,
+  txHash,
+}: BridgeSubmissionProps) => {
   if (status === "idle" || status === "sending") return null;
 
   if (status === "failed") {
     return (
       <div className="alert border-error/20 bg-error/10 text-error">
-        <span>Unable to submit CCIP transfer.</span>
+        <span>Unable to submit {providerLabel} transfer.</span>
       </div>
     );
   }
 
   const explorerLink = txHash ? getBlockExplorerTxLink(sourceChainId, txHash) : "";
-  const ccipExplorerLink = accountAddress
-    ? `https://ccip.chain.link/address/${accountAddress.toLowerCase()}`
-    : "https://ccip.chain.link";
+  const providerAccountLink = accountAddress
+    ? `${providerExplorerUrl.replace(/\/$/, "")}/address/${accountAddress.toLowerCase()}`
+    : providerExplorerUrl;
 
   return (
     <div className="rounded-2xl border border-success/20 bg-success/10 p-4 text-sm">
       <div className="flex items-center justify-between gap-3">
-        <p className="m-0 font-semibold text-success">CCIP transfer submitted</p>
-        <a className="link text-xs font-semibold" href={ccipExplorerLink} rel="noreferrer" target="_blank">
-          CCIP Explorer
+        <p className="m-0 font-semibold text-success">{providerLabel} transfer submitted</p>
+        <a className="link text-xs font-semibold" href={providerAccountLink} rel="noreferrer" target="_blank">
+          {providerLabel} Explorer
         </a>
       </div>
       {txHash ? (
