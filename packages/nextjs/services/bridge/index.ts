@@ -3,6 +3,7 @@ export * from "./constants";
 export * from "./erc20Abi";
 export * from "./registry";
 export * from "./types";
+export * from "./useAxelarApprovals";
 export * from "./useAxelarQuote";
 export * from "./useAxelarTokenAccount";
 export * from "./useCcipApprovals";
