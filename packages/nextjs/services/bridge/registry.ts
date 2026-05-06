@@ -64,8 +64,9 @@ const buildAxelarMetadata = (
   sourceTokenAddress: source.bridgeToken as Address,
   destinationTokenAddress: destination.bridgeToken as Address,
   destinationAxelarName: destination.axelarName,
-  gasValue: routeConfig.gasValue,
-  nativeFee: routeConfig.nativeFee,
+  gasValue: source.gasValue ?? routeConfig.gasValue,
+  nativeFee: source.nativeFee ?? routeConfig.nativeFee,
+  gasLimit: source.gasLimit,
 });
 
 const buildAxelarRoute = (direction: BridgeDirection): BridgeRoute => {
@@ -95,8 +96,8 @@ const buildAxelarRoute = (direction: BridgeDirection): BridgeRoute => {
       bridgeField.address("Axelar source bridge token", sourceToken),
       bridgeField.address("Axelar destination bridge token", destinationToken),
       bridgeField.string("Axelar destination chain name", rawDestination.axelarName as string | undefined),
-      bridgeField.number("Axelar gas value", axelarConfig.gasValue),
-      bridgeField.number("Axelar native fee", axelarConfig.nativeFee),
+      bridgeField.number("Axelar source gas value", rawSource.gasValue ?? axelarConfig.gasValue),
+      bridgeField.number("Axelar source native fee", rawSource.nativeFee ?? axelarConfig.nativeFee),
     ],
     contractChecks: [
       check("Axelar ITS", sourceChainId, axelarConfig.interchainTokenService),

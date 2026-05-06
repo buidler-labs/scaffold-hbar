@@ -17,6 +17,8 @@ export type BridgeTransactionStage =
   | "submitted"
   | "failed";
 
+export type BridgeSendStatus = "idle" | "sending" | "submitted" | "failed";
+
 export type BridgeNetwork = {
   id: BridgeChainId;
   label: string;
@@ -65,6 +67,7 @@ export type BridgeAxelarRouteMetadata = {
   destinationAxelarName: string;
   gasValue: string;
   nativeFee: string;
+  gasLimit?: string;
 };
 
 export type BridgeRoute = {

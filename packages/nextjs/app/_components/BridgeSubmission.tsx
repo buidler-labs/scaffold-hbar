@@ -1,9 +1,8 @@
 "use client";
 
 import type { Hash } from "viem";
+import type { BridgeSendStatus } from "~~/services/bridge";
 import { getBlockExplorerTxLink } from "~~/utils/scaffold-hbar";
-
-type BridgeSendStatus = "idle" | "sending" | "submitted" | "failed";
 
 type BridgeSubmissionProps = {
   accountAddress?: string;

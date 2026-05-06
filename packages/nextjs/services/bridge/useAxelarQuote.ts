@@ -26,6 +26,7 @@ export type AxelarQuote = {
   nativeFee?: bigint;
   nativeFeeLabel?: string;
   gasValue?: bigint;
+  gasLimit?: bigint;
 };
 
 type UseAxelarQuoteArgs = {
@@ -67,11 +68,13 @@ const getAxelarQuote = async ({
 
   const nativeFee = BigInt(route.axelar.nativeFee);
   const gasValue = BigInt(route.axelar.gasValue);
+  const gasLimit = route.axelar.gasLimit ? BigInt(route.axelar.gasLimit) : undefined;
 
   return {
     status: "quoted",
     amountInBaseUnits,
     tokenDecimals,
+    gasLimit,
     nativeFee,
     nativeFeeLabel: getNativeFeeLabel(route, nativeFee),
     gasValue,
@@ -97,6 +100,7 @@ export const useAxelarQuote = ({ amount, enabled, route }: UseAxelarQuoteArgs): 
       route.axelar?.sourceTokenAddress,
       route.axelar?.nativeFee,
       route.axelar?.gasValue,
+      route.axelar?.gasLimit,
       normalizedAmount,
     ],
     enabled: queryEnabled,

@@ -19,13 +19,14 @@ import {
   type BridgeDirection,
   type BridgeProviderId,
   type BridgeReadinessStatus,
+  type BridgeSendStatus,
   type CcipQuoteStatus,
-  type CcipSendStatus,
   getBridgeProvider,
   getDefaultBridgeDirection,
   getRouteConfigIssues,
   useAxelarApprovals,
   useAxelarQuote,
+  useAxelarSend,
   useAxelarTokenAccount,
   useBridgeReadiness,
   useCcipApprovals,
@@ -37,20 +38,18 @@ import {
 const getBridgeActionLabel = ({
   quoteStatus,
   approvalStatus,
-  ccipSendStatus,
+  sendStatus,
   isConnected,
   nextApprovalLabel,
-  providerId,
   providerLabel,
   readinessStatus,
   sourceNetworkLabel,
 }: {
   approvalStatus: BridgeApprovalStatus;
   quoteStatus: AxelarQuoteStatus | CcipQuoteStatus;
-  ccipSendStatus: CcipSendStatus;
+  sendStatus: BridgeSendStatus;
   isConnected: boolean;
   nextApprovalLabel?: string;
-  providerId: BridgeProviderId;
   providerLabel: string;
   readinessStatus: BridgeReadinessStatus;
   sourceNetworkLabel: string;
@@ -59,8 +58,8 @@ const getBridgeActionLabel = ({
   if (readinessStatus === "wrong_network") return `Switch to ${sourceNetworkLabel}`;
   if (readinessStatus !== "ready") return "Bridge unavailable";
 
-  if (providerId === "ccip" && ccipSendStatus === "sending") return "Sending CCIP transfer";
-  if (providerId === "ccip" && ccipSendStatus === "submitted") return "CCIP transfer submitted";
+  if (sendStatus === "sending") return `Sending ${providerLabel} transfer`;
+  if (sendStatus === "submitted") return `${providerLabel} transfer submitted`;
 
   switch (quoteStatus) {
     case "quoting":
@@ -83,11 +82,11 @@ const getBridgeActionLabel = ({
     case "approving":
       return `${nextApprovalLabel ?? "Approval"} pending`;
     case "approvals_ready":
-      return providerId === "ccip" ? "Send CCIP transfer" : `${providerLabel} send adapter not available yet`;
+      return `Send ${providerLabel} transfer`;
     case "failed":
       return "Unable to check approvals";
     default:
-      return providerId === "ccip" ? "Quote ready - approvals next" : `${providerLabel} send adapter not available yet`;
+      return "Quote ready - approvals next";
   }
 };
 
@@ -136,6 +135,13 @@ export const Bridge = () => {
     owner: address,
     route,
   });
+  const axelarSend = useAxelarSend({
+    enabled: isConnected && readiness.status === "ready" && axelarApprovals.status === "approvals_ready",
+    quote: axelarQuote,
+    recipient: address,
+    route,
+    sender: address,
+  });
   const ccipSend = useCcipSend({
     enabled: isConnected && readiness.status === "ready" && ccipApprovals.status === "approvals_ready",
     quote: ccipQuote,
@@ -143,23 +149,25 @@ export const Bridge = () => {
     route,
     sender: address,
   });
+  const { reset: resetAxelarSend } = axelarSend;
   const { reset: resetCcipSend } = ccipSend;
   const quote = providerId === "axelar" ? axelarQuote : ccipQuote;
   const tokenAccount = providerId === "axelar" ? axelarTokenAccount : ccipTokenAccount;
   const approvals = providerId === "axelar" ? axelarApprovals : ccipApprovals;
+  const send = providerId === "axelar" ? axelarSend : ccipSend;
 
   useEffect(() => {
+    resetAxelarSend();
     resetCcipSend();
-  }, [address, amount, direction, providerId, resetCcipSend]);
+  }, [address, amount, direction, providerId, resetAxelarSend, resetCcipSend]);
 
   const actionLabel = useMemo(() => {
     return getBridgeActionLabel({
       approvalStatus: approvals.status,
       quoteStatus: quote.status,
-      ccipSendStatus: ccipSend.status,
+      sendStatus: send.status,
       isConnected,
       nextApprovalLabel: approvals.nextStep?.label,
-      providerId,
       providerLabel: selectedProvider.label,
       readinessStatus: readiness.status,
       sourceNetworkLabel: sourceNetwork.shortLabel,
@@ -167,21 +175,18 @@ export const Bridge = () => {
   }, [
     approvals.nextStep?.label,
     approvals.status,
-    ccipSend.status,
     isConnected,
-    providerId,
     quote.status,
     readiness.status,
     selectedProvider.label,
+    send.status,
     sourceNetwork.shortLabel,
   ]);
 
   const canSwitchNetwork = isConnected && readiness.status === "wrong_network";
   const canApprove = approvals.status === "needs_approval";
-  const canSendCcip =
-    providerId === "ccip" && ccipApprovals.status === "approvals_ready" && ccipSend.status !== "submitted";
-  const isActionPending =
-    isSwitchingChain || approvals.status === "approving" || (providerId === "ccip" && ccipSend.status === "sending");
+  const canSend = approvals.status === "approvals_ready" && quote.status === "quoted" && send.status !== "submitted";
+  const isActionPending = isSwitchingChain || approvals.status === "approving" || send.status === "sending";
   const showConfigWarning = configIssues.length > 0 && readiness.status === "misconfigured";
 
   return (
@@ -264,14 +269,14 @@ export const Bridge = () => {
               providerExplorerUrl={selectedProvider.trackerUrl}
               providerLabel={selectedProvider.label}
               sourceChainId={route.sourceChainId}
-              status={providerId === "ccip" ? ccipSend.status : "idle"}
-              txHash={ccipSend.submittedHash}
+              status={send.status}
+              txHash={send.submittedHash}
             />
 
             <button
               type="button"
               className="btn btn-primary w-full"
-              disabled={(!canSwitchNetwork && !canApprove && !canSendCcip) || isActionPending}
+              disabled={(!canSwitchNetwork && !canApprove && !canSend) || isActionPending}
               onClick={() => {
                 if (canSwitchNetwork) {
                   switchChain({ chainId: sourceNetwork.id });
@@ -279,7 +284,8 @@ export const Bridge = () => {
                 }
 
                 if (canApprove) void approvals.approveNext().catch(() => undefined);
-                if (canSendCcip) void ccipSend.sendCcip().catch(() => undefined);
+                if (canSend && providerId === "axelar") void axelarSend.sendAxelar().catch(() => undefined);
+                if (canSend && providerId === "ccip") void ccipSend.sendCcip().catch(() => undefined);
               }}
             >
               {isActionPending ? <span className="loading loading-spinner loading-sm" /> : null}
