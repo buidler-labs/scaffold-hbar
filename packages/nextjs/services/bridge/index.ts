@@ -9,6 +9,7 @@ export * from "./useAxelarApprovals";
 export * from "./useAxelarQuote";
 export * from "./useAxelarSend";
 export * from "./useAxelarTokenAccount";
+export * from "./useBridgeFlow";
 export * from "./useCcipApprovals";
 export * from "./useCcipQuote";
 export * from "./useCcipSend";
