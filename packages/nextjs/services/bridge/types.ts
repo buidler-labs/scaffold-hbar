@@ -57,6 +57,16 @@ export type BridgeCcipRouteMetadata = {
   destinationHtsTokenAddress?: Address;
 };
 
+export type BridgeAxelarRouteMetadata = {
+  tokenId: `0x${string}`;
+  interchainTokenServiceAddress: Address;
+  sourceTokenAddress: Address;
+  destinationTokenAddress: Address;
+  destinationAxelarName: string;
+  gasValue: string;
+  nativeFee: string;
+};
+
 export type BridgeRoute = {
   providerId: BridgeProviderId;
   direction: BridgeDirection;
@@ -64,6 +74,7 @@ export type BridgeRoute = {
   destinationChainId: BridgeChainId;
   sourceTokenAddress?: Address;
   destinationTokenAddress?: Address;
+  axelar?: BridgeAxelarRouteMetadata;
   ccip?: BridgeCcipRouteMetadata;
   requiredFields: BridgeRequiredField[];
   contractChecks: BridgeContractCheck[];

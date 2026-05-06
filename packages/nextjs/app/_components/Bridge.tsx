@@ -13,6 +13,7 @@ import { Address, Balance } from "@scaffold-hbar-ui/components";
 import { useAccount, useSwitchChain } from "wagmi";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import {
+  type AxelarQuoteStatus,
   BRIDGE_NETWORKS,
   type BridgeDirection,
   type BridgeProviderId,
@@ -23,6 +24,8 @@ import {
   getBridgeProvider,
   getDefaultBridgeDirection,
   getRouteConfigIssues,
+  useAxelarQuote,
+  useAxelarTokenAccount,
   useBridgeReadiness,
   useCcipApprovals,
   useCcipQuote,
@@ -31,35 +34,36 @@ import {
 } from "~~/services/bridge";
 
 const getBridgeActionLabel = ({
-  ccipQuoteStatus,
+  quoteStatus,
   ccipApprovalStatus,
   ccipSendStatus,
   isConnected,
   nextApprovalLabel,
   providerId,
+  providerLabel,
   readinessStatus,
   sourceNetworkLabel,
 }: {
   ccipApprovalStatus: CcipApprovalStatus;
-  ccipQuoteStatus: CcipQuoteStatus;
+  quoteStatus: AxelarQuoteStatus | CcipQuoteStatus;
   ccipSendStatus: CcipSendStatus;
   isConnected: boolean;
   nextApprovalLabel?: string;
   providerId: BridgeProviderId;
+  providerLabel: string;
   readinessStatus: BridgeReadinessStatus;
   sourceNetworkLabel: string;
 }) => {
   if (!isConnected) return "Connect wallet from header";
   if (readinessStatus === "wrong_network") return `Switch to ${sourceNetworkLabel}`;
   if (readinessStatus !== "ready") return "Bridge unavailable";
-  if (providerId !== "ccip") return "Send adapter not available yet";
 
-  if (ccipSendStatus === "sending") return "Sending CCIP transfer";
-  if (ccipSendStatus === "submitted") return "CCIP transfer submitted";
+  if (providerId === "ccip" && ccipSendStatus === "sending") return "Sending CCIP transfer";
+  if (providerId === "ccip" && ccipSendStatus === "submitted") return "CCIP transfer submitted";
 
-  switch (ccipQuoteStatus) {
+  switch (quoteStatus) {
     case "quoting":
-      return "Quoting CCIP fee";
+      return `Quoting ${providerLabel} fee`;
     case "quoted":
       break;
     case "failed":
@@ -69,6 +73,8 @@ const getBridgeActionLabel = ({
     default:
       return "Enter amount to quote";
   }
+
+  if (providerId !== "ccip") return `${providerLabel} send adapter not available yet`;
 
   switch (ccipApprovalStatus) {
     case "checking":
@@ -98,10 +104,20 @@ export const Bridge = () => {
   const destinationNetwork = BRIDGE_NETWORKS[route.destinationChainId];
   const selectedProvider = getBridgeProvider(providerId);
   const configIssues = useMemo(() => getRouteConfigIssues(route), [route]);
+  const axelarQuote = useAxelarQuote({
+    amount,
+    enabled: isConnected && readiness.status === "ready",
+    route,
+  });
   const ccipQuote = useCcipQuote({
     amount,
     enabled: isConnected && readiness.status === "ready",
     recipient: address,
+    route,
+  });
+  const axelarTokenAccount = useAxelarTokenAccount({
+    account: address,
+    enabled: isConnected && providerId === "axelar",
     route,
   });
   const ccipTokenAccount = useCcipTokenAccount({
@@ -123,6 +139,8 @@ export const Bridge = () => {
     sender: address,
   });
   const { reset: resetCcipSend } = ccipSend;
+  const quote = providerId === "axelar" ? axelarQuote : ccipQuote;
+  const tokenAccount = providerId === "axelar" ? axelarTokenAccount : ccipTokenAccount;
 
   useEffect(() => {
     resetCcipSend();
@@ -131,22 +149,24 @@ export const Bridge = () => {
   const actionLabel = useMemo(() => {
     return getBridgeActionLabel({
       ccipApprovalStatus: ccipApprovals.status,
-      ccipQuoteStatus: ccipQuote.status,
+      quoteStatus: quote.status,
       ccipSendStatus: ccipSend.status,
       isConnected,
       nextApprovalLabel: ccipApprovals.nextStep?.label,
       providerId,
+      providerLabel: selectedProvider.label,
       readinessStatus: readiness.status,
       sourceNetworkLabel: sourceNetwork.shortLabel,
     });
   }, [
     ccipApprovals.nextStep?.label,
     ccipApprovals.status,
-    ccipQuote.status,
     ccipSend.status,
     isConnected,
     providerId,
+    quote.status,
     readiness.status,
+    selectedProvider.label,
     sourceNetwork.shortLabel,
   ]);
 
@@ -173,10 +193,10 @@ export const Bridge = () => {
 
             <BridgeAmountInput amount={amount} onChangeAmount={setAmount} />
             <BridgeTokenBalances
-              destinationToken={ccipTokenAccount.destinationToken}
-              showHtsAssociationNotice={ccipTokenAccount.showHtsAssociationNotice}
-              sourceToken={ccipTokenAccount.sourceToken}
-              status={ccipTokenAccount.status}
+              destinationToken={tokenAccount.destinationToken}
+              showHtsAssociationNotice={tokenAccount.showHtsAssociationNotice}
+              sourceToken={tokenAccount.sourceToken}
+              status={tokenAccount.status}
             />
 
             <div className="grid gap-3 md:grid-cols-2">
@@ -229,7 +249,7 @@ export const Bridge = () => {
               <BridgeStatus isChecking={isChecking} isConnected={isConnected} readiness={readiness} />
             )}
 
-            <BridgeQuote providerLabel={selectedProvider.label} quote={ccipQuote} />
+            <BridgeQuote providerLabel={selectedProvider.label} quote={quote} />
             <BridgeApprovals
               providerLabel={selectedProvider.label}
               status={ccipApprovals.status}

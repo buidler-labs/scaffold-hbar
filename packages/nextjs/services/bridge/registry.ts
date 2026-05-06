@@ -3,6 +3,7 @@ import ccipConfig from "./config/ccip.json";
 import layerzeroConfig from "./config/layerzero.json";
 import { BRIDGE_DIRECTIONS, BRIDGE_PROVIDERS, HEDERA_TESTNET_CHAIN_ID, SEPOLIA_CHAIN_ID } from "./constants";
 import type {
+  BridgeAxelarRouteMetadata,
   BridgeCcipRouteMetadata,
   BridgeChainId,
   BridgeContractCheck,
@@ -11,7 +12,16 @@ import type {
   BridgeRequiredField,
   BridgeRoute,
 } from "./types";
-import { type CcipChainConfig, bridgeField, ccipChainConfigSchema, getFieldIssue } from "./validation";
+import {
+  type AxelarChainConfig,
+  type AxelarRouteConfig,
+  type CcipChainConfig,
+  axelarChainConfigSchema,
+  axelarRouteConfigSchema,
+  bridgeField,
+  ccipChainConfigSchema,
+  getFieldIssue,
+} from "./validation";
 import type { Address } from "viem";
 import { isAddress } from "viem";
 
@@ -31,6 +41,11 @@ const asAddress = (value: string | undefined) => (isAddress(value || "") ? (valu
 const getCcipConfigForChain = (chainId: BridgeChainId) =>
   ccipChainConfigSchema.safeParse(getConfigForChain(ccipConfig, chainId));
 
+const getAxelarConfigForChain = (chainId: BridgeChainId) =>
+  axelarChainConfigSchema.safeParse(getConfigForChain(axelarConfig, chainId));
+
+const getAxelarRouteConfig = () => axelarRouteConfigSchema.safeParse(axelarConfig);
+
 const directionChainIds = (direction: BridgeDirection) => {
   const directionConfig = BRIDGE_DIRECTIONS[direction];
   return {
@@ -39,26 +54,47 @@ const directionChainIds = (direction: BridgeDirection) => {
   };
 };
 
+const buildAxelarMetadata = (
+  routeConfig: AxelarRouteConfig,
+  source: AxelarChainConfig,
+  destination: AxelarChainConfig,
+): BridgeAxelarRouteMetadata => ({
+  tokenId: routeConfig.tokenId as `0x${string}`,
+  interchainTokenServiceAddress: routeConfig.interchainTokenService as Address,
+  sourceTokenAddress: source.bridgeToken as Address,
+  destinationTokenAddress: destination.bridgeToken as Address,
+  destinationAxelarName: destination.axelarName,
+  gasValue: routeConfig.gasValue,
+  nativeFee: routeConfig.nativeFee,
+});
+
 const buildAxelarRoute = (direction: BridgeDirection): BridgeRoute => {
   const { sourceChainId, destinationChainId } = directionChainIds(direction);
-  const source = getConfigForChain(axelarConfig, sourceChainId);
-  const destination = getConfigForChain(axelarConfig, destinationChainId);
-  const sourceToken = source.bridgeToken as string | undefined;
-  const destinationToken = destination.bridgeToken as string | undefined;
+  const rawSource = getConfigForChain(axelarConfig, sourceChainId);
+  const rawDestination = getConfigForChain(axelarConfig, destinationChainId);
+  const source = getAxelarConfigForChain(sourceChainId);
+  const destination = getAxelarConfigForChain(destinationChainId);
+  const routeConfig = getAxelarRouteConfig();
+  const sourceToken = rawSource.bridgeToken as string | undefined;
+  const destinationToken = rawDestination.bridgeToken as string | undefined;
 
   return {
     providerId: "axelar",
     direction,
     sourceChainId,
     destinationChainId,
-    sourceTokenAddress: isAddress(sourceToken || "") ? sourceToken : undefined,
-    destinationTokenAddress: isAddress(destinationToken || "") ? destinationToken : undefined,
+    sourceTokenAddress: asAddress(sourceToken),
+    destinationTokenAddress: asAddress(destinationToken),
+    axelar:
+      routeConfig.success && source.success && destination.success
+        ? buildAxelarMetadata(routeConfig.data, source.data, destination.data)
+        : undefined,
     requiredFields: [
       bridgeField.bytes32("Axelar token id", axelarConfig.tokenId),
       bridgeField.address("Axelar ITS address", axelarConfig.interchainTokenService),
       bridgeField.address("Axelar source bridge token", sourceToken),
       bridgeField.address("Axelar destination bridge token", destinationToken),
-      bridgeField.string("Axelar destination chain name", destination.axelarName as string | undefined),
+      bridgeField.string("Axelar destination chain name", rawDestination.axelarName as string | undefined),
       bridgeField.number("Axelar gas value", axelarConfig.gasValue),
       bridgeField.number("Axelar native fee", axelarConfig.nativeFee),
     ],

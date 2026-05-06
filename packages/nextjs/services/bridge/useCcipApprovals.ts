@@ -21,7 +21,7 @@ type UseCcipApprovalsArgs = {
   route: BridgeRoute;
 };
 
-const getCcipApprovalSteps = (route: BridgeRoute, amountInBaseUnits: bigint): CcipApprovalStep[] => {
+const getCcipApprovalSteps = (route: BridgeRoute): CcipApprovalStep[] => {
   if (!route.ccip) return [];
 
   if (route.sourceChainId === HEDERA_TESTNET_CHAIN_ID) {
@@ -59,7 +59,7 @@ const getCcipApprovalSteps = (route: BridgeRoute, amountInBaseUnits: bigint): Cc
 export const useCcipApprovals = ({ amountInBaseUnits, enabled, owner, route }: UseCcipApprovalsArgs) => {
   const sourceClient = usePublicClient({ chainId: route.sourceChainId });
   const approvalSteps = useMemo(
-    () => (amountInBaseUnits ? getCcipApprovalSteps(route, amountInBaseUnits) : []),
+    () => (amountInBaseUnits ? getCcipApprovalSteps(route) : []),
     [amountInBaseUnits, route],
   );
 

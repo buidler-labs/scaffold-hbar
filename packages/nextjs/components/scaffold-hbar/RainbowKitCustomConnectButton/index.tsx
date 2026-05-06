@@ -10,6 +10,7 @@ import { Balance } from "@scaffold-hbar-ui/components";
 import { Address } from "viem";
 import { useNetworkColor } from "~~/hooks/scaffold-hbar";
 import { useTargetNetwork } from "~~/hooks/scaffold-hbar/useTargetNetwork";
+import scaffoldConfig from "~~/scaffold.config";
 import { getBlockExplorerAddressLink } from "~~/utils/scaffold-hbar";
 
 /**
@@ -42,11 +43,14 @@ export const RainbowKitCustomConnectButton = () => {
                 return <WrongNetworkDropdown />;
               }
 
+              const connectedChain = scaffoldConfig.targetNetworks.find(targetNetwork => targetNetwork.id === chain.id);
+
               return (
                 <>
                   <div className="mr-2 hidden flex-col items-center sm:flex">
                     <Balance
                       address={account.address as Address}
+                      chain={connectedChain}
                       style={{
                         minHeight: "0",
                         height: "auto",

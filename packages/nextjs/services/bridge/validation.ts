@@ -54,6 +54,33 @@ const integerSchema = (label: string) =>
     });
 
 const addressSchema = z.string().refine(isAddress);
+const bytes32Schema = z.string().regex(/^0x[0-9a-fA-F]{64}$/);
+const unsignedIntegerStringSchema = z
+  .union([z.string(), z.number()])
+  .superRefine((value, ctx) => {
+    try {
+      if (typeof value === "number" && (!Number.isInteger(value) || value < 0)) throw new Error();
+      if (typeof value === "string" && (value.trim() === "" || BigInt(value) < 0n)) throw new Error();
+    } catch {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid unsigned integer" });
+    }
+  })
+  .transform(value => String(value));
+
+export const axelarChainConfigSchema = z.object({
+  axelarName: requiredStringSchema("Axelar chain name"),
+  bridgeToken: addressSchema,
+});
+
+export const axelarRouteConfigSchema = z.object({
+  tokenId: bytes32Schema,
+  interchainTokenService: addressSchema,
+  gasValue: unsignedIntegerStringSchema,
+  nativeFee: unsignedIntegerStringSchema,
+});
+
+export type AxelarChainConfig = z.infer<typeof axelarChainConfigSchema>;
+export type AxelarRouteConfig = z.infer<typeof axelarRouteConfigSchema>;
 
 export const ccipChainConfigSchema = z.object({
   token: addressSchema,

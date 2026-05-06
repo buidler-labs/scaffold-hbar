@@ -21,3 +21,7 @@ node_modules
 
 # cli
 dist
+
+# generated deployment identifiers
+packages/foundry/script/axelar/.salt
+packages/foundry/script/axelar/.tokenid
