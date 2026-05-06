@@ -1,0 +1,19 @@
+{
+  "chains": {
+    "296": {
+      "token": "0xd51ce5439fA40EAD1B70FaA152965921DC1c2023",
+      "pool": "0xDd79CaA15394b59887D8A620587FFD4Fc3251132",
+      "htsToken": "0x000000000000000000000000000000000086aA49",
+      "router": "0x802C5F84eAD128Ff36fD6a3f8a418e339f467Ce4",
+      "chainSelector": "222782988166878823",
+      "remoteChainSelector": "16015286601757825753"
+    },
+    "11155111": {
+      "token": "0x35043639a46C1a8B826E8b20C57392FE1d682338",
+      "pool": "0x5DDC5Bb2E8c3514842E41567d9e8A17Dfe05A43B",
+      "router": "0x0BF3dE8c5D3e8A2B34D2BEeB17ABfCeBaf363A59",
+      "chainSelector": "16015286601757825753",
+      "remoteChainSelector": "222782988166878823"
+    }
+  }
+}

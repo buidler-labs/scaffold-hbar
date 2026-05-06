@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
+import { BridgeHowItWorksModal } from "~~/components/BridgeHowItWorksModal";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-hbar";
 import { useOutsideClick } from "~~/hooks/scaffold-hbar";
 
@@ -75,6 +76,9 @@ export const Header = () => {
             }}
           >
             <HeaderMenuLinks />
+            <li>
+              <BridgeHowItWorksModal buttonClassName="justify-start rounded-full px-3 py-1.5 text-sm hover:bg-primary/5" />
+            </li>
           </ul>
         </details>
         <Link href="/" passHref className="hidden lg:flex items-center gap-3 ml-4 mr-6 shrink-0">
@@ -93,7 +97,10 @@ export const Header = () => {
           <HeaderMenuLinks />
         </ul>
       </div>
-      <div className="navbar-end grow mr-4">
+      <div className="navbar-end grow mr-4 gap-2">
+        <div className="hidden md:block">
+          <BridgeHowItWorksModal />
+        </div>
         <RainbowKitCustomConnectButton />
       </div>
     </div>

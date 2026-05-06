@@ -1,0 +1,18 @@
+{
+  "relayCommand": "make layerzero-relay DIRECTION={direction} TX={txHash}",
+  "chains": {
+    "296": {
+      "oft": "",
+      "htsToken": "",
+      "endpointV2": "0xbD672D1562Dd32C23B563C989d8140122483631d",
+      "eid": 40285,
+      "remoteEid": 40161
+    },
+    "11155111": {
+      "oft": "",
+      "endpointV2": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+      "eid": 40161,
+      "remoteEid": 40285
+    }
+  }
+}
