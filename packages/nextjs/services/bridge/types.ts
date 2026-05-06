@@ -1,4 +1,6 @@
-import type { Address, Chain } from "viem";
+import type { BridgeTokenAccountStatus, BridgeTokenBalance } from "./useBridgeTokenAccount";
+import type { BridgeApprovalStatus, BridgeApprovalStep } from "./useTokenApprovals";
+import type { Address, Chain, Hash } from "viem";
 
 export type BridgeProviderId = "axelar" | "ccip" | "layerzero";
 
@@ -19,6 +21,85 @@ export type BridgeTransactionStage =
 
 export type BridgeSendStatus = "idle" | "sending" | "submitted" | "failed";
 
+export type BridgeQuoteStatus =
+  | "idle"
+  | "unsupported"
+  | "missing_config"
+  | "invalid_amount"
+  | "quoting"
+  | "quoted"
+  | "failed";
+
+export type BridgeQuoteState = {
+  status: BridgeQuoteStatus;
+  reason?: string;
+  amountInBaseUnits?: bigint;
+  tokenDecimals?: number;
+  nativeFee?: bigint;
+  nativeFeeLabel?: string;
+};
+
+export type BridgeApprovalsState = {
+  approveNext: () => Promise<Hash | undefined>;
+  isApproving: boolean;
+  nextStep?: BridgeApprovalStep;
+  status: BridgeApprovalStatus;
+  steps: BridgeApprovalStep[];
+};
+
+export type BridgeTokenAccountState = {
+  destinationToken?: BridgeTokenBalance;
+  showHtsAssociationNotice: boolean;
+  sourceToken?: BridgeTokenBalance;
+  status: BridgeTokenAccountStatus;
+};
+
+export type BridgeSubmissionState = {
+  canSend: boolean;
+  isSending: boolean;
+  reset: () => void;
+  sendTransfer?: () => Promise<Hash | undefined>;
+  status: BridgeSendStatus;
+  submittedHash?: Hash;
+};
+
+export type BridgePrimaryAction =
+  | {
+      kind: "connect_wallet";
+      label: string;
+      canExecute: false;
+      isPending: false;
+      reason?: string;
+    }
+  | {
+      kind: "blocked";
+      label: string;
+      canExecute: false;
+      isPending: false;
+      reason?: string;
+    }
+  | {
+      kind: "switch_network";
+      label: string;
+      canExecute: true;
+      isPending: boolean;
+      execute: () => void | Promise<void>;
+    }
+  | {
+      kind: "approve";
+      label: string;
+      canExecute: true;
+      isPending: boolean;
+      execute: () => void | Promise<void>;
+    }
+  | {
+      kind: "send";
+      label: string;
+      canExecute: true;
+      isPending: boolean;
+      execute: () => void | Promise<void>;
+    };
+
 export type BridgeNetwork = {
   id: BridgeChainId;
   label: string;
@@ -38,6 +119,11 @@ export type BridgeRequiredField = {
   label: string;
   value: string | number | undefined;
   kind?: "address" | "bytes32" | "number" | "string";
+};
+
+export type BridgeConfigIssue = {
+  field: BridgeRequiredField;
+  issue: string;
 };
 
 export type BridgeContractCheck = {
@@ -86,4 +172,30 @@ export type BridgeRoute = {
 export type BridgeReadiness = {
   status: BridgeReadinessStatus;
   reason: string;
+};
+
+export type BridgeProviderStrategy = {
+  providerId: BridgeProviderId;
+  quote: BridgeQuoteState;
+  approvals: BridgeApprovalsState;
+  tokenAccount: BridgeTokenAccountState;
+  submission: BridgeSubmissionState;
+  resetSubmission: () => void;
+};
+
+export type BridgeFlow = {
+  route: BridgeRoute;
+  provider: BridgeProvider;
+  sourceNetwork: BridgeNetwork;
+  destinationNetwork: BridgeNetwork;
+  readiness: BridgeReadiness;
+  isChecking: boolean;
+  configIssues: BridgeConfigIssue[];
+  showConfigWarning: boolean;
+  quote: BridgeQuoteState;
+  approvals: BridgeApprovalsState;
+  tokenAccount: BridgeTokenAccountState;
+  submission: BridgeSubmissionState;
+  primaryAction: BridgePrimaryAction;
+  resetSubmission: () => void;
 };
