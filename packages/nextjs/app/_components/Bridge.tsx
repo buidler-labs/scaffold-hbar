@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { BridgeAmountInput } from "./BridgeAmountInput";
 import { BridgeApprovals } from "./BridgeApprovals";
 import { BridgeDirectionSelector } from "./BridgeDirectionSelector";
@@ -13,82 +13,11 @@ import { Address, Balance } from "@scaffold-hbar-ui/components";
 import { useAccount, useSwitchChain } from "wagmi";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import {
-  type AxelarQuoteStatus,
-  BRIDGE_NETWORKS,
-  type BridgeApprovalStatus,
   type BridgeDirection,
   type BridgeProviderId,
-  type BridgeReadinessStatus,
-  type BridgeSendStatus,
-  type CcipQuoteStatus,
-  getBridgeProvider,
   getDefaultBridgeDirection,
-  getRouteConfigIssues,
-  useAxelarApprovals,
-  useAxelarQuote,
-  useAxelarSend,
-  useAxelarTokenAccount,
-  useBridgeReadiness,
-  useCcipApprovals,
-  useCcipQuote,
-  useCcipSend,
-  useCcipTokenAccount,
+  useBridgeFlow,
 } from "~~/services/bridge";
-
-const getBridgeActionLabel = ({
-  quoteStatus,
-  approvalStatus,
-  sendStatus,
-  isConnected,
-  nextApprovalLabel,
-  providerLabel,
-  readinessStatus,
-  sourceNetworkLabel,
-}: {
-  approvalStatus: BridgeApprovalStatus;
-  quoteStatus: AxelarQuoteStatus | CcipQuoteStatus;
-  sendStatus: BridgeSendStatus;
-  isConnected: boolean;
-  nextApprovalLabel?: string;
-  providerLabel: string;
-  readinessStatus: BridgeReadinessStatus;
-  sourceNetworkLabel: string;
-}) => {
-  if (!isConnected) return "Connect wallet from header";
-  if (readinessStatus === "wrong_network") return `Switch to ${sourceNetworkLabel}`;
-  if (readinessStatus !== "ready") return "Bridge unavailable";
-
-  if (sendStatus === "sending") return `Sending ${providerLabel} transfer`;
-  if (sendStatus === "submitted") return `${providerLabel} transfer submitted`;
-
-  switch (quoteStatus) {
-    case "quoting":
-      return `Quoting ${providerLabel} fee`;
-    case "quoted":
-      break;
-    case "failed":
-      return "Unable to quote fee";
-    case "invalid_amount":
-      return "Enter a valid amount";
-    default:
-      return "Enter amount to quote";
-  }
-
-  switch (approvalStatus) {
-    case "checking":
-      return "Checking approvals";
-    case "needs_approval":
-      return nextApprovalLabel ?? "Approve token";
-    case "approving":
-      return `${nextApprovalLabel ?? "Approval"} pending`;
-    case "approvals_ready":
-      return `Send ${providerLabel} transfer`;
-    case "failed":
-      return "Unable to check approvals";
-    default:
-      return "Quote ready - approvals next";
-  }
-};
 
 export const Bridge = () => {
   const { address, chain, isConnected } = useAccount();
@@ -96,98 +25,30 @@ export const Bridge = () => {
   const [providerId, setProviderId] = useState<BridgeProviderId>("axelar");
   const [direction, setDirection] = useState<BridgeDirection>(getDefaultBridgeDirection());
   const [amount, setAmount] = useState("");
-
-  const { route, readiness, isChecking } = useBridgeReadiness(providerId, direction, chain?.id);
-  const sourceNetwork = BRIDGE_NETWORKS[route.sourceChainId];
-  const destinationNetwork = BRIDGE_NETWORKS[route.destinationChainId];
-  const selectedProvider = getBridgeProvider(providerId);
-  const configIssues = useMemo(() => getRouteConfigIssues(route), [route]);
-  const axelarQuote = useAxelarQuote({
+  const {
+    approvals,
+    configIssues,
+    destinationNetwork,
+    isChecking,
+    primaryAction,
+    provider,
+    quote,
+    readiness,
+    route,
+    showConfigWarning,
+    sourceNetwork,
+    submission,
+    tokenAccount,
+  } = useBridgeFlow({
+    providerId,
+    direction,
     amount,
-    enabled: isConnected && readiness.status === "ready",
-    route,
-  });
-  const ccipQuote = useCcipQuote({
-    amount,
-    enabled: isConnected && readiness.status === "ready",
-    recipient: address,
-    route,
-  });
-  const axelarTokenAccount = useAxelarTokenAccount({
-    account: address,
-    enabled: isConnected && providerId === "axelar",
-    route,
-  });
-  const ccipTokenAccount = useCcipTokenAccount({
-    account: address,
-    enabled: isConnected && providerId === "ccip",
-    route,
-  });
-  const axelarApprovals = useAxelarApprovals({
-    amountInBaseUnits: axelarQuote.status === "quoted" ? axelarQuote.amountInBaseUnits : undefined,
-    enabled: isConnected && readiness.status === "ready",
-    owner: address,
-    route,
-  });
-  const ccipApprovals = useCcipApprovals({
-    amountInBaseUnits: ccipQuote.status === "quoted" ? ccipQuote.amountInBaseUnits : undefined,
-    enabled: isConnected && readiness.status === "ready",
-    owner: address,
-    route,
-  });
-  const axelarSend = useAxelarSend({
-    enabled: isConnected && readiness.status === "ready" && axelarApprovals.status === "approvals_ready",
-    quote: axelarQuote,
-    recipient: address,
-    route,
-    sender: address,
-  });
-  const ccipSend = useCcipSend({
-    enabled: isConnected && readiness.status === "ready" && ccipApprovals.status === "approvals_ready",
-    quote: ccipQuote,
-    recipient: address,
-    route,
-    sender: address,
-  });
-  const { reset: resetAxelarSend } = axelarSend;
-  const { reset: resetCcipSend } = ccipSend;
-  const quote = providerId === "axelar" ? axelarQuote : ccipQuote;
-  const tokenAccount = providerId === "axelar" ? axelarTokenAccount : ccipTokenAccount;
-  const approvals = providerId === "axelar" ? axelarApprovals : ccipApprovals;
-  const send = providerId === "axelar" ? axelarSend : ccipSend;
-
-  useEffect(() => {
-    resetAxelarSend();
-    resetCcipSend();
-  }, [address, amount, direction, providerId, resetAxelarSend, resetCcipSend]);
-
-  const actionLabel = useMemo(() => {
-    return getBridgeActionLabel({
-      approvalStatus: approvals.status,
-      quoteStatus: quote.status,
-      sendStatus: send.status,
-      isConnected,
-      nextApprovalLabel: approvals.nextStep?.label,
-      providerLabel: selectedProvider.label,
-      readinessStatus: readiness.status,
-      sourceNetworkLabel: sourceNetwork.shortLabel,
-    });
-  }, [
-    approvals.nextStep?.label,
-    approvals.status,
+    address,
+    chainId: chain?.id,
     isConnected,
-    quote.status,
-    readiness.status,
-    selectedProvider.label,
-    send.status,
-    sourceNetwork.shortLabel,
-  ]);
-
-  const canSwitchNetwork = isConnected && readiness.status === "wrong_network";
-  const canApprove = approvals.status === "needs_approval";
-  const canSend = approvals.status === "approvals_ready" && quote.status === "quoted" && send.status !== "submitted";
-  const isActionPending = isSwitchingChain || approvals.status === "approving" || send.status === "sending";
-  const showConfigWarning = configIssues.length > 0 && readiness.status === "misconfigured";
+    switchChain,
+    isSwitchingChain,
+  });
 
   return (
     <div className="flex grow flex-col bg-base-200 px-4 py-8 md:py-12">
@@ -262,34 +123,28 @@ export const Bridge = () => {
               <BridgeStatus isChecking={isChecking} isConnected={isConnected} readiness={readiness} />
             )}
 
-            <BridgeQuote providerLabel={selectedProvider.label} quote={quote} />
-            <BridgeApprovals providerLabel={selectedProvider.label} status={approvals.status} steps={approvals.steps} />
+            <BridgeQuote providerLabel={provider.label} quote={quote} />
+            <BridgeApprovals providerLabel={provider.label} status={approvals.status} steps={approvals.steps} />
             <BridgeSubmission
               accountAddress={address}
-              providerExplorerUrl={selectedProvider.trackerUrl}
-              providerLabel={selectedProvider.label}
+              providerExplorerUrl={provider.trackerUrl}
+              providerLabel={provider.label}
               sourceChainId={route.sourceChainId}
-              status={send.status}
-              txHash={send.submittedHash}
+              status={submission.status}
+              txHash={submission.submittedHash}
             />
 
             <button
               type="button"
               className="btn btn-primary w-full"
-              disabled={(!canSwitchNetwork && !canApprove && !canSend) || isActionPending}
+              disabled={!primaryAction.canExecute || primaryAction.isPending}
               onClick={() => {
-                if (canSwitchNetwork) {
-                  switchChain({ chainId: sourceNetwork.id });
-                  return;
-                }
-
-                if (canApprove) void approvals.approveNext().catch(() => undefined);
-                if (canSend && providerId === "axelar") void axelarSend.sendAxelar().catch(() => undefined);
-                if (canSend && providerId === "ccip") void ccipSend.sendCcip().catch(() => undefined);
+                if (!primaryAction.canExecute) return;
+                void Promise.resolve(primaryAction.execute()).catch(() => undefined);
               }}
             >
-              {isActionPending ? <span className="loading loading-spinner loading-sm" /> : null}
-              {actionLabel}
+              {primaryAction.isPending ? <span className="loading loading-spinner loading-sm" /> : null}
+              {primaryAction.label}
             </button>
           </div>
         </div>
