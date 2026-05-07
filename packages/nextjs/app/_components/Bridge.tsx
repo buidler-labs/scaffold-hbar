@@ -127,6 +127,7 @@ export const Bridge = () => {
             <BridgeApprovals providerLabel={provider.label} status={approvals.status} steps={approvals.steps} />
             <BridgeSubmission
               accountAddress={address}
+              followUpCommand={submission.followUpCommand}
               providerExplorerUrl={provider.trackerUrl}
               providerLabel={provider.label}
               sourceChainId={route.sourceChainId}

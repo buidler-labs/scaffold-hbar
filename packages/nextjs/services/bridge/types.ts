@@ -56,6 +56,7 @@ export type BridgeTokenAccountState = {
 
 export type BridgeSubmissionState = {
   canSend: boolean;
+  followUpCommand?: string;
   isSending: boolean;
   reset: () => void;
   sendTransfer?: () => Promise<Hash | undefined>;
@@ -168,6 +169,7 @@ export type BridgeLayerZeroRouteMetadata = {
   receiveGas: string;
   minAmountBps: string;
   relayCommand: string;
+  sourceGasLimit?: string;
   sourceHtsTokenAddress?: Address;
   destinationHtsTokenAddress?: Address;
 };

@@ -18,6 +18,7 @@ export * from "./useCcipSend";
 export * from "./useCcipTokenAccount";
 export * from "./useLayerZeroApprovals";
 export * from "./useLayerZeroQuote";
+export * from "./useLayerZeroSend";
 export * from "./useLayerZeroTokenAccount";
 export * from "./useBridgeTokenAccount";
 export * from "./useBridgeReadiness";

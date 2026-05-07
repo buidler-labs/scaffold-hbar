@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
 import type { BridgeProviderStrategy, BridgeReadinessStatus, BridgeRoute } from "../types";
 import { useLayerZeroApprovals } from "../useLayerZeroApprovals";
 import { useLayerZeroQuote } from "../useLayerZeroQuote";
+import { useLayerZeroSend } from "../useLayerZeroSend";
 import { useLayerZeroTokenAccount } from "../useLayerZeroTokenAccount";
 import type { Address } from "viem";
 
@@ -24,7 +24,6 @@ export const useLayerZeroBridgeStrategy = ({
   readinessStatus,
   route,
 }: UseLayerZeroBridgeStrategyArgs): BridgeProviderStrategy => {
-  const reset = useCallback(() => undefined, []);
   const isReady = isConnected && readinessStatus === "ready";
   const quote = useLayerZeroQuote({
     amount,
@@ -43,6 +42,14 @@ export const useLayerZeroBridgeStrategy = ({
     owner: address,
     route,
   });
+  const send = useLayerZeroSend({
+    enabled: enabled && isReady && approvals.status === "approvals_ready",
+    quote,
+    recipient: address,
+    route,
+    sender: address,
+  });
+  const canSend = approvals.status === "approvals_ready" && quote.status === "quoted" && send.status !== "submitted";
 
   return {
     providerId: "layerzero",
@@ -50,13 +57,14 @@ export const useLayerZeroBridgeStrategy = ({
     approvals,
     tokenAccount,
     submission: {
-      canSend: false,
-      isSending: false,
-      reset,
-      sendTransfer: undefined,
-      status: "idle",
-      submittedHash: undefined,
+      canSend,
+      followUpCommand: send.followUpCommand,
+      isSending: send.isSending,
+      reset: send.reset,
+      sendTransfer: canSend ? send.sendLayerZero : undefined,
+      status: send.status,
+      submittedHash: send.submittedHash,
     },
-    resetSubmission: reset,
+    resetSubmission: send.reset,
   };
 };

@@ -6,6 +6,7 @@ import { getBlockExplorerTxLink } from "~~/utils/scaffold-hbar";
 
 type BridgeSubmissionProps = {
   accountAddress?: string;
+  followUpCommand?: string;
   providerExplorerUrl: string;
   providerLabel: string;
   sourceChainId: number;
@@ -15,6 +16,7 @@ type BridgeSubmissionProps = {
 
 export const BridgeSubmission = ({
   accountAddress,
+  followUpCommand,
   providerExplorerUrl,
   providerLabel,
   sourceChainId,
@@ -54,6 +56,13 @@ export const BridgeSubmission = ({
           ) : (
             <span className="break-all font-mono text-xs">{txHash}</span>
           )}
+        </div>
+      ) : null}
+
+      {followUpCommand ? (
+        <div className="mt-3 rounded-lg border border-success/20 bg-base-100/60 p-3 text-base-content/75">
+          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-base-content/50">Relay command</p>
+          <code className="mt-2 block break-all rounded bg-base-300/70 px-3 py-2 text-xs">{followUpCommand}</code>
         </div>
       ) : null}
     </div>

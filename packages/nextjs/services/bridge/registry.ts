@@ -228,6 +228,7 @@ const buildLayerZeroMetadata = ({
     receiveGas: routeConfig.receiveGas ?? LAYERZERO_DEFAULT_RECEIVE_GAS,
     minAmountBps: routeConfig.minAmountBps ?? LAYERZERO_DEFAULT_MIN_AMOUNT_BPS,
     relayCommand: routeConfig.relayCommand,
+    sourceGasLimit: source.gasLimit,
     sourceHtsTokenAddress: source.htsToken as Address | undefined,
     destinationHtsTokenAddress: destination.htsToken as Address | undefined,
   };
@@ -253,6 +254,7 @@ const getLayerZeroRequiredFields = (
 
   if (sourceChainId === HEDERA_TESTNET_CHAIN_ID) {
     fields.push(bridgeField.address("LayerZero source HTS token", source.htsToken as string | undefined));
+    fields.push(bridgeField.number("LayerZero source gas limit", source.gasLimit));
   }
 
   if (destinationChainId === HEDERA_TESTNET_CHAIN_ID) {
