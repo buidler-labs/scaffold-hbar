@@ -156,6 +156,22 @@ export type BridgeAxelarRouteMetadata = {
   gasLimit?: string;
 };
 
+export type BridgeLayerZeroRouteMetadata = {
+  sourceOftAddress: Address;
+  destinationOftAddress: Address;
+  sourceTokenAddress: Address;
+  destinationTokenAddress: Address;
+  sourceEndpointAddress: Address;
+  destinationEndpointAddress: Address;
+  sourceEid: number;
+  destinationEid: number;
+  receiveGas: string;
+  minAmountBps: string;
+  relayCommand: string;
+  sourceHtsTokenAddress?: Address;
+  destinationHtsTokenAddress?: Address;
+};
+
 export type BridgeRoute = {
   providerId: BridgeProviderId;
   direction: BridgeDirection;
@@ -165,6 +181,7 @@ export type BridgeRoute = {
   destinationTokenAddress?: Address;
   axelar?: BridgeAxelarRouteMetadata;
   ccip?: BridgeCcipRouteMetadata;
+  layerzero?: BridgeLayerZeroRouteMetadata;
   requiredFields: BridgeRequiredField[];
   contractChecks: BridgeContractCheck[];
 };

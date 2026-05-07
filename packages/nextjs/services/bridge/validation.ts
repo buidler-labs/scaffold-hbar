@@ -96,6 +96,23 @@ export const ccipChainConfigSchema = z.object({
 
 export type CcipChainConfig = z.infer<typeof ccipChainConfigSchema>;
 
+export const layerZeroChainConfigSchema = z.object({
+  oft: addressSchema,
+  htsToken: addressSchema.optional(),
+  endpointV2: addressSchema,
+  eid: unsignedIntegerStringSchema.transform(value => Number(value)),
+  remoteEid: unsignedIntegerStringSchema.transform(value => Number(value)),
+});
+
+export const layerZeroRouteConfigSchema = z.object({
+  relayCommand: requiredStringSchema("LayerZero relay command"),
+  receiveGas: unsignedIntegerStringSchema.optional(),
+  minAmountBps: unsignedIntegerStringSchema.optional(),
+});
+
+export type LayerZeroChainConfig = z.infer<typeof layerZeroChainConfigSchema>;
+export type LayerZeroRouteConfig = z.infer<typeof layerZeroRouteConfigSchema>;
+
 const fieldValueSchema = (field: BridgeRequiredField) => {
   if (field.kind === "address") return requiredStringSchema(field.label).refine(isAddress, `${field.label} invalid`);
   if (field.kind === "bytes32") {

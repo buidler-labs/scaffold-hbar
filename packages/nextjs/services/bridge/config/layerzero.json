@@ -1,15 +1,17 @@
 {
   "relayCommand": "make layerzero-relay DIRECTION={direction} TX={txHash}",
+  "receiveGas": "80000",
+  "minAmountBps": "9000",
   "chains": {
     "296": {
-      "oft": "",
-      "htsToken": "",
+      "oft": "0xB3C2Bf6474aeE0e29431b4692cf14A41F2dBd464",
+      "htsToken": "0x0000000000000000000000000000000000870b73",
       "endpointV2": "0xbD672D1562Dd32C23B563C989d8140122483631d",
       "eid": 40285,
       "remoteEid": 40161
     },
     "11155111": {
-      "oft": "",
+      "oft": "0xA7894280CC3cf4c83F96d6420C435A9C6E1457B8",
       "endpointV2": "0x6EDCE65403992e310A62460808c4b910D972f10f",
       "eid": 40161,
       "remoteEid": 40285

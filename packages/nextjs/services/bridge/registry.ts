@@ -2,12 +2,14 @@ import axelarConfig from "./config/axelar.json";
 import ccipConfig from "./config/ccip.json";
 import layerzeroConfig from "./config/layerzero.json";
 import { BRIDGE_DIRECTIONS, BRIDGE_PROVIDERS, HEDERA_TESTNET_CHAIN_ID, SEPOLIA_CHAIN_ID } from "./constants";
+import { LAYERZERO_DEFAULT_MIN_AMOUNT_BPS, LAYERZERO_DEFAULT_RECEIVE_GAS } from "./layerzeroMessage";
 import type {
   BridgeAxelarRouteMetadata,
   BridgeCcipRouteMetadata,
   BridgeChainId,
   BridgeContractCheck,
   BridgeDirection,
+  BridgeLayerZeroRouteMetadata,
   BridgeProviderId,
   BridgeRequiredField,
   BridgeRoute,
@@ -16,11 +18,15 @@ import {
   type AxelarChainConfig,
   type AxelarRouteConfig,
   type CcipChainConfig,
+  type LayerZeroChainConfig,
+  type LayerZeroRouteConfig,
   axelarChainConfigSchema,
   axelarRouteConfigSchema,
   bridgeField,
   ccipChainConfigSchema,
   getFieldIssue,
+  layerZeroChainConfigSchema,
+  layerZeroRouteConfigSchema,
 } from "./validation";
 import type { Address } from "viem";
 import { isAddress } from "viem";
@@ -45,6 +51,11 @@ const getAxelarConfigForChain = (chainId: BridgeChainId) =>
   axelarChainConfigSchema.safeParse(getConfigForChain(axelarConfig, chainId));
 
 const getAxelarRouteConfig = () => axelarRouteConfigSchema.safeParse(axelarConfig);
+
+const getLayerZeroConfigForChain = (chainId: BridgeChainId) =>
+  layerZeroChainConfigSchema.safeParse(getConfigForChain(layerzeroConfig, chainId));
+
+const getLayerZeroRouteConfig = () => layerZeroRouteConfigSchema.safeParse(layerzeroConfig);
 
 const directionChainIds = (direction: BridgeDirection) => {
   const directionConfig = BRIDGE_DIRECTIONS[direction];
@@ -182,35 +193,126 @@ const buildCcipRoute = (direction: BridgeDirection): BridgeRoute => {
   };
 };
 
+const getLayerZeroTokenAddress = (
+  chainId: BridgeChainId,
+  chainConfig: Pick<LayerZeroChainConfig, "htsToken" | "oft">,
+) => (chainId === HEDERA_TESTNET_CHAIN_ID ? chainConfig.htsToken : chainConfig.oft);
+
+const buildLayerZeroMetadata = ({
+  destination,
+  destinationChainId,
+  routeConfig,
+  source,
+  sourceChainId,
+}: {
+  destination: LayerZeroChainConfig;
+  destinationChainId: BridgeChainId;
+  routeConfig: LayerZeroRouteConfig;
+  source: LayerZeroChainConfig;
+  sourceChainId: BridgeChainId;
+}): BridgeLayerZeroRouteMetadata | undefined => {
+  const sourceTokenAddress = getLayerZeroTokenAddress(sourceChainId, source);
+  const destinationTokenAddress = getLayerZeroTokenAddress(destinationChainId, destination);
+
+  if (!sourceTokenAddress || !destinationTokenAddress) return undefined;
+
+  return {
+    sourceOftAddress: source.oft as Address,
+    destinationOftAddress: destination.oft as Address,
+    sourceTokenAddress: sourceTokenAddress as Address,
+    destinationTokenAddress: destinationTokenAddress as Address,
+    sourceEndpointAddress: source.endpointV2 as Address,
+    destinationEndpointAddress: destination.endpointV2 as Address,
+    sourceEid: source.eid,
+    destinationEid: source.remoteEid,
+    receiveGas: routeConfig.receiveGas ?? LAYERZERO_DEFAULT_RECEIVE_GAS,
+    minAmountBps: routeConfig.minAmountBps ?? LAYERZERO_DEFAULT_MIN_AMOUNT_BPS,
+    relayCommand: routeConfig.relayCommand,
+    sourceHtsTokenAddress: source.htsToken as Address | undefined,
+    destinationHtsTokenAddress: destination.htsToken as Address | undefined,
+  };
+};
+
+const getLayerZeroRequiredFields = (
+  source: Record<string, string | number | undefined>,
+  destination: Record<string, string | number | undefined>,
+  sourceChainId: BridgeChainId,
+  destinationChainId: BridgeChainId,
+) => {
+  const fields = [
+    bridgeField.address("LayerZero source OFT", source.oft as string | undefined),
+    bridgeField.address("LayerZero source endpoint", source.endpointV2 as string | undefined),
+    bridgeField.number("LayerZero source EID", source.eid),
+    bridgeField.number("LayerZero remote EID", source.remoteEid),
+    bridgeField.address("LayerZero destination OFT", destination.oft as string | undefined),
+    bridgeField.address("LayerZero destination endpoint", destination.endpointV2 as string | undefined),
+    bridgeField.string("LayerZero relay command", layerzeroConfig.relayCommand),
+    bridgeField.number("LayerZero receive gas", layerzeroConfig.receiveGas ?? LAYERZERO_DEFAULT_RECEIVE_GAS),
+    bridgeField.number("LayerZero min amount bps", layerzeroConfig.minAmountBps ?? LAYERZERO_DEFAULT_MIN_AMOUNT_BPS),
+  ];
+
+  if (sourceChainId === HEDERA_TESTNET_CHAIN_ID) {
+    fields.push(bridgeField.address("LayerZero source HTS token", source.htsToken as string | undefined));
+  }
+
+  if (destinationChainId === HEDERA_TESTNET_CHAIN_ID) {
+    fields.push(bridgeField.address("LayerZero destination HTS token", destination.htsToken as string | undefined));
+  }
+
+  return fields;
+};
+
+const getLayerZeroContractChecks = (
+  source: Record<string, string | number | undefined>,
+  destination: Record<string, string | number | undefined>,
+  sourceChainId: BridgeChainId,
+  destinationChainId: BridgeChainId,
+): BridgeContractCheck[] => [
+  check("Source OFT", sourceChainId, source.oft as string | undefined),
+  check("Source endpoint", sourceChainId, source.endpointV2 as string | undefined),
+  ...(sourceChainId === HEDERA_TESTNET_CHAIN_ID
+    ? [check("Source HTS token", sourceChainId, source.htsToken as string | undefined)]
+    : []),
+  check("Destination OFT", destinationChainId, destination.oft as string | undefined),
+  check("Destination endpoint", destinationChainId, destination.endpointV2 as string | undefined),
+  ...(destinationChainId === HEDERA_TESTNET_CHAIN_ID
+    ? [check("Destination HTS token", destinationChainId, destination.htsToken as string | undefined)]
+    : []),
+];
+
 const buildLayerzeroRoute = (direction: BridgeDirection): BridgeRoute => {
   const { sourceChainId, destinationChainId } = directionChainIds(direction);
-  const source = getConfigForChain(layerzeroConfig, sourceChainId);
-  const destination = getConfigForChain(layerzeroConfig, destinationChainId);
-  const sourceOft = source.oft as string | undefined;
-  const destinationOft = destination.oft as string | undefined;
+  const rawSource = getConfigForChain(layerzeroConfig, sourceChainId);
+  const rawDestination = getConfigForChain(layerzeroConfig, destinationChainId);
+  const source = getLayerZeroConfigForChain(sourceChainId);
+  const destination = getLayerZeroConfigForChain(destinationChainId);
+  const routeConfig = getLayerZeroRouteConfig();
+  const sourceOft = rawSource.oft as string | undefined;
+  const destinationOft = rawDestination.oft as string | undefined;
+  const sourceToken = source.success ? getLayerZeroTokenAddress(sourceChainId, source.data) : sourceOft;
+  const destinationToken = destination.success
+    ? getLayerZeroTokenAddress(destinationChainId, destination.data)
+    : destinationOft;
 
   return {
     providerId: "layerzero",
     direction,
     sourceChainId,
     destinationChainId,
-    sourceTokenAddress: isAddress(sourceOft || "") ? sourceOft : undefined,
-    destinationTokenAddress: isAddress(destinationOft || "") ? destinationOft : undefined,
-    requiredFields: [
-      bridgeField.address("LayerZero source OFT", sourceOft),
-      bridgeField.address("LayerZero source endpoint", source.endpointV2 as string | undefined),
-      bridgeField.number("LayerZero source EID", source.eid),
-      bridgeField.number("LayerZero remote EID", source.remoteEid),
-      bridgeField.address("LayerZero destination OFT", destinationOft),
-      bridgeField.address("LayerZero destination endpoint", destination.endpointV2 as string | undefined),
-      bridgeField.string("LayerZero relay command", layerzeroConfig.relayCommand),
-    ],
-    contractChecks: [
-      check("Source OFT", sourceChainId, sourceOft),
-      check("Source endpoint", sourceChainId, source.endpointV2 as string | undefined),
-      check("Destination OFT", destinationChainId, destinationOft),
-      check("Destination endpoint", destinationChainId, destination.endpointV2 as string | undefined),
-    ],
+    sourceTokenAddress: asAddress(sourceToken),
+    destinationTokenAddress: asAddress(destinationToken),
+    layerzero:
+      routeConfig.success && source.success && destination.success
+        ? buildLayerZeroMetadata({
+            destination: destination.data,
+            destinationChainId,
+            routeConfig: routeConfig.data,
+            source: source.data,
+            sourceChainId,
+          })
+        : undefined,
+    requiredFields: getLayerZeroRequiredFields(rawSource, rawDestination, sourceChainId, destinationChainId),
+    contractChecks: getLayerZeroContractChecks(rawSource, rawDestination, sourceChainId, destinationChainId),
   };
 };
 
