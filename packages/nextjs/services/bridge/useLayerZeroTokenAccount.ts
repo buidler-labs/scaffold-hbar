@@ -1,0 +1,50 @@
+"use client";
+
+import { HEDERA_TESTNET_CHAIN_ID } from "./constants";
+import type { BridgeRoute } from "./types";
+import type { BridgeTokenAccountStatus, BridgeTokenBalance } from "./useBridgeTokenAccount";
+import { useBridgeTokenAccount } from "./useBridgeTokenAccount";
+import type { Address } from "viem";
+
+export type LayerZeroTokenAccountStatus = BridgeTokenAccountStatus;
+export type LayerZeroTokenBalance = BridgeTokenBalance;
+
+type UseLayerZeroTokenAccountArgs = {
+  account?: Address;
+  enabled: boolean;
+  route: BridgeRoute;
+};
+
+export const useLayerZeroTokenAccount = ({ account, enabled, route }: UseLayerZeroTokenAccountArgs) => {
+  const sourceIsHtsToken =
+    route.sourceChainId === HEDERA_TESTNET_CHAIN_ID && Boolean(route.layerzero?.sourceHtsTokenAddress);
+  const destinationIsHtsToken =
+    route.destinationChainId === HEDERA_TESTNET_CHAIN_ID && Boolean(route.layerzero?.destinationHtsTokenAddress);
+
+  return useBridgeTokenAccount({
+    account,
+    destination: {
+      chainId: route.destinationChainId,
+      isHtsToken: destinationIsHtsToken,
+      tokenAddress: route.layerzero?.destinationTokenAddress,
+    },
+    enabled: enabled && route.providerId === "layerzero" && Boolean(route.layerzero),
+    queryKey: [
+      "layerZeroTokenAccount",
+      account,
+      route.direction,
+      route.sourceChainId,
+      route.destinationChainId,
+      route.layerzero?.sourceTokenAddress,
+      route.layerzero?.destinationTokenAddress,
+    ],
+    showHtsAssociationNotice: Boolean(
+      route.layerzero && (route.layerzero.sourceHtsTokenAddress || route.layerzero.destinationHtsTokenAddress),
+    ),
+    source: {
+      chainId: route.sourceChainId,
+      isHtsToken: sourceIsHtsToken,
+      tokenAddress: route.layerzero?.sourceTokenAddress,
+    },
+  });
+};

@@ -240,7 +240,14 @@ export const useBridgeFlow = ({
     readinessStatus: readiness.status,
     route,
   });
-  const layerZeroStrategy = useLayerZeroBridgeStrategy({ route });
+  const layerZeroStrategy = useLayerZeroBridgeStrategy({
+    address,
+    amount,
+    enabled: providerId === "layerzero",
+    isConnected,
+    readinessStatus: readiness.status,
+    route,
+  });
 
   const activeStrategy =
     providerId === "axelar" ? axelarStrategy : providerId === "ccip" ? ccipStrategy : layerZeroStrategy;

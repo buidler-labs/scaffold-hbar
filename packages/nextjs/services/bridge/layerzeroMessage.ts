@@ -1,6 +1,6 @@
 import { HEDERA_TESTNET_CHAIN_ID } from "./constants";
 import type { BridgeRoute } from "./types";
-import { concatHex, encodeAbiParameters, formatUnits, numberToHex, padHex } from "viem";
+import { concatHex, encodeAbiParameters, formatUnits, numberToHex, padHex, size } from "viem";
 import type { Address, Hex } from "viem";
 
 export const LAYERZERO_DEFAULT_RECEIVE_GAS = "80000";
@@ -33,7 +33,7 @@ export const buildLayerZeroOptions = ({
   const optionPayload =
     receiveValue > 0n ? concatHex([asUint128Hex(receiveGas), asUint128Hex(receiveValue)]) : asUint128Hex(receiveGas);
 
-  return concatHex(["0x0003", "0x01", asUint16Hex(BigInt(optionPayload.length / 2)), "0x01", optionPayload]);
+  return concatHex(["0x0003", "0x01", asUint16Hex(BigInt(size(optionPayload) + 1)), "0x01", optionPayload]);
 };
 
 export const getLayerZeroMinAmount = (amountInBaseUnits: bigint, minAmountBps: bigint) =>
