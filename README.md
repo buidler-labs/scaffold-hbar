@@ -159,5 +159,5 @@ Network and RPC URLs are in `packages/hardhat/hardhat.config.ts` or `packages/fo
 - [Hedera Documentation](https://docs.hedera.com/)
 - [Hashscan](https://hashscan.io/) — block explorer
 - [Hedera Token Service (HTS)](https://docs.hedera.com/hedera/core-concepts/hedera-token-service-hts)
-- [create-scaffold-hbar](https://github.com/hashgraph/create-scaffold-hbar) — CLI to scaffold Hedera dApps
+- [create-scaffold-hbar](https://github.com/buidler-labs/create-scaffold-hbar) — CLI to scaffold Hedera dApps
 
