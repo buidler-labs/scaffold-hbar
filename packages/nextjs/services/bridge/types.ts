@@ -49,6 +49,7 @@ export type BridgeApprovalsState = {
 
 export type BridgeTokenAccountState = {
   destinationToken?: BridgeTokenBalance;
+  invalidate: () => Promise<unknown>;
   showHtsAssociationNotice: boolean;
   sourceToken?: BridgeTokenBalance;
   status: BridgeTokenAccountStatus;

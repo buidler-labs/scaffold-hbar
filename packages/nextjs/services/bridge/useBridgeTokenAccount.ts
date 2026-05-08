@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { erc20BridgeAbi } from "./erc20Abi";
 import type { BridgeChainId } from "./types";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatUnits } from "viem";
 import type { Address, PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
@@ -103,6 +103,7 @@ export const useBridgeTokenAccount = ({
   showHtsAssociationNotice,
   source,
 }: UseBridgeTokenAccountArgs) => {
+  const queryClient = useQueryClient();
   const sourceClient = usePublicClient({ chainId: source.chainId });
   const destinationClient = usePublicClient({ chainId: destination.chainId });
 
@@ -142,8 +143,11 @@ export const useBridgeTokenAccount = ({
     return "ready";
   }, [account, enabled, tokenQuery.isError, tokenQuery.isFetching, tokenQuery.isLoading]);
 
+  const invalidate = useCallback(() => queryClient.invalidateQueries({ queryKey }), [queryClient, queryKey]);
+
   return {
     destinationToken: tokenQuery.data?.destination,
+    invalidate,
     showHtsAssociationNotice,
     sourceToken: tokenQuery.data?.source,
     status,

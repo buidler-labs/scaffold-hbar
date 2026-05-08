@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { BRIDGE_NETWORKS } from "./constants";
 import { useAxelarBridgeStrategy, useCcipBridgeStrategy, useLayerZeroBridgeStrategy } from "./providers";
 import { getBridgeProvider, getRouteConfigIssues } from "./registry";
@@ -17,7 +17,9 @@ import type {
   BridgeRoute,
 } from "./types";
 import { useBridgeReadiness } from "./useBridgeReadiness";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Address } from "viem";
+import { getBalanceQueryKey } from "wagmi/query";
 
 type SwitchBridgeChain = (variables: { chainId: BridgeChainId }) => void;
 
@@ -217,6 +219,7 @@ export const useBridgeFlow = ({
   providerId,
   switchChain,
 }: UseBridgeFlowArgs): BridgeFlow => {
+  const queryClient = useQueryClient();
   const { route, readiness, isChecking } = useBridgeReadiness(providerId, direction, chainId);
   const provider = getBridgeProvider(providerId);
   const sourceNetwork = BRIDGE_NETWORKS[route.sourceChainId];
@@ -261,6 +264,30 @@ export const useBridgeFlow = ({
     resetLayerZeroSubmission();
   }, [address, amount, direction, providerId, resetAxelarSubmission, resetCcipSubmission, resetLayerZeroSubmission]);
 
+  const sendTransferWithBalanceInvalidation = useCallback(async () => {
+    const hash = await activeStrategy.submission.sendTransfer?.();
+    if (!hash) return hash;
+
+    await Promise.all([
+      activeStrategy.tokenAccount.invalidate(),
+      address
+        ? queryClient.invalidateQueries({
+            queryKey: getBalanceQueryKey({ address, chainId: route.sourceChainId }),
+          })
+        : undefined,
+    ]);
+
+    return hash;
+  }, [activeStrategy.submission, activeStrategy.tokenAccount, address, queryClient, route.sourceChainId]);
+
+  const submission = useMemo<BridgeProviderStrategy["submission"]>(
+    () => ({
+      ...activeStrategy.submission,
+      sendTransfer: activeStrategy.submission.sendTransfer ? sendTransferWithBalanceInvalidation : undefined,
+    }),
+    [activeStrategy.submission, sendTransferWithBalanceInvalidation],
+  );
+
   const primaryAction = useMemo(
     () =>
       getBridgePrimaryAction({
@@ -272,18 +299,18 @@ export const useBridgeFlow = ({
         readiness,
         route,
         sourceNetworkLabel: sourceNetwork.shortLabel,
-        submission: activeStrategy.submission,
+        submission,
         switchChain,
       }),
     [
       activeStrategy.approvals,
       activeStrategy.quote,
-      activeStrategy.submission,
       isConnected,
       isSwitchingChain,
       provider,
       readiness,
       route,
+      submission,
       sourceNetwork.shortLabel,
       switchChain,
     ],
@@ -301,7 +328,7 @@ export const useBridgeFlow = ({
     quote: activeStrategy.quote,
     approvals: activeStrategy.approvals,
     tokenAccount: activeStrategy.tokenAccount,
-    submission: activeStrategy.submission,
+    submission,
     primaryAction,
     resetSubmission: activeStrategy.resetSubmission,
   };
