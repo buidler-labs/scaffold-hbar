@@ -130,6 +130,7 @@ export const Bridge = () => {
               followUpCommand={submission.followUpCommand}
               providerExplorerUrl={provider.trackerUrl}
               providerLabel={provider.label}
+              relayError={submission.relayError}
               sourceChainId={route.sourceChainId}
               status={submission.status}
               txHash={submission.submittedHash}

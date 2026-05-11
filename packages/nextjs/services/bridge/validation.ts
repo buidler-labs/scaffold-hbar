@@ -100,8 +100,12 @@ export const layerZeroChainConfigSchema = z.object({
   oft: addressSchema,
   htsToken: addressSchema.optional(),
   endpointV2: addressSchema,
+  receiveUln302: addressSchema,
+  workersDvn: addressSchema,
+  workersExecutor: addressSchema,
   eid: unsignedIntegerStringSchema.transform(value => Number(value)),
   gasLimit: unsignedIntegerStringSchema.optional(),
+  relayReceiveGas: unsignedIntegerStringSchema.optional(),
   remoteEid: unsignedIntegerStringSchema.transform(value => Number(value)),
 });
 

@@ -223,9 +223,13 @@ const buildLayerZeroMetadata = ({
     destinationTokenAddress: destinationTokenAddress as Address,
     sourceEndpointAddress: source.endpointV2 as Address,
     destinationEndpointAddress: destination.endpointV2 as Address,
+    destinationReceiveUlnAddress: destination.receiveUln302 as Address,
+    destinationWorkersDvnAddress: destination.workersDvn as Address,
+    destinationWorkersExecutorAddress: destination.workersExecutor as Address,
     sourceEid: source.eid,
     destinationEid: source.remoteEid,
     receiveGas: routeConfig.receiveGas ?? LAYERZERO_DEFAULT_RECEIVE_GAS,
+    relayReceiveGas: destination.relayReceiveGas,
     minAmountBps: routeConfig.minAmountBps ?? LAYERZERO_DEFAULT_MIN_AMOUNT_BPS,
     relayCommand: routeConfig.relayCommand,
     sourceGasLimit: source.gasLimit,
@@ -247,8 +251,12 @@ const getLayerZeroRequiredFields = (
     bridgeField.number("LayerZero remote EID", source.remoteEid),
     bridgeField.address("LayerZero destination OFT", destination.oft as string | undefined),
     bridgeField.address("LayerZero destination endpoint", destination.endpointV2 as string | undefined),
+    bridgeField.address("LayerZero destination receive ULN", destination.receiveUln302 as string | undefined),
+    bridgeField.address("LayerZero destination workers DVN", destination.workersDvn as string | undefined),
+    bridgeField.address("LayerZero destination workers executor", destination.workersExecutor as string | undefined),
     bridgeField.string("LayerZero relay command", layerzeroConfig.relayCommand),
     bridgeField.number("LayerZero receive gas", layerzeroConfig.receiveGas ?? LAYERZERO_DEFAULT_RECEIVE_GAS),
+    bridgeField.number("LayerZero relay receive gas", destination.relayReceiveGas ?? "500000"),
     bridgeField.number("LayerZero min amount bps", layerzeroConfig.minAmountBps ?? LAYERZERO_DEFAULT_MIN_AMOUNT_BPS),
   ];
 
@@ -277,6 +285,9 @@ const getLayerZeroContractChecks = (
     : []),
   check("Destination OFT", destinationChainId, destination.oft as string | undefined),
   check("Destination endpoint", destinationChainId, destination.endpointV2 as string | undefined),
+  check("Destination receive ULN", destinationChainId, destination.receiveUln302 as string | undefined),
+  check("Destination workers DVN", destinationChainId, destination.workersDvn as string | undefined),
+  check("Destination workers executor", destinationChainId, destination.workersExecutor as string | undefined),
   ...(destinationChainId === HEDERA_TESTNET_CHAIN_ID
     ? [check("Destination HTS token", destinationChainId, destination.htsToken as string | undefined)]
     : []),

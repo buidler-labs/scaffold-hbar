@@ -44,12 +44,16 @@ export const useLayerZeroBridgeStrategy = ({
   });
   const send = useLayerZeroSend({
     enabled: enabled && isReady && approvals.status === "approvals_ready",
+    onRelayDelivered: tokenAccount.invalidate,
     quote,
     recipient: address,
     route,
     sender: address,
   });
-  const canSend = approvals.status === "approvals_ready" && quote.status === "quoted" && send.status !== "submitted";
+  const canSend =
+    approvals.status === "approvals_ready" &&
+    quote.status === "quoted" &&
+    !["submitted", "relaying", "delivered"].includes(send.status);
 
   return {
     providerId: "layerzero",
@@ -58,8 +62,9 @@ export const useLayerZeroBridgeStrategy = ({
     tokenAccount,
     submission: {
       canSend,
-      followUpCommand: send.followUpCommand,
+      followUpCommand: send.status === "relay_failed" ? send.followUpCommand : undefined,
       isSending: send.isSending,
+      relayError: send.status === "relay_failed" ? send.relayError : undefined,
       reset: send.reset,
       sendTransfer: canSend ? send.sendLayerZero : undefined,
       status: send.status,

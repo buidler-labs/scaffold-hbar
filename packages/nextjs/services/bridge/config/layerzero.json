@@ -7,15 +7,23 @@
       "oft": "0xB3C2Bf6474aeE0e29431b4692cf14A41F2dBd464",
       "htsToken": "0x0000000000000000000000000000000000870b73",
       "endpointV2": "0xbD672D1562Dd32C23B563C989d8140122483631d",
+      "receiveUln302": "0xc0c34919A04d69415EF2637A3Db5D637a7126cd0",
+      "workersDvn": "0xee109551247b1110d3BA52A16F1360783b3C4447",
+      "workersExecutor": "0xF3Bd7EfdcffA9BacED4f0Dc51ADF55635096e66b",
       "eid": 40285,
       "remoteEid": 40161,
-      "gasLimit": "15000000"
+      "gasLimit": "15000000",
+      "relayReceiveGas": "500000"
     },
     "11155111": {
       "oft": "0xA7894280CC3cf4c83F96d6420C435A9C6E1457B8",
       "endpointV2": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+      "receiveUln302": "0xdAf00F5eE2158dD58E0d3857851c432E34A3A851",
+      "workersDvn": "0x74eB00C7C9D5D945989863fDBF8ffB41a1Ee1068",
+      "workersExecutor": "0x0D842fb10569a7EE96007B87071B53555A28EBa2",
       "eid": 40161,
-      "remoteEid": 40285
+      "remoteEid": 40285,
+      "relayReceiveGas": "500000"
     }
   }
 }

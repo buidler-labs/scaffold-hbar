@@ -88,10 +88,11 @@ const getBridgePrimaryAction = ({
     };
   }
 
-  if (submission.status === "sending") {
+  if (submission.status === "sending" || submission.status === "relaying") {
     return {
       kind: "send",
-      label: `Sending ${provider.label} transfer`,
+      label:
+        submission.status === "relaying" ? `Relaying ${provider.label} transfer` : `Sending ${provider.label} transfer`,
       canExecute: true,
       isPending: true,
       execute: async () => {
@@ -104,6 +105,24 @@ const getBridgePrimaryAction = ({
     return {
       kind: "blocked",
       label: `${provider.label} transfer submitted`,
+      canExecute: false,
+      isPending: false,
+    };
+  }
+
+  if (submission.status === "delivered") {
+    return {
+      kind: "blocked",
+      label: `${provider.label} transfer delivered`,
+      canExecute: false,
+      isPending: false,
+    };
+  }
+
+  if (submission.status === "relay_failed") {
+    return {
+      kind: "blocked",
+      label: `${provider.label} relay failed`,
       canExecute: false,
       isPending: false,
     };

@@ -53,7 +53,7 @@ export const BRIDGE_PROVIDERS = [
   {
     id: "layerzero",
     label: "LayerZero",
-    description: "OFT send with manual relay follow-up for this template.",
+    description: "OFT send with an automatic mock relay for this template.",
     trackerLabel: "LayerZero Scan",
     trackerUrl: "https://testnet.layerzeroscan.com",
   },

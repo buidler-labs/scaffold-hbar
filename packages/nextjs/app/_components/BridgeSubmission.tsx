@@ -9,6 +9,7 @@ type BridgeSubmissionProps = {
   followUpCommand?: string;
   providerExplorerUrl: string;
   providerLabel: string;
+  relayError?: string;
   sourceChainId: number;
   status: BridgeSendStatus;
   txHash?: Hash;
@@ -19,6 +20,7 @@ export const BridgeSubmission = ({
   followUpCommand,
   providerExplorerUrl,
   providerLabel,
+  relayError,
   sourceChainId,
   status,
   txHash,
@@ -33,15 +35,30 @@ export const BridgeSubmission = ({
     );
   }
 
+  const isRelayFailed = status === "relay_failed";
+  const isRelaying = status === "relaying";
+  const isDelivered = status === "delivered";
   const explorerLink = txHash ? getBlockExplorerTxLink(sourceChainId, txHash) : "";
   const providerAccountLink = accountAddress
     ? `${providerExplorerUrl.replace(/\/$/, "")}/address/${accountAddress.toLowerCase()}`
     : providerExplorerUrl;
+  const containerClassName = isRelayFailed
+    ? "rounded-2xl border border-warning/30 bg-warning/10 p-4 text-sm"
+    : "rounded-2xl border border-success/20 bg-success/10 p-4 text-sm";
+  const titleClassName = isRelayFailed ? "m-0 font-semibold text-warning" : "m-0 font-semibold text-success";
+  const isNonceGap = Boolean(relayError?.includes("missing earlier message nonce"));
+  const title = isDelivered
+    ? `${providerLabel} transfer delivered`
+    : isRelaying
+      ? `${providerLabel} relay in progress`
+      : isRelayFailed
+        ? `${providerLabel} automatic relay failed`
+        : `${providerLabel} transfer submitted`;
 
   return (
-    <div className="rounded-2xl border border-success/20 bg-success/10 p-4 text-sm">
+    <div className={containerClassName}>
       <div className="flex items-center justify-between gap-3">
-        <p className="m-0 font-semibold text-success">{providerLabel} transfer submitted</p>
+        <p className={titleClassName}>{title}</p>
         <a className="link text-xs font-semibold" href={providerAccountLink} rel="noreferrer" target="_blank">
           {providerLabel} Explorer
         </a>
@@ -59,9 +76,24 @@ export const BridgeSubmission = ({
         </div>
       ) : null}
 
-      {followUpCommand ? (
-        <div className="mt-3 rounded-lg border border-success/20 bg-base-100/60 p-3 text-base-content/75">
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-base-content/50">Relay command</p>
+      {isRelaying ? (
+        <div className="mt-3 flex items-center gap-2 text-base-content/75">
+          <span className="loading loading-spinner loading-xs" />
+          <span>Delivering through the mock LayerZero relay.</span>
+        </div>
+      ) : null}
+
+      {isRelayFailed && followUpCommand ? (
+        <div className="mt-3 rounded-lg border border-warning/20 bg-base-100/60 p-3 text-base-content/75">
+          {relayError ? (
+            <div className="mb-3 rounded bg-warning/10 px-3 py-2 text-xs text-warning">
+              <p className="m-0 font-semibold">
+                {isNonceGap ? "Previous LayerZero messages must be relayed first." : "Automatic relay error"}
+              </p>
+              <p className="m-0 mt-1 text-base-content/75">{relayError}</p>
+            </div>
+          ) : null}
+          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-base-content/50">Fallback command</p>
           <code className="mt-2 block break-all rounded bg-base-300/70 px-3 py-2 text-xs">{followUpCommand}</code>
         </div>
       ) : null}

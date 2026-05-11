@@ -19,7 +19,7 @@ export type BridgeTransactionStage =
   | "submitted"
   | "failed";
 
-export type BridgeSendStatus = "idle" | "sending" | "submitted" | "failed";
+export type BridgeSendStatus = "idle" | "sending" | "submitted" | "relaying" | "delivered" | "relay_failed" | "failed";
 
 export type BridgeQuoteStatus =
   | "idle"
@@ -59,6 +59,7 @@ export type BridgeSubmissionState = {
   canSend: boolean;
   followUpCommand?: string;
   isSending: boolean;
+  relayError?: string;
   reset: () => void;
   sendTransfer?: () => Promise<Hash | undefined>;
   status: BridgeSendStatus;
@@ -165,9 +166,13 @@ export type BridgeLayerZeroRouteMetadata = {
   destinationTokenAddress: Address;
   sourceEndpointAddress: Address;
   destinationEndpointAddress: Address;
+  destinationReceiveUlnAddress: Address;
+  destinationWorkersDvnAddress: Address;
+  destinationWorkersExecutorAddress: Address;
   sourceEid: number;
   destinationEid: number;
   receiveGas: string;
+  relayReceiveGas?: string;
   minAmountBps: string;
   relayCommand: string;
   sourceGasLimit?: string;
