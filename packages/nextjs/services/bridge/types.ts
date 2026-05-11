@@ -1,5 +1,3 @@
-import type { BridgeTokenAccountStatus, BridgeTokenBalance } from "./useBridgeTokenAccount";
-import type { BridgeApprovalStatus, BridgeApprovalStep } from "./useTokenApprovals";
 import type { Address, Chain, Hash } from "viem";
 
 export type BridgeProviderId = "axelar" | "ccip" | "layerzero";
@@ -40,12 +38,43 @@ export type BridgeQuoteState = {
   nativeFeeLabel?: string;
 };
 
+export type BridgeApprovalStatus =
+  | "idle"
+  | "unsupported"
+  | "missing_config"
+  | "checking"
+  | "needs_approval"
+  | "approving"
+  | "approvals_ready"
+  | "failed";
+
+export type BridgeApprovalStep = {
+  id: string;
+  label: string;
+  tokenAddress: Address;
+  spenderAddress: Address;
+  allowance?: bigint;
+  isApproved: boolean;
+};
+
 export type BridgeApprovalsState = {
   approveNext: () => Promise<Hash | undefined>;
   isApproving: boolean;
   nextStep?: BridgeApprovalStep;
   status: BridgeApprovalStatus;
   steps: BridgeApprovalStep[];
+};
+
+export type BridgeTokenAccountStatus = "idle" | "checking" | "ready" | "failed";
+
+export type BridgeTokenBalance = {
+  balance?: bigint;
+  balanceLabel?: string;
+  chainId: BridgeChainId;
+  decimals?: number;
+  isHtsToken: boolean;
+  label: "Source token" | "Destination token";
+  tokenAddress?: Address;
 };
 
 export type BridgeTokenAccountState = {

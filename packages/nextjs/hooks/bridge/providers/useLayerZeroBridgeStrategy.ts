@@ -1,11 +1,11 @@
 "use client";
 
-import type { BridgeProviderStrategy, BridgeReadinessStatus, BridgeRoute } from "../types";
 import { useLayerZeroApprovals } from "../useLayerZeroApprovals";
 import { useLayerZeroQuote } from "../useLayerZeroQuote";
 import { useLayerZeroSend } from "../useLayerZeroSend";
 import { useLayerZeroTokenAccount } from "../useLayerZeroTokenAccount";
 import type { Address } from "viem";
+import type { BridgeProviderStrategy, BridgeReadinessStatus, BridgeRoute } from "~~/services/bridge";
 
 type UseLayerZeroBridgeStrategyArgs = {
   address?: Address;

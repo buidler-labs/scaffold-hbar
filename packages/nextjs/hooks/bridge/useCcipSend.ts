@@ -1,18 +1,19 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { axelarInterchainTokenServiceAbi } from "./axelarAbi";
-import type { BridgeRoute, BridgeSendStatus } from "./types";
-import type { AxelarQuote } from "./useAxelarQuote";
+import type { CcipQuote } from "./useCcipQuote";
 import type { Address, Hash } from "viem";
 import { usePublicClient, useWriteContract } from "wagmi";
+import type { BridgeRoute, BridgeSendStatus } from "~~/services/bridge";
+import { ccipRouterAbi } from "~~/services/bridge/ccipAbi";
+import { buildCcipMessage, getCcipNativeFeeValue } from "~~/services/bridge/ccipMessage";
 import { notification } from "~~/utils/scaffold-hbar";
 
-export type AxelarSendStatus = BridgeSendStatus;
+export type CcipSendStatus = BridgeSendStatus;
 
-type UseAxelarSendArgs = {
+type UseCcipSendArgs = {
   enabled: boolean;
-  quote: AxelarQuote;
+  quote: CcipQuote;
   recipient?: Address;
   route: BridgeRoute;
   sender?: Address;
@@ -23,13 +24,13 @@ const getSendErrorMessage = (error: unknown) => {
     return "Make sure this wallet is associated with the Hedera HTS token before bridging.";
   }
 
-  return error instanceof Error ? error.message : "Unable to submit Axelar transfer.";
+  return error instanceof Error ? error.message : "Unable to submit CCIP transfer.";
 };
 
-export const useAxelarSend = ({ enabled, quote, recipient, route, sender }: UseAxelarSendArgs) => {
+export const useCcipSend = ({ enabled, quote, recipient, route, sender }: UseCcipSendArgs) => {
   const sourceClient = usePublicClient({ chainId: route.sourceChainId });
   const { writeContractAsync } = useWriteContract();
-  const [status, setStatus] = useState<AxelarSendStatus>("idle");
+  const [status, setStatus] = useState<CcipSendStatus>("idle");
   const [submittedHash, setSubmittedHash] = useState<Hash | undefined>();
 
   const reset = useCallback(() => {
@@ -37,14 +38,13 @@ export const useAxelarSend = ({ enabled, quote, recipient, route, sender }: UseA
     setSubmittedHash(undefined);
   }, []);
 
-  const sendAxelar = useCallback(async () => {
+  const sendCcip = useCallback(async () => {
     if (
       !enabled ||
-      !route.axelar ||
+      !route.ccip ||
       quote.status !== "quoted" ||
       quote.amountInBaseUnits === undefined ||
       quote.nativeFee === undefined ||
-      quote.gasValue === undefined ||
       !recipient ||
       !sender ||
       !sourceClient
@@ -52,34 +52,33 @@ export const useAxelarSend = ({ enabled, quote, recipient, route, sender }: UseA
       return undefined;
     }
 
+    const message = buildCcipMessage({
+      amountInBaseUnits: quote.amountInBaseUnits,
+      recipient,
+      route,
+    });
+    if (!message) return undefined;
+
     let notificationId: string | undefined;
     setStatus("sending");
 
     try {
-      notificationId = notification.loading("Axelar send: waiting for wallet confirmation.");
+      notificationId = notification.loading("CCIP send: waiting for wallet confirmation.");
       const hash = await writeContractAsync({
-        address: route.axelar.interchainTokenServiceAddress,
-        abi: axelarInterchainTokenServiceAbi,
-        functionName: "interchainTransfer",
-        args: [
-          route.axelar.tokenId,
-          route.axelar.destinationAxelarName,
-          recipient,
-          quote.amountInBaseUnits,
-          "0x",
-          quote.gasValue,
-        ],
+        address: route.ccip.sourceRouterAddress,
+        abi: ccipRouterAbi,
+        functionName: "ccipSend",
+        args: [BigInt(route.ccip.destinationChainSelector), message],
         chainId: route.sourceChainId,
-        gas: quote.gasLimit,
-        value: quote.nativeFee,
+        value: getCcipNativeFeeValue(route, quote.nativeFee),
       });
 
       notification.remove(notificationId);
-      notificationId = notification.loading("Axelar send: waiting for source transaction confirmation.");
+      notificationId = notification.loading("CCIP send: waiting for source transaction confirmation.");
 
       await sourceClient.waitForTransactionReceipt({ hash });
       notification.remove(notificationId);
-      notification.success("Axelar transfer submitted.");
+      notification.success("CCIP transfer submitted.");
       setSubmittedHash(hash);
       setStatus("submitted");
 
@@ -95,7 +94,7 @@ export const useAxelarSend = ({ enabled, quote, recipient, route, sender }: UseA
   return {
     isSending: status === "sending",
     reset,
-    sendAxelar,
+    sendCcip,
     status,
     submittedHash,
   };

@@ -1,11 +1,11 @@
 "use client";
 
-import type { BridgeProviderStrategy, BridgeReadinessStatus, BridgeRoute } from "../types";
 import { useCcipApprovals } from "../useCcipApprovals";
 import { useCcipQuote } from "../useCcipQuote";
 import { useCcipSend } from "../useCcipSend";
 import { useCcipTokenAccount } from "../useCcipTokenAccount";
 import type { Address } from "viem";
+import type { BridgeProviderStrategy, BridgeReadinessStatus, BridgeRoute } from "~~/services/bridge";
 
 type UseCcipBridgeStrategyArgs = {
   address?: Address;

@@ -1,5 +1,5 @@
-import { Bridge } from "./_components/Bridge";
 import type { NextPage } from "next";
+import { Bridge } from "~~/components/bridge/Bridge";
 
 const Home: NextPage = () => {
   return <Bridge />;

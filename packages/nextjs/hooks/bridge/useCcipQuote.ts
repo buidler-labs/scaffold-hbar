@@ -1,15 +1,15 @@
 "use client";
 
-import { isQuotableDecimalAmount, normalizeBridgeAmount } from "./amount";
-import { ccipRouterAbi } from "./ccipAbi";
-import { buildCcipMessage, getHederaRelayValue } from "./ccipMessage";
-import { HEDERA_TESTNET_CHAIN_ID } from "./constants";
-import { erc20BridgeAbi } from "./erc20Abi";
-import type { BridgeRoute } from "./types";
 import { useQuery } from "@tanstack/react-query";
 import { formatUnits, parseUnits } from "viem";
 import type { Address, PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
+import type { BridgeRoute } from "~~/services/bridge";
+import { isQuotableDecimalAmount, normalizeBridgeAmount } from "~~/services/bridge/amount";
+import { ccipRouterAbi } from "~~/services/bridge/ccipAbi";
+import { buildCcipMessage, getHederaRelayValue } from "~~/services/bridge/ccipMessage";
+import { HEDERA_TESTNET_CHAIN_ID } from "~~/services/bridge/constants";
+import { erc20BridgeAbi } from "~~/services/bridge/erc20Abi";
 
 export type CcipQuoteStatus =
   | "idle"

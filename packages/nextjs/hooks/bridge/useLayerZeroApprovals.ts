@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { layerZeroOftAbi } from "./layerzeroAbi";
-import type { BridgeRoute } from "./types";
-import type { BridgeApprovalStatus, BridgeApprovalStep } from "./useTokenApprovals";
 import { useTokenApprovals } from "./useTokenApprovals";
 import type { Address } from "viem";
 import { usePublicClient, useReadContract } from "wagmi";
+import type { BridgeRoute } from "~~/services/bridge";
+import type { BridgeApprovalStatus, BridgeApprovalStep } from "~~/services/bridge";
+import { layerZeroOftAbi } from "~~/services/bridge/layerzeroAbi";
 
 export type LayerZeroApprovalStatus = BridgeApprovalStatus;
 

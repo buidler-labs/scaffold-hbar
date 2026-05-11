@@ -1,10 +1,10 @@
 "use client";
 
-import { HEDERA_TESTNET_CHAIN_ID } from "./constants";
-import type { BridgeRoute } from "./types";
-import type { BridgeTokenAccountStatus, BridgeTokenBalance } from "./useBridgeTokenAccount";
 import { useBridgeTokenAccount } from "./useBridgeTokenAccount";
 import type { Address } from "viem";
+import type { BridgeRoute } from "~~/services/bridge";
+import type { BridgeTokenAccountStatus, BridgeTokenBalance } from "~~/services/bridge";
+import { HEDERA_TESTNET_CHAIN_ID } from "~~/services/bridge/constants";
 
 export type LayerZeroTokenAccountStatus = BridgeTokenAccountStatus;
 export type LayerZeroTokenBalance = BridgeTokenBalance;

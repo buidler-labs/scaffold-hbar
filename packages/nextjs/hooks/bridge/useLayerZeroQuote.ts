@@ -1,19 +1,19 @@
 "use client";
 
-import { isQuotableDecimalAmount, normalizeBridgeAmount } from "./amount";
-import { erc20BridgeAbi } from "./erc20Abi";
-import { layerZeroOftAbi } from "./layerzeroAbi";
+import { useQuery } from "@tanstack/react-query";
+import { parseUnits } from "viem";
+import type { Address, PublicClient } from "viem";
+import { usePublicClient } from "wagmi";
+import type { BridgeQuoteState, BridgeRoute } from "~~/services/bridge";
+import { isQuotableDecimalAmount, normalizeBridgeAmount } from "~~/services/bridge/amount";
+import { erc20BridgeAbi } from "~~/services/bridge/erc20Abi";
+import { layerZeroOftAbi } from "~~/services/bridge/layerzeroAbi";
 import {
   LAYERZERO_DEFAULT_MIN_AMOUNT_BPS,
   LAYERZERO_DEFAULT_RECEIVE_GAS,
   buildLayerZeroSendParam,
   getLayerZeroNativeFeeLabel,
-} from "./layerzeroMessage";
-import type { BridgeQuoteState, BridgeRoute } from "./types";
-import { useQuery } from "@tanstack/react-query";
-import { parseUnits } from "viem";
-import type { Address, PublicClient } from "viem";
-import { usePublicClient } from "wagmi";
+} from "~~/services/bridge/layerzeroMessage";
 
 export type LayerZeroQuote = BridgeQuoteState;
 

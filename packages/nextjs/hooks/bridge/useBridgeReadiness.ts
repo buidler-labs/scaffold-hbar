@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getBridgeRoute, getRouteConfigIssue } from "./registry";
-import type { BridgeDirection, BridgeProviderId, BridgeReadiness } from "./types";
 import { usePublicClient } from "wagmi";
+import type { BridgeDirection, BridgeProviderId, BridgeReadiness } from "~~/services/bridge";
+import { getBridgeRoute, getRouteConfigIssue } from "~~/services/bridge/registry";
 
 const initialReadiness: BridgeReadiness = {
   status: "misconfigured",

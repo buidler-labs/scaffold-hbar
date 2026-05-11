@@ -1,17 +1,17 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import { layerZeroOftAbi } from "./layerzeroAbi";
+import type { LayerZeroQuote } from "./useLayerZeroQuote";
+import type { Address, Hash } from "viem";
+import { usePublicClient, useWriteContract } from "wagmi";
+import type { BridgeRoute, BridgeSendStatus } from "~~/services/bridge";
+import { layerZeroOftAbi } from "~~/services/bridge/layerzeroAbi";
 import {
   LAYERZERO_DEFAULT_MIN_AMOUNT_BPS,
   LAYERZERO_DEFAULT_RECEIVE_GAS,
   buildLayerZeroSendParam,
   getLayerZeroNativeFeeValue,
-} from "./layerzeroMessage";
-import type { BridgeRoute, BridgeSendStatus } from "./types";
-import type { LayerZeroQuote } from "./useLayerZeroQuote";
-import type { Address, Hash } from "viem";
-import { usePublicClient, useWriteContract } from "wagmi";
+} from "~~/services/bridge/layerzeroMessage";
 import { notification } from "~~/utils/scaffold-hbar";
 
 export type LayerZeroSendStatus = BridgeSendStatus;

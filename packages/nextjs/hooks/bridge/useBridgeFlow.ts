@@ -1,10 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo } from "react";
-import { isQuotableDecimalAmount, normalizeBridgeAmount } from "./amount";
-import { BRIDGE_NETWORKS } from "./constants";
 import { useAxelarBridgeStrategy, useCcipBridgeStrategy, useLayerZeroBridgeStrategy } from "./providers";
-import { getBridgeProvider, getRouteConfigIssues } from "./registry";
+import { useBridgeReadiness } from "./useBridgeReadiness";
+import { useDebouncedValue } from "./useDebouncedValue";
+import { useQueryClient } from "@tanstack/react-query";
+import { parseUnits } from "viem";
+import type { Address } from "viem";
+import { getBalanceQueryKey } from "wagmi/query";
 import type {
   BridgeBalanceCheck,
   BridgeChainId,
@@ -17,13 +20,10 @@ import type {
   BridgeProviderStrategy,
   BridgeReadiness,
   BridgeRoute,
-} from "./types";
-import { useBridgeReadiness } from "./useBridgeReadiness";
-import { useDebouncedValue } from "./useDebouncedValue";
-import { useQueryClient } from "@tanstack/react-query";
-import { parseUnits } from "viem";
-import type { Address } from "viem";
-import { getBalanceQueryKey } from "wagmi/query";
+} from "~~/services/bridge";
+import { isQuotableDecimalAmount, normalizeBridgeAmount } from "~~/services/bridge/amount";
+import { BRIDGE_NETWORKS } from "~~/services/bridge/constants";
+import { getBridgeProvider, getRouteConfigIssues } from "~~/services/bridge/registry";
 
 type SwitchBridgeChain = (variables: { chainId: BridgeChainId }) => void;
 

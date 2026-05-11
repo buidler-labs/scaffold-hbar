@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { HEDERA_TESTNET_CHAIN_ID } from "./constants";
-import type { BridgeRoute } from "./types";
-import type { BridgeApprovalStatus, BridgeApprovalStep } from "./useTokenApprovals";
 import { useTokenApprovals } from "./useTokenApprovals";
 import type { Address } from "viem";
 import { usePublicClient } from "wagmi";
+import type { BridgeRoute } from "~~/services/bridge";
+import type { BridgeApprovalStatus, BridgeApprovalStep } from "~~/services/bridge";
+import { HEDERA_TESTNET_CHAIN_ID } from "~~/services/bridge/constants";
 
 export type CcipApprovalStatus = BridgeApprovalStatus;
 

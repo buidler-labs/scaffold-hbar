@@ -1,30 +1,11 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { erc20BridgeAbi } from "./erc20Abi";
-import type { BridgeChainId } from "./types";
 import type { Address, Hash, PublicClient } from "viem";
 import { useReadContracts, useWriteContract } from "wagmi";
+import type { BridgeApprovalStep, BridgeChainId } from "~~/services/bridge";
+import { erc20BridgeAbi } from "~~/services/bridge/erc20Abi";
 import { notification } from "~~/utils/scaffold-hbar";
-
-export type BridgeApprovalStatus =
-  | "idle"
-  | "unsupported"
-  | "missing_config"
-  | "checking"
-  | "needs_approval"
-  | "approving"
-  | "approvals_ready"
-  | "failed";
-
-export type BridgeApprovalStep = {
-  id: string;
-  label: string;
-  tokenAddress: Address;
-  spenderAddress: Address;
-  allowance?: bigint;
-  isApproved: boolean;
-};
 
 type UseTokenApprovalsArgs<TStep extends BridgeApprovalStep> = {
   amountInBaseUnits?: bigint;

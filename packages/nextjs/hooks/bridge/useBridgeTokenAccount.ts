@@ -1,24 +1,12 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { erc20BridgeAbi } from "./erc20Abi";
-import type { BridgeChainId } from "./types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatUnits } from "viem";
 import type { Address, PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
-
-export type BridgeTokenAccountStatus = "idle" | "checking" | "ready" | "failed";
-
-export type BridgeTokenBalance = {
-  balance?: bigint;
-  balanceLabel?: string;
-  chainId: BridgeChainId;
-  decimals?: number;
-  isHtsToken: boolean;
-  label: "Source token" | "Destination token";
-  tokenAddress?: Address;
-};
+import type { BridgeChainId, BridgeTokenAccountStatus, BridgeTokenBalance } from "~~/services/bridge";
+import { erc20BridgeAbi } from "~~/services/bridge/erc20Abi";
 
 type BridgeTokenSide = {
   chainId: BridgeChainId;

@@ -1,11 +1,11 @@
 "use client";
 
-import type { BridgeProviderStrategy, BridgeReadinessStatus, BridgeRoute } from "../types";
 import { useAxelarApprovals } from "../useAxelarApprovals";
 import { useAxelarQuote } from "../useAxelarQuote";
 import { useAxelarSend } from "../useAxelarSend";
 import { useAxelarTokenAccount } from "../useAxelarTokenAccount";
 import type { Address } from "viem";
+import type { BridgeProviderStrategy, BridgeReadinessStatus, BridgeRoute } from "~~/services/bridge";
 
 type UseAxelarBridgeStrategyArgs = {
   address?: Address;

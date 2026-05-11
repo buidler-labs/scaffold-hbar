@@ -12,12 +12,8 @@ import { BridgeTokenBalances } from "./BridgeTokenBalances";
 import { Address, Balance } from "@scaffold-hbar-ui/components";
 import { useAccount, useSwitchChain } from "wagmi";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import {
-  type BridgeDirection,
-  type BridgeProviderId,
-  getDefaultBridgeDirection,
-  useBridgeFlow,
-} from "~~/services/bridge";
+import { useBridgeFlow } from "~~/hooks/bridge";
+import { type BridgeDirection, type BridgeProviderId, getDefaultBridgeDirection } from "~~/services/bridge";
 
 export const Bridge = () => {
   const { address, chain, isConnected } = useAccount();
