@@ -32,6 +32,7 @@ export type BridgeQuoteStatus =
 
 export type BridgeQuoteState = {
   status: BridgeQuoteStatus;
+  isUpdating?: boolean;
   reason?: string;
   amountInBaseUnits?: bigint;
   tokenDecimals?: number;
@@ -53,6 +54,12 @@ export type BridgeTokenAccountState = {
   showHtsAssociationNotice: boolean;
   sourceToken?: BridgeTokenBalance;
   status: BridgeTokenAccountStatus;
+};
+
+export type BridgeBalanceCheck = {
+  blockedLabel?: string;
+  hasEnoughSourceBalance: boolean;
+  reason?: string;
 };
 
 export type BridgeSubmissionState = {
@@ -215,8 +222,10 @@ export type BridgeFlow = {
   destinationNetwork: BridgeNetwork;
   readiness: BridgeReadiness;
   isChecking: boolean;
+  isQuoteSettling: boolean;
   configIssues: BridgeConfigIssue[];
   showConfigWarning: boolean;
+  balanceCheck: BridgeBalanceCheck;
   quote: BridgeQuoteState;
   approvals: BridgeApprovalsState;
   tokenAccount: BridgeTokenAccountState;

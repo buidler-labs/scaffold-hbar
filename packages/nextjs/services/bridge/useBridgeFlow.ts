@@ -1,10 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo } from "react";
+import { isQuotableDecimalAmount, normalizeBridgeAmount } from "./amount";
 import { BRIDGE_NETWORKS } from "./constants";
 import { useAxelarBridgeStrategy, useCcipBridgeStrategy, useLayerZeroBridgeStrategy } from "./providers";
 import { getBridgeProvider, getRouteConfigIssues } from "./registry";
 import type {
+  BridgeBalanceCheck,
   BridgeChainId,
   BridgeConfigIssue,
   BridgeDirection,
@@ -17,7 +19,9 @@ import type {
   BridgeRoute,
 } from "./types";
 import { useBridgeReadiness } from "./useBridgeReadiness";
+import { useDebouncedValue } from "./useDebouncedValue";
 import { useQueryClient } from "@tanstack/react-query";
+import { parseUnits } from "viem";
 import type { Address } from "viem";
 import { getBalanceQueryKey } from "wagmi/query";
 
@@ -36,7 +40,9 @@ type UseBridgeFlowArgs = {
 
 type GetBridgePrimaryActionArgs = {
   approvals: BridgeProviderStrategy["approvals"];
+  balanceCheck: BridgeBalanceCheck;
   isConnected: boolean;
+  isQuoteSettling: boolean;
   isSwitchingChain: boolean;
   provider: BridgeProvider;
   quote: BridgeProviderStrategy["quote"];
@@ -49,7 +55,9 @@ type GetBridgePrimaryActionArgs = {
 
 const getBridgePrimaryAction = ({
   approvals,
+  balanceCheck,
   isConnected,
+  isQuoteSettling,
   isSwitchingChain,
   provider,
   quote,
@@ -123,6 +131,25 @@ const getBridgePrimaryAction = ({
     return {
       kind: "blocked",
       label: `${provider.label} relay failed`,
+      canExecute: false,
+      isPending: false,
+    };
+  }
+
+  if (!balanceCheck.hasEnoughSourceBalance) {
+    return {
+      kind: "blocked",
+      label: balanceCheck.blockedLabel ?? "Insufficient source token balance",
+      canExecute: false,
+      isPending: false,
+      reason: balanceCheck.reason,
+    };
+  }
+
+  if (isQuoteSettling || quote.isUpdating) {
+    return {
+      kind: "blocked",
+      label: `Updating ${provider.label} quote`,
       canExecute: false,
       isPending: false,
     };
@@ -228,6 +255,62 @@ const getBridgePrimaryAction = ({
   }
 };
 
+const getSourceBalanceCheck = ({
+  amount,
+  tokenAccount,
+}: {
+  amount: string;
+  tokenAccount: BridgeProviderStrategy["tokenAccount"];
+}): BridgeBalanceCheck => {
+  const normalizedAmount = amount.trim();
+  if (!normalizedAmount || !isQuotableDecimalAmount(normalizedAmount)) {
+    return { hasEnoughSourceBalance: true };
+  }
+
+  if (tokenAccount.status === "checking") {
+    return {
+      blockedLabel: "Checking source token balance",
+      hasEnoughSourceBalance: false,
+    };
+  }
+
+  if (tokenAccount.status === "failed") {
+    return {
+      blockedLabel: "Unable to read source token balance",
+      hasEnoughSourceBalance: false,
+      reason: "Unable to read your source token balance. Refresh balances and try again.",
+    };
+  }
+
+  const sourceToken = tokenAccount.sourceToken;
+  if (sourceToken?.balance === undefined || sourceToken.decimals === undefined) {
+    return {
+      blockedLabel: "Unable to read source token balance",
+      hasEnoughSourceBalance: false,
+      reason: "Unable to read your source token balance for this route.",
+    };
+  }
+
+  let amountInBaseUnits: bigint;
+  try {
+    amountInBaseUnits = parseUnits(normalizeBridgeAmount(normalizedAmount), sourceToken.decimals);
+  } catch {
+    return { hasEnoughSourceBalance: true };
+  }
+
+  if (amountInBaseUnits <= 0n || amountInBaseUnits <= sourceToken.balance) {
+    return { hasEnoughSourceBalance: true };
+  }
+
+  const balanceLabel = sourceToken.balanceLabel ? ` (${sourceToken.balanceLabel} available)` : "";
+
+  return {
+    blockedLabel: "Insufficient source token balance",
+    hasEnoughSourceBalance: false,
+    reason: `Amount exceeds your source token balance${balanceLabel}.`,
+  };
+};
+
 export const useBridgeFlow = ({
   address,
   amount,
@@ -243,12 +326,14 @@ export const useBridgeFlow = ({
   const provider = getBridgeProvider(providerId);
   const sourceNetwork = BRIDGE_NETWORKS[route.sourceChainId];
   const destinationNetwork = BRIDGE_NETWORKS[route.destinationChainId];
+  const debouncedAmount = useDebouncedValue(amount, 350);
+  const isQuoteSettling = amount.trim() !== debouncedAmount.trim();
   const configIssues = useMemo<BridgeConfigIssue[]>(() => getRouteConfigIssues(route), [route]);
   const showConfigWarning = configIssues.length > 0 && readiness.status === "misconfigured";
 
   const axelarStrategy = useAxelarBridgeStrategy({
     address,
-    amount,
+    amount: debouncedAmount,
     enabled: providerId === "axelar",
     isConnected,
     readinessStatus: readiness.status,
@@ -256,7 +341,7 @@ export const useBridgeFlow = ({
   });
   const ccipStrategy = useCcipBridgeStrategy({
     address,
-    amount,
+    amount: debouncedAmount,
     enabled: providerId === "ccip",
     isConnected,
     readinessStatus: readiness.status,
@@ -264,7 +349,7 @@ export const useBridgeFlow = ({
   });
   const layerZeroStrategy = useLayerZeroBridgeStrategy({
     address,
-    amount,
+    amount: debouncedAmount,
     enabled: providerId === "layerzero",
     isConnected,
     readinessStatus: readiness.status,
@@ -276,6 +361,15 @@ export const useBridgeFlow = ({
   const { resetSubmission: resetAxelarSubmission } = axelarStrategy;
   const { resetSubmission: resetCcipSubmission } = ccipStrategy;
   const { resetSubmission: resetLayerZeroSubmission } = layerZeroStrategy;
+
+  const balanceCheck = useMemo(
+    () =>
+      getSourceBalanceCheck({
+        amount,
+        tokenAccount: activeStrategy.tokenAccount,
+      }),
+    [activeStrategy.tokenAccount, amount],
+  );
 
   useEffect(() => {
     resetAxelarSubmission();
@@ -302,16 +396,22 @@ export const useBridgeFlow = ({
   const submission = useMemo<BridgeProviderStrategy["submission"]>(
     () => ({
       ...activeStrategy.submission,
-      sendTransfer: activeStrategy.submission.sendTransfer ? sendTransferWithBalanceInvalidation : undefined,
+      canSend: activeStrategy.submission.canSend && balanceCheck.hasEnoughSourceBalance,
+      sendTransfer:
+        activeStrategy.submission.sendTransfer && balanceCheck.hasEnoughSourceBalance
+          ? sendTransferWithBalanceInvalidation
+          : undefined,
     }),
-    [activeStrategy.submission, sendTransferWithBalanceInvalidation],
+    [activeStrategy.submission, balanceCheck.hasEnoughSourceBalance, sendTransferWithBalanceInvalidation],
   );
 
   const primaryAction = useMemo(
     () =>
       getBridgePrimaryAction({
         approvals: activeStrategy.approvals,
+        balanceCheck,
         isConnected,
+        isQuoteSettling,
         isSwitchingChain,
         provider,
         quote: activeStrategy.quote,
@@ -324,7 +424,9 @@ export const useBridgeFlow = ({
     [
       activeStrategy.approvals,
       activeStrategy.quote,
+      balanceCheck,
       isConnected,
+      isQuoteSettling,
       isSwitchingChain,
       provider,
       readiness,
@@ -342,8 +444,10 @@ export const useBridgeFlow = ({
     destinationNetwork,
     readiness,
     isChecking,
+    isQuoteSettling,
     configIssues,
     showConfigWarning,
+    balanceCheck,
     quote: activeStrategy.quote,
     approvals: activeStrategy.approvals,
     tokenAccount: activeStrategy.tokenAccount,

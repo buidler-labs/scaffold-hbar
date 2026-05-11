@@ -117,6 +117,7 @@ export const useLayerZeroQuote = ({ amount, enabled, recipient, route }: UseLaye
         route,
         sourceClient: sourceClient as PublicClient,
       }),
+    placeholderData: previousData => previousData,
     retry: 1,
     staleTime: 15_000,
   });
@@ -126,8 +127,9 @@ export const useLayerZeroQuote = ({ amount, enabled, recipient, route }: UseLaye
   if (!route.layerzero) return { status: "missing_config", reason: "LayerZero route metadata is missing." };
   if (isInvalidAmount) return { status: "invalid_amount", reason: "Enter a valid decimal amount." };
   if (!sourceClient || !recipient) return initialQuote;
-  if (quoteQuery.isLoading || quoteQuery.isFetching) return { status: "quoting" };
   if (quoteQuery.isError) return { status: "failed", reason: getQuoteFailureReason() };
+  if (quoteQuery.isLoading || (quoteQuery.isFetching && !quoteQuery.data)) return { status: "quoting" };
+  if (quoteQuery.isFetching && quoteQuery.data) return { ...quoteQuery.data, isUpdating: true };
 
   return quoteQuery.data ?? initialQuote;
 };

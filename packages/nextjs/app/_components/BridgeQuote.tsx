@@ -2,17 +2,19 @@
 
 type BridgeQuoteValue = {
   status: "idle" | "unsupported" | "missing_config" | "invalid_amount" | "quoting" | "quoted" | "failed";
+  isUpdating?: boolean;
   reason?: string;
   amountInBaseUnits?: bigint;
   nativeFeeLabel?: string;
 };
 
 type BridgeQuoteProps = {
+  isUpdating?: boolean;
   providerLabel: string;
   quote: BridgeQuoteValue;
 };
 
-export const BridgeQuote = ({ providerLabel, quote }: BridgeQuoteProps) => {
+export const BridgeQuote = ({ isUpdating = false, providerLabel, quote }: BridgeQuoteProps) => {
   switch (quote.status) {
     case "idle":
     case "unsupported":
@@ -31,7 +33,9 @@ export const BridgeQuote = ({ providerLabel, quote }: BridgeQuoteProps) => {
         <div className="rounded-2xl border border-info/20 bg-info/10 p-4 text-sm">
           <div className="flex items-center justify-between gap-3">
             <p className="m-0 font-semibold text-info">{providerLabel} quote ready</p>
-            <span className="badge badge-info badge-sm">Read only</span>
+            <span className={`badge badge-sm ${isUpdating ? "badge-warning" : "badge-info"}`}>
+              {isUpdating ? "Updating" : "Read only"}
+            </span>
           </div>
           <div className="mt-3 grid gap-2 text-base-content/75">
             <div className="flex items-center justify-between gap-3">

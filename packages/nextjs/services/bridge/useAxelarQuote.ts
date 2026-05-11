@@ -20,6 +20,7 @@ export type AxelarQuoteStatus =
 
 export type AxelarQuote = {
   status: AxelarQuoteStatus;
+  isUpdating?: boolean;
   reason?: string;
   amountInBaseUnits?: bigint;
   tokenDecimals?: number;
@@ -111,6 +112,7 @@ export const useAxelarQuote = ({ amount, enabled, route }: UseAxelarQuoteArgs): 
         route,
         sourceClient: sourceClient as PublicClient,
       }),
+    placeholderData: previousData => previousData,
     retry: 1,
     staleTime: 15_000,
   });
@@ -120,8 +122,9 @@ export const useAxelarQuote = ({ amount, enabled, route }: UseAxelarQuoteArgs): 
   if (!route.axelar) return { status: "missing_config", reason: "Axelar route metadata is missing." };
   if (isInvalidAmount) return { status: "invalid_amount", reason: "Enter a valid decimal amount." };
   if (!sourceClient) return initialQuote;
-  if (quoteQuery.isLoading || quoteQuery.isFetching) return { status: "quoting" };
   if (quoteQuery.isError) return { status: "failed", reason: getQuoteFailureReason() };
+  if (quoteQuery.isLoading || (quoteQuery.isFetching && !quoteQuery.data)) return { status: "quoting" };
+  if (quoteQuery.isFetching && quoteQuery.data) return { ...quoteQuery.data, isUpdating: true };
 
   return quoteQuery.data ?? initialQuote;
 };

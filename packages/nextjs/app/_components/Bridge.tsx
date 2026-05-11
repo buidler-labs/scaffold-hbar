@@ -27,9 +27,11 @@ export const Bridge = () => {
   const [amount, setAmount] = useState("");
   const {
     approvals,
+    balanceCheck,
     configIssues,
     destinationNetwork,
     isChecking,
+    isQuoteSettling,
     primaryAction,
     provider,
     quote,
@@ -72,6 +74,15 @@ export const Bridge = () => {
               sourceToken={tokenAccount.sourceToken}
               status={tokenAccount.status}
             />
+
+            {!balanceCheck.hasEnoughSourceBalance && balanceCheck.reason ? (
+              <div className="rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-warning">
+                <div className="flex items-start gap-3">
+                  <ExclamationTriangleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                  <span className="text-sm font-semibold">{balanceCheck.reason}</span>
+                </div>
+              </div>
+            ) : null}
 
             <div className="grid gap-3 md:grid-cols-2">
               <div className="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
@@ -123,7 +134,11 @@ export const Bridge = () => {
               <BridgeStatus isChecking={isChecking} isConnected={isConnected} readiness={readiness} />
             )}
 
-            <BridgeQuote providerLabel={provider.label} quote={quote} />
+            <BridgeQuote
+              isUpdating={isQuoteSettling || Boolean(quote.isUpdating)}
+              providerLabel={provider.label}
+              quote={quote}
+            />
             <BridgeApprovals providerLabel={provider.label} status={approvals.status} steps={approvals.steps} />
             <BridgeSubmission
               accountAddress={address}

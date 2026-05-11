@@ -22,6 +22,7 @@ export type CcipQuoteStatus =
 
 export type CcipQuote = {
   status: CcipQuoteStatus;
+  isUpdating?: boolean;
   reason?: string;
   amountInBaseUnits?: bigint;
   tokenDecimals?: number;
@@ -117,6 +118,7 @@ export const useCcipQuote = ({ amount, enabled, recipient, route }: UseCcipQuote
         route,
         sourceClient: sourceClient as PublicClient,
       }),
+    placeholderData: previousData => previousData,
     retry: 1,
     staleTime: 15_000,
   });
@@ -126,8 +128,9 @@ export const useCcipQuote = ({ amount, enabled, recipient, route }: UseCcipQuote
   if (!route.ccip) return { status: "missing_config", reason: "CCIP route metadata is missing." };
   if (isInvalidAmount) return { status: "invalid_amount", reason: "Enter a valid decimal amount." };
   if (!sourceClient || !recipient) return initialQuote;
-  if (quoteQuery.isLoading || quoteQuery.isFetching) return { status: "quoting" };
   if (quoteQuery.isError) return { status: "failed", reason: getQuoteFailureReason() };
+  if (quoteQuery.isLoading || (quoteQuery.isFetching && !quoteQuery.data)) return { status: "quoting" };
+  if (quoteQuery.isFetching && quoteQuery.data) return { ...quoteQuery.data, isUpdating: true };
 
   return quoteQuery.data ?? initialQuote;
 };
