@@ -30,7 +30,7 @@
 	url = https://github.com/wighawag/hardhat-deploy
 [submodule "packages/foundry/lib/interchain-token-service"]
 	path = packages/foundry/lib/interchain-token-service
-	url = https://github.com/axelarnetwork/interchain-token-service
+	url = https://github.com/commonprefix/interchain-token-service
 [submodule "packages/foundry/lib/axelar-gmp-sdk-solidity"]
 	path = packages/foundry/lib/axelar-gmp-sdk-solidity
 	url = https://github.com/axelarnetwork/axelar-gmp-sdk-solidity
