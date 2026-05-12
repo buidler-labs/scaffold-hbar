@@ -10,6 +10,7 @@ import { IERC20 as HtsIERC20 } from "hedera-forking/IERC20.sol";
 import { MyBridgeHtsToken } from "../../contracts/axelar/MyBridgeHtsToken.sol";
 import { HelperConfig, NetworkConfig } from "../../script/axelar/HelperConfig.s.sol";
 import { LinkRemoteToken } from "../../script/axelar/LinkRemoteToken.s.sol";
+import { MintInterchainToken } from "../../script/axelar/MintInterchainToken.s.sol";
 import { RegisterTokenMetadata } from "../../script/axelar/RegisterTokenMetadata.s.sol";
 import { SendInterchainTransfer } from "../../script/axelar/SendInterchainTransfer.s.sol";
 
@@ -96,6 +97,18 @@ contract MockInterchainTokenService {
     }
 }
 
+contract MockTokenManager {
+    address public lastTokenAddress;
+    address public lastRecipient;
+    uint256 public lastAmount;
+
+    function mintToken(address tokenAddress, address recipient, uint256 amount) external {
+        lastTokenAddress = tokenAddress;
+        lastRecipient = recipient;
+        lastAmount = amount;
+    }
+}
+
 contract AxelarScriptLocalTest is Test {
     using AddressBytes for bytes;
 
@@ -165,6 +178,19 @@ contract AxelarScriptLocalTest is Test {
         assertEq(service.lastMetadata().length, 0);
         assertEq(service.lastGasValue(), gasValue);
         assertEq(service.lastNativeFee(), nativeFee);
+    }
+
+    function test_mintInterchainToken_callsTokenManagerMint() public {
+        MockTokenManager tokenManager = new MockTokenManager();
+        address tokenAddress = makeAddr("itsToken");
+        address recipient = makeAddr("recipient");
+        uint256 amount = 123 ether;
+
+        new MintInterchainToken().run(address(tokenManager), tokenAddress, recipient, amount);
+
+        assertEq(tokenManager.lastTokenAddress(), tokenAddress);
+        assertEq(tokenManager.lastRecipient(), recipient);
+        assertEq(tokenManager.lastAmount(), amount);
     }
 
     function test_hederaMetadata_usesGasValueZeroAndReadsHtsDecimals() public {
