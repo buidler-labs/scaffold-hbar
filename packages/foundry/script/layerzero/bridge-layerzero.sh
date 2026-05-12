@@ -12,6 +12,10 @@ if [[ -f .env ]]; then
 	set +a
 fi
 
+if [[ -f scripts-js/syncBridgeConfig.js ]]; then
+	eval "$(node scripts-js/syncBridgeConfig.js env layerzero)"
+fi
+
 SEPOLIA_CHAIN_ID=11155111
 HEDERA_CHAIN_ID=296
 SEPOLIA_EID=40161
@@ -42,9 +46,15 @@ ensure_eoa() {
 	[[ -n "${RECIPIENT}" ]] || RECIPIENT="${EOA}"
 }
 
+record_bridge_state() {
+	node scripts-js/syncBridgeConfig.js record layerzero "$@"
+}
+
 deploy_sepolia() {
 	ensure_eoa
 	echo "[LAYERZERO] Deploying ${TOKEN_NAME} (${TOKEN_SYMBOL}) OFT on Sepolia"
+	local output_file
+	output_file=$(mktemp)
 	forge script script/layerzero/DeployOFT.s.sol:DeployOFT \
 		--rpc-url "${SEPOLIA_RPC_ALIAS}" \
 		--account "${ACCOUNT}" \
@@ -52,7 +62,11 @@ deploy_sepolia() {
 		--broadcast \
 		--chain-id "${SEPOLIA_CHAIN_ID}" \
 		--sig "run(string,string,uint256)" \
-		"${TOKEN_NAME}" "${TOKEN_SYMBOL}" "${PREMINT_SEPOLIA}"
+		"${TOKEN_NAME}" "${TOKEN_SYMBOL}" "${PREMINT_SEPOLIA}" | tee "${output_file}"
+	local oft
+	oft=$(awk '/MyOFT deployed:/ {print $3}' "${output_file}" | tail -1)
+	rm -f "${output_file}"
+	[[ -n "${oft}" ]] && record_bridge_state sepolia oft="${oft}"
 }
 
 deploy_hedera() {
@@ -60,6 +74,8 @@ deploy_hedera() {
 	echo "[LAYERZERO] Deploying ${TOKEN_NAME} (${TOKEN_SYMBOL}) HTS Connector OFT on Hedera"
 	HEDERA_GAS_PRICE=$(cast gas-price --rpc-url "${HEDERA_RPC_ALIAS}")
 	echo "[LAYERZERO] Hedera gas price: ${HEDERA_GAS_PRICE} wei"
+	local output_file
+	output_file=$(mktemp)
 	forge create contracts/layerzero/hts/MyHTSConnectorOFT.sol:MyHTSConnectorOFT \
 		--rpc-url "${HEDERA_RPC_ALIAS}" \
 		--value "${HEDERA_HTS_CREATE_VALUE}" \
@@ -68,24 +84,42 @@ deploy_hedera() {
 		--account "${ACCOUNT}" \
 		--legacy \
 		--broadcast \
-		--constructor-args "${TOKEN_NAME}" "${TOKEN_SYMBOL}" "${HEDERA_ENDPOINT}" "${EOA}"
+		--constructor-args "${TOKEN_NAME}" "${TOKEN_SYMBOL}" "${HEDERA_ENDPOINT}" "${EOA}" | tee "${output_file}"
+	local oft
+	oft=$(awk '/Deployed to:/ {print $3}' "${output_file}" | tail -1)
+	rm -f "${output_file}"
+	if [[ -n "${oft}" ]]; then
+		local hts_token
+		hts_token=$(cast call "${oft}" "token()(address)" --rpc-url "${HEDERA_RPC_ALIAS}")
+		record_bridge_state hedera oft="${oft}" htsToken="${hts_token}" gasLimit="${HEDERA_DEPLOY_GAS_LIMIT}"
+	fi
 }
 
 deploy_workers_sepolia() {
 	ensure_eoa
 	echo "[LAYERZERO] Deploying simple workers on Sepolia"
+	local output_file
+	output_file=$(mktemp)
 	forge script script/layerzero/DeploySimpleWorkers.s.sol:DeploySimpleWorkers \
 		--rpc-url "${SEPOLIA_RPC_ALIAS}" \
 		--account "${ACCOUNT}" \
 		--sender "${EOA}" \
 		--broadcast \
-		--chain-id "${SEPOLIA_CHAIN_ID}"
+		--chain-id "${SEPOLIA_CHAIN_ID}" | tee "${output_file}"
+	local dvn
+	local executor
+	dvn=$(awk '/SIMPLE_WORKERS_DVN=/ {sub(/.*SIMPLE_WORKERS_DVN= ?/, ""); print $1}' "${output_file}" | tail -1)
+	executor=$(awk '/SIMPLE_WORKERS_EXECUTOR=/ {sub(/.*SIMPLE_WORKERS_EXECUTOR= ?/, ""); print $1}' "${output_file}" | tail -1)
+	rm -f "${output_file}"
+	[[ -n "${dvn}" && -n "${executor}" ]] && record_bridge_state sepolia workersDvn="${dvn}" workersExecutor="${executor}"
 }
 
 deploy_workers_hedera() {
 	ensure_eoa
 	echo "[LAYERZERO] Deploying simple workers on Hedera"
 	HEDERA_GAS_PRICE=$(cast gas-price --rpc-url "${HEDERA_RPC_ALIAS}")
+	local output_file
+	output_file=$(mktemp)
 	forge script script/layerzero/DeploySimpleWorkers.s.sol:DeploySimpleWorkers \
 		--rpc-url "${HEDERA_RPC_ALIAS}" \
 		--account "${ACCOUNT}" \
@@ -95,7 +129,13 @@ deploy_workers_hedera() {
 		--legacy \
 		--skip-simulation \
 		--gas-price "${HEDERA_GAS_PRICE_WEI:-${HEDERA_GAS_PRICE}}" \
-		--chain-id "${HEDERA_CHAIN_ID}"
+		--chain-id "${HEDERA_CHAIN_ID}" | tee "${output_file}"
+	local dvn
+	local executor
+	dvn=$(awk '/SIMPLE_WORKERS_DVN=/ {sub(/.*SIMPLE_WORKERS_DVN= ?/, ""); print $1}' "${output_file}" | tail -1)
+	executor=$(awk '/SIMPLE_WORKERS_EXECUTOR=/ {sub(/.*SIMPLE_WORKERS_EXECUTOR= ?/, ""); print $1}' "${output_file}" | tail -1)
+	rm -f "${output_file}"
+	[[ -n "${dvn}" && -n "${executor}" ]] && record_bridge_state hedera workersDvn="${dvn}" workersExecutor="${executor}"
 }
 
 wire_sepolia() {

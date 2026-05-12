@@ -23,5 +23,6 @@ node_modules
 dist
 
 # generated deployment identifiers
+packages/foundry/deployments/bridge/
 packages/foundry/script/axelar/.salt
 packages/foundry/script/axelar/.tokenid

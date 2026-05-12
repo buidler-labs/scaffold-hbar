@@ -10,6 +10,10 @@ if [[ -f .env ]]; then
 	set +a
 fi
 
+if [[ -f scripts-js/syncBridgeConfig.js ]]; then
+	eval "$(node scripts-js/syncBridgeConfig.js env axelar)"
+fi
+
 # Token defaults
 TOKEN_NAME="${AXELAR_TOKEN_NAME:-BridgeToken}"
 TOKEN_SYMBOL="${AXELAR_TOKEN_SYMBOL:-BTK}"
@@ -51,14 +55,24 @@ ensure_amount() {
 	[[ -n "${AMOUNT:-}" ]] || { echo "[AXELAR] AMOUNT is required" >&2; exit 1; }
 }
 
+record_bridge_state() {
+	node scripts-js/syncBridgeConfig.js record axelar "$@"
+}
+
 deploy_sepolia() {
 	ensure_eoa
 	echo "[AXELAR] Deploying ${TOKEN_NAME} ${TOKEN_SYMBOL} on Sepolia"
+	local output_file
+	output_file=$(mktemp)
 	forge script script/axelar/DeployBridgeTokens.s.sol:DeployBridgeTokens \
 		--rpc-url sepolia --account "${ACCOUNT}" --broadcast -vvv \
 		--sender "${EOA}" --chain-id 11155111 \
 		--sig "run(string,string,address,uint256,address)" \
-		"${TOKEN_NAME}" "${TOKEN_SYMBOL}" "${EOA}" "${AXELAR_INITIAL_SUPPLY}" "${SEPOLIA_DEV_MINTER}"
+		"${TOKEN_NAME}" "${TOKEN_SYMBOL}" "${EOA}" "${AXELAR_INITIAL_SUPPLY}" "${SEPOLIA_DEV_MINTER}" | tee "${output_file}"
+	local bridge_token
+	bridge_token=$(awk '/BridgeToken:/ {print $2}' "${output_file}" | tail -1)
+	rm -f "${output_file}"
+	[[ -n "${bridge_token}" ]] && record_bridge_state sepolia bridgeToken="${bridge_token}"
 }
 
 verify_sepolia() {
@@ -78,6 +92,8 @@ deploy_hedera() {
 	echo "[AXELAR] Deploying ${TOKEN_NAME} ${TOKEN_SYMBOL} on Hedera"
 	HEDERA_GAS_PRICE=$(cast gas-price --rpc-url hedera_testnet)
 	echo "[AXELAR] Hedera gas price: $HEDERA_GAS_PRICE wei"
+	local output_file
+	output_file=$(mktemp)
 	forge create contracts/axelar/MyBridgeHtsToken.sol:MyBridgeHtsToken \
 		--rpc-url hedera_testnet \
 		--value "${HEDERA_HTS_CREATE_VALUE:-20ether}" \
@@ -85,7 +101,15 @@ deploy_hedera() {
 		--gas-limit "${HEDERA_DEPLOY_GAS_LIMIT}" \
 		--account "${ACCOUNT}" \
 		--legacy --broadcast \
-		--constructor-args "${TOKEN_NAME}" "${TOKEN_SYMBOL}" "${EOA}" "${HEDERA_INITIAL_SUPPLY}"
+		--constructor-args "${TOKEN_NAME}" "${TOKEN_SYMBOL}" "${EOA}" "${HEDERA_INITIAL_SUPPLY}" | tee "${output_file}"
+	local wrapper
+	wrapper=$(awk '/Deployed to:/ {print $3}' "${output_file}" | tail -1)
+	rm -f "${output_file}"
+	if [[ -n "${wrapper}" ]]; then
+		local hts_token
+		hts_token=$(cast call "${wrapper}" "token()(address)" --rpc-url hedera_testnet)
+		record_bridge_state hedera wrapper="${wrapper}" bridgeToken="${hts_token}" gasLimit="${HEDERA_DEPLOY_GAS_LIMIT}"
+	fi
 }
 
 verify_hedera() {
@@ -124,6 +148,13 @@ register_custom() {
 		--rpc-url sepolia --account "${ACCOUNT}" --broadcast -vvv \
 		--sender "${EOA}" --chain-id 11155111 \
 		--sig "run(address,uint8,address,uint256,bytes32)" "${SEPOLIA_BRIDGE_TOKEN}" "${MINT_BURN_TYPE}" "${EOA}" "${NATIVE_FEE_ITS}" "${salt_override}"
+	if [[ -f script/axelar/.tokenid ]]; then
+		local token_id
+		token_id="$(tr -d '[:space:]' < script/axelar/.tokenid)"
+		local salt
+		salt="$(tr -d '[:space:]' < script/axelar/.salt)"
+		record_bridge_state route tokenId="${token_id}" salt="${salt}" interchainTokenService="${INTERCHAIN_TOKEN_SERVICE}" gasValue="${GAS_VALUE_ITS}" nativeFee="${NATIVE_FEE_ITS}" hederaGasValue="${HEDERA_SEND_GAS_VALUE_ITS}" hederaNativeFee="${HEDERA_SEND_NATIVE_FEE_ITS}"
+	fi
 }
 
 link_remote() {

@@ -13,7 +13,7 @@ Run all commands from `packages/foundry`.
 1. Configure your account and RPC URLs in `.env`.
 2. Deploy `BridgeToken` on Sepolia.
 3. Deploy `MyBridgeHtsToken` on Hedera.
-4. Put the deployed Sepolia token and Hedera HTS mirror token addresses in `.env`.
+4. The deploy helpers record the deployed Sepolia token and Hedera HTS mirror token locally.
 5. Register token metadata on both chains and wait until both Axelar GMP messages are received.
 6. Register the Sepolia custom token with ITS. This writes `.salt` and `.tokenid`.
 7. Link the Sepolia token to the Hedera HTS token and wait until the Axelar GMP message is received.
@@ -29,7 +29,8 @@ SEPOLIA_RPC_URL=https://...
 HEDERA_TESTNET_RPC_URL=https://...
 ```
 
-After deployment, add:
+After deployment, the helpers record these values in `deployments/bridge/axelar.json`.
+You can still set them manually in `.env` if you want to override or debug a step:
 
 ```bash
 SEPOLIA_BRIDGE_TOKEN=0x... # BridgeToken contract on Sepolia
@@ -85,7 +86,7 @@ This split follows Hedera's 8-decimal native HBAR accounting versus 18-decimal J
 make axelar-deploy-sepolia
 ```
 
-Copy the deployed `BridgeToken` address into `.env`:
+The command records the deployed `BridgeToken` address. If you want to override it manually, set:
 
 ```bash
 SEPOLIA_BRIDGE_TOKEN=0x...
@@ -109,7 +110,8 @@ The command prints the wrapper contract address. Verify the wrapper with:
 make axelar-verify-hedera ADDR=0x_wrapper_contract
 ```
 
-Then read or copy the HTS mirror token address from `MyBridgeHtsToken.token()` / HashScan logs and put that in `.env`:
+The command records the wrapper and the HTS mirror token address from `MyBridgeHtsToken.token()`.
+If you want to override it manually, set:
 
 ```bash
 HEDERA_BRIDGE_TOKEN=0x0000000000000000000000000000000000...
@@ -140,6 +142,7 @@ script/axelar/.tokenid
 ```
 
 These files are deployment-specific and intentionally ignored by git. Later steps read them automatically.
+The bridge config helper also records the generated token id for frontend sync.
 
 ### 5. Link the Hedera token
 
@@ -200,10 +203,25 @@ HEDERA_SEND_NATIVE_FEE_ITS=1000000000000000000
 
 These values pay `1 HBAR` to Axelar Gas Service. Hedera -> Sepolia routes through ITS Hub, so lower values can pass Hedera confirmation and Axelar approval but still fail the final Sepolia execution with `EXECUTOR/INSUFFICIENT_GAS_FOR_EXECUTION`. If AxelarScan reports `Insufficient Fee`, increase both values consistently: the first in tinybar-style units and the second in 18-decimal `msg.value` units.
 
+## Sync the Next.js config
+
+After the deploy and setup steps have completed, sync the recorded values into the frontend config:
+
+```bash
+make bridge-sync-next PROVIDER=axelar
+```
+
+This updates `packages/nextjs/services/bridge/config/axelar.json`. The generated state lives in
+`packages/foundry/deployments/bridge/axelar.json` and is ignored by git.
+
+If you prefer to learn every moving piece manually, you can still copy values into `.env` and edit the
+Next.js JSON yourself.
+
 ## Command Reference
 
 | Command | What |
 | --- | --- |
+| `make axelar-deploy` | Run the Sepolia and Hedera deploy steps |
 | `make axelar-deploy-sepolia` | Deploy `BridgeToken` on Sepolia |
 | `make axelar-deploy-hedera` | Deploy `MyBridgeHtsToken` on Hedera |
 | `make axelar-verify-sepolia ADDR=0x...` | Verify `BridgeToken` on Etherscan |
@@ -216,6 +234,7 @@ These values pay `1 HBAR` to Axelar Gas Service. Hedera -> Sepolia routes throug
 | `make axelar-send-from-sepolia AMOUNT=... [RECIPIENT=0x...]` | Send Sepolia to Hedera |
 | `make axelar-approve-hedera AMOUNT=...` | Approve the Hedera HTS token for ITS lock/unlock transfers |
 | `make axelar-send-from-hedera AMOUNT=... [RECIPIENT=0x...]` | Send Hedera to Sepolia after the remote side is funded and associated |
+| `make bridge-sync-next PROVIDER=axelar` | Sync recorded Axelar values into the Next.js config |
 
 The same steps can be called directly:
 

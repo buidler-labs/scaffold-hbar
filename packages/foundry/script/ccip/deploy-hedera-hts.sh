@@ -10,6 +10,10 @@ if [[ -f .env ]]; then
 	set +a
 fi
 
+if [[ -f scripts-js/syncBridgeConfig.js ]]; then
+	eval "$(node scripts-js/syncBridgeConfig.js env ccip)"
+fi
+
 ACCOUNT="${ACCOUNT:?set ACCOUNT in .env}"
 
 HEDERA_RPC_ALIAS="${HEDERA_RPC_ALIAS:-hedera_testnet}"
@@ -113,3 +117,8 @@ echo "CCIP_HEDERA_TOKEN=${CCIP_HEDERA_WRAPPER}"
 echo "CCIP_HEDERA_WRAPPER=${CCIP_HEDERA_WRAPPER}"
 echo "CCIP_HEDERA_POOL=${CCIP_HEDERA_POOL}"
 echo "CCIP_HEDERA_HTS_TOKEN=${CCIP_HEDERA_HTS_TOKEN}"
+node scripts-js/syncBridgeConfig.js record ccip hedera \
+	token="${CCIP_HEDERA_WRAPPER}" \
+	wrapper="${CCIP_HEDERA_WRAPPER}" \
+	pool="${CCIP_HEDERA_POOL}" \
+	htsToken="${CCIP_HEDERA_HTS_TOKEN}"
