@@ -91,8 +91,14 @@ ensure_token_id() {
 	[[ -n "${TOKEN_ID:-}" ]] || { echo "[AXELAR] TOKEN_ID is required; run deploy-hedera first or set TOKEN_ID" >&2; exit 1; }
 }
 
+uint_value() {
+	printf '%s\n' "$1" | sed 's/[[:space:]].*$//'
+}
+
 tinybars_to_wei_style() {
-	node -e 'console.log((BigInt(process.argv[1]) * 10000000000n).toString())' "$1"
+	local tinybars
+	tinybars="$(uint_value "$1")"
+	node -e 'console.log((BigInt(process.argv[1]) * 10000000000n).toString())' "${tinybars}"
 }
 
 lowercase() {
@@ -196,10 +202,10 @@ fund_whbar_hedera() {
 	ensure_eoa
 	echo "[AXELAR] Funding WHBAR allowance for Hedera ITS token creation"
 	local price whbar deposit_value allowance gas_price
-	price="${HEDERA_TOKEN_CREATION_PRICE_TINYBARS:-$(hedera_its_call "tokenCreationPriceTinybars()(uint256)")}"
+	price="$(uint_value "${HEDERA_TOKEN_CREATION_PRICE_TINYBARS:-$(hedera_its_call "tokenCreationPriceTinybars()(uint256)")}")"
 	whbar="${HEDERA_WHBAR_ADDRESS:-$(hedera_its_call "whbarAddress()(address)")}"
 	deposit_value="${HEDERA_WHBAR_DEPOSIT_VALUE:-$(tinybars_to_wei_style "${price}")}"
-	allowance="${HEDERA_WHBAR_ALLOWANCE:-${price}}"
+	allowance="$(uint_value "${HEDERA_WHBAR_ALLOWANCE:-${price}}")"
 	gas_price=$(hedera_gas_price)
 	echo "[AXELAR] WHBAR: ${whbar}"
 	echo "[AXELAR] token creation price (tinybars): ${price}"
@@ -259,7 +265,7 @@ deploy_hedera_its() {
 	printf '%s\n' "${token_id}" > script/axelar/.tokenid
 	token_address="$(resolve_registered_token hedera_testnet "${token_id}")"
 	whbar="${HEDERA_WHBAR_ADDRESS:-$(hedera_its_call "whbarAddress()(address)")}"
-	price="${HEDERA_TOKEN_CREATION_PRICE_TINYBARS:-$(hedera_its_call "tokenCreationPriceTinybars()(uint256)")}"
+	price="$(uint_value "${HEDERA_TOKEN_CREATION_PRICE_TINYBARS:-$(hedera_its_call "tokenCreationPriceTinybars()(uint256)")}")"
 	record_bridge_state hedera bridgeToken="${token_address}" tokenManager="${token_manager}" whbar="${whbar}" tokenCreationPrice="${price}" gasLimit="${HEDERA_DEPLOY_GAS_LIMIT}"
 	record_bridge_state route tokenId="${token_id}" salt="${SALT}" interchainTokenService="${INTERCHAIN_TOKEN_SERVICE}" gasValue="${GAS_VALUE_ITS}" nativeFee="${NATIVE_FEE_ITS}" hederaGasValue="${HEDERA_SEND_GAS_VALUE_ITS}" hederaNativeFee="${HEDERA_SEND_NATIVE_FEE_ITS}"
 	echo "[AXELAR] Hedera tokenId: ${token_id}"
@@ -318,7 +324,7 @@ resolve_hedera_token() {
 	token_address="$(resolve_registered_token hedera_testnet "${TOKEN_ID}")"
 	token_manager="$(resolve_token_manager hedera_testnet "${TOKEN_ID}")"
 	whbar="${HEDERA_WHBAR_ADDRESS:-$(hedera_its_call "whbarAddress()(address)")}"
-	price="${HEDERA_TOKEN_CREATION_PRICE_TINYBARS:-$(hedera_its_call "tokenCreationPriceTinybars()(uint256)")}"
+	price="$(uint_value "${HEDERA_TOKEN_CREATION_PRICE_TINYBARS:-$(hedera_its_call "tokenCreationPriceTinybars()(uint256)")}")"
 	record_bridge_state hedera bridgeToken="${token_address}" tokenManager="${token_manager}" whbar="${whbar}" tokenCreationPrice="${price}" gasLimit="${HEDERA_DEPLOY_GAS_LIMIT}"
 	echo "[AXELAR] Hedera tokenId: ${TOKEN_ID}"
 	echo "[AXELAR] Hedera token manager: ${token_manager}"
