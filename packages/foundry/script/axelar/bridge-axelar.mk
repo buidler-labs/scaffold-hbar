@@ -1,33 +1,57 @@
-# Axelar — deploy wrappers (see bridge-axelar.sh); included from Makefile
-.PHONY: axelar-help axelar-deploy axelar-deploy-sepolia axelar-deploy-hedera axelar-verify-sepolia axelar-verify-hedera axelar-metadata-sepolia axelar-metadata-hedera axelar-register-custom axelar-link-remote axelar-transfer-mintership-sepolia axelar-approve-hedera axelar-send-from-sepolia axelar-send-from-hedera
+# Axelar — Hedera ITS helpers (see bridge-axelar.sh); included from Makefile
+.PHONY: axelar-help axelar-deploy axelar-deploy-sepolia axelar-deploy-hedera axelar-deploy-remote-sepolia axelar-resolve-hedera-token axelar-resolve-sepolia-token axelar-fund-whbar-hedera axelar-mint-hedera axelar-mint-sepolia axelar-status axelar-deploy-sepolia-custom axelar-deploy-hedera-wrapper axelar-verify-sepolia axelar-verify-hedera axelar-metadata-sepolia axelar-metadata-hedera axelar-register-custom axelar-link-remote axelar-transfer-mintership-sepolia axelar-approve-hedera axelar-send-from-sepolia axelar-send-from-hedera
 
 BRIDGE_AXELAR_SH := $(FOUNDRY_DIR)/script/axelar/bridge-axelar.sh
 
 axelar-help:
 	@echo "Axelar ITS tutorial (needs packages/foundry/.env: ACCOUNT, SEPOLIA_RPC_URL, HEDERA_TESTNET_RPC_URL)"
-	@echo "  Step 1 deploy both chains:       make axelar-deploy"
-	@echo "    or deploy separately:          make axelar-deploy-sepolia"
-	@echo "                                   make axelar-deploy-hedera"
-	@echo "  Optional verify:                 make axelar-verify-sepolia ADDR=0x..."
-	@echo "                                   make axelar-verify-hedera ADDR=0x..."
-	@echo "  Step 2 register metadata:        make axelar-metadata-sepolia"
-	@echo "                                   make axelar-metadata-hedera"
-	@echo "  Step 3 register and link token:  make axelar-register-custom"
-	@echo "                                   make axelar-link-remote"
-	@echo "  Step 4 transfer mintership:      make axelar-transfer-mintership-sepolia"
-	@echo "  Step 5 test Sepolia -> Hedera:   make axelar-send-from-sepolia AMOUNT=100000000000000000 [RECIPIENT=0x...]"
-	@echo "  Step 6 test Hedera -> Sepolia:   make axelar-approve-hedera AMOUNT=100000000000000000"
+	@echo "  Step 1 deploy Hedera HTS via ITS: make axelar-deploy-hedera"
+	@echo "  Step 2 deploy remote Sepolia:     make axelar-deploy-sepolia"
+	@echo "  Step 3 resolve Sepolia address:   make axelar-resolve-sepolia-token"
+	@echo "  Optional status:                  make axelar-status"
+	@echo "  Optional mint test supply:        make axelar-mint-hedera AMOUNT=100000000000000000"
+	@echo "                                    make axelar-mint-sepolia AMOUNT=100000000000000000"
+	@echo "  Test Hedera -> Sepolia:           make axelar-approve-hedera AMOUNT=100000000000000000"
 	@echo "                                   make axelar-send-from-hedera AMOUNT=100000000000000000 [RECIPIENT=0x...]"
+	@echo "  Test Sepolia -> Hedera:           make axelar-send-from-sepolia AMOUNT=100000000000000000 [RECIPIENT=0x...]"
 	@echo "  Final sync frontend config:      make bridge-sync-next PROVIDER=axelar"
-	@echo "Or: bash script/axelar/bridge-axelar.sh verify-sepolia 0x..."
+	@echo "  Legacy custom flow:              make axelar-deploy-sepolia-custom"
+	@echo "                                   make axelar-deploy-hedera-wrapper"
 
-axelar-deploy: axelar-deploy-sepolia axelar-deploy-hedera
+axelar-deploy: axelar-deploy-hedera axelar-deploy-sepolia
 
 axelar-deploy-sepolia:
-	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" deploy-sepolia
+	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" deploy-remote-sepolia
 
 axelar-deploy-hedera:
 	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" deploy-hedera
+
+axelar-deploy-remote-sepolia:
+	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" deploy-remote-sepolia
+
+axelar-resolve-hedera-token:
+	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" resolve-hedera-token
+
+axelar-resolve-sepolia-token:
+	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" resolve-sepolia-token
+
+axelar-fund-whbar-hedera:
+	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" fund-whbar-hedera
+
+axelar-mint-hedera:
+	@cd "$(FOUNDRY_DIR)" && AMOUNT="$(AMOUNT)" RECIPIENT="$(RECIPIENT)" bash "$(BRIDGE_AXELAR_SH)" mint-hedera
+
+axelar-mint-sepolia:
+	@cd "$(FOUNDRY_DIR)" && AMOUNT="$(AMOUNT)" RECIPIENT="$(RECIPIENT)" bash "$(BRIDGE_AXELAR_SH)" mint-sepolia
+
+axelar-status:
+	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" status
+
+axelar-deploy-sepolia-custom:
+	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" deploy-sepolia-custom
+
+axelar-deploy-hedera-wrapper:
+	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" deploy-hedera-wrapper
 
 axelar-verify-sepolia:
 ifndef ADDR
