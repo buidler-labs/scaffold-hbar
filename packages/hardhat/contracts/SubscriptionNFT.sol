@@ -2,6 +2,7 @@
 pragma solidity ^0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 import { IHederaTokenService } from "./interfaces/IHederaTokenService.sol";
 
@@ -37,6 +38,7 @@ contract SubscriptionNFT is Ownable {
     error MetadataTooLong();
     error UnexpectedSerialCount(uint256 count);
     error SubscriptionNotFound(int64 serialNumber);
+    error InvalidSerialNumber(int64 serialNumber);
     error HtsCreateFailed(int64 responseCode);
     error HtsMintFailed(int64 responseCode);
     error HtsTransferFailed(int64 responseCode);
@@ -126,6 +128,15 @@ contract SubscriptionNFT is Ownable {
     function isExpired(int64 serialNumber) external view returns (bool) {
         if (!_subscriptionExists[serialNumber]) revert SubscriptionNotFound(serialNumber);
         return block.timestamp > _subscriptions[serialNumber].endDate;
+    }
+
+    /// @notice Returns the current HTS owner of the given NFT serial.
+    /// @dev Uses the HTS ERC-721 compatibility surface on the collection address.
+    function currentOwner(int64 serialNumber) external view returns (address) {
+        if (!_subscriptionExists[serialNumber]) revert SubscriptionNotFound(serialNumber);
+        if (serialNumber <= 0) revert InvalidSerialNumber(serialNumber);
+        if (collectionAddress == address(0)) revert CollectionNotCreated();
+        return IERC721(collectionAddress).ownerOf(uint256(uint64(serialNumber)));
     }
 
     function _defaultTokenKeys() internal view returns (IHederaTokenService.TokenKey[] memory) {
