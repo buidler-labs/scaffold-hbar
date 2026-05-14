@@ -176,4 +176,25 @@ describe("SubscriptionMarketplace", function () {
       expect(await marketplace.accruedMarketplaceFees()).to.equal(ethers.parseEther("0.1"));
     });
   });
+
+  describe("expired booking handling", function () {
+    it("allows removing availability after booked window has fully expired", async function () {
+      const { marketplace, owner, renterA, startDate } = await deployFixture();
+      const windowStart = startDate + 10n * BigInt(DAY);
+      const windowEnd = windowStart + 10n * BigInt(DAY);
+      const pricePerDay = ethers.parseEther("0.1");
+      await marketplace.connect(owner).createAvailability(1n, windowStart, windowEnd, pricePerDay);
+
+      // Book first 2 days in the availability.
+      await marketplace.connect(renterA).book(1n, windowStart, 2n, { value: pricePerDay * 2n });
+
+      // Move after booking end so the booking is considered expired.
+      const bookingEnd = windowStart + 2n * BigInt(DAY);
+      await ethers.provider.send("evm_setNextBlockTimestamp", [Number(bookingEnd) + 1]);
+      await ethers.provider.send("evm_mine", []);
+
+      // Should now be removable because expired bookings are ignored.
+      await expect(marketplace.connect(owner).removeAvailability(1n)).to.emit(marketplace, "AvailabilityRemoved");
+    });
+  });
 });

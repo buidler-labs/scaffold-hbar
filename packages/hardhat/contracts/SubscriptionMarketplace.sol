@@ -195,6 +195,7 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         for (uint256 i = 0; i < len; i++) {
             Booking storage booking = bookingsById[bookingIds[i]];
             if (booking.status != BookingStatus.Active) continue;
+            if (_isBookingExpired(booking)) continue;
             if (_rangesOverlap(availability.windowStart, availability.windowEnd, booking.startDate, booking.endDate)) {
                 revert OverlappingBooking();
             }
@@ -228,6 +229,7 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         for (uint256 i = 0; i < len; i++) {
             Booking storage existing = bookingsById[bookingIds[i]];
             if (existing.status != BookingStatus.Active) continue;
+            if (_isBookingExpired(existing)) continue;
             if (_rangesOverlap(startDate, endDate, existing.startDate, existing.endDate)) {
                 revert OverlappingBooking();
             }
@@ -358,5 +360,9 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
 
     function _requireDayAligned(uint256 timestamp) internal pure {
         if (timestamp % DAY != 0) revert DateNotDayAligned();
+    }
+
+    function _isBookingExpired(Booking storage booking) internal view returns (bool) {
+        return block.timestamp >= booking.endDate;
     }
 }
