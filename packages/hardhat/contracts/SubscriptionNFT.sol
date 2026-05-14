@@ -27,8 +27,6 @@ contract SubscriptionNFT is Ownable {
 
     mapping(int64 serialNumber => SubscriptionData data) private _subscriptions;
     mapping(int64 serialNumber => bool exists) private _subscriptionExists;
-    mapping(int64 serialNumber => address owner) private _fallbackOwners;
-    int64 private _nextSyntheticSerial = 1;
 
     event CollectionCreated(address indexed collectionAddress, string name, string symbol);
     event SubscriptionMinted(address indexed recipient, int64 indexed serialNumber, string provider, string serviceTier);
@@ -95,30 +93,17 @@ contract SubscriptionNFT is Ownable {
         bytes[] memory metadata = new bytes[](1);
         metadata[0] = label;
 
-        // NOTE:
-        // Real Hedera NFT mints use amount=0 with metadata.
-        // The local HTS forking emulator requires amount>0 and may return empty serials for NFTs.
-        // We use amount=1 and support both return shapes:
-        // - serialNumbers.length == 1: real-like path
-        // - serialNumbers.length == 0: emulator fallback path
         (int64 responseCode, , int64[] memory serialNumbers) =
-            IHederaTokenService(HTS).mintToken(collectionAddress, 1, metadata);
+            IHederaTokenService(HTS).mintToken(collectionAddress, 0, metadata);
         if (responseCode != SUCCESS) revert HtsMintFailed(responseCode);
-        if (serialNumbers.length > 1) revert UnexpectedSerialCount(serialNumbers.length);
 
-        int64 newSerial;
-        if (serialNumbers.length == 1) {
-            newSerial = serialNumbers[0];
-            int64 transferResponse =
-                IHederaTokenService(HTS).transferNFT(collectionAddress, address(this), msg.sender, newSerial);
-            if (transferResponse != SUCCESS) revert HtsTransferFailed(transferResponse);
-            // Keep fallback owner state in sync for emulator paths that may return zero-owner.
-            _fallbackOwners[newSerial] = msg.sender;
-        } else {
-            // Emulator fallback: synthesize serial and track owner in local mapping.
-            newSerial = _nextSyntheticSerial++;
-            _fallbackOwners[newSerial] = msg.sender;
-        }
+        if (serialNumbers.length != 1) revert UnexpectedSerialCount(serialNumbers.length);
+
+        int64 newSerial = serialNumbers[0];
+
+        int64 transferResponse =
+            IHederaTokenService(HTS).transferNFT(collectionAddress, address(this), msg.sender, newSerial);
+        if (transferResponse != SUCCESS) revert HtsTransferFailed(transferResponse);
 
         _subscriptionExists[newSerial] = true;
         _subscriptions[newSerial] = SubscriptionData({
@@ -154,18 +139,7 @@ contract SubscriptionNFT is Ownable {
         if (!_subscriptionExists[serialNumber]) revert SubscriptionNotFound(serialNumber);
         if (serialNumber <= 0) revert InvalidSerialNumber(serialNumber);
         if (collectionAddress == address(0)) revert CollectionNotCreated();
-        try IERC721(collectionAddress).ownerOf(uint256(uint64(serialNumber))) returns (address owner) {
-            if (owner == address(0)) {
-                address fallbackOwner = _fallbackOwners[serialNumber];
-                if (fallbackOwner != address(0)) return fallbackOwner;
-                revert SubscriptionNotFound(serialNumber);
-            }
-            return owner;
-        } catch {
-            address fallbackOwner = _fallbackOwners[serialNumber];
-            if (fallbackOwner != address(0)) return fallbackOwner;
-            revert SubscriptionNotFound(serialNumber);
-        }
+        return IERC721(collectionAddress).ownerOf(uint256(uint64(serialNumber)));
     }
 
     function _defaultTokenKeys() internal view returns (IHederaTokenService.TokenKey[] memory) {
@@ -186,4 +160,5 @@ contract SubscriptionNFT is Ownable {
     function _defaultExpiry() internal view returns (IHederaTokenService.Expiry memory) {
         return IHederaTokenService.Expiry({ second: 0, autoRenewAccount: owner(), autoRenewPeriod: 7_890_000 });
     }
+
 }

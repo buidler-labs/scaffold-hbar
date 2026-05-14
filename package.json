@@ -46,6 +46,8 @@
     "hardhat:format": "yarn workspace @sh/hardhat format",
     "hardhat:lint": "yarn workspace @sh/hardhat lint",
     "hardhat:lint-staged": "yarn workspace @sh/hardhat lint-staged",
+    "hardhat:test:unit": "yarn workspace @sh/hardhat test:unit",
+    "hardhat:test:hts": "yarn workspace @sh/hardhat test:hts",
     "hardhat:test": "yarn workspace @sh/hardhat test",
     "hardhat:verify": "yarn workspace @sh/hardhat verify",
     "hardhat:verify:testnet": "yarn workspace @sh/hardhat verify:testnet",

@@ -2,6 +2,12 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 
 describe("SubscriptionMarketplace", function () {
+  before(function () {
+    if (process.env.HEDERA_FORKING !== "true") {
+      throw new Error("SubscriptionMarketplace tests require HEDERA_FORKING=true");
+    }
+  });
+
   const DAY = 24 * 60 * 60;
 
   const alignToDay = (timestamp: number): bigint => {

@@ -16,6 +16,8 @@
     "format": "prettier --write './**/*.(ts|sol)'",
     "lint": "eslint",
     "lint-staged": "eslint",
+    "test:unit": "hardhat test test/HederaToken.test.ts",
+    "test:hts": "HEDERA_FORKING=true hardhat test test/HtsTokenCreator.test.ts test/SubscriptionNFT.test.ts test/SubscriptionMarketplace.test.ts",
     "test": "HEDERA_FORKING=true REPORT_GAS=true hardhat test",
     "verify": "node scripts/verifyHedera.js",
     "verify:testnet": "node scripts/verifyHedera.js 296",

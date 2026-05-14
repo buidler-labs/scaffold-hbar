@@ -2,6 +2,12 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 
 describe("SubscriptionNFT", function () {
+  before(function () {
+    if (process.env.HEDERA_FORKING !== "true") {
+      throw new Error("SubscriptionNFT tests require HEDERA_FORKING=true");
+    }
+  });
+
   async function deployFixture() {
     const [owner, alice, bob] = await ethers.getSigners();
     const SubscriptionNFT = await ethers.getContractFactory("SubscriptionNFT");
