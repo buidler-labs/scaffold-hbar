@@ -54,6 +54,9 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         uint256 startDate;
         uint256 endDate; // exclusive
         uint256 totalPaid;
+        uint256 feeAmount;
+        uint256 ownerPayout;
+        bool payoutClaimed;
         BookingStatus status;
     }
 
@@ -89,6 +92,7 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         uint256 totalPaid
     );
     event BookingCancelled(uint256 indexed bookingId, address indexed renter, uint256 refundedAmount);
+    event BookingPayoutClaimed(uint256 indexed bookingId, address indexed owner, uint256 ownerPayout, uint256 feeAmount);
     event MarketplaceFeeUpdated(uint16 oldFeeBps, uint16 newFeeBps);
     event MarketplaceFeesWithdrawn(address indexed recipient, uint256 amount);
 
@@ -112,6 +116,9 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
     error IncorrectPayment(uint256 expected, uint256 received);
     error FeeTransferFailed();
     error OwnerPayoutFailed();
+    error PayoutNotAvailableYet();
+    error PayoutAlreadyClaimed();
+    error NotBookingOwner();
     error NothingToWithdraw();
 
     constructor(address initialOwner, address subscriptionNFTAddress, uint16 initialMarketplaceFeeBps) Ownable(initialOwner) {
@@ -230,7 +237,6 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
 
         uint256 feeAmount = (msg.value * marketplaceFeeBps) / BPS_DENOMINATOR;
         uint256 ownerPayout = msg.value - feeAmount;
-        accruedMarketplaceFees += feeAmount;
 
         bookingId = nextBookingId++;
         bookingsById[bookingId] = Booking({
@@ -241,12 +247,12 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
             startDate: startDate,
             endDate: endDate,
             totalPaid: msg.value,
+            feeAmount: feeAmount,
+            ownerPayout: ownerPayout,
+            payoutClaimed: false,
             status: BookingStatus.Active
         });
         _bookingIdsBySerial[availability.serialNumber].push(bookingId);
-
-        (bool sent, ) = payable(availability.owner).call{ value: ownerPayout }("");
-        if (!sent) revert OwnerPayoutFailed();
 
         emit Booked(bookingId, availabilityId, availability.serialNumber, msg.sender, startDate, endDate, msg.value);
     }
@@ -265,6 +271,27 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         if (!refunded) revert FeeTransferFailed();
 
         emit BookingCancelled(bookingId, msg.sender, refundAmount);
+    }
+
+    /// @notice Claims the owner payout for a started booking.
+    /// @dev Marketplace fee is recognized only when owner payout is claimed.
+    function claimBookingPayout(uint256 bookingId) external nonReentrant {
+        Booking storage booking = bookingsById[bookingId];
+        if (booking.id == 0) revert BookingNotFound(bookingId);
+        if (booking.status != BookingStatus.Active) revert BookingNotFound(bookingId);
+        if (booking.payoutClaimed) revert PayoutAlreadyClaimed();
+        if (block.timestamp < booking.startDate) revert PayoutNotAvailableYet();
+
+        AvailabilityWindow storage availability = availabilities[booking.availabilityId];
+        if (availability.owner != msg.sender) revert NotBookingOwner();
+
+        booking.payoutClaimed = true;
+        accruedMarketplaceFees += booking.feeAmount;
+
+        (bool sent, ) = payable(availability.owner).call{ value: booking.ownerPayout }("");
+        if (!sent) revert OwnerPayoutFailed();
+
+        emit BookingPayoutClaimed(bookingId, availability.owner, booking.ownerPayout, booking.feeAmount);
     }
 
     function userOf(int64 serialNumber) external view returns (address) {
