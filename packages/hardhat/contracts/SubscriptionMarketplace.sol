@@ -97,6 +97,7 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
     event MarketplaceFeesWithdrawn(address indexed recipient, uint256 amount);
 
     error InvalidFeeBps(uint256 feeBps);
+    error InvalidSubscriptionNFTAddress();
     error InvalidDateRange();
     error DateNotDayAligned();
     error InvalidPrice();
@@ -122,7 +123,7 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
     error NothingToWithdraw();
 
     constructor(address initialOwner, address subscriptionNFTAddress, uint16 initialMarketplaceFeeBps) Ownable(initialOwner) {
-        if (subscriptionNFTAddress == address(0)) revert InvalidPrice();
+        if (subscriptionNFTAddress == address(0)) revert InvalidSubscriptionNFTAddress();
         if (initialMarketplaceFeeBps > BPS_DENOMINATOR) revert InvalidFeeBps(initialMarketplaceFeeBps);
 
         subscriptionNFT = ISubscriptionNFT(subscriptionNFTAddress);
