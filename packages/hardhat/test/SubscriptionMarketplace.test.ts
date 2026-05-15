@@ -74,6 +74,35 @@ describe("SubscriptionMarketplace", function () {
         marketplace.connect(renterA).createAvailability(1n, windowStart, windowEnd, pricePerDay),
       ).to.be.revertedWithCustomError(marketplace, "UnauthorizedSubscriptionOwner");
     });
+
+    it("allows new NFT owner to update and remove existing availability after transfer", async function () {
+      const { marketplace, subscriptionNFT, owner, renterB, startDate } = await deployFixture();
+      const windowStart = startDate + 10n * BigInt(DAY);
+      const windowEnd = windowStart + 10n * BigInt(DAY);
+      const pricePerDay = ethers.parseEther("0.1");
+      await marketplace.connect(owner).createAvailability(1n, windowStart, windowEnd, pricePerDay);
+
+      const collectionAddress = await subscriptionNFT.collectionAddress();
+      // Owner transfers subscription NFT serial #1 to renterB.
+      const collectionAsErc721: any = new ethers.Contract(
+        collectionAddress,
+        ["function transferFrom(address from, address to, uint256 tokenId) external"],
+        owner,
+      );
+      await collectionAsErc721.transferFrom(owner.address, renterB.address, 1n);
+
+      // Previous owner should no longer be allowed to manage availability.
+      await expect(
+        marketplace.connect(owner).updateAvailability(1n, ethers.parseEther("0.2")),
+      ).to.be.revertedWithCustomError(marketplace, "UnauthorizedSubscriptionOwner");
+
+      // New owner can update and remove.
+      await expect(marketplace.connect(renterB).updateAvailability(1n, ethers.parseEther("0.2"))).to.emit(
+        marketplace,
+        "AvailabilityPriceUpdated",
+      );
+      await expect(marketplace.connect(renterB).removeAvailability(1n)).to.emit(marketplace, "AvailabilityRemoved");
+    });
   });
 
   describe("booking", function () {
@@ -174,6 +203,40 @@ describe("SubscriptionMarketplace", function () {
 
       // 5% fee on 2 ETH = 0.1 ETH
       expect(await marketplace.accruedMarketplaceFees()).to.equal(ethers.parseEther("0.1"));
+    });
+
+    it("routes payout claim to current NFT owner after transfer", async function () {
+      const { marketplace, subscriptionNFT, owner, renterA, renterB, startDate } = await deployFixture();
+      const windowStart = startDate + 10n * BigInt(DAY);
+      const windowEnd = windowStart + 10n * BigInt(DAY);
+      const pricePerDay = ethers.parseEther("1");
+      await marketplace.connect(owner).createAvailability(1n, windowStart, windowEnd, pricePerDay);
+
+      const totalPaid = pricePerDay * 2n;
+      await marketplace.connect(renterA).book(1n, windowStart, 2n, { value: totalPaid });
+
+      // Transfer NFT ownership before booking start.
+      const collectionAddress = await subscriptionNFT.collectionAddress();
+      const collectionAsErc721: any = new ethers.Contract(
+        collectionAddress,
+        ["function transferFrom(address from, address to, uint256 tokenId) external"],
+        owner,
+      );
+      await collectionAsErc721.transferFrom(owner.address, renterB.address, 1n);
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [Number(windowStart) + 1]);
+      await ethers.provider.send("evm_mine", []);
+
+      // Previous owner cannot claim anymore.
+      await expect(marketplace.connect(owner).claimBookingPayout(1n)).to.be.revertedWithCustomError(
+        marketplace,
+        "UnauthorizedSubscriptionOwner",
+      );
+
+      // New owner can claim and receives payout.
+      await expect(marketplace.connect(renterB).claimBookingPayout(1n))
+        .to.emit(marketplace, "BookingPayoutClaimed")
+        .withArgs(1n, renterB.address, ethers.parseEther("1.9"), ethers.parseEther("0.1"));
     });
   });
 

@@ -77,6 +77,27 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         _;
     }
 
+    modifier onlyCurrentSubscriptionOwner(int64 serialNumber) {
+        _requireCurrentSubscriptionOwner(serialNumber);
+        _;
+    }
+
+    modifier onlyCurrentAvailabilityOwner(uint256 availabilityId) {
+        AvailabilityWindow storage availability = availabilities[availabilityId];
+        if (availability.id == 0) revert AvailabilityNotFound(availabilityId);
+        if (availability.status != AvailabilityStatus.Active) revert AvailabilityInactive(availabilityId);
+        _requireCurrentSubscriptionOwner(availability.serialNumber);
+        _;
+    }
+
+    modifier onlyCurrentBookingOwner(uint256 bookingId) {
+        Booking storage booking = bookingsById[bookingId];
+        if (booking.id == 0) revert BookingNotFound(bookingId);
+        AvailabilityWindow storage availability = availabilities[booking.availabilityId];
+        _requireCurrentSubscriptionOwner(availability.serialNumber);
+        _;
+    }
+
     event AvailabilityCreated(
         uint256 indexed availabilityId,
         int64 indexed serialNumber,
@@ -111,7 +132,6 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
     error BookingNotFound(uint256 bookingId);
     error BookingInactive(uint256 bookingId);
     error AvailabilityInactive(uint256 availabilityId);
-    error NotAvailabilityOwner();
     error NotBookingRenter();
     error BookingAlreadyStarted();
     error SubscriptionExpired(int64 serialNumber);
@@ -125,7 +145,6 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
     error OwnerPayoutFailed();
     error PayoutNotAvailableYet();
     error PayoutAlreadyClaimed();
-    error NotBookingOwner();
     error NothingToWithdraw();
 
     constructor(address initialOwner, address subscriptionNFTAddress, uint16 initialMarketplaceFeeBps) Ownable(initialOwner) {
@@ -147,14 +166,13 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         external
         dayAligned(windowStart)
         dayAligned(windowEnd)
+        onlyCurrentSubscriptionOwner(serialNumber)
         returns (uint256 availabilityId)
     {
         if (pricePerDay == 0) revert InvalidPrice();
         if (windowStart >= windowEnd) revert InvalidDateRange();
 
         ISubscriptionNFT.SubscriptionData memory subscription = subscriptionNFT.getSubscription(serialNumber);
-        address currentOwner = subscriptionNFT.currentOwner(serialNumber);
-        if (currentOwner != msg.sender) revert UnauthorizedSubscriptionOwner(serialNumber);
         if (subscriptionNFT.isExpired(serialNumber)) revert SubscriptionExpired(serialNumber);
         if (windowStart < subscription.startDate || windowEnd > subscription.endDate) {
             revert AvailabilityOutOfSubscriptionBounds();
@@ -177,24 +195,20 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         emit AvailabilityCreated(availabilityId, serialNumber, msg.sender, windowStart, windowEnd, pricePerDay);
     }
 
-    function updateAvailability(uint256 availabilityId, uint256 newPricePerDay) external {
+    function updateAvailability(uint256 availabilityId, uint256 newPricePerDay)
+        external
+        onlyCurrentAvailabilityOwner(availabilityId)
+    {
         if (newPricePerDay == 0) revert InvalidPrice();
 
         AvailabilityWindow storage availability = availabilities[availabilityId];
-        if (availability.id == 0) revert AvailabilityNotFound(availabilityId);
-        if (availability.status != AvailabilityStatus.Active) revert AvailabilityInactive(availabilityId);
-        if (availability.owner != msg.sender) revert NotAvailabilityOwner();
-
         uint256 oldPrice = availability.pricePerDay;
         availability.pricePerDay = newPricePerDay;
         emit AvailabilityPriceUpdated(availabilityId, oldPrice, newPricePerDay);
     }
 
-    function removeAvailability(uint256 availabilityId) external {
+    function removeAvailability(uint256 availabilityId) external onlyCurrentAvailabilityOwner(availabilityId) {
         AvailabilityWindow storage availability = availabilities[availabilityId];
-        if (availability.id == 0) revert AvailabilityNotFound(availabilityId);
-        if (availability.status != AvailabilityStatus.Active) revert AvailabilityInactive(availabilityId);
-        if (availability.owner != msg.sender) revert NotAvailabilityOwner();
 
         uint256[] storage bookingIds = _bookingIdsBySerial[availability.serialNumber];
         uint256 len = bookingIds.length;
@@ -284,23 +298,22 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
 
     /// @notice Claims the owner payout for a started booking.
     /// @dev Marketplace fee is recognized only when owner payout is claimed.
-    function claimBookingPayout(uint256 bookingId) external nonReentrant {
+    function claimBookingPayout(uint256 bookingId) external nonReentrant onlyCurrentBookingOwner(bookingId) {
         Booking storage booking = bookingsById[bookingId];
-        if (booking.id == 0) revert BookingNotFound(bookingId);
         if (booking.status != BookingStatus.Active) revert BookingInactive(bookingId);
         if (booking.payoutClaimed) revert PayoutAlreadyClaimed();
         if (block.timestamp < booking.startDate) revert PayoutNotAvailableYet();
 
         AvailabilityWindow storage availability = availabilities[booking.availabilityId];
-        if (availability.owner != msg.sender) revert NotBookingOwner();
+        address payoutRecipient = msg.sender;
 
         booking.payoutClaimed = true;
         accruedMarketplaceFees += booking.feeAmount;
 
-        (bool sent, ) = payable(availability.owner).call{ value: booking.ownerPayout }("");
+        (bool sent, ) = payable(payoutRecipient).call{ value: booking.ownerPayout }("");
         if (!sent) revert OwnerPayoutFailed();
 
-        emit BookingPayoutClaimed(bookingId, availability.owner, booking.ownerPayout, booking.feeAmount);
+        emit BookingPayoutClaimed(bookingId, payoutRecipient, booking.ownerPayout, booking.feeAmount);
     }
 
     function userOf(int64 serialNumber) external view returns (address) {
@@ -366,5 +379,10 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
 
     function _isBookingExpired(Booking storage booking) internal view returns (bool) {
         return block.timestamp >= booking.endDate;
+    }
+
+    function _requireCurrentSubscriptionOwner(int64 serialNumber) internal view {
+        address currentOwner = subscriptionNFT.currentOwner(serialNumber);
+        if (currentOwner != msg.sender) revert UnauthorizedSubscriptionOwner(serialNumber);
     }
 }
