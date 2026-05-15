@@ -77,6 +77,7 @@ contract SubscriptionNFT is Ownable {
     }
 
     /// @notice Mints a subscription NFT and transfers it to msg.sender.
+    /// @dev Take care you need to associate the token to the account you want to mint the NFT to.
     function mintSubscription(
         string calldata provider,
         string calldata serviceTier,
@@ -94,7 +95,7 @@ contract SubscriptionNFT is Ownable {
         metadata[0] = label;
 
         (int64 responseCode, , int64[] memory serialNumbers) =
-            IHederaTokenService(HTS).mintToken(collectionAddress, 0, metadata);
+            IHederaTokenService(HTS).mintToken(collectionAddress, 1, metadata);
         if (responseCode != SUCCESS) revert HtsMintFailed(responseCode);
 
         if (serialNumbers.length != 1) revert UnexpectedSerialCount(serialNumbers.length);
