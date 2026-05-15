@@ -72,6 +72,11 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
     mapping(int64 serialNumber => uint256[] bookingIds) private _bookingIdsBySerial;
     mapping(int64 serialNumber => uint256[] availabilityIds) private _availabilityIdsBySerial;
 
+    modifier dayAligned(uint256 timestamp) {
+        if (timestamp % DAY != 0) revert DateNotDayAligned();
+        _;
+    }
+
     event AvailabilityCreated(
         uint256 indexed availabilityId,
         int64 indexed serialNumber,
@@ -140,11 +145,11 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
 
     function createAvailability(int64 serialNumber, uint256 windowStart, uint256 windowEnd, uint256 pricePerDay)
         external
+        dayAligned(windowStart)
+        dayAligned(windowEnd)
         returns (uint256 availabilityId)
     {
         if (pricePerDay == 0) revert InvalidPrice();
-        _requireDayAligned(windowStart);
-        _requireDayAligned(windowEnd);
         if (windowStart >= windowEnd) revert InvalidDateRange();
 
         ISubscriptionNFT.SubscriptionData memory subscription = subscriptionNFT.getSubscription(serialNumber);
@@ -210,10 +215,10 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         external
         payable
         nonReentrant
+        dayAligned(startDate)
         returns (uint256 bookingId)
     {
         if (numberOfDays == 0) revert InvalidNumberOfDays();
-        _requireDayAligned(startDate);
 
         AvailabilityWindow storage availability = availabilities[availabilityId];
         if (availability.id == 0) revert AvailabilityNotFound(availabilityId);
@@ -357,10 +362,6 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
 
     function _rangesOverlap(uint256 startA, uint256 endA, uint256 startB, uint256 endB) internal pure returns (bool) {
         return startA < endB && startB < endA;
-    }
-
-    function _requireDayAligned(uint256 timestamp) internal pure {
-        if (timestamp % DAY != 0) revert DateNotDayAligned();
     }
 
     function _isBookingExpired(Booking storage booking) internal view returns (bool) {
