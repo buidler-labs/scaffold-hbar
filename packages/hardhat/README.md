@@ -63,6 +63,7 @@ You need a deployer account with HBAR on the target network. Without funds, depl
 ## Layout
 
 - `contracts/` — Solidity sources
+- `docs/` — contract behavior notes (see `docs/contract-behavior.md`)
 - `deploy/` — hardhat-deploy scripts (e.g. `00_deploy_hedera_token.ts`)
 - `scripts/` — generateAccount, importAccount, verifyHedera.js, etc.
 - `test/` — contract tests
