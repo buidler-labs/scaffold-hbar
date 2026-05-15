@@ -104,6 +104,7 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
     error InvalidNumberOfDays();
     error AvailabilityNotFound(uint256 availabilityId);
     error BookingNotFound(uint256 bookingId);
+    error BookingInactive(uint256 bookingId);
     error AvailabilityInactive(uint256 availabilityId);
     error NotAvailabilityOwner();
     error NotBookingRenter();
@@ -264,7 +265,7 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         Booking storage booking = bookingsById[bookingId];
         if (booking.id == 0) revert BookingNotFound(bookingId);
         if (booking.renter != msg.sender) revert NotBookingRenter();
-        if (booking.status != BookingStatus.Active) revert BookingNotFound(bookingId);
+        if (booking.status != BookingStatus.Active) revert BookingInactive(bookingId);
         if (block.timestamp >= booking.startDate) revert BookingAlreadyStarted();
 
         booking.status = BookingStatus.Cancelled;
@@ -281,7 +282,7 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
     function claimBookingPayout(uint256 bookingId) external nonReentrant {
         Booking storage booking = bookingsById[bookingId];
         if (booking.id == 0) revert BookingNotFound(bookingId);
-        if (booking.status != BookingStatus.Active) revert BookingNotFound(bookingId);
+        if (booking.status != BookingStatus.Active) revert BookingInactive(bookingId);
         if (booking.payoutClaimed) revert PayoutAlreadyClaimed();
         if (block.timestamp < booking.startDate) revert PayoutNotAvailableYet();
 
