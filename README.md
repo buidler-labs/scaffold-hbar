@@ -96,8 +96,11 @@ yarn hardhat:deploy --network localhost
 3. Run Hardhat tests:
 
 ```bash
-yarn hardhat:test
+yarn hardhat:test          # Fast, offline testing on local Hardhat network
+yarn hardhat:test:forking  # Test against forked Hedera testnet (requires network)
 ```
+
+Both modes use MockHTS for HTS operations. See [`packages/hardhat/README.md`](packages/hardhat/README.md) for details.
 
 4. Run the app against local contracts:
 

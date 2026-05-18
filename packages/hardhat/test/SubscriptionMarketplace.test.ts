@@ -2,12 +2,6 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 
 describe("SubscriptionMarketplace", function () {
-  before(function () {
-    if (process.env.HEDERA_FORKING !== "true") {
-      throw new Error("SubscriptionMarketplace tests require HEDERA_FORKING=true");
-    }
-  });
-
   const DAY = 24 * 60 * 60;
 
   const alignToDay = (timestamp: number): bigint => {
@@ -18,14 +12,18 @@ describe("SubscriptionMarketplace", function () {
   async function deployFixture() {
     const [deployer, owner, renterA, renterB] = await ethers.getSigners();
 
+    // Deploy MockHTS for testing (works with both local and forked networks)
+    const MockHTS = await ethers.getContractFactory("MockHTS");
+    const mockHTS = await MockHTS.deploy();
+    await mockHTS.waitForDeployment();
+    const htsAddress = await mockHTS.getAddress();
+
+    // Deploy SubscriptionNFT with mock HTS
     const SubscriptionNFT = await ethers.getContractFactory("SubscriptionNFT");
-    const subscriptionNFT = await SubscriptionNFT.deploy(owner.address);
+    const subscriptionNFT = await SubscriptionNFT.deploy(owner.address, htsAddress);
     await subscriptionNFT.waitForDeployment();
 
-    const createValue = 100_000_000n;
-    await subscriptionNFT
-      .connect(owner)
-      .createCollection("Subscriptions", "SUB", "Rental template", { value: createValue });
+    await subscriptionNFT.connect(owner).createCollection("Subscriptions", "SUB", "Rental template");
 
     const now = (await ethers.provider.getBlock("latest"))!.timestamp;
     const dayBase = alignToDay(now);

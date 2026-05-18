@@ -9,8 +9,10 @@ import { IHederaTokenService } from "./interfaces/IHederaTokenService.sol";
 /// @title SubscriptionNFT
 /// @notice Creates an HTS NFT collection and mints subscription NFTs with on-chain metadata.
 contract SubscriptionNFT is Ownable {
-    /// @notice Hedera Token Service precompile address.
-    address public constant HTS = 0x0000000000000000000000000000000000000167;
+    /// @notice Default Hedera Token Service precompile address.
+    address public constant DEFAULT_HTS = 0x0000000000000000000000000000000000000167;
+    /// @notice Configured HTS address (allows mock injection for testing).
+    address public immutable HTS;
     /// @notice Hedera success response code.
     int64 public constant SUCCESS = 22;
     /// @notice Bitmask for the supply key in HTS token key definitions.
@@ -79,9 +81,12 @@ contract SubscriptionNFT is Ownable {
     /// @param responseCode HTS response code.
     error HtsTransferFailed(int64 responseCode);
 
-    /// @notice Initializes the contract owner.
+    /// @notice Initializes the contract owner and HTS address.
     /// @param initialOwner Account that receives Ownable privileges.
-    constructor(address initialOwner) Ownable(initialOwner) {}
+    /// @param htsAddress HTS precompile address (use address(0) for default).
+    constructor(address initialOwner, address htsAddress) Ownable(initialOwner) {
+        HTS = htsAddress == address(0) ? DEFAULT_HTS : htsAddress;
+    }
 
     /// @notice Creates the HTS NFT collection once.
     /// @dev msg.value is forwarded to HTS precompile to cover creation fee.

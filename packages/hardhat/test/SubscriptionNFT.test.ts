@@ -2,28 +2,31 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 
 describe("SubscriptionNFT", function () {
-  before(function () {
-    if (process.env.HEDERA_FORKING !== "true") {
-      throw new Error("SubscriptionNFT tests require HEDERA_FORKING=true");
-    }
-  });
-
   async function deployFixture() {
     const [owner, alice, bob] = await ethers.getSigners();
+
+    // Deploy MockHTS for testing (works with both local and forked networks)
+    const MockHTS = await ethers.getContractFactory("MockHTS");
+    const mockHTS = await MockHTS.deploy();
+    await mockHTS.waitForDeployment();
+    const htsAddress = await mockHTS.getAddress();
+
+    // Deploy SubscriptionNFT with mock HTS
     const SubscriptionNFT = await ethers.getContractFactory("SubscriptionNFT");
-    const subscriptionNFT = await SubscriptionNFT.deploy(owner.address);
+    const subscriptionNFT = await SubscriptionNFT.deploy(owner.address, htsAddress);
     await subscriptionNFT.waitForDeployment();
+
     return { subscriptionNFT, owner, alice, bob };
   }
 
   describe("createCollection", function () {
     it("creates collection once and emits event", async function () {
       const { subscriptionNFT } = await deployFixture();
-      const createValue = 100_000_000n;
 
-      await expect(
-        subscriptionNFT.createCollection("Subscriptions", "SUB", "Rental template", { value: createValue }),
-      ).to.emit(subscriptionNFT, "CollectionCreated");
+      await expect(subscriptionNFT.createCollection("Subscriptions", "SUB", "Rental template")).to.emit(
+        subscriptionNFT,
+        "CollectionCreated",
+      );
 
       const collectionAddress = await subscriptionNFT.collectionAddress();
       expect(collectionAddress).to.not.equal(ethers.ZeroAddress);
@@ -31,11 +34,10 @@ describe("SubscriptionNFT", function () {
 
     it("reverts when called a second time", async function () {
       const { subscriptionNFT } = await deployFixture();
-      const createValue = 100_000_000n;
-      await subscriptionNFT.createCollection("Subscriptions", "SUB", "Rental template", { value: createValue });
+      await subscriptionNFT.createCollection("Subscriptions", "SUB", "Rental template");
 
       await expect(
-        subscriptionNFT.createCollection("Subscriptions2", "SUB2", "Should fail", { value: createValue }),
+        subscriptionNFT.createCollection("Subscriptions2", "SUB2", "Should fail"),
       ).to.be.revertedWithCustomError(subscriptionNFT, "CollectionAlreadyCreated");
     });
   });
@@ -43,8 +45,7 @@ describe("SubscriptionNFT", function () {
   describe("mintSubscription", function () {
     it("mints and stores metadata on-chain", async function () {
       const { subscriptionNFT, alice } = await deployFixture();
-      const createValue = 100_000_000n;
-      await subscriptionNFT.createCollection("Subscriptions", "SUB", "Rental template", { value: createValue });
+      await subscriptionNFT.createCollection("Subscriptions", "SUB", "Rental template");
 
       const now = (await ethers.provider.getBlock("latest"))!.timestamp;
       const startDate = BigInt(now + 7 * 24 * 60 * 60);
@@ -68,8 +69,7 @@ describe("SubscriptionNFT", function () {
 
     it("reverts with invalid date range", async function () {
       const { subscriptionNFT, alice } = await deployFixture();
-      const createValue = 100_000_000n;
-      await subscriptionNFT.createCollection("Subscriptions", "SUB", "Rental template", { value: createValue });
+      await subscriptionNFT.createCollection("Subscriptions", "SUB", "Rental template");
 
       const now = BigInt((await ethers.provider.getBlock("latest"))!.timestamp);
       await expect(
@@ -81,8 +81,7 @@ describe("SubscriptionNFT", function () {
   describe("read helpers", function () {
     it("reports end date and expiration correctly", async function () {
       const { subscriptionNFT, alice } = await deployFixture();
-      const createValue = 100_000_000n;
-      await subscriptionNFT.createCollection("Subscriptions", "SUB", "Rental template", { value: createValue });
+      await subscriptionNFT.createCollection("Subscriptions", "SUB", "Rental template");
 
       const now = (await ethers.provider.getBlock("latest"))!.timestamp;
       const startDate = BigInt(now + 10);
