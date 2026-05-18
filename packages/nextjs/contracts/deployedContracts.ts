@@ -5,581 +5,1494 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 
 const deployedContracts = {
-  296: {
-    HederaToken: {
-      address: "0xa510c1b5ebcefb83267f4f2bae2765611606c85a",
+  31337: {
+    SubscriptionMarketplace: {
+      address: "0x6431AF84d34F0522cAA58b221d94A150B5AdAC69",
       abi: [
         {
-          type: "constructor",
           inputs: [
             {
+              internalType: "address",
               name: "initialOwner",
               type: "address",
+            },
+            {
               internalType: "address",
+              name: "subscriptionNFTAddress",
+              type: "address",
+            },
+            {
+              internalType: "uint16",
+              name: "initialMarketplaceFeeBps",
+              type: "uint16",
             },
           ],
           stateMutability: "nonpayable",
+          type: "constructor",
         },
         {
-          type: "function",
-          name: "allowance",
           inputs: [
             {
+              internalType: "uint256",
+              name: "availabilityId",
+              type: "uint256",
+            },
+          ],
+          name: "AvailabilityInactive",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "availabilityId",
+              type: "uint256",
+            },
+          ],
+          name: "AvailabilityNotFound",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "AvailabilityOutOfSubscriptionBounds",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "BookingAlreadyStarted",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "bookingId",
+              type: "uint256",
+            },
+          ],
+          name: "BookingInactive",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "bookingId",
+              type: "uint256",
+            },
+          ],
+          name: "BookingNotFound",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "BookingOutOfAvailabilityBounds",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DateNotDayAligned",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FeeTransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "expected",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "received",
+              type: "uint256",
+            },
+          ],
+          name: "IncorrectPayment",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidDateRange",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "feeBps",
+              type: "uint256",
+            },
+          ],
+          name: "InvalidFeeBps",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidNumberOfDays",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidPrice",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidSubscriptionNFTAddress",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotBookingRenter",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NothingToWithdraw",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "OverlappingAvailability",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "OverlappingBooking",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
               name: "owner",
               type: "address",
-              internalType: "address",
-            },
-            {
-              name: "spender",
-              type: "address",
-              internalType: "address",
             },
           ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
+          name: "OwnableInvalidOwner",
+          type: "error",
         },
         {
-          type: "function",
-          name: "approve",
           inputs: [
             {
-              name: "spender",
-              type: "address",
               internalType: "address",
-            },
-            {
-              name: "value",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "balanceOf",
-          inputs: [
-            {
               name: "account",
               type: "address",
-              internalType: "address",
             },
           ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
+          name: "OwnableUnauthorizedAccount",
+          type: "error",
         },
         {
-          type: "function",
-          name: "decimals",
           inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint8",
-              internalType: "uint8",
-            },
-          ],
-          stateMutability: "view",
+          name: "OwnerPayoutFailed",
+          type: "error",
         },
         {
-          type: "function",
-          name: "mint",
+          inputs: [],
+          name: "PayoutAlreadyClaimed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "PayoutNotAvailableYet",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ReentrancyGuardReentrantCall",
+          type: "error",
+        },
+        {
           inputs: [
             {
-              name: "to",
-              type: "address",
-              internalType: "address",
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "SubscriptionExpired",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "UnauthorizedSubscriptionOwner",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "availabilityId",
+              type: "uint256",
             },
             {
+              indexed: true,
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "windowStart",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "windowEnd",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "pricePerDay",
+              type: "uint256",
+            },
+          ],
+          name: "AvailabilityCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "availabilityId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "oldPricePerDay",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "newPricePerDay",
+              type: "uint256",
+            },
+          ],
+          name: "AvailabilityPriceUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "availabilityId",
+              type: "uint256",
+            },
+          ],
+          name: "AvailabilityRemoved",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "bookingId",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "availabilityId",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "renter",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "startDate",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "endDate",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "totalPaid",
+              type: "uint256",
+            },
+          ],
+          name: "Booked",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "bookingId",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "renter",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "refundedAmount",
+              type: "uint256",
+            },
+          ],
+          name: "BookingCancelled",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "bookingId",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "ownerPayout",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "feeAmount",
+              type: "uint256",
+            },
+          ],
+          name: "BookingPayoutClaimed",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint16",
+              name: "oldFeeBps",
+              type: "uint16",
+            },
+            {
+              indexed: false,
+              internalType: "uint16",
+              name: "newFeeBps",
+              type: "uint16",
+            },
+          ],
+          name: "MarketplaceFeeUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "recipient",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
               name: "amount",
               type: "uint256",
-              internalType: "uint256",
             },
           ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "name",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "string",
-              internalType: "string",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "owner",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "renounceOwnership",
-          inputs: [],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "symbol",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "string",
-              internalType: "string",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "totalSupply",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "transfer",
-          inputs: [
-            {
-              name: "to",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "value",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "transferFrom",
-          inputs: [
-            {
-              name: "from",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "to",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "value",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "transferOwnership",
-          inputs: [
-            {
-              name: "newOwner",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
+          name: "MarketplaceFeesWithdrawn",
           type: "event",
-          name: "Approval",
-          inputs: [
-            {
-              name: "owner",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "spender",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "value",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
+        },
+        {
           anonymous: false,
-        },
-        {
-          type: "event",
-          name: "OwnershipTransferred",
           inputs: [
             {
+              indexed: true,
+              internalType: "address",
               name: "previousOwner",
               type: "address",
-              indexed: true,
-              internalType: "address",
             },
             {
+              indexed: true,
+              internalType: "address",
               name: "newOwner",
               type: "address",
-              indexed: true,
-              internalType: "address",
             },
           ],
-          anonymous: false,
-        },
-        {
+          name: "OwnershipTransferred",
           type: "event",
-          name: "Transfer",
-          inputs: [
+        },
+        {
+          inputs: [],
+          name: "BPS_DENOMINATOR",
+          outputs: [
             {
-              name: "from",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "to",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "value",
-              type: "uint256",
-              indexed: false,
               internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "error",
-          name: "ERC20InsufficientAllowance",
-          inputs: [
-            {
-              name: "spender",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "allowance",
+              name: "",
               type: "uint256",
-              internalType: "uint256",
             },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "DAY",
+          outputs: [
             {
-              name: "needed",
+              internalType: "uint256",
+              name: "",
               type: "uint256",
-              internalType: "uint256",
             },
           ],
+          stateMutability: "view",
+          type: "function",
         },
         {
-          type: "error",
-          name: "ERC20InsufficientBalance",
-          inputs: [
+          inputs: [],
+          name: "accruedMarketplaceFees",
+          outputs: [
             {
-              name: "sender",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "balance",
+              internalType: "uint256",
+              name: "",
               type: "uint256",
-              internalType: "uint256",
             },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
             {
-              name: "needed",
+              internalType: "uint256",
+              name: "availabilityId",
               type: "uint256",
+            },
+          ],
+          name: "availabilities",
+          outputs: [
+            {
               internalType: "uint256",
+              name: "id",
+              type: "uint256",
             },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC20InvalidApprover",
-          inputs: [
             {
-              name: "approver",
-              type: "address",
               internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC20InvalidReceiver",
-          inputs: [
-            {
-              name: "receiver",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC20InvalidSender",
-          inputs: [
-            {
-              name: "sender",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "ERC20InvalidSpender",
-          inputs: [
-            {
-              name: "spender",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "OwnableInvalidOwner",
-          inputs: [
-            {
               name: "owner",
               type: "address",
-              internalType: "address",
             },
-          ],
-        },
-        {
-          type: "error",
-          name: "OwnableUnauthorizedAccount",
-          inputs: [
             {
-              name: "account",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-      ],
-      inheritedFunctions: {},
-      deployedOnBlock: 33578755,
-    },
-    HtsTokenCreator: {
-      address: "0x03fcda15d3955b20557028db9fabe6f5847f00ab",
-      abi: [
-        {
-          type: "function",
-          name: "HTS",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "SUCCESS",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "int64",
               internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+            {
+              internalType: "uint256",
+              name: "windowStart",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "windowEnd",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "pricePerDay",
+              type: "uint256",
+            },
+            {
+              internalType: "enum SubscriptionMarketplace.AvailabilityStatus",
+              name: "status",
+              type: "uint8",
             },
           ],
           stateMutability: "view",
+          type: "function",
         },
         {
-          type: "function",
-          name: "createToken",
           inputs: [
             {
-              name: "name",
-              type: "string",
-              internalType: "string",
-            },
-            {
-              name: "symbol",
-              type: "string",
-              internalType: "string",
-            },
-            {
-              name: "initialSupply",
-              type: "uint256",
               internalType: "uint256",
+              name: "availabilityId",
+              type: "uint256",
             },
             {
-              name: "decimals",
-              type: "uint8",
-              internalType: "uint8",
+              internalType: "uint256",
+              name: "startDate",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "numberOfDays",
+              type: "uint256",
             },
           ],
+          name: "book",
           outputs: [
             {
-              name: "tokenAddress",
-              type: "address",
-              internalType: "address",
+              internalType: "uint256",
+              name: "bookingId",
+              type: "uint256",
             },
           ],
           stateMutability: "payable",
+          type: "function",
         },
         {
-          type: "function",
-          name: "mintToken",
           inputs: [
             {
-              name: "token",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "amount",
-              type: "uint256",
               internalType: "uint256",
+              name: "bookingId",
+              type: "uint256",
             },
           ],
+          name: "bookingsById",
           outputs: [
             {
-              name: "newTotalSupply",
-              type: "int64",
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "renter",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "availabilityId",
+              type: "uint256",
+            },
+            {
               internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+            {
+              internalType: "uint256",
+              name: "startDate",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "endDate",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "totalPaid",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "feeAmount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "ownerPayout",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "payoutClaimed",
+              type: "bool",
+            },
+            {
+              internalType: "enum SubscriptionMarketplace.BookingStatus",
+              name: "status",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "bookingId",
+              type: "uint256",
+            },
+          ],
+          name: "cancelBooking",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "bookingId",
+              type: "uint256",
+            },
+          ],
+          name: "claimBookingPayout",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+            {
+              internalType: "uint256",
+              name: "windowStart",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "windowEnd",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "pricePerDay",
+              type: "uint256",
+            },
+          ],
+          name: "createAvailability",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "availabilityId",
+              type: "uint256",
             },
           ],
           stateMutability: "nonpayable",
+          type: "function",
         },
         {
-          type: "event",
-          name: "TokenCreated",
           inputs: [
             {
-              name: "tokenAddress",
-              type: "address",
-              indexed: true,
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "getAvailability",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
+                },
+                {
+                  internalType: "int64",
+                  name: "serialNumber",
+                  type: "int64",
+                },
+                {
+                  internalType: "uint256",
+                  name: "windowStart",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "windowEnd",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "pricePerDay",
+                  type: "uint256",
+                },
+                {
+                  internalType: "enum SubscriptionMarketplace.AvailabilityStatus",
+                  name: "status",
+                  type: "uint8",
+                },
+              ],
+              internalType: "struct SubscriptionMarketplace.AvailabilityWindow[]",
+              name: "list",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "getBookings",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "renter",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "availabilityId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "int64",
+                  name: "serialNumber",
+                  type: "int64",
+                },
+                {
+                  internalType: "uint256",
+                  name: "startDate",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "endDate",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "totalPaid",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "feeAmount",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "ownerPayout",
+                  type: "uint256",
+                },
+                {
+                  internalType: "bool",
+                  name: "payoutClaimed",
+                  type: "bool",
+                },
+                {
+                  internalType: "enum SubscriptionMarketplace.BookingStatus",
+                  name: "status",
+                  type: "uint8",
+                },
+              ],
+              internalType: "struct SubscriptionMarketplace.Booking[]",
+              name: "list",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "marketplaceFeeBps",
+          outputs: [
+            {
+              internalType: "uint16",
+              name: "",
+              type: "uint16",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "nextAvailabilityId",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "nextBookingId",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "owner",
+          outputs: [
+            {
               internalType: "address",
-            },
-            {
-              name: "name",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-            {
-              name: "symbol",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "TokenMinted",
-          inputs: [
-            {
-              name: "tokenAddress",
+              name: "",
               type: "address",
-              indexed: true,
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "availabilityId",
+              type: "uint256",
+            },
+          ],
+          name: "removeAvailability",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "renounceOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint16",
+              name: "newFeeBps",
+              type: "uint16",
+            },
+          ],
+          name: "setMarketplaceFeeBps",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "subscriptionNFT",
+          outputs: [
+            {
+              internalType: "contract ISubscriptionNFT",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "address",
-            },
-            {
-              name: "newTotalSupply",
-              type: "int64",
-              indexed: false,
-              internalType: "int64",
+              name: "newOwner",
+              type: "address",
             },
           ],
-          anonymous: false,
+          name: "transferOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
         },
         {
-          type: "error",
-          name: "HtsCreateFailed",
           inputs: [
             {
-              name: "responseCode",
-              type: "int64",
-              internalType: "int64",
+              internalType: "uint256",
+              name: "availabilityId",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "newPricePerDay",
+              type: "uint256",
             },
           ],
+          name: "updateAvailability",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
         },
         {
-          type: "error",
-          name: "HtsMintFailed",
           inputs: [
             {
-              name: "responseCode",
-              type: "int64",
               internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
             },
           ],
+          name: "userOf",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "recipient",
+              type: "address",
+            },
+          ],
+          name: "withdrawMarketplaceFees",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
         },
       ],
-      inheritedFunctions: {},
-      deployedOnBlock: 33578759,
+      inheritedFunctions: {
+        owner: "@openzeppelin/contracts/access/Ownable.sol",
+        renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
+        transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
+      },
+      deployedOnBlock: 35522251,
+    },
+    SubscriptionNFT: {
+      address: "0xeA8AE08513f8230cAA8d031D28cB4Ac8CE720c68",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "initialOwner",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [],
+          name: "CollectionAlreadyCreated",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "CollectionNotCreated",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "EmptyField",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "responseCode",
+              type: "int64",
+            },
+          ],
+          name: "HtsCreateFailed",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "responseCode",
+              type: "int64",
+            },
+          ],
+          name: "HtsMintFailed",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "responseCode",
+              type: "int64",
+            },
+          ],
+          name: "HtsTransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidDateRange",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "InvalidSerialNumber",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "MetadataTooLong",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+          ],
+          name: "OwnableInvalidOwner",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+          ],
+          name: "OwnableUnauthorizedAccount",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "SubscriptionNotFound",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "count",
+              type: "uint256",
+            },
+          ],
+          name: "UnexpectedSerialCount",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "collectionAddress",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "symbol",
+              type: "string",
+            },
+          ],
+          name: "CollectionCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "previousOwner",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newOwner",
+              type: "address",
+            },
+          ],
+          name: "OwnershipTransferred",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "recipient",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "provider",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "serviceTier",
+              type: "string",
+            },
+          ],
+          name: "SubscriptionMinted",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "HTS",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "METADATA_MAX_BYTES",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "SUCCESS",
+          outputs: [
+            {
+              internalType: "int64",
+              name: "",
+              type: "int64",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "SUPPLY_KEY",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "collectionAddress",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "symbol",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "memo",
+              type: "string",
+            },
+          ],
+          name: "createCollection",
+          outputs: [
+            {
+              internalType: "address",
+              name: "createdAddress",
+              type: "address",
+            },
+          ],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "currentOwner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "getEndDate",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "getSubscription",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "minter",
+                  type: "address",
+                },
+                {
+                  internalType: "string",
+                  name: "provider",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "serviceTier",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "startDate",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "endDate",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct SubscriptionNFT.SubscriptionData",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "isExpired",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "provider",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "serviceTier",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "startDate",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "endDate",
+              type: "uint256",
+            },
+          ],
+          name: "mintSubscription",
+          outputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "renounceOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newOwner",
+              type: "address",
+            },
+          ],
+          name: "transferOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+      inheritedFunctions: {
+        owner: "@openzeppelin/contracts/access/Ownable.sol",
+        renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
+        transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
+      },
+      deployedOnBlock: 35522249,
     },
   },
 } as const;

@@ -4,21 +4,14 @@ This file provides guidance to coding agents working in this repository.
 
 ## Project Overview
 
-Scaffold-HBAR (`sh`) is a starter kit for building dApps on Hedera. It comes in **two flavors** based on the Solidity framework:
-
-- **Hardhat flavor**: Uses `packages/hardhat` with hardhat-deploy plugin
-- **Foundry flavor**: Uses `packages/foundry` with Forge scripts
-
-Both flavors share the same frontend package:
+Scaffold-HBAR (`sh`) is a starter kit for building dApps on Hedera with a Hardhat-first contract workflow.
+The frontend package is shared:
 
 - **packages/nextjs**: React frontend (Next.js App Router, not Pages Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS with DaisyUI)
 
-### Detecting Which Flavor You're Usings
+### Solidity Framework
 
-Check which package exists in the repository:
-
-- If `packages/hardhat` exists → **Hardhat flavor** (follow Hardhat instructions)
-- If `packages/foundry` exists → **Foundry flavor** (follow Foundry instructions)
+Use Hardhat instructions and scripts in this repository.
 
 ## Common Commands
 
@@ -28,8 +21,6 @@ Use explicit package-prefixed scripts for package-specific work. Keep only truly
 # Development workflow (run each in separate terminal)
 yarn hardhat:chain   # Start local Hedera-forked Hardhat node
 yarn hardhat:deploy  # Deploy contracts with Hardhat
-yarn foundry:chain   # Start plain Anvil from the Foundry package
-yarn foundry:deploy  # Deploy contracts with Foundry
 yarn next:start      # Start Next.js frontend at http://localhost:3000
 
 # Code quality
@@ -39,23 +30,17 @@ yarn format          # Format all present packages
 # Building
 yarn next:build      # Build frontend
 yarn hardhat:compile # Compile Solidity contracts with Hardhat
-yarn foundry:compile # Compile Solidity contracts with Foundry
 
 # Contract verification
 yarn hardhat:verify:testnet
-yarn foundry:verify:testnet
 
 # Account management
 yarn hardhat:account:generate
 yarn hardhat:account:import
 yarn hardhat:account
-yarn foundry:account:generate
-yarn foundry:account:import
-yarn foundry:account
 
 # Deploy to live network
 yarn hardhat:deploy --network <network>   # e.g., hederaTestnet, hederaMainnet
-yarn foundry:deploy --network <network>   # e.g., hedera_testnet, hedera_mainnet
 
 yarn next:vercel:yolo --prod # deploy frontend
 ```
@@ -78,19 +63,7 @@ yarn next:vercel:yolo --prod # deploy frontend
     ```
  - `yarn hardhat:deploy --tags MyContract`
 
-#### Foundry Flavor
-
-- Contracts: `packages/foundry/contracts/`
-- Deployment scripts: `packages/foundry/script/` (uses custom deployment strategy)
-  - Example: `packages/foundry/script/Deploy.s.sol` and `packages/foundry/script/DeployYourContract.s.sol`
-- Tests: `packages/foundry/test/`
-- Config: `packages/foundry/foundry.toml`
-- Deploying a specific contract:
- - Create a separate deployment script and run `yarn foundry:deploy --file DeployYourContract.s.sol`
-
-#### Both Flavors
-
-- After `yarn hardhat:deploy` or `yarn foundry:deploy`, ABIs are auto-generated to `packages/nextjs/contracts/deployedContracts.ts`
+After `yarn hardhat:deploy`, ABIs are auto-generated to `packages/nextjs/contracts/deployedContracts.ts`
 
 ### Frontend Contract Interaction
 
@@ -173,10 +146,6 @@ Scaffold-HBAR also provides other hooks to interact with blockchain data: `useSc
 
 Add networks in `packages/hardhat/hardhat.config.ts` if not present.
 
-#### Foundry
-
-Add RPC endpoints in `packages/foundry/foundry.toml` if not present.
-
 #### NextJs
 
 Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file also contains configuration for polling interval, API keys. Remember to decrease the polling interval for L2 chains.
@@ -191,7 +160,7 @@ Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file a
 | `UpperCamelCase` | class / interface / type / enum / decorator / type parameters / component functions in TSX / JSXElement type parameter |
 | `lowerCamelCase` | variable / parameter / function / property / module alias                                                              |
 | `CONSTANT_CASE`  | constant / enum / global variables                                                                                     |
-| `snake_case`     | for hardhat deploy files and foundry script files                                                                      |
+| `snake_case`     | for Hardhat deploy/script file names                                                                                   |
 
 
 ### Import Paths

@@ -91,9 +91,7 @@ export function useScaffoldWriteContract<TContractName extends ContractName>(
     options?: ScaffoldWriteContractOptions,
   ) => {
     if (!deployedContractData) {
-      notification.error(
-        "Target Contract is not deployed. Deploy your contracts first with `yarn hardhat:deploy` or `yarn foundry:deploy`.",
-      );
+      notification.error("Target Contract is not deployed. Deploy your contracts first with `yarn hardhat:deploy`.");
       return;
     }
 
@@ -155,9 +153,7 @@ export function useScaffoldWriteContract<TContractName extends ContractName>(
     options?: Omit<ScaffoldWriteContractOptions, "onBlockConfirmation" | "blockConfirmations">,
   ) => {
     if (!deployedContractData) {
-      notification.error(
-        "Target Contract is not deployed. Deploy your contracts first with `yarn hardhat:deploy` or `yarn foundry:deploy`.",
-      );
+      notification.error("Target Contract is not deployed. Deploy your contracts first with `yarn hardhat:deploy`.");
       return;
     }
     if (!accountChain?.id) {
