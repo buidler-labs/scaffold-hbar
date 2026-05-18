@@ -142,7 +142,7 @@ contract SubscriptionNFT is Ownable {
         metadata[0] = label;
 
         (int64 responseCode, , int64[] memory serialNumbers) =
-            IHederaTokenService(HTS).mintToken(collectionAddress, 1, metadata);
+            IHederaTokenService(HTS).mintToken(collectionAddress, 0, metadata);
         if (responseCode != SUCCESS) revert HtsMintFailed(responseCode);
 
         if (serialNumbers.length != 1) revert UnexpectedSerialCount(serialNumbers.length);
