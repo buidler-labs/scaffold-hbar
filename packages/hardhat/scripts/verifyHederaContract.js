@@ -13,11 +13,11 @@
  *   address is ignored.
  *
  * Example:
- *   node scripts/verifyHederaContract.js HederaToken
- *   node scripts/verifyHederaContract.js HederaToken mainnet
- *   node scripts/verifyHederaContract.js HederaToken testnet 0xabc...
- *   node scripts/verifyHederaContract.js HederaToken 0xabc... testnet
- *   yarn verify:contract HederaToken testnet
+ *   node scripts/verifyHederaContract.js SubscriptionNFT
+ *   node scripts/verifyHederaContract.js SubscriptionNFT mainnet
+ *   node scripts/verifyHederaContract.js SubscriptionMarketplace testnet 0xabc...
+ *   node scripts/verifyHederaContract.js SubscriptionMarketplace 0xabc... testnet
+ *   yarn verify:contract SubscriptionNFT testnet
  */
 
 import { readFileSync, existsSync } from "fs";

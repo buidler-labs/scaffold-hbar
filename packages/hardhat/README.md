@@ -56,15 +56,15 @@ You need a deployer account with HBAR on the target network. Without funds, depl
    ```bash
    yarn hardhat:verify:testnet   # all contracts on chain 296
    yarn hardhat:verify:mainnet   # all contracts on chain 295
-   yarn workspace @sh/hardhat verify:contract -- HederaToken testnet
-   yarn workspace @sh/hardhat verify:contract -- HederaToken testnet 0xYourContractAddress
+   yarn workspace @sh/hardhat verify:contract -- SubscriptionNFT testnet
+   yarn workspace @sh/hardhat verify:contract -- SubscriptionMarketplace testnet 0xYourContractAddress
    ```
 
 ## Layout
 
 - `contracts/` — Solidity sources
 - `docs/` — contract behavior notes (see `docs/contract-behavior.md`)
-- `deploy/` — hardhat-deploy scripts (e.g. `00_deploy_hedera_token.ts`)
+- `deploy/` — hardhat-deploy scripts (e.g. `03_deploy_subscription_nft.ts`)
 - `scripts/` — generateAccount, importAccount, verifyHedera.js, etc.
 - `test/` — contract tests
 - `hardhat.config.ts` — networks (`hardhat`, `localhost` for RPC at 127.0.0.1:8545, `hederaTestnet`, `hederaMainnet`)
