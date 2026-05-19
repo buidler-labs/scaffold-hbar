@@ -1,42 +1,54 @@
-PHONY: build deploy deploy-and-generate-abis generate-abis get-address account chain fork compile flatten format lint test verify
+.PHONY: help deploy deploy-and-generate-abis deploy-chainlink-testnet deploy-chainlink-mainnet generate-abis get-address account compile flatten format lint test test-chainlink-testnet test-chainlink-mainnet verify verify-testnet verify-mainnet
 
-DEPLOY_SCRIPT ?= script/Deploy.s.sol
+DEPLOY_SCRIPT ?= script/DeployChainlinkOracle.s.sol
+CHAINLINK_DEPLOY_SCRIPT := script/DeployChainlinkOracle.s.sol
+CHAINLINK_FORK_TEST := test/integration/ChainlinkPriceOracleAdapterFork.t.sol
+RPC_URL ?= hedera_testnet
+ACCOUNT_ARGS :=
 
-# Start a plain local Anvil chain (no fork)
-chain:
-	anvil
+ifneq ($(strip $(ACCOUNT_NAME)),)
+ACCOUNT_ARGS := --account $(ACCOUNT_NAME)
+endif
 
-fork:
-	@FORK_URL=$${FORK_URL:-$${HEDERA_RPC_URL:-https://testnet.hashio.io/api}}; \
-	echo "Starting Anvil fork against $$FORK_URL with chain-id 296..."; \
-	anvil --fork-url $$FORK_URL --chain-id 296
+help:
+	@echo "Foundry oracle template commands"
+	@echo ""
+	@echo "Build and quality:"
+	@echo "  make compile"
+	@echo "  make test"
+	@echo "  make lint"
+	@echo "  make format"
+	@echo ""
+	@echo "Chainlink deployment:"
+	@echo "  make deploy-chainlink-testnet ACCOUNT_NAME=<keystore>"
+	@echo "  make deploy-chainlink-mainnet ACCOUNT_NAME=<keystore>"
+	@echo ""
+	@echo "Chainlink fork smoke tests:"
+	@echo "  make test-chainlink-testnet"
+	@echo "  make test-chainlink-mainnet"
+	@echo ""
+	@echo "Verification:"
+	@echo "  make verify-testnet"
+	@echo "  make verify-mainnet"
 
-# Setup the default deployer keystore (Anvil account #9, prefunded on the Hedera node)
-setup-deployer:
-	rm -f ~/.foundry/keystores/scaffold-hbar-default 2>/dev/null; \
-	rm -rf broadcast/Deploy.s.sol/31337
-	cast wallet import --private-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6 --unsafe-password 'localhost' scaffold-hbar-default
-
-# Deploy the contracts to the local Hedera-forked node (start with `make fork` or `yarn fork` in this package)
-deploy: setup-deployer
+# Deploy the selected script to Hedera testnet/mainnet.
+deploy:
 	@if [ ! -f "$(DEPLOY_SCRIPT)" ]; then \
 		echo "Error: Deploy script '$(DEPLOY_SCRIPT)' not found"; \
 		exit 1; \
 	fi
 	@mkdir -p deployments
-	@if [ "$(RPC_URL)" = "localhost" ]; then \
-		rm -rf broadcast/Deploy.s.sol/31337; \
-		if [ "$(ETH_KEYSTORE_ACCOUNT)" = "scaffold-hbar-default" ]; then \
-			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --password localhost --broadcast --ffi; \
-		else \
-			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --broadcast --ffi; \
-		fi \
-	else \
-		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --broadcast --ffi --slow; \
-	fi
+	forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) $(ACCOUNT_ARGS) --broadcast --ffi --slow
 
 # Deploy and generate ABIs (used by scripts-js/parseArgs.js)
 deploy-and-generate-abis: deploy generate-abis
+
+# Deploy and register the default Chainlink Hedera adapters.
+deploy-chainlink-testnet:
+	$(MAKE) deploy-and-generate-abis DEPLOY_SCRIPT=$(CHAINLINK_DEPLOY_SCRIPT) RPC_URL=hedera_testnet
+
+deploy-chainlink-mainnet:
+	$(MAKE) deploy-and-generate-abis DEPLOY_SCRIPT=$(CHAINLINK_DEPLOY_SCRIPT) RPC_URL=hedera_mainnet
 
 # Generate TypeScript ABIs for the Next.js frontend
 generate-abis:
@@ -70,6 +82,13 @@ lint:
 test:
 	forge test
 
+# Run Chainlink adapter fork smoke tests against real Hedera feed addresses.
+test-chainlink-testnet:
+	FOUNDRY_PROFILE=integration forge test --fork-url $${HEDERA_TESTNET_RPC_URL:-https://testnet.hashio.io/api} --match-path $(CHAINLINK_FORK_TEST)
+
+test-chainlink-mainnet:
+	FOUNDRY_PROFILE=integration forge test --fork-url $${HEDERA_MAINNET_RPC_URL:-https://mainnet.hashio.io/api} --match-path $(CHAINLINK_FORK_TEST)
+
 # Verify contracts
 # For Hedera networks (chainId 295/296) this calls verifyHedera.js which uses
 # Hashscan's legacy Sourcify v1 API directly (forge's built-in Sourcify client
@@ -80,3 +99,9 @@ verify:
 	else \
 		forge script script/VerifyAll.s.sol --ffi --rpc-url $(RPC_URL); \
 	fi
+
+verify-testnet:
+	$(MAKE) verify RPC_URL=hedera_testnet
+
+verify-mainnet:
+	$(MAKE) verify RPC_URL=hedera_mainnet

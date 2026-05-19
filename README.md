@@ -8,7 +8,7 @@ A Hedera-ready monorepo for building dApps with Next.js, Hardhat or Foundry, and
 - [Yarn](https://yarnpkg.com/) — **required** (this project uses Yarn workspaces; npm and pnpm are not supported)  
   Install via Corepack: `corepack enable && corepack prepare yarn@stable --activate`
 - [Git](https://git-scm.com/)
-- **If using Foundry:** [Foundry](https://book.getfoundry.sh/getting-started/installation) (`forge`, `cast`, `anvil`)
+- **If using Foundry:** [Foundry](https://book.getfoundry.sh/getting-started/installation) (`forge`, `cast`)
 
 ## Quick start
 
@@ -79,6 +79,12 @@ Use a keystore with testnet HBAR (fund via [Hedera Portal faucet](https://portal
   yarn foundry:deploy --network hedera_testnet
   ```
   Or from `packages/foundry`: `make deploy` with `RPC_URL` and account set via env / Makefile.
+- **Deploy the Chainlink oracle template:**
+  ```bash
+  yarn foundry:deploy:chainlink:testnet
+  yarn foundry:deploy:chainlink:mainnet
+  ```
+  See the full step-by-step Chainlink flow in [`packages/foundry/README.md`](packages/foundry/README.md#end-to-end-chainlink-flow).
 - **Verify on Hashscan:**  
 After deploy, run (no extra arguments needed):
   ```bash
@@ -122,30 +128,17 @@ yarn hardhat:test
 yarn next:start
 ```
 
-### Foundry local workflow
+### Foundry RPC workflow
 
-This path uses **Foundry** (`packages/foundry`) while sharing the same local JSON-RPC started by `yarn hardhat:chain` from the repo root. Details: [`packages/foundry/README.md`](packages/foundry/README.md).
-
-1. Start the local chain first:
-
-```bash
-yarn hardhat:chain
-```
-
-2. Run Foundry tests against that JSON-RPC:
-
-```bash
-yarn foundry:test:local
-```
-
-3. Optionally run Foundry tests directly against Hedera RPC endpoints (no local node):
+This path uses **Foundry** (`packages/foundry`) directly against Hedera RPC endpoints. Details: [`packages/foundry/README.md`](packages/foundry/README.md).
 
 ```bash
 yarn foundry:test:testnet
 yarn foundry:test:mainnet
+yarn foundry:test:chainlink:testnet
 ```
 
-This keeps local testing on a single path and avoids chain id drift between different local node commands.
+The Chainlink adapter smoke tests use real Hedera feed addresses and are excluded from the default unit test suite.
 
 ## Project layout
 
@@ -161,4 +154,3 @@ Network and RPC URLs are in `packages/hardhat/hardhat.config.ts` or `packages/fo
 - [Hashscan](https://hashscan.io/) — block explorer
 - [Hedera Token Service (HTS)](https://docs.hedera.com/hedera/core-concepts/hedera-token-service-hts)
 - [create-scaffold-hbar](https://github.com/buidler-labs/create-scaffold-hbar) — CLI to scaffold Hedera dApps
-

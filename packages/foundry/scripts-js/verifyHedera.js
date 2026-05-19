@@ -8,12 +8,13 @@
  * Uses only Node.js built-ins — no extra dependencies required.
  *
  * Usage:
- *   node scripts-js/verifyHedera.js [chainId]
+ *   node scripts-js/verifyHedera.js [chainId] [scriptName]
  *   chainId defaults to 296 (testnet). Pass 295 for mainnet.
+ *   scriptName defaults to DEPLOY_SCRIPT, VERIFY_SCRIPT, or DeployChainlinkOracle.s.sol.
  */
 
 import { readFileSync, existsSync } from "fs";
-import { join, dirname } from "path";
+import { basename, join, dirname } from "path";
 import { fileURLToPath } from "url";
 import https from "https";
 
@@ -79,19 +80,40 @@ function postMultipart(host, path, body, boundary) {
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-function loadBroadcast(chainId) {
-  const broadcastPath = join(
-    foundryRoot,
-    "broadcast",
+function normalizeScriptName(scriptName) {
+  return basename(scriptName || "DeployChainlinkOracle.s.sol");
+}
+
+function resolveBroadcastPath(chainId, scriptName) {
+  const candidates = [
+    normalizeScriptName(scriptName),
+    normalizeScriptName(process.env.VERIFY_SCRIPT),
+    normalizeScriptName(process.env.DEPLOY_SCRIPT),
+    "DeployChainlinkOracle.s.sol",
     "Deploy.s.sol",
-    String(chainId),
-    "run-latest.json"
-  );
-  if (!existsSync(broadcastPath)) {
-    throw new Error(
-      `Broadcast file not found: ${broadcastPath}\nDeploy to chain ${chainId} first.`
+  ].filter((value, index, array) => value && array.indexOf(value) === index);
+
+  for (const candidate of candidates) {
+    const broadcastPath = join(
+      foundryRoot,
+      "broadcast",
+      candidate,
+      String(chainId),
+      "run-latest.json"
     );
+    if (existsSync(broadcastPath)) return broadcastPath;
   }
+
+  throw new Error(
+    `Broadcast file not found for chain ${chainId}. Tried: ${candidates.join(
+      ", "
+    )}.\nDeploy first, or pass the script name, for example: node scripts-js/verifyHedera.js ${chainId} DeployChainlinkOracle.s.sol`
+  );
+}
+
+function loadBroadcast(chainId, scriptName) {
+  const broadcastPath = resolveBroadcastPath(chainId, scriptName);
+  console.log(`Broadcast: ${broadcastPath}`);
   return JSON.parse(readFileSync(broadcastPath, "utf8"));
 }
 
@@ -225,6 +247,7 @@ async function verifyContract(contractName, contractAddress, chainId) {
 
 async function main() {
   const chainId = parseInt(process.argv[2] || "296", 10);
+  const scriptName = process.argv[3];
 
   if (chainId !== 295 && chainId !== 296) {
     console.error(
@@ -238,7 +261,7 @@ async function main() {
     `Verifier: https://${HASHSCAN_VERIFY_HOST}${HASHSCAN_VERIFY_PATH}`
   );
 
-  const broadcast = loadBroadcast(chainId);
+  const broadcast = loadBroadcast(chainId, scriptName);
   const creates = (broadcast.transactions || []).filter(
     (tx) => tx.transactionType === "CREATE"
   );

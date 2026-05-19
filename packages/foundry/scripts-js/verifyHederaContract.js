@@ -8,7 +8,7 @@
  * Uses only Node.js built-ins — no extra dependencies required.
  *
  * Usage:
- *   node scripts-js/verifyHederaContract.js <ContractName> [testnet|mainnet] [0xAddress]
+ *   node scripts-js/verifyHederaContract.js <ContractName> [testnet|mainnet] [0xAddress] [scriptName]
  *   Network defaults to testnet. If you pass a contract address, broadcast is not used
  *
  * Example:
@@ -20,7 +20,7 @@
  */
 
 import { readFileSync, existsSync } from "fs";
-import { join, dirname } from "path";
+import { basename, join, dirname } from "path";
 import { fileURLToPath } from "url";
 import https from "https";
 
@@ -41,6 +41,10 @@ function isEvmAddress(s) {
   );
 }
 
+function isScriptName(s) {
+  return typeof s === "string" && s.endsWith(".s.sol");
+}
+
 /**
  * Resolves network + optional address from argv after contract name.
  * Accepts [network] [address] or [address] [network]; address skips broadcast lookup.
@@ -49,6 +53,7 @@ function parseVerifyArgs(argvSlice) {
   const tokens = argvSlice.filter(Boolean);
   let networkArg = "testnet";
   let addressOverride = null;
+  let scriptName = null;
 
   for (const t of tokens) {
     const lower = t.toLowerCase();
@@ -56,14 +61,16 @@ function parseVerifyArgs(argvSlice) {
       networkArg = lower;
     } else if (isEvmAddress(t)) {
       addressOverride = t;
+    } else if (isScriptName(t)) {
+      scriptName = t;
     } else {
       throw new Error(
-        `Unrecognized argument '${t}'. Use testnet|mainnet and/or 0x-prefixed 20-byte address.`
+        `Unrecognized argument '${t}'. Use testnet|mainnet, a 0x-prefixed 20-byte address, and/or a script name ending in .s.sol.`
       );
     }
   }
 
-  return { networkArg, addressOverride };
+  return { networkArg, addressOverride, scriptName };
 }
 
 // ─── multipart builder (no external deps) ────────────────────────────────────
@@ -122,19 +129,40 @@ function postMultipart(host, path, body, boundary) {
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-function loadBroadcast(chainId) {
-  const broadcastPath = join(
-    foundryRoot,
-    "broadcast",
+function normalizeScriptName(scriptName) {
+  return basename(scriptName || "DeployChainlinkOracle.s.sol");
+}
+
+function resolveBroadcastPath(chainId, scriptName) {
+  const candidates = [
+    normalizeScriptName(scriptName),
+    normalizeScriptName(process.env.VERIFY_SCRIPT),
+    normalizeScriptName(process.env.DEPLOY_SCRIPT),
+    "DeployChainlinkOracle.s.sol",
     "Deploy.s.sol",
-    String(chainId),
-    "run-latest.json"
-  );
-  if (!existsSync(broadcastPath)) {
-    throw new Error(
-      `Broadcast file not found: ${broadcastPath}\nDeploy to chain ${chainId} first.`
+  ].filter((value, index, array) => value && array.indexOf(value) === index);
+
+  for (const candidate of candidates) {
+    const broadcastPath = join(
+      foundryRoot,
+      "broadcast",
+      candidate,
+      String(chainId),
+      "run-latest.json"
     );
+    if (existsSync(broadcastPath)) return broadcastPath;
   }
+
+  throw new Error(
+    `Broadcast file not found for chain ${chainId}. Tried: ${candidates.join(
+      ", "
+    )}.`
+  );
+}
+
+function loadBroadcast(chainId, scriptName) {
+  const broadcastPath = resolveBroadcastPath(chainId, scriptName);
+  console.log(`Broadcast: ${broadcastPath}`);
   return JSON.parse(readFileSync(broadcastPath, "utf8"));
 }
 
@@ -277,8 +305,9 @@ async function main() {
 
   let networkArg;
   let addressOverride;
+  let scriptName;
   try {
-    ({ networkArg, addressOverride } = parseVerifyArgs(extraArgs));
+    ({ networkArg, addressOverride, scriptName } = parseVerifyArgs(extraArgs));
   } catch (err) {
     console.error(`Error: ${err.message}`);
     process.exit(1);
@@ -297,7 +326,7 @@ async function main() {
   let verifyAddress = addressOverride;
 
   if (!verifyAddress) {
-    const broadcast = loadBroadcast(chainId);
+    const broadcast = loadBroadcast(chainId, scriptName);
     const creates = (broadcast.transactions || []).filter(
       (tx) => tx.transactionType === "CREATE"
     );

@@ -106,11 +106,113 @@ own business logic, permissions, payments, or accounting rules.
 
 Unsupported chains revert from `getConfigByChainId`.
 
+`script/DeployChainlinkOracle.s.sol` deploys:
+
+- `OracleRegistry`
+- one `ChainlinkPriceOracleAdapter` for each configured pair
+- `OracleConsumer` as a demo consumer
+
+It also registers the Chainlink adapters in `OracleRegistry`.
+The deploy wrapper runs `forge script` with `--broadcast`, so these commands send transactions and then export the
+deployed addresses to `deployments/<chainId>.json`.
+
+Deploy the Chainlink oracle demo on Hedera Testnet:
+
+```bash
+yarn foundry:deploy --file DeployChainlinkOracle.s.sol --network hedera_testnet
+```
+
+For mainnet, use:
+
+```bash
+yarn foundry:deploy --file DeployChainlinkOracle.s.sol --network hedera_mainnet
+```
+
 Chainlink fork tests use the real feed addresses and are excluded from the default test suite:
 
 ```bash
 FOUNDRY_PROFILE=integration forge test --fork-url https://testnet.hashio.io/api --match-path test/integration/ChainlinkPriceOracleAdapterFork.t.sol
 ```
+
+### End-To-End Chainlink Flow
+
+Use this checklist when starting from a fresh clone and deploying the Chainlink oracle template to Hedera.
+
+1. Install workspace dependencies from the repo root:
+
+   ```bash
+   yarn install
+   ```
+
+2. Initialize Forge dependencies:
+
+   ```bash
+   git submodule update --init --recursive
+   ```
+
+3. Create or import a Foundry keystore account:
+
+   ```bash
+   yarn foundry:account:generate
+   # or
+   yarn foundry:account:import
+   ```
+
+4. Fund that Hedera account with testnet HBAR from the [Hedera Portal faucet](https://portal.hedera.com/faucet).
+
+5. Compile the contracts:
+
+   ```bash
+   yarn foundry:compile
+   ```
+
+   If you are already inside `packages/foundry`, you can also run:
+
+   ```bash
+   forge build
+   ```
+
+6. Run deterministic unit tests:
+
+   ```bash
+   yarn foundry:test
+   ```
+
+7. Run the Chainlink fork smoke test against real Hedera Testnet feed addresses:
+
+   ```bash
+   yarn foundry:test:chainlink:testnet
+   ```
+
+8. Deploy and register the Chainlink oracle template on Hedera Testnet:
+
+   ```bash
+   yarn foundry:deploy:chainlink:testnet
+   ```
+
+   The deploy command prompts for a keystore unless one is provided. To select one explicitly:
+
+   ```bash
+   yarn foundry:deploy --file DeployChainlinkOracle.s.sol --network hedera_testnet --keystore <keystore-name>
+   ```
+
+9. Check the exported deployment file:
+
+   ```bash
+   cat packages/foundry/deployments/296.json
+   ```
+
+   The file should include `OracleRegistry`, `OracleConsumer`, and the three Chainlink adapter addresses.
+
+10. Verify contracts on Hashscan when needed:
+
+   ```bash
+   yarn foundry:verify:testnet
+   ```
+
+For mainnet, use the same flow with `hedera_mainnet`, `yarn foundry:deploy:chainlink:mainnet`, and
+`yarn foundry:verify:mainnet`. Use a funded mainnet Hedera account and confirm every feed address in
+`script/HelperConfig.s.sol` before broadcasting.
 
 ### Extending The Template
 
@@ -137,24 +239,14 @@ git submodule update --init --recursive
 
 From the repo root, contract deploys for this package use **`yarn foundry:deploy`** (runs `packages/foundry`’s deploy script). Inside `packages/foundry`, use **`yarn deploy`** (same entrypoint).
 
-- **Local (recommended):** Start the shared local chain from the repo root, then deploy with `--network localhost` (RPC `http://127.0.0.1:8545`).
-
-  ```bash
-  yarn hardhat:chain
-  ```
-
-  In another terminal (from repo root or this package):
-
-  ```bash
-  yarn foundry:deploy --network localhost
-  ```
-
-  This uses the default keystore `scaffold-hbar-default` where applicable (see `Makefile` / `parseArgs.js`).
-  The deploy flow auto-creates the local `deployments/` directory before writing `deployments/<chainId>.json`.
-
-- **Plain Anvil (no Hedera fork):** `yarn chain` inside `packages/foundry` runs plain `anvil`—useful for quick iteration, not for full Hedera/HTS parity.
-
 - **Hedera testnet/mainnet:** Use `yarn foundry:deploy --network hedera_testnet` (or `hedera_mainnet`). You **must** use a keystore whose address is a **Hedera-created account** (created and funded via [Hedera Portal](https://portal.hedera.com) or faucet). If you see `Requested resource not found. address '0x...'`, that address does not exist on Hedera. From the repo root, create or import one with `yarn foundry:account:generate` or `yarn foundry:account:import`, then deploy with `--keystore <name>`. For multi-contract deploys, the Makefile uses `--slow` so each transaction is confirmed before the next (avoids `WRONG_NONCE` on Hedera when both txs are in flight).
+
+- **Chainlink oracle template:** Use the dedicated Makefile/Yarn shortcuts to deploy the registry, Chainlink adapters, and demo consumer:
+
+  ```bash
+  yarn foundry:deploy:chainlink:testnet
+  yarn foundry:deploy:chainlink:mainnet
+  ```
 
 ---
 
@@ -163,24 +255,6 @@ From the repo root, contract deploys for this package use **`yarn foundry:deploy
 - **`yarn test`** inside `packages/foundry` (or `forge test`) – Runs deterministic unit tests only.
   Integration tests under `test/integration` are excluded by default.
 
-- **`yarn test:local`** inside `packages/foundry` (or `forge test --fork-url http://127.0.0.1:8545 --chain-id 296 --ffi`) – Runs tests against whatever serves **JSON-RPC on 127.0.0.1:8545** with **chain id 296**.
-
-  **Local setup:**
-
-  ```bash
-  yarn hardhat:chain
-  ```
-
-  Then in another terminal from the repo root:
-
-  ```bash
-  yarn foundry:test:local
-  ```
-
-  Or from this package: `yarn test:local`.
-
-  This command attaches to the shared local JSON-RPC at `:8545`.
-
 - **`yarn test:testnet`** inside `packages/foundry` – Fork from Hedera testnet RPC (`HEDERA_RPC_URL` or default) with [hedera-forking](https://github.com/hashgraph/hedera-forking) HTS emulation via `htsSetup()` where applicable.
 
 - **`yarn test:mainnet`** inside `packages/foundry` – Fork from Hedera mainnet RPC (read-only / snapshot style checks).
@@ -188,7 +262,8 @@ From the repo root, contract deploys for this package use **`yarn foundry:deploy
 - **Chainlink fork test:** run the real-feed adapter smoke test explicitly:
 
   ```bash
-  FOUNDRY_PROFILE=integration forge test --fork-url https://testnet.hashio.io/api --match-path test/integration/ChainlinkPriceOracleAdapterFork.t.sol
+  yarn foundry:test:chainlink:testnet
+  yarn foundry:test:chainlink:mainnet
   ```
 
 For more on fork testing with HTS emulation, see [forking the Hedera network for local testing](https://docs.hedera.com/hedera/core-concepts/smart-contracts/forking-hedera-network-for-local-testing).
