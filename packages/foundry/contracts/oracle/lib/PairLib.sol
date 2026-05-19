@@ -7,6 +7,9 @@ pragma solidity ^0.8.19;
 ///      The library does not mutate or uppercase input strings, so mixed-case symbols intentionally produce
 ///      different keys and should be treated as configuration mistakes by callers.
 library PairLib {
+    /// @notice Empty string length used for symbol validation.
+    uint256 internal constant EMPTY_STRING_LENGTH = 0;
+
     /// @notice Returned when a base or quote symbol is empty.
     error EmptySymbol();
 
@@ -16,7 +19,7 @@ library PairLib {
     /// @param quoteSymbol Canonical uppercase quote asset symbol, such as `USD`.
     /// @return pairKey Key used by registries and adapters for this ordered pair.
     function pairKey(string memory baseSymbol, string memory quoteSymbol) internal pure returns (bytes32) {
-        if (bytes(baseSymbol).length == 0 || bytes(quoteSymbol).length == 0) {
+        if (bytes(baseSymbol).length == EMPTY_STRING_LENGTH || bytes(quoteSymbol).length == EMPTY_STRING_LENGTH) {
             revert EmptySymbol();
         }
 

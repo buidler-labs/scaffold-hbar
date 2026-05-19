@@ -5,6 +5,9 @@ pragma solidity ^0.8.19;
 /// @notice Shared provider keys for the oracle adapters supported by this template.
 /// @dev Provider names are represented by deterministic `bytes32` keys so registries can avoid string comparisons.
 library ProviderLib {
+    /// @notice Empty string length used for provider-name validation.
+    uint256 internal constant EMPTY_STRING_LENGTH = 0;
+
     /// @notice Returned when a provider name is empty.
     error EmptyProvider();
 
@@ -22,7 +25,7 @@ library ProviderLib {
     /// @param providerName Canonical uppercase provider name.
     /// @return providerKey Key used by registries and adapters for this provider.
     function providerKey(string memory providerName) internal pure returns (bytes32) {
-        if (bytes(providerName).length == 0) {
+        if (bytes(providerName).length == EMPTY_STRING_LENGTH) {
             revert EmptyProvider();
         }
 
