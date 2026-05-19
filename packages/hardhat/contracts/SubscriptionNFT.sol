@@ -215,19 +215,20 @@ contract SubscriptionNFT is Ownable {
             keyType: SUPPLY_KEY,
             key: IHederaTokenService.KeyValue({
                 inheritAccountKey: false,
-                contractId: address(this),
+                contractId: address(0),
                 ed25519: "",
                 ECDSA_secp256k1: "",
-                delegatableContractId: address(0)
+                delegatableContractId: address(this)
             })
         });
         return keys;
     }
 
     /// @notice Builds default token expiry configuration for collection creation.
+    /// @dev Uses contract address as autoRenewAccount so delegatableContractId authorization covers it.
     /// @return Expiry object passed to HTS create token call.
     function _defaultExpiry() internal view returns (IHederaTokenService.Expiry memory) {
-        return IHederaTokenService.Expiry({ second: 0, autoRenewAccount: owner(), autoRenewPeriod: 7_890_000 });
+        return IHederaTokenService.Expiry({ second: 0, autoRenewAccount: address(this), autoRenewPeriod: 7_890_000 });
     }
 
 }

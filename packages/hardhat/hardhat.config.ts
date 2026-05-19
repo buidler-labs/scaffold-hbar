@@ -68,9 +68,6 @@ const config: HardhatUserConfig = {
       chainId: 295,
     },
   },
-  sourcify: {
-    enabled: false,
-  },
 };
 
 // Extend the deploy task to also generate TypeScript ABIs after deployment.

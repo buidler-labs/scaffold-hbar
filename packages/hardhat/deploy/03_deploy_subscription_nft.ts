@@ -1,5 +1,6 @@
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import type { DeployFunction } from "hardhat-deploy/types";
+import { ethers } from "ethers";
 
 const deploySubscriptionNFT: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
@@ -7,7 +8,7 @@ const deploySubscriptionNFT: DeployFunction = async function (hre: HardhatRuntim
 
   await deploy("SubscriptionNFT", {
     from: deployer,
-    args: [deployer],
+    args: [deployer, ethers.ZeroAddress],
     log: true,
     autoMine: true,
   });
