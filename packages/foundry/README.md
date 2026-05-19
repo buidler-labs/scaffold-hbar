@@ -2,6 +2,77 @@
 
 Solidity contracts, Forge scripts, and tests for the Hedera EVM.
 
+## Oracle Core Architecture
+
+This project contains the provider-agnostic oracle foundation for the Hedera Foundry template.
+
+### Normalized Price Interface
+
+Every provider adapter implements `IPriceOracle`.
+
+`latestPrice()` returns one `PriceData` struct:
+
+- `pairKey`: deterministic key for the configured `BASE/QUOTE` pair.
+- `providerKey`: deterministic key for the oracle provider.
+- `priceE18`: price of one whole base asset in quote asset units, scaled to 18 decimals.
+- `updatedAt`: upstream oracle update timestamp in seconds.
+
+### Pair And Provider Keys
+
+A Solidity library is reusable code deployed without its own persistent storage. In this project, libraries keep
+shared key and conversion logic in one place so adapters, registries, and consumers use the same rules.
+
+`PairLib` derives pair keys with:
+
+```text
+keccak256(abi.encode(baseSymbol, quoteSymbol))
+```
+
+Symbols are expected to be canonical uppercase values such as `HBAR`, `BTC`, `ETH`, and `USD`.
+The library does not uppercase symbols for callers, so casing differences intentionally produce different keys.
+
+`ProviderLib` exposes deterministic provider keys for:
+
+- `CHAINLINK`
+- `SUPRA`
+- `PYTH`
+
+### Asset Conversion
+
+`AssetConversionLib` converts smallest-unit amounts using normalized oracle prices.
+
+For `baseToQuote`:
+
+```text
+quoteAmount = baseAmount * (10 ** quoteDecimals) / (10 ** baseDecimals) * priceE18 / 1e18
+```
+
+For `quoteToBase`:
+
+```text
+baseAmount = quoteAmount * (10 ** baseDecimals) / (10 ** quoteDecimals) * 1e18 / priceE18
+```
+
+The library uses OpenZeppelin `Math.mulDiv` and rounds down when a conversion leaves a remainder.
+It rejects zero prices. Decimal validation is intentionally left to template users and future adapters.
+
+### Oracle Registry
+
+`OracleRegistry` maps:
+
+```text
+pairKey + providerKey -> adapter address
+```
+
+Only the owner can register, replace, or remove adapters.
+During registration, the registry calls `latestPrice()` on the adapter and checks that the adapter reports the
+same `pairKey` and `providerKey` requested by the owner.
+
+Consumers can either:
+
+- call `getOracle(pairKey, providerKey)` and read the adapter directly, or
+- call `latestPrice(pairKey, providerKey)` for a registry passthrough read.
+
 ## Setup
 
 Forge dependencies are tracked as git submodules under `packages/foundry/lib`.
