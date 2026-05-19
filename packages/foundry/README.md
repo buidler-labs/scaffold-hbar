@@ -73,6 +73,23 @@ Consumers can either:
 - call `getOracle(pairKey, providerKey)` and read the adapter directly, or
 - call `latestPrice(pairKey, providerKey)` for a registry passthrough read.
 
+### Chainlink Deployment Config
+
+`script/HelperConfig.s.sol` stores Chainlink Data Feed addresses used by deployment scripts:
+
+| Network         | HBAR/USD                                     | BTC/USD                                      | ETH/USD                                      |
+| --------------- | -------------------------------------------- | -------------------------------------------- | -------------------------------------------- |
+| Hedera Mainnet  | `0xAF685FB45C12b92b5054ccb9313e135525F9b5d5` | `0xaD01E27668658Cc8c1Ce6Ed31503D75F31eEf480` | `0xd2D2CB0AEb29472C3008E291355757AD6225019e` |
+| Hedera Testnet  | `0x59bC155EB6c6C415fE43255aF66EcF0523c92B4a` | `0x058fE79CB5775d4b167920Ca6036B824805A9ABd` | `0xb9d461e0b962aF219866aDfA7DD19C52bB9871b9` |
+
+Unsupported chains revert from `getConfigByChainId`.
+
+Chainlink fork tests use the real feed addresses and are excluded from the default test suite:
+
+```bash
+FOUNDRY_PROFILE=integration forge test --fork-url https://testnet.hashio.io/api --match-path test/integration/ChainlinkPriceOracleAdapterFork.t.sol
+```
+
 ## Setup
 
 Forge dependencies are tracked as git submodules under `packages/foundry/lib`.

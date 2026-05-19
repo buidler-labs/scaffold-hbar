@@ -2,11 +2,16 @@
 src = 'contracts'
 out = 'out'
 libs = ['lib']
+test = 'test'
+no_match_path = 'test/integration/**'
 fs_permissions = [
     { access = "read-write", path = "deployments" },
     { access = "read-write", path = "./" }
 ]
 ffi = true
+
+[profile.integration]
+no_match_path = 'NO_MATCHING_TEST_PATHS'
 
 # Suppress style lints for API/modifier names we don't control
 [lint]
