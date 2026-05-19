@@ -6,6 +6,16 @@ Solidity contracts, Forge scripts, and tests for the Hedera EVM.
 
 This project contains the provider-agnostic oracle foundation for the Hedera Foundry template.
 
+The intended flow is:
+
+```text
+Provider feed -> Provider adapter -> OracleRegistry -> Consumer contract
+```
+
+Provider adapters normalize provider-specific price data into one shared `IPriceOracle` shape. Consumers can then
+read prices from `OracleRegistry` without knowing whether the price came from Chainlink, Supra, Pyth, or another
+adapter.
+
 ### Normalized Price Interface
 
 Every provider adapter implements `IPriceOracle`.
@@ -73,6 +83,18 @@ Consumers can either:
 - call `getOracle(pairKey, providerKey)` and read the adapter directly, or
 - call `latestPrice(pairKey, providerKey)` for a registry passthrough read.
 
+### Oracle Consumer Demo
+
+`OracleConsumer` is a demo contract that shows one way to use this template. It is not required infrastructure.
+
+The demo reads a normalized price through `OracleRegistry`, then uses `AssetConversionLib` to expose:
+
+- `baseToQuote(...)`
+- `quoteToBase(...)`
+
+Use it as a reference when building your own consumer contract. A real app can copy the same pattern and add its
+own business logic, permissions, payments, or accounting rules.
+
 ### Chainlink Deployment Config
 
 `script/HelperConfig.s.sol` stores Chainlink Data Feed addresses used by deployment scripts:
@@ -89,6 +111,16 @@ Chainlink fork tests use the real feed addresses and are excluded from the defau
 ```bash
 FOUNDRY_PROFILE=integration forge test --fork-url https://testnet.hashio.io/api --match-path test/integration/ChainlinkPriceOracleAdapterFork.t.sol
 ```
+
+### Extending The Template
+
+To add a new Chainlink pair:
+
+1. Add the feed address to `script/HelperConfig.s.sol`.
+2. Deploy one `ChainlinkPriceOracleAdapter` for that pair.
+3. Register the adapter in `OracleRegistry` using `pairKey + ProviderLib.CHAINLINK`.
+4. Read prices through `OracleRegistry` or follow the `OracleConsumer` demo pattern.
+
 
 ## Setup
 
@@ -128,9 +160,8 @@ From the repo root, contract deploys for this package use **`yarn foundry:deploy
 
 ## Tests (Foundry)
 
-- **`yarn test`** inside `packages/foundry` (or `forge test`) – Runs tests on a **local Anvil** chain (no Hedera fork).  
-  - **HederaToken** (ERC-20) tests pass.  
-  - **HtsTokenCreator** (HTS precompile) tests are **skipped** – these need a Hedera fork or live RPC.
+- **`yarn test`** inside `packages/foundry` (or `forge test`) – Runs deterministic unit tests only.
+  Integration tests under `test/integration` are excluded by default.
 
 - **`yarn test:local`** inside `packages/foundry` (or `forge test --fork-url http://127.0.0.1:8545 --chain-id 296 --ffi`) – Runs tests against whatever serves **JSON-RPC on 127.0.0.1:8545** with **chain id 296**.
 
@@ -154,17 +185,10 @@ From the repo root, contract deploys for this package use **`yarn foundry:deploy
 
 - **`yarn test:mainnet`** inside `packages/foundry` – Fork from Hedera mainnet RPC (read-only / snapshot style checks).
 
----
+- **Chainlink fork test:** run the real-feed adapter smoke test explicitly:
 
-## Summary
-
-| Command             | Chain        | HederaToken | HtsTokenCreator |
-| ------------------- | ------------ | ----------- | --------------- |
-| `yarn test`         | Anvil        | ✅          | ⏭️ (skipped)    |
-| `yarn test:local`   | Local fork\* | ✅          | ✅              |
-| `yarn test:testnet` | Testnet RPC  | ✅          | ✅              |
-| `yarn test:mainnet` | Mainnet RPC  | ✅          | ✅ (read-only)  |
-
-\* Run `yarn hardhat:chain` from the repo root first.
+  ```bash
+  FOUNDRY_PROFILE=integration forge test --fork-url https://testnet.hashio.io/api --match-path test/integration/ChainlinkPriceOracleAdapterFork.t.sol
+  ```
 
 For more on fork testing with HTS emulation, see [forking the Hedera network for local testing](https://docs.hedera.com/hedera/core-concepts/smart-contracts/forking-hedera-network-for-local-testing).
