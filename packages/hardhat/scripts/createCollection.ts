@@ -2,10 +2,46 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import { ethers, Wallet, Interface } from "ethers";
 import password from "@inquirer/password";
+import * as fs from "fs";
+import * as path from "path";
+
+function getDeployedAddress(chainId: number, contractName: string): string {
+  const deployedContractsPath = path.join(__dirname, "../../nextjs/contracts/deployedContracts.ts");
+
+  if (!fs.existsSync(deployedContractsPath)) {
+    throw new Error(`deployedContracts.ts not found at ${deployedContractsPath}. Run 'yarn deploy' first.`);
+  }
+
+  const content = fs.readFileSync(deployedContractsPath, "utf-8");
+
+  // Parse the address from the TypeScript file using regex
+  // Looking for pattern like: 296: { ... SubscriptionNFT: { address: "0x..." } }
+  const chainPattern = new RegExp(
+    `${chainId}:\\s*\\{[\\s\\S]*?${contractName}:\\s*\\{[\\s\\S]*?address:\\s*"(0x[a-fA-F0-9]+)"`,
+    "m",
+  );
+  const match = content.match(chainPattern);
+
+  if (!match || !match[1]) {
+    throw new Error(`Could not find ${contractName} address for chain ${chainId} in deployedContracts.ts`);
+  }
+
+  return match[1];
+}
 
 async function main() {
-  const nftAddress = "0x5B614Bf80Cb3841F9553b019F81135Ec1A58Ff8F";
-  const rpcUrl = "https://testnet.hashio.io/api";
+  const chainId = 296; // Hedera testnet
+  const rpcUrl = process.env.HEDERA_RPC_URL || "https://testnet.hashio.io/api";
+
+  let nftAddress: string;
+  try {
+    nftAddress = getDeployedAddress(chainId, "SubscriptionNFT");
+    console.log(`Found SubscriptionNFT at: ${nftAddress}`);
+  } catch (error) {
+    console.error("❌", (error as Error).message);
+    console.log("\nMake sure you have deployed the contracts first with: yarn deploy --network hederaTestnet");
+    process.exit(1);
+  }
 
   // Decrypt the deployer key
   const encryptedKey = process.env.DEPLOYER_PRIVATE_KEY_ENCRYPTED;
