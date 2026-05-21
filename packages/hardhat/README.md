@@ -1,6 +1,6 @@
 # Hardhat package (Hedera)
 
-Hardhat config, contracts, deploy scripts, tests, and Hashscan verification for this monorepo.
+Hardhat config, contracts, deploy scripts, tests, and Sourcify verification for this monorepo.
 
 ## Local development
 
@@ -83,20 +83,27 @@ You need a deployer account with HBAR on the target network. Without funds, depl
    ```
    You will be prompted to enter the password to decrypt your deployer key.
 
-4. **Verify on Hashscan** (uses deployment JSON under `deployments/<network>/`, which includes compiler metadata and sources):
+4. **Verify on Sourcify** (Hedera is now supported on the main [Sourcify instance](https://sourcify.dev)):
    ```bash
-   yarn hardhat:verify:testnet   # all contracts on chain 296
-   yarn hardhat:verify:mainnet   # all contracts on chain 295
-   yarn workspace @sh/hardhat verify:contract -- SubscriptionNFT testnet
-   yarn workspace @sh/hardhat verify:contract -- SubscriptionMarketplace testnet 0xYourContractAddress
+   # Verify a specific contract by address
+   yarn hardhat:verify:testnet 0xYourContractAddress
+   yarn hardhat:verify:mainnet 0xYourContractAddress
+
+   # With constructor arguments (if any)
+   yarn hardhat:verify:testnet 0xYourContractAddress "arg1" "arg2"
+
+   # From packages/hardhat directory
+   npx hardhat verify --network hederaTestnet 0xYourContractAddress
    ```
+   
+   Verified contracts are visible on [HashScan](https://hashscan.io) and the broader Sourcify ecosystem.
 
 ## Layout
 
 - `contracts/` — Solidity sources
 - `docs/` — contract behavior notes (see `docs/contract-behavior.md`)
 - `deploy/` — hardhat-deploy scripts (e.g. `03_deploy_subscription_nft.ts`)
-- `scripts/` — generateAccount, importAccount, verifyHedera.js, etc.
+- `scripts/` — generateAccount, importAccount, generateTsAbis, etc.
 - `test/` — contract tests
 - `hardhat.config.ts` — networks (`hardhat`, `localhost` for RPC at 127.0.0.1:8545, `hederaTestnet`, `hederaMainnet`)
 
