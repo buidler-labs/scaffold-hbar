@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import { PlusCircleIcon, TicketIcon } from "@heroicons/react/24/outline";
+import { CollectionNotCreatedState, ConnectWalletState } from "~~/components/marketplace";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-hbar";
+import { GAS_LIMITS, SECONDS_PER_DAY, STORAGE_KEYS, ZERO_ADDRESS } from "~~/utils/hedera";
 
 export default function MintPage() {
   const router = useRouter();
@@ -26,10 +28,9 @@ export default function MintPage() {
     contractName: "SubscriptionNFT",
   });
 
-  const collectionExists = collectionAddress && collectionAddress !== "0x0000000000000000000000000000000000000000";
+  const collectionExists = collectionAddress && collectionAddress !== ZERO_ADDRESS;
 
-  const today = new Date();
-  const todayStr = today.toISOString().split("T")[0];
+  const todayStr = new Date().toISOString().split("T")[0];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +51,6 @@ export default function MintPage() {
       return;
     }
 
-    // End date must be in the future (subscription must have remaining validity)
     if (new Date(endDate) <= new Date()) {
       setError("End date must be in the future");
       return;
@@ -62,16 +62,15 @@ export default function MintPage() {
       const startTimestamp = Math.floor(new Date(startDate).getTime() / 1000);
       const endTimestamp = Math.floor(new Date(endDate).getTime() / 1000);
 
-      const alignedStart = Math.floor(startTimestamp / 86400) * 86400;
-      const alignedEnd = Math.floor(endTimestamp / 86400) * 86400;
+      const alignedStart = Math.floor(startTimestamp / SECONDS_PER_DAY) * SECONDS_PER_DAY;
+      const alignedEnd = Math.floor(endTimestamp / SECONDS_PER_DAY) * SECONDS_PER_DAY;
 
       await mintSubscription({
         functionName: "mintSubscription",
         args: [provider.trim(), serviceTier.trim(), BigInt(alignedStart), BigInt(alignedEnd)],
-        gas: 1_500_000n,
+        gas: GAS_LIMITS.MINT_SUBSCRIPTION,
       });
 
-      // Store pending subscription for optimistic UI
       const pendingSubscription = {
         provider: provider.trim(),
         serviceTier: serviceTier.trim(),
@@ -79,12 +78,12 @@ export default function MintPage() {
         endDate: alignedEnd,
         timestamp: Date.now(),
       };
-      sessionStorage.setItem("pendingSubscription", JSON.stringify(pendingSubscription));
+      sessionStorage.setItem(STORAGE_KEYS.PENDING_SUBSCRIPTION, JSON.stringify(pendingSubscription));
 
       router.push("/my-subscriptions");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Minting failed:", err);
-      setError(err.message || "Failed to mint subscription. Please try again.");
+      setError(err instanceof Error ? err.message : "Failed to mint subscription. Please try again.");
     } finally {
       setIsMinting(false);
     }
@@ -93,11 +92,7 @@ export default function MintPage() {
   if (!connectedAddress) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">🔌</div>
-          <h3 className="text-xl font-semibold mb-2">Connect Your Wallet</h3>
-          <p className="text-base-content/60">Connect your wallet to mint subscription NFTs</p>
-        </div>
+        <ConnectWalletState message="Connect your wallet to mint subscription NFTs" />
       </div>
     );
   }
@@ -115,14 +110,7 @@ export default function MintPage() {
   if (!collectionExists) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">⚠️</div>
-          <h3 className="text-xl font-semibold mb-2">Collection Not Created</h3>
-          <p className="text-base-content/60 mb-4">
-            The NFT collection has not been created yet. Please contact the contract owner to create the collection
-            first.
-          </p>
-        </div>
+        <CollectionNotCreatedState />
       </div>
     );
   }

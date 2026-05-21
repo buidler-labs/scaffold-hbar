@@ -62,6 +62,7 @@ yarn hardhat:deploy --network hederaTestnet
 ```
 
 You'll be prompted for your wallet password. This deploys:
+
 - `SubscriptionNFT` - HTS NFT collection manager
 - `SubscriptionMarketplace` - Booking and escrow system
 
@@ -83,6 +84,7 @@ npx ts-node scripts/testFullFlow.ts
 ```
 
 This script demonstrates the complete flow:
+
 1. Mint a subscription NFT ("Gym A - Premium", 90-day validity)
 2. Create an availability listing (14-day window, 1 HBAR/day)
 3. Book a 3-day rental period (pays 3 HBAR)
@@ -100,11 +102,13 @@ Open [http://localhost:3000/debug](http://localhost:3000/debug) to interact with
 
 Hedera's EVM has a quirk with `msg.value`:
 
-| Context | Unit | 1 HBAR equals |
-|---------|------|---------------|
-| JSON-RPC (sending tx) | wei | 10^18 |
-| Contract `msg.value` | tinybars | 10^8 |
-| Conversion | 1 tinybar = 10^10 wei | |
+
+| Context               | Unit                  | 1 HBAR equals |
+| --------------------- | --------------------- | ------------- |
+| JSON-RPC (sending tx) | wei                   | 10^18         |
+| Contract `msg.value`  | tinybars              | 10^8          |
+| Conversion            | 1 tinybar = 10^10 wei |               |
+
 
 **When storing prices in contracts**, use **tinybars** (8 decimals):
 
@@ -122,29 +126,34 @@ await contract.book(..., { value: costWei });
 
 ### SubscriptionNFT
 
-| Function | Description |
-|----------|-------------|
-| `createCollection(name, symbol, memo)` | Owner creates HTS NFT collection (once, requires HBAR) |
-| `mintSubscription(provider, tier, startDate, endDate)` | Mint subscription NFT to caller |
-| `getSubscription(serialNumber)` | Get subscription metadata |
-| `currentOwner(serialNumber)` | Get current NFT owner via HTS |
-| `isExpired(serialNumber)` | Check if subscription has expired |
+
+| Function                                               | Description                                            |
+| ------------------------------------------------------ | ------------------------------------------------------ |
+| `createCollection(name, symbol, memo)`                 | Owner creates HTS NFT collection (once, requires HBAR) |
+| `mintSubscription(provider, tier, startDate, endDate)` | Mint subscription NFT to caller                        |
+| `getSubscription(serialNumber)`                        | Get subscription metadata                              |
+| `currentOwner(serialNumber)`                           | Get current NFT owner via HTS                          |
+| `isExpired(serialNumber)`                              | Check if subscription has expired                      |
+
 
 ### SubscriptionMarketplace
 
-| Function | Description |
-|----------|-------------|
-| `createAvailability(serial, start, end, pricePerDay)` | List rental window (owner only) |
-| `book(availabilityId, startDate, days)` | Book and pay (escrows HBAR) |
-| `userOf(serialNumber)` | Returns active renter or zero address |
-| `cancelBooking(bookingId)` | Cancel before start for full refund |
-| `claimBookingPayout(bookingId)` | Owner claims payment after start |
+
+| Function                                              | Description                           |
+| ----------------------------------------------------- | ------------------------------------- |
+| `createAvailability(serial, start, end, pricePerDay)` | List rental window (owner only)       |
+| `book(availabilityId, startDate, days)`               | Book and pay (escrows HBAR)           |
+| `userOf(serialNumber)`                                | Returns active renter or zero address |
+| `cancelBooking(bookingId)`                            | Cancel before start for full refund   |
+| `claimBookingPayout(bookingId)`                       | Owner claims payment after start      |
+
 
 ## Deployed Contracts (Testnet)
 
 After deployment, addresses are saved in `packages/nextjs/contracts/deployedContracts.ts`.
 
 View on Hashscan:
+
 - SubscriptionNFT: Check `deployedContracts.ts` for address
 - SubscriptionMarketplace: Check `deployedContracts.ts` for address
 
@@ -182,7 +191,6 @@ packages/
 └── nextjs/
     ├── app/
     │   ├── debug/                      # Contract interaction UI
-    │   └── blockexplorer/              # Local tx explorer
     └── contracts/deployedContracts.ts  # Auto-generated ABIs
 ```
 
@@ -206,3 +214,4 @@ Insufficient HBAR sent for token creation. Send at least 40 HBAR with the transa
 - [Hashscan Explorer](https://hashscan.io/testnet)
 - [HTS Precompile Reference](https://docs.hedera.com/hedera/core-concepts/smart-contracts/hedera-token-service-hts-precompiled-contract)
 - [Hedera Portal Faucet](https://portal.hedera.com/faucet)
+

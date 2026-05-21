@@ -2,8 +2,18 @@
 
 import { useMemo } from "react";
 import { AvailabilityCard, AvailabilityCardSkeleton, AvailabilityStatus } from "~~/components/marketplace";
-import { useScaffoldEventHistory, useScaffoldReadContract } from "~~/hooks/scaffold-hbar";
-import { SECONDS_PER_DAY, calculateDays } from "~~/utils/hedera";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-hbar";
+import { SECONDS_PER_DAY, calculateDays, parseSubscription } from "~~/utils/hedera";
+
+// Type for booking events passed from parent
+type BookingEvent = {
+  args: {
+    availabilityId?: bigint;
+    startDate?: bigint;
+    endDate?: bigint;
+    [key: string]: unknown;
+  };
+};
 
 interface AvailabilityCardWithDataProps {
   availabilityId: bigint;
@@ -12,6 +22,7 @@ interface AvailabilityCardWithDataProps {
   windowStart: bigint;
   windowEnd: bigint;
   pricePerDay: bigint;
+  bookingEvents?: BookingEvent[];
 }
 
 export const AvailabilityCardWithData = ({
@@ -21,30 +32,16 @@ export const AvailabilityCardWithData = ({
   windowStart,
   windowEnd,
   pricePerDay,
+  bookingEvents,
 }: AvailabilityCardWithDataProps) => {
-  // Fetch subscription details
   const { data: subscriptionRaw, isLoading: isLoadingSubscription } = useScaffoldReadContract({
     contractName: "SubscriptionNFT",
     functionName: "getSubscription",
     args: [serialNumber],
+    query: { enabled: !!serialNumber },
   });
 
-  // Fetch booking events for this availability
-  const { data: bookingEvents } = useScaffoldEventHistory({
-    contractName: "SubscriptionMarketplace",
-    eventName: "Booked",
-    watch: false,
-  });
-
-  // Parse subscription data
-  const subscription = useMemo(() => {
-    if (!subscriptionRaw) return null;
-    const data = subscriptionRaw as any;
-    return {
-      provider: String(data.provider ?? data[1] ?? "Unknown"),
-      serviceTier: String(data.serviceTier ?? data[2] ?? "Unknown"),
-    };
-  }, [subscriptionRaw]);
+  const subscription = parseSubscription(subscriptionRaw);
 
   // Calculate booked days for this availability
   const bookedDays = useMemo(() => {

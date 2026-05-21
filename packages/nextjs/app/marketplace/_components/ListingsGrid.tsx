@@ -1,12 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { AvailabilityCardWithData } from "./AvailabilityCardWithData";
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
-import { AvailabilityCardSkeleton } from "~~/components/marketplace";
+import { AvailabilityCardSkeleton, ListHeader, LoadMoreButton, NoListingsState } from "~~/components/marketplace";
+import { usePagination } from "~~/hooks/marketplace";
 import { useScaffoldEventHistory } from "~~/hooks/scaffold-hbar";
-
-const ITEMS_PER_PAGE = 6;
 
 interface ListingData {
   id: bigint;
@@ -18,26 +16,57 @@ interface ListingData {
 }
 
 export const ListingsGrid = () => {
-  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
-
   const {
     data: availabilityEvents,
-    isLoading: isLoadingEvents,
-    refetch,
+    isLoading: isLoadingCreated,
+    isFetching: isFetchingCreated,
+    refetch: refetchCreated,
   } = useScaffoldEventHistory({
     contractName: "SubscriptionMarketplace",
     eventName: "AvailabilityCreated",
     watch: false,
   });
 
-  // Sorted by availability ID descending (newest first)
+  const {
+    data: removedEvents,
+    isLoading: isLoadingRemoved,
+    isFetching: isFetchingRemoved,
+    refetch: refetchRemoved,
+  } = useScaffoldEventHistory({
+    contractName: "SubscriptionMarketplace",
+    eventName: "AvailabilityRemoved",
+    watch: false,
+  });
+
+  // Fetch booking events ONCE at parent level, pass to children
+  const {
+    data: bookingEvents,
+    isLoading: isLoadingBookings,
+    isFetching: isFetchingBookings,
+    refetch: refetchBookings,
+  } = useScaffoldEventHistory({
+    contractName: "SubscriptionMarketplace",
+    eventName: "Booked",
+    watch: false,
+  });
+
+  const isLoadingEvents = isLoadingCreated || isLoadingRemoved || isLoadingBookings;
+  const isRefreshing = isFetchingCreated || isFetchingRemoved || isFetchingBookings;
+
+  // Get set of removed availability IDs
+  const removedIds = useMemo(() => {
+    if (!removedEvents) return new Set<string>();
+    return new Set(
+      removedEvents.filter(e => e.args?.availabilityId).map(e => (e.args.availabilityId as bigint).toString()),
+    );
+  }, [removedEvents]);
+
+  // Filter out removed listings, sorted by ID descending (newest first)
   const listings = useMemo(() => {
-    if (!availabilityEvents || availabilityEvents.length === 0) {
-      return [];
-    }
+    if (!availabilityEvents?.length) return [];
 
     return availabilityEvents
-      .filter(event => event.args)
+      .filter(event => event.args && !removedIds.has((event.args.availabilityId as bigint).toString()))
       .map(event => ({
         id: event.args.availabilityId as bigint,
         serialNumber: event.args.serialNumber as bigint,
@@ -47,20 +76,19 @@ export const ListingsGrid = () => {
         pricePerDay: event.args.pricePerDay as bigint,
       }))
       .sort((a, b) => (b.id > a.id ? 1 : b.id < a.id ? -1 : 0)) as ListingData[];
-  }, [availabilityEvents]);
+  }, [availabilityEvents, removedIds]);
 
-  const visibleListings = listings.slice(0, visibleCount);
-  const hasMore = visibleCount < listings.length;
-  const remainingCount = listings.length - visibleCount;
+  // Handle pagination
+  const { visibleItems, visibleCount, totalCount, hasMore, remainingCount, loadMore, showAll, reset } = usePagination({
+    items: listings,
+  });
 
-  const handleRefresh = () => {
-    setVisibleCount(ITEMS_PER_PAGE);
-    refetch();
-  };
-
-  const handleLoadMore = () => {
-    setVisibleCount(prev => prev + ITEMS_PER_PAGE);
-  };
+  const handleRefresh = useCallback(() => {
+    reset();
+    refetchCreated();
+    refetchRemoved();
+    refetchBookings();
+  }, [reset, refetchCreated, refetchRemoved, refetchBookings]);
 
   if (isLoadingEvents) {
     return (
@@ -71,28 +99,20 @@ export const ListingsGrid = () => {
   }
 
   if (listings.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-6xl mb-4">📭</div>
-        <h3 className="text-xl font-semibold mb-2">No Listings Yet</h3>
-        <p className="text-base-content/60">Be the first to list your subscription NFT on the marketplace!</p>
-      </div>
-    );
+    return <NoListingsState />;
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-base-content/60">
-          Showing {visibleListings.length} of {listings.length} listings
-        </p>
-        <button onClick={handleRefresh} className="btn btn-outline btn-sm">
-          <ArrowPathIcon className="h-4 w-4" />
-          Refresh
-        </button>
-      </div>
+      <ListHeader
+        showingCount={visibleCount}
+        totalCount={totalCount}
+        itemName="listings"
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {visibleListings.map(listing => (
+        {visibleItems.map(listing => (
           <AvailabilityCardWithData
             key={listing.id.toString()}
             availabilityId={listing.id}
@@ -101,16 +121,11 @@ export const ListingsGrid = () => {
             windowStart={listing.windowStart}
             windowEnd={listing.windowEnd}
             pricePerDay={listing.pricePerDay}
+            bookingEvents={bookingEvents}
           />
         ))}
       </div>
-      {hasMore && (
-        <div className="flex justify-center gap-4 mt-8">
-          <button onClick={handleLoadMore} className="btn btn-primary">
-            Load More ({remainingCount} remaining)
-          </button>
-        </div>
-      )}
+      {hasMore && <LoadMoreButton remainingCount={remainingCount} onLoadMore={loadMore} onShowAll={showAll} />}
     </div>
   );
 };

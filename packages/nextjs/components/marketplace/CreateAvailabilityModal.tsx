@@ -1,10 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-hbar";
-import { formatDate, getMidnightUTC, hbarToTinybars } from "~~/utils/hedera";
+import {
+  GAS_LIMITS,
+  SECONDS_PER_DAY,
+  formatDate,
+  getMidnightUTC,
+  hbarToTinybars,
+  parseSubscription,
+} from "~~/utils/hedera";
 
 interface CreateAvailabilityModalProps {
   isOpen: boolean;
@@ -19,31 +26,32 @@ export const CreateAvailabilityModal = ({ isOpen, onClose, serialNumber }: Creat
   const [pricePerDay, setPricePerDay] = useState<string>("1");
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string>("");
+  const hasSetDefaults = useRef(false);
 
   const { data: subscriptionRaw } = useScaffoldReadContract({
     contractName: "SubscriptionNFT",
     functionName: "getSubscription",
     args: [serialNumber],
+    query: { enabled: !!serialNumber },
   });
 
-  // Parse subscription data with robust access pattern
-  const subscription = useMemo(() => {
-    if (!subscriptionRaw) return null;
-    const data = subscriptionRaw as any;
-    return {
-      provider: String(data.provider ?? data[1] ?? "Unknown"),
-      serviceTier: String(data.serviceTier ?? data[2] ?? "Unknown"),
-      startDate: BigInt(data.startDate ?? data[3] ?? 0),
-      endDate: BigInt(data.endDate ?? data[4] ?? 0),
-    };
-  }, [subscriptionRaw]);
+  const subscription = parseSubscription(subscriptionRaw);
 
   const { writeContractAsync: createAvailability } = useScaffoldWriteContract({
     contractName: "SubscriptionMarketplace",
   });
 
+  // Reset state when modal opens for a different subscription
   useEffect(() => {
-    if (subscription) {
+    if (isOpen) {
+      hasSetDefaults.current = false;
+    }
+  }, [isOpen, serialNumber]);
+
+  // Set default dates only once when subscription data first loads
+  useEffect(() => {
+    if (subscription && !hasSetDefaults.current) {
+      hasSetDefaults.current = true;
       const today = getMidnightUTC(1);
       const subStart = Number(subscription.startDate);
       const subEnd = Number(subscription.endDate);
@@ -85,22 +93,22 @@ export const CreateAvailabilityModal = ({ isOpen, onClose, serialNumber }: Creat
       const startTimestamp = Math.floor(new Date(windowStart).getTime() / 1000);
       const endTimestamp = Math.floor(new Date(windowEnd).getTime() / 1000);
 
-      const alignedStart = Math.floor(startTimestamp / 86400) * 86400;
-      const alignedEnd = Math.floor(endTimestamp / 86400) * 86400;
+      const alignedStart = Math.floor(startTimestamp / SECONDS_PER_DAY) * SECONDS_PER_DAY;
+      const alignedEnd = Math.floor(endTimestamp / SECONDS_PER_DAY) * SECONDS_PER_DAY;
 
       const priceTinybars = hbarToTinybars(price);
 
       await createAvailability({
         functionName: "createAvailability",
         args: [serialNumber, BigInt(alignedStart), BigInt(alignedEnd), priceTinybars],
-        gas: 800_000n,
+        gas: GAS_LIMITS.CREATE_AVAILABILITY,
       });
 
       onClose();
       router.push("/marketplace");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to create availability:", err);
-      setError(err.message || "Failed to create listing. Please try again.");
+      setError(err instanceof Error ? err.message : "Failed to create listing. Please try again.");
     } finally {
       setIsCreating(false);
     }

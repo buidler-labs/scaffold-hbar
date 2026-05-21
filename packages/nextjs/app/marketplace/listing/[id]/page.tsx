@@ -14,7 +14,19 @@ import {
 } from "@heroicons/react/24/outline";
 import { AddressDisplay, DateRangeDisplay, HbarAmount, HbarPricePerDay } from "~~/components/marketplace";
 import { useScaffoldEventHistory, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-hbar";
-import { SECONDS_PER_DAY, calculateDays, formatDate, formatHbar, getMidnightUTC, tinybarsToWei } from "~~/utils/hedera";
+import {
+  GAS_LIMITS,
+  SECONDS_PER_DAY,
+  STORAGE_KEYS,
+  ZERO_ADDRESS,
+  calculateDays,
+  formatDate,
+  formatHbar,
+  getMidnightUTC,
+  parseAvailabilityTuple,
+  parseSubscription,
+  tinybarsToWei,
+} from "~~/utils/hedera";
 
 export default function ListingDetailPage() {
   const params = useParams();
@@ -26,41 +38,29 @@ export default function ListingDetailPage() {
   const [numberOfDays, setNumberOfDays] = useState<number>(1);
   const [isBooking, setIsBooking] = useState(false);
 
-  const { data: availability, isLoading: isLoadingAvailability } = useScaffoldReadContract({
+  const { data: availabilityRaw, isLoading: isLoadingAvailability } = useScaffoldReadContract({
     contractName: "SubscriptionMarketplace",
     functionName: "availabilities",
     args: [availabilityId],
   });
 
-  const serialNumber = availability ? availability[2] : undefined;
+  const availability = parseAvailabilityTuple(availabilityRaw);
+  const serialNumber = availability?.serialNumber;
 
   const { data: subscriptionRaw } = useScaffoldReadContract({
     contractName: "SubscriptionNFT",
     functionName: "getSubscription",
-    args: [serialNumber as bigint],
-    query: {
-      enabled: !!serialNumber,
-    },
+    args: [serialNumber!],
+    query: { enabled: !!serialNumber },
   });
 
-  // Parse subscription data with robust access pattern for wagmi tuple returns
-  const subscription = subscriptionRaw
-    ? {
-        minter: (subscriptionRaw as any).minter ?? (subscriptionRaw as any)[0] ?? "",
-        provider: (subscriptionRaw as any).provider ?? (subscriptionRaw as any)[1] ?? "",
-        serviceTier: (subscriptionRaw as any).serviceTier ?? (subscriptionRaw as any)[2] ?? "",
-        startDate: BigInt((subscriptionRaw as any).startDate ?? (subscriptionRaw as any)[3] ?? 0),
-        endDate: BigInt((subscriptionRaw as any).endDate ?? (subscriptionRaw as any)[4] ?? 0),
-      }
-    : null;
+  const subscription = parseSubscription(subscriptionRaw);
 
   const { data: currentUser } = useScaffoldReadContract({
     contractName: "SubscriptionMarketplace",
     functionName: "userOf",
-    args: [serialNumber as bigint],
-    query: {
-      enabled: !!serialNumber,
-    },
+    args: [serialNumber!],
+    query: { enabled: !!serialNumber },
   });
 
   const { writeContractAsync: bookListing } = useScaffoldWriteContract({
@@ -84,16 +84,16 @@ export default function ListingDetailPage() {
       bookingEvents
         .filter(event => event.args?.availabilityId?.toString() === availabilityId.toString())
         .forEach(event => {
-          const startDate = Number(event.args.startDate);
-          const endDate = Number(event.args.endDate);
+          const eventStart = Number(event.args.startDate);
+          const eventEnd = Number(event.args.endDate);
           const renter = event.args.renter as string;
 
-          periods.push({ startDate, endDate, renter });
+          periods.push({ startDate: eventStart, endDate: eventEnd, renter });
 
           // Count future/current booked days
-          if (endDate > now) {
-            const effectiveStart = Math.max(startDate, now);
-            const days = Math.ceil((endDate - effectiveStart) / SECONDS_PER_DAY);
+          if (eventEnd > now) {
+            const effectiveStart = Math.max(eventStart, now);
+            const days = Math.ceil((eventEnd - effectiveStart) / SECONDS_PER_DAY);
             bookedDays += days;
           }
         });
@@ -102,31 +102,31 @@ export default function ListingDetailPage() {
     // Sort by start date (newest first)
     periods.sort((a, b) => b.startDate - a.startDate);
 
-    const totalDays = availability ? calculateDays(availability[3], availability[4]) : 0;
+    const totalDays = availability ? calculateDays(availability.windowStart, availability.windowEnd) : 0;
     const available = Math.max(0, totalDays - bookedDays);
 
     return { bookedPeriods: periods, totalBookedDays: bookedDays, availableDays: available };
   }, [bookingEvents, availabilityId, availability]);
 
-  const isActive = availability && Number(availability[6]) === 0;
-  const isOwner = availability && availability[1]?.toLowerCase() === connectedAddress?.toLowerCase();
+  const isActive = availability?.isActive ?? false;
+  const isOwner = availability?.owner?.toLowerCase() === connectedAddress?.toLowerCase();
 
-  const pricePerDayTinybars = availability ? availability[5] : 0n;
+  const pricePerDayTinybars = availability?.pricePerDay ?? 0n;
   const totalCostTinybars = pricePerDayTinybars * BigInt(numberOfDays);
   const totalCostWei = tinybarsToWei(totalCostTinybars);
 
-  const windowStart = availability ? Number(availability[3]) : 0;
-  const windowEnd = availability ? Number(availability[4]) : 0;
+  const windowStart = availability ? Number(availability.windowStart) : 0;
+  const windowEnd = availability ? Number(availability.windowEnd) : 0;
   const maxDays = calculateDays(windowStart, windowEnd);
 
   useEffect(() => {
     if (availability) {
       const today = getMidnightUTC(0);
-      const defaultStart = Math.max(today, Number(availability[3]));
+      const defaultStart = Math.max(today, windowStart);
       const date = new Date(defaultStart * 1000);
       setStartDate(date.toISOString().split("T")[0]);
     }
-  }, [availability]);
+  }, [availability, windowStart]);
 
   const handleBook = async () => {
     if (!availability || !startDate || numberOfDays < 1) return;
@@ -134,25 +134,25 @@ export default function ListingDetailPage() {
     setIsBooking(true);
     try {
       const startTimestamp = Math.floor(new Date(startDate).getTime() / 1000);
-      const alignedStart = Math.floor(startTimestamp / 86400) * 86400;
+      const alignedStart = Math.floor(startTimestamp / SECONDS_PER_DAY) * SECONDS_PER_DAY;
 
       await bookListing({
         functionName: "book",
         args: [availabilityId, BigInt(alignedStart), BigInt(numberOfDays)],
         value: totalCostWei,
-        gas: 1_000_000n,
+        gas: GAS_LIMITS.BOOK,
       });
 
       // Store pending booking for optimistic UI
       const pendingBooking = {
         availabilityId: availabilityId.toString(),
-        serialNumber: availability[2].toString(),
+        serialNumber: availability.serialNumber.toString(),
         startDate: alignedStart,
-        endDate: alignedStart + numberOfDays * 86400,
+        endDate: alignedStart + numberOfDays * SECONDS_PER_DAY,
         totalPaid: totalCostTinybars.toString(),
         timestamp: Date.now(),
       };
-      sessionStorage.setItem("pendingBooking", JSON.stringify(pendingBooking));
+      sessionStorage.setItem(STORAGE_KEYS.PENDING_BOOKING, JSON.stringify(pendingBooking));
 
       router.push("/my-bookings");
     } catch (error) {
@@ -173,7 +173,7 @@ export default function ListingDetailPage() {
     );
   }
 
-  if (!availability || availability[0] === 0n) {
+  if (!availability) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-2xl font-bold mb-4">Listing Not Found</h1>
@@ -198,7 +198,7 @@ export default function ListingDetailPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <h1 className="text-2xl font-bold">
-                    {subscription ? subscription.provider : `NFT #${availability[2].toString()}`}
+                    {subscription ? subscription.provider : `NFT #${availability.serialNumber.toString()}`}
                   </h1>
                   {subscription && <p className="text-base-content/70">{subscription.serviceTier}</p>}
                 </div>
@@ -220,7 +220,11 @@ export default function ListingDetailPage() {
                   </div>
                   <div>
                     <p className="text-sm text-base-content/60">Rental Window</p>
-                    <DateRangeDisplay start={availability[3]} end={availability[4]} className="font-semibold" />
+                    <DateRangeDisplay
+                      start={availability.windowStart}
+                      end={availability.windowEnd}
+                      className="font-semibold"
+                    />
                   </div>
                 </div>
 
@@ -230,7 +234,7 @@ export default function ListingDetailPage() {
                   </div>
                   <div>
                     <p className="text-sm text-base-content/60">Price</p>
-                    <HbarPricePerDay tinybars={availability[5]} className="font-semibold" />
+                    <HbarPricePerDay tinybars={availability.pricePerDay} className="font-semibold" />
                   </div>
                 </div>
 
@@ -240,7 +244,7 @@ export default function ListingDetailPage() {
                   </div>
                   <div>
                     <p className="text-sm text-base-content/60">Owner</p>
-                    <AddressDisplay address={availability[1]} />
+                    <AddressDisplay address={availability.owner} />
                   </div>
                 </div>
 
@@ -250,12 +254,12 @@ export default function ListingDetailPage() {
                   </div>
                   <div>
                     <p className="text-sm text-base-content/60">NFT Serial</p>
-                    <p className="font-semibold">#{availability[2].toString()}</p>
+                    <p className="font-semibold">#{availability.serialNumber.toString()}</p>
                   </div>
                 </div>
               </div>
 
-              {currentUser && currentUser !== "0x0000000000000000000000000000000000000000" && (
+              {currentUser && currentUser !== ZERO_ADDRESS && (
                 <div className="bg-primary/10 border border-primary/30 text-primary rounded-lg p-4 mt-4">
                   <span>
                     Currently rented by: <AddressDisplay address={currentUser} />
@@ -370,8 +374,8 @@ export default function ListingDetailPage() {
                       className="input input-bordered w-full"
                       value={startDate}
                       onChange={e => setStartDate(e.target.value)}
-                      min={new Date(Number(availability[3]) * 1000).toISOString().split("T")[0]}
-                      max={new Date(Number(availability[4]) * 1000).toISOString().split("T")[0]}
+                      min={new Date(windowStart * 1000).toISOString().split("T")[0]}
+                      max={new Date(windowEnd * 1000).toISOString().split("T")[0]}
                     />
                   </div>
 

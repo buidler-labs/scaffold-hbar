@@ -282,6 +282,7 @@ export const useScaffoldEventHistory = <
     status: query.status,
     error: query.error,
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
     isFetchingNewEvent: query.isFetchingNextPage,
     refetch: query.refetch,
   };

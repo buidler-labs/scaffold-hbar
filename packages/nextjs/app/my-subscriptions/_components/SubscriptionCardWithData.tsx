@@ -2,6 +2,7 @@
 
 import { SubscriptionCard, SubscriptionCardSkeleton } from "~~/components/marketplace";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-hbar";
+import { parseSubscription } from "~~/utils/hedera";
 
 interface SubscriptionCardWithDataProps {
   serialNumber: bigint;
@@ -13,40 +14,36 @@ export const SubscriptionCardWithData = ({ serialNumber, onCreateListing }: Subs
     contractName: "SubscriptionNFT",
     functionName: "getSubscription",
     args: [serialNumber],
+    query: { enabled: !!serialNumber },
   });
 
   const { data: isExpired } = useScaffoldReadContract({
     contractName: "SubscriptionNFT",
     functionName: "isExpired",
     args: [serialNumber],
+    query: { enabled: !!serialNumber },
   });
 
   const { data: currentOwner } = useScaffoldReadContract({
     contractName: "SubscriptionNFT",
     functionName: "currentOwner",
     args: [serialNumber],
+    query: { enabled: !!serialNumber },
   });
 
-  if (isLoading || !subscriptionData) {
+  const parsed = parseSubscription(subscriptionData);
+
+  if (isLoading || !parsed) {
     return <SubscriptionCardSkeleton count={1} />;
   }
 
-  const data = subscriptionData as any;
-
-  // Try to access by property name first, fallback to index
-  const minter = data.minter ?? data[0] ?? "";
-  const provider = data.provider ?? data[1] ?? "Unknown";
-  const serviceTier = data.serviceTier ?? data[2] ?? "Unknown";
-  const startDate = data.startDate ?? data[3] ?? 0n;
-  const endDate = data.endDate ?? data[4] ?? 0n;
-
   const subscription = {
     serialNumber,
-    provider: String(provider),
-    serviceTier: String(serviceTier),
-    startDate: BigInt(startDate),
-    endDate: BigInt(endDate),
-    minter: String(minter),
+    provider: parsed.provider,
+    serviceTier: parsed.serviceTier,
+    startDate: parsed.startDate,
+    endDate: parsed.endDate,
+    minter: parsed.minter,
     owner: currentOwner ? String(currentOwner) : undefined,
     isExpired: Boolean(isExpired),
   };

@@ -4,17 +4,13 @@ import { BookingCard, BookingCardSkeleton, BookingData } from "~~/components/mar
 import { useScaffoldReadContract } from "~~/hooks/scaffold-hbar";
 import { parseBooking } from "~~/utils/hedera";
 
-interface OwnerBookingCardWithDataProps {
+interface RenterBookingCardWithDataProps {
   bookingId: bigint;
-  onClaimPayout: (bookingId: bigint) => void;
-  isClaimingPayout: boolean;
+  onCancel: (bookingId: bigint) => void;
+  isCancelling: boolean;
 }
 
-export const OwnerBookingCardWithData = ({
-  bookingId,
-  onClaimPayout,
-  isClaimingPayout,
-}: OwnerBookingCardWithDataProps) => {
+export const RenterBookingCardWithData = ({ bookingId, onCancel, isCancelling }: RenterBookingCardWithDataProps) => {
   const { data: bookingData, isLoading } = useScaffoldReadContract({
     contractName: "SubscriptionMarketplace",
     functionName: "bookingsById",
@@ -30,12 +26,5 @@ export const OwnerBookingCardWithData = ({
 
   const bookingDataFinal: BookingData = booking;
 
-  return (
-    <BookingCard
-      booking={bookingDataFinal}
-      isOwner={true}
-      onClaimPayout={onClaimPayout}
-      isClaimingPayout={isClaimingPayout}
-    />
-  );
+  return <BookingCard booking={bookingDataFinal} isOwner={false} onCancel={onCancel} isCancelling={isCancelling} />;
 };
