@@ -1,0 +1,24 @@
+{
+  "name": "nft-subscription-marketplace",
+  "description": "NFT subscription marketplace with HTS tokens and Hardhat contracts. Tokenize subscriptions and rent unused periods.",
+  "create-scaffold-hbar": {
+    "capabilities": {
+      "frontend": ["nextjs-app"],
+      "solidityFramework": ["hardhat"]
+    },
+    "defaults": {
+      "frontend": "nextjs-app",
+      "solidityFramework": "hardhat"
+    },
+    "outro": {
+      "steps": [
+        "This template uses Hardhat and deploys to Hedera testnet/mainnet.",
+        "+Set up your deployer account: cd packages/hardhat && yarn account:generate",
+        "+Fund your account with testnet HBAR from https://portal.hedera.com/faucet",
+        "+Deploy contracts: yarn hardhat:deploy --network hederaTestnet",
+        "+Initialize the HTS NFT collection: cd packages/hardhat && npx ts-node scripts/createCollection.ts",
+        "+Start the frontend: {run:start}"
+      ]
+    }
+  }
+}

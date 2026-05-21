@@ -1,6 +1,10 @@
 # SubRent - Subscription NFT Marketplace
 
-A decentralized marketplace on Hedera where users tokenize subscriptions (gym memberships, WiFi access, streaming services, etc.) as HTS NFTs and rent out unused periods to others.
+A Hedera-ready monorepo for building dApps with **Next.js**, **Hardhat**, and Hedera networks (testnet, mainnet). This repository is the source for [create-scaffold-hbar](https://github.com/buidler-labs/create-scaffold-hbar) templates; it uses the **Hardhat** stack and ships the **nft-subscription-marketplace** pattern: tokenize subscriptions (gym memberships, WiFi access, streaming services, etc.) as HTS NFTs and rent out unused periods to others.
+
+## Disclaimer
+
+This template—including **contracts, frontend, and tooling**—is **experimental** and **not audited**. Do not use it in production without proper security review and your own due diligence.
 
 ## How It Works
 
@@ -33,70 +37,152 @@ The NFT stays with the owner throughout. Booking creates an on-chain **access-ri
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 20.18.3
-- [Yarn](https://yarnpkg.com/)
-- Hedera testnet account with HBAR ([Faucet](https://portal.hedera.com/faucet))
+Before you begin, make sure you have the following installed:
+
+1. **Node.js** (v20.18.3 or higher)
+   - Download from [nodejs.org](https://nodejs.org/) or use [nvm](https://github.com/nvm-sh/nvm)
+   - Verify: `node --version`
+
+2. **Yarn** (package manager)
+   - Install via npm: `npm install -g yarn`
+   - Verify: `yarn --version`
+
+3. **Git**
+   - Download from [git-scm.com](https://git-scm.com/)
+   - Verify: `git --version`
+
+4. **A Hedera-compatible wallet** (for using the frontend)
+   - [MetaMask](https://metamask.io/) or [HashPack](https://www.hashpack.app/)
 
 ## Quick Start
 
-### 1. Install Dependencies
+### 1. Clone and Install
 
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd scaffold-hbar
+
+# Install all dependencies
 yarn install
 ```
 
-### 2. Set Up Deployer Account
+### 2. Configure Environment (Optional)
 
+The project comes with sensible defaults, but you can customize:
+
+**Hardhat** (`packages/hardhat/.env`):
 ```bash
-cd packages/hardhat
-yarn account:generate    # Creates encrypted deployer wallet
-yarn account             # Shows address and balances
+cp packages/hardhat/.env.example packages/hardhat/.env
+# Edit if you need a different RPC endpoint
 ```
 
-Fund your deployer address with testnet HBAR from the [Hedera Portal Faucet](https://portal.hedera.com/faucet).
+**Frontend** (`packages/nextjs/.env`):
+```bash
+cp packages/nextjs/.env.example packages/nextjs/.env
+# Optional: Add WalletConnect project ID for better wallet support
+# Get one free at https://cloud.walletconnect.com/
+```
 
-### 3. Deploy to Hedera Testnet
+### 3. Set Up Deployer Account
+
+Generate an encrypted wallet for deploying contracts:
+
+```bash
+yarn hardhat:account:generate
+```
+
+You'll be prompted to create a password. Save this password securely—you'll need it for deployments.
+
+View your new deployer address:
+
+```bash
+yarn hardhat:account
+```
+
+**Fund your deployer address** with testnet HBAR:
+1. Copy your deployer address from the output above
+2. Go to [Hedera Portal Faucet](https://portal.hedera.com/faucet)
+3. Paste your address and request testnet HBAR (you'll need ~50 HBAR for deployment + collection creation)
+
+### 4. Deploy Contracts to Hedera Testnet
+
+Once your account is funded:
 
 ```bash
 yarn hardhat:deploy --network hederaTestnet
 ```
 
-You'll be prompted for your wallet password. This deploys:
+Enter your wallet password when prompted. This deploys two contracts:
+- `SubscriptionNFT` - Manages HTS NFT minting
+- `SubscriptionMarketplace` - Handles bookings and escrow
 
-- `SubscriptionNFT` - HTS NFT collection manager
-- `SubscriptionMarketplace` - Booking and escrow system
+Contract addresses are automatically saved to `packages/nextjs/contracts/deployedContracts.ts`.
 
-### 4. Initialize the NFT Collection
+### 5. Initialize the NFT Collection
 
-After deployment, create the HTS token collection:
+Create the HTS token collection (required before minting any NFTs):
 
 ```bash
 cd packages/hardhat
 npx ts-node scripts/createCollection.ts
 ```
 
-This calls `createCollection()` on the SubscriptionNFT contract with ~40 HBAR to cover HTS token creation fees.
-
-### 5. Run the Full Test Flow
-
-```bash
-npx ts-node scripts/testFullFlow.ts
-```
-
-This script demonstrates the complete flow:
-
-1. Mint a subscription NFT ("Gym A - Premium", 90-day validity)
-2. Create an availability listing (14-day window, 1 HBAR/day)
-3. Book a 3-day rental period (pays 3 HBAR)
-4. Verify `userOf()` returns the renter during booking period
+This calls `createCollection()` and pays ~40 HBAR for HTS token creation fees.
 
 ### 6. Start the Frontend
 
+Return to the project root and start the development server:
+
 ```bash
-yarn next:start
+cd ..  # Go back to project root if you're in packages/hardhat
+yarn start
 ```
 
-Open [http://localhost:3000/debug](http://localhost:3000/debug) to interact with contracts via the Debug UI.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 7. Connect Your Wallet to the Frontend
+
+To interact with the marketplace, connect a wallet:
+
+**Option A: MetaMask**
+1. Install [MetaMask browser extension](https://metamask.io/)
+2. Add Hedera Testnet network:
+   - Network Name: `Hedera Testnet`
+   - RPC URL: `https://testnet.hashio.io/api`
+   - Chain ID: `296`
+   - Currency Symbol: `HBAR`
+   - Explorer: `https://hashscan.io/testnet`
+3. Import or create an account and fund it via the [faucet](https://portal.hedera.com/faucet)
+
+**Option B: HashPack**
+1. Install [HashPack](https://www.hashpack.app/)
+2. Create or import a Hedera testnet account
+3. Fund via the [faucet](https://portal.hedera.com/faucet)
+
+### 8. Use the Marketplace
+
+With your wallet connected at [http://localhost:3000](http://localhost:3000):
+
+1. **Mint a Subscription** (`/mint`) - Create an NFT representing your subscription
+2. **My Subscriptions** (`/my-subscriptions`) - View your NFTs, create rental listings
+3. **Marketplace** (`/marketplace`) - Browse and book available listings
+4. **My Bookings** (`/my-bookings`) - View your rentals and claim payouts
+
+## Optional: Run the Test Flow Script
+
+To see the full flow working end-to-end via scripts (after steps 1-4):
+
+```bash
+cd packages/hardhat
+npx ts-node scripts/testFullFlow.ts
+```
+
+This demonstrates:
+1. Minting a subscription NFT ("Gym A - Premium", 90-day validity)
+2. Creating an availability listing (14-day window, 1 HBAR/day)
+3. Booking a 3-day rental period (pays 3 HBAR)
+4. Verifying `userOf()` returns the renter during the booking period
 
 ## Important: Hedera Value Handling
 
@@ -174,24 +260,65 @@ Uses `MockHTS` to simulate Hedera Token Service locally.
 yarn test:forking
 ```
 
+## Development
+
+For active development with hot reload:
+
+```bash
+# Terminal 1: Start frontend in dev mode
+yarn next:dev
+```
+
+The app will be available at [http://localhost:3000](http://localhost:3000) with hot reloading enabled.
+
+### Useful Commands
+
+```bash
+# Compile contracts
+yarn hardhat:compile
+
+# Run contract tests
+yarn hardhat:test
+
+# Lint code
+yarn lint
+
+# Format code
+yarn format
+
+# Build frontend for production
+yarn next:build
+
+# Verify contracts on Hashscan
+yarn hardhat:verify:testnet
+```
+
 ## Project Structure
 
 ```
 packages/
 ├── hardhat/
 │   ├── contracts/
-│   │   ├── SubscriptionNFT.sol        # HTS NFT minting
-│   │   ├── SubscriptionMarketplace.sol # Booking system
-│   │   └── interfaces/IHederaTokenService.sol
-│   ├── deploy/                         # Deployment scripts
+│   │   ├── SubscriptionNFT.sol         # HTS NFT minting & metadata
+│   │   ├── SubscriptionMarketplace.sol # Booking, escrow & payouts
+│   │   └── interfaces/                 # HTS precompile interfaces
+│   ├── deploy/                         # Hardhat deployment scripts
 │   ├── scripts/
 │   │   ├── createCollection.ts         # Initialize HTS collection
-│   │   └── testFullFlow.ts             # End-to-end test
-│   └── test/                           # Unit tests
+│   │   └── testFullFlow.ts             # End-to-end test script
+│   └── test/                           # Unit tests with MockHTS
 └── nextjs/
     ├── app/
-    │   ├── debug/                      # Contract interaction UI
-    └── contracts/deployedContracts.ts  # Auto-generated ABIs
+    │   ├── page.tsx                    # Home page
+    │   ├── mint/                       # Mint new subscription NFTs
+    │   ├── marketplace/                # Browse & book listings
+    │   ├── my-subscriptions/           # View owned NFTs, create listings
+    │   ├── my-bookings/                # Renter & owner booking views
+    │   └── debug/                      # Direct contract interaction UI
+    ├── components/marketplace/         # Reusable marketplace components
+    ├── hooks/marketplace/              # Custom React hooks
+    ├── utils/hedera/                   # Hedera-specific utilities
+    └── contracts/deployedContracts.ts  # Auto-generated ABIs & addresses
 ```
 
 ## Troubleshooting
