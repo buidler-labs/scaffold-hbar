@@ -25,7 +25,7 @@ contract ChainlinkPriceOracleAdapterForkTest is Test {
     function test_Fork_LatestPriceReadsHbarUsdFeed() public {
         bytes32 pairKey = PairLib.pairKey("HBAR", "USD");
         ChainlinkPriceOracleAdapter adapter =
-            new ChainlinkPriceOracleAdapter(pairKey, config.hbarUsdFeed, MAX_STALENESS);
+            new ChainlinkPriceOracleAdapter(pairKey, config.chainlink.hbarUsdFeed, MAX_STALENESS);
 
         IPriceOracle.PriceData memory data = adapter.latestPrice();
 
@@ -37,7 +37,8 @@ contract ChainlinkPriceOracleAdapterForkTest is Test {
 
     function test_Fork_LatestPriceReadsBtcUsdFeed() public {
         bytes32 pairKey = PairLib.pairKey("BTC", "USD");
-        ChainlinkPriceOracleAdapter adapter = new ChainlinkPriceOracleAdapter(pairKey, config.btcUsdFeed, MAX_STALENESS);
+        ChainlinkPriceOracleAdapter adapter =
+            new ChainlinkPriceOracleAdapter(pairKey, config.chainlink.btcUsdFeed, MAX_STALENESS);
 
         IPriceOracle.PriceData memory data = adapter.latestPrice();
 
@@ -49,7 +50,8 @@ contract ChainlinkPriceOracleAdapterForkTest is Test {
 
     function test_Fork_LatestPriceReadsEthUsdFeed() public {
         bytes32 pairKey = PairLib.pairKey("ETH", "USD");
-        ChainlinkPriceOracleAdapter adapter = new ChainlinkPriceOracleAdapter(pairKey, config.ethUsdFeed, MAX_STALENESS);
+        ChainlinkPriceOracleAdapter adapter =
+            new ChainlinkPriceOracleAdapter(pairKey, config.chainlink.ethUsdFeed, MAX_STALENESS);
 
         IPriceOracle.PriceData memory data = adapter.latestPrice();
 
@@ -62,7 +64,7 @@ contract ChainlinkPriceOracleAdapterForkTest is Test {
     function test_Fork_RegistryPassesThroughChainlinkPrice() public {
         bytes32 pairKey = PairLib.pairKey("HBAR", "USD");
         ChainlinkPriceOracleAdapter adapter =
-            new ChainlinkPriceOracleAdapter(pairKey, config.hbarUsdFeed, MAX_STALENESS);
+            new ChainlinkPriceOracleAdapter(pairKey, config.chainlink.hbarUsdFeed, MAX_STALENESS);
 
         registry.registerOracle(pairKey, ProviderLib.CHAINLINK, address(adapter));
 

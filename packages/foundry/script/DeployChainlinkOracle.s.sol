@@ -28,9 +28,12 @@ contract DeployChainlinkOracle is ScaffoldHbarDeploy {
 
         OracleRegistry registry = _deployRegistry();
 
-        ChainlinkPriceOracleAdapter hbarUsdAdapter = _deployAdapter(PairLib.pairKey("HBAR", "USD"), config.hbarUsdFeed);
-        ChainlinkPriceOracleAdapter btcUsdAdapter = _deployAdapter(PairLib.pairKey("BTC", "USD"), config.btcUsdFeed);
-        ChainlinkPriceOracleAdapter ethUsdAdapter = _deployAdapter(PairLib.pairKey("ETH", "USD"), config.ethUsdFeed);
+        ChainlinkPriceOracleAdapter hbarUsdAdapter =
+            _deployAdapter(PairLib.pairKey("HBAR", "USD"), config.chainlink.hbarUsdFeed);
+        ChainlinkPriceOracleAdapter btcUsdAdapter =
+            _deployAdapter(PairLib.pairKey("BTC", "USD"), config.chainlink.btcUsdFeed);
+        ChainlinkPriceOracleAdapter ethUsdAdapter =
+            _deployAdapter(PairLib.pairKey("ETH", "USD"), config.chainlink.ethUsdFeed);
 
         _registerAdapters(registry, hbarUsdAdapter, btcUsdAdapter, ethUsdAdapter);
 

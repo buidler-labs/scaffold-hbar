@@ -97,7 +97,8 @@ own business logic, permissions, payments, or accounting rules.
 
 ### Chainlink Deployment Config
 
-`script/HelperConfig.s.sol` stores Chainlink Data Feed addresses used by deployment scripts:
+`script/HelperConfig.s.sol` stores oracle provider addresses used by deployment scripts. Chainlink feed addresses
+are grouped under `config.chainlink`:
 
 | Network         | HBAR/USD                                     | BTC/USD                                      | ETH/USD                                      |
 | --------------- | -------------------------------------------- | -------------------------------------------- | -------------------------------------------- |
@@ -133,6 +134,25 @@ Chainlink fork tests use the real feed addresses and are excluded from the defau
 ```bash
 FOUNDRY_PROFILE=integration forge test --fork-url https://testnet.hashio.io/api --match-path test/integration/ChainlinkPriceOracleAdapterFork.t.sol
 ```
+
+### Supra Research Config
+
+`script/HelperConfig.s.sol` also stores the currently validated Supra Push Oracle config under `config.supra`.
+This is deployment/script configuration only; the Supra adapter is not implemented yet.
+
+| Network        | Push oracle                                  |
+| -------------- | -------------------------------------------- |
+| Hedera Mainnet | `0xD02cc7a670047b6b012556A88e275c685d25e0c9` |
+| Hedera Testnet | `0x6Cd59830AAD978446e6cc7f6cc173aF7656Fb917` |
+
+Default Supra pair IDs:
+
+| Pair     | Supra pair ID | Category       |
+| -------- | ------------- | -------------- |
+| BTC/USD  | `18`          | Supra Standard |
+| ETH/USD  | `19`          | Supra Standard |
+| HBAR/USD | `432`         | Supra Standard |
+
 
 ### End-To-End Chainlink Flow
 
