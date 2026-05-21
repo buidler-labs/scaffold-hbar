@@ -1,7 +1,8 @@
-.PHONY: help deploy deploy-and-generate-abis deploy-chainlink-testnet deploy-chainlink-mainnet generate-abis get-address account compile flatten format lint test test-chainlink-testnet test-chainlink-mainnet verify verify-testnet verify-mainnet
+.PHONY: help deploy deploy-and-generate-abis deploy-chainlink-testnet deploy-chainlink-mainnet generate-abis get-address account compile flatten format lint read-chainlink-testnet read-chainlink-mainnet test test-chainlink-testnet test-chainlink-mainnet verify verify-testnet verify-mainnet
 
 DEPLOY_SCRIPT ?= script/DeployChainlinkOracle.s.sol
 CHAINLINK_DEPLOY_SCRIPT := script/DeployChainlinkOracle.s.sol
+CHAINLINK_READ_SCRIPT := script/ReadChainlinkOracle.s.sol
 CHAINLINK_FORK_TEST := test/integration/ChainlinkPriceOracleAdapterFork.t.sol
 RPC_URL ?= hedera_testnet
 ACCOUNT_ARGS :=
@@ -26,6 +27,10 @@ help:
 	@echo "Chainlink fork smoke tests:"
 	@echo "  make test-chainlink-testnet"
 	@echo "  make test-chainlink-mainnet"
+	@echo ""
+	@echo "Chainlink reads:"
+	@echo "  make read-chainlink-testnet"
+	@echo "  make read-chainlink-mainnet"
 	@echo ""
 	@echo "Verification:"
 	@echo "  make verify-testnet"
@@ -81,6 +86,13 @@ lint:
 # Run tests
 test:
 	forge test
+
+# Read deployed Chainlink registry prices and demo consumer conversions.
+read-chainlink-testnet:
+	forge script $(CHAINLINK_READ_SCRIPT) --rpc-url hedera_testnet
+
+read-chainlink-mainnet:
+	forge script $(CHAINLINK_READ_SCRIPT) --rpc-url hedera_mainnet
 
 # Run Chainlink adapter fork smoke tests against real Hedera feed addresses.
 test-chainlink-testnet:

@@ -119,13 +119,13 @@ deployed addresses to `deployments/<chainId>.json`.
 Deploy the Chainlink oracle demo on Hedera Testnet:
 
 ```bash
-yarn foundry:deploy --file DeployChainlinkOracle.s.sol --network hedera_testnet
+yarn deploy --file DeployChainlinkOracle.s.sol --network hedera_testnet
 ```
 
 For mainnet, use:
 
 ```bash
-yarn foundry:deploy --file DeployChainlinkOracle.s.sol --network hedera_mainnet
+yarn deploy --file DeployChainlinkOracle.s.sol --network hedera_mainnet
 ```
 
 Chainlink fork tests use the real feed addresses and are excluded from the default test suite:
@@ -136,83 +136,75 @@ FOUNDRY_PROFILE=integration forge test --fork-url https://testnet.hashio.io/api 
 
 ### End-To-End Chainlink Flow
 
-Use this checklist when starting from a fresh clone and deploying the Chainlink oracle template to Hedera.
+Use this checklist from `packages/foundry` when deploying the Chainlink oracle template to Hedera. For a fresh
+clone, run the workspace setup from the root README first.
 
-1. Install workspace dependencies from the repo root:
-
-   ```bash
-   yarn install
-   ```
-
-2. Initialize Forge dependencies:
+1. Create or import a Foundry keystore account:
 
    ```bash
-   git submodule update --init --recursive
-   ```
-
-3. Create or import a Foundry keystore account:
-
-   ```bash
-   yarn foundry:account:generate
+   yarn account:generate
    # or
-   yarn foundry:account:import
+   yarn account:import
    ```
 
-4. Fund that Hedera account with testnet HBAR from the [Hedera Portal faucet](https://portal.hedera.com/faucet).
+2. Fund that Hedera account with testnet HBAR from the [Hedera Portal faucet](https://portal.hedera.com/faucet).
 
-5. Compile the contracts:
+3. Compile the contracts:
 
    ```bash
-   yarn foundry:compile
+   yarn compile
    ```
 
-   If you are already inside `packages/foundry`, you can also run:
+4. Run deterministic unit tests:
 
    ```bash
-   forge build
+   yarn test
    ```
 
-6. Run deterministic unit tests:
+5. Run the Chainlink fork smoke test against real Hedera Testnet feed addresses:
 
    ```bash
-   yarn foundry:test
+   yarn test:chainlink:testnet
    ```
 
-7. Run the Chainlink fork smoke test against real Hedera Testnet feed addresses:
+6. Deploy and register the Chainlink oracle template on Hedera Testnet:
 
    ```bash
-   yarn foundry:test:chainlink:testnet
-   ```
-
-8. Deploy and register the Chainlink oracle template on Hedera Testnet:
-
-   ```bash
-   yarn foundry:deploy:chainlink:testnet
+   yarn deploy:chainlink:testnet
    ```
 
    The deploy command prompts for a keystore unless one is provided. To select one explicitly:
 
    ```bash
-   yarn foundry:deploy --file DeployChainlinkOracle.s.sol --network hedera_testnet --keystore <keystore-name>
+   yarn deploy --file DeployChainlinkOracle.s.sol --network hedera_testnet --keystore <keystore-name>
    ```
 
-9. Check the exported deployment file:
+7. Check the exported deployment file:
 
    ```bash
-   cat packages/foundry/deployments/296.json
+   cat deployments/296.json
    ```
 
    The file should include `OracleRegistry`, `OracleConsumer`, and the three Chainlink adapter addresses.
 
-10. Verify contracts on Hashscan when needed:
+8. Read the deployed Chainlink oracle data and demo conversions:
 
    ```bash
-   yarn foundry:verify:testnet
+   yarn read:chainlink:testnet
    ```
 
-For mainnet, use the same flow with `hedera_mainnet`, `yarn foundry:deploy:chainlink:mainnet`, and
-`yarn foundry:verify:mainnet`. Use a funded mainnet Hedera account and confirm every feed address in
-`script/HelperConfig.s.sol` before broadcasting.
+   This read-only script loads `deployments/296.json`, reads prices through `OracleRegistry`, and calls the
+   `OracleConsumer` demo conversion helpers. It does not broadcast transactions.
+
+9. Verify contracts on Hashscan when needed:
+
+   ```bash
+   yarn verify:testnet
+   ```
+
+For mainnet, use the same flow with `hedera_mainnet`, `yarn deploy:chainlink:mainnet`,
+`yarn read:chainlink:mainnet`, and `yarn verify:mainnet`. Use a funded mainnet Hedera account and confirm every
+feed address in `script/HelperConfig.s.sol` before broadcasting.
 
 ### Extending The Template
 
@@ -223,29 +215,25 @@ To add a new Chainlink pair:
 3. Register the adapter in `OracleRegistry` using `pairKey + ProviderLib.CHAINLINK`.
 4. Read prices through `OracleRegistry` or follow the `OracleConsumer` demo pattern.
 
-
 ## Setup
 
 Forge dependencies are tracked as git submodules under `packages/foundry/lib`.
-Initialize them from the repo root:
-
-```bash
-git submodule update --init --recursive
-```
+Install workspace dependencies and initialize git submodules from the repo root. After that, run package commands
+from `packages/foundry`.
 
 ---
 
 ## Deploy (Foundry)
 
-From the repo root, contract deploys for this package use **`yarn foundry:deploy`** (runs `packages/foundry`’s deploy script). Inside `packages/foundry`, use **`yarn deploy`** (same entrypoint).
+From `packages/foundry`, contract deploys use **`yarn deploy`**.
 
-- **Hedera testnet/mainnet:** Use `yarn foundry:deploy --network hedera_testnet` (or `hedera_mainnet`). You **must** use a keystore whose address is a **Hedera-created account** (created and funded via [Hedera Portal](https://portal.hedera.com) or faucet). If you see `Requested resource not found. address '0x...'`, that address does not exist on Hedera. From the repo root, create or import one with `yarn foundry:account:generate` or `yarn foundry:account:import`, then deploy with `--keystore <name>`. For multi-contract deploys, the Makefile uses `--slow` so each transaction is confirmed before the next (avoids `WRONG_NONCE` on Hedera when both txs are in flight).
+- **Hedera testnet/mainnet:** Use `yarn deploy --network hedera_testnet` (or `hedera_mainnet`). You **must** use a keystore whose address is a **Hedera-created account** (created and funded via [Hedera Portal](https://portal.hedera.com) or faucet). If you see `Requested resource not found. address '0x...'`, that address does not exist on Hedera. Create or import one with `yarn account:generate` or `yarn account:import`, then deploy with `--keystore <name>`. For multi-contract deploys, the Makefile uses `--slow` so each transaction is confirmed before the next (avoids `WRONG_NONCE` on Hedera when both txs are in flight).
 
 - **Chainlink oracle template:** Use the dedicated Makefile/Yarn shortcuts to deploy the registry, Chainlink adapters, and demo consumer:
 
   ```bash
-  yarn foundry:deploy:chainlink:testnet
-  yarn foundry:deploy:chainlink:mainnet
+  yarn deploy:chainlink:testnet
+  yarn deploy:chainlink:mainnet
   ```
 
 ---
@@ -262,8 +250,8 @@ From the repo root, contract deploys for this package use **`yarn foundry:deploy
 - **Chainlink fork test:** run the real-feed adapter smoke test explicitly:
 
   ```bash
-  yarn foundry:test:chainlink:testnet
-  yarn foundry:test:chainlink:mainnet
+  yarn test:chainlink:testnet
+  yarn test:chainlink:mainnet
   ```
 
 For more on fork testing with HTS emulation, see [forking the Hedera network for local testing](https://docs.hedera.com/hedera/core-concepts/smart-contracts/forking-hedera-network-for-local-testing).

@@ -84,7 +84,7 @@ Use a keystore with testnet HBAR (fund via [Hedera Portal faucet](https://portal
   yarn foundry:deploy:chainlink:testnet
   yarn foundry:deploy:chainlink:mainnet
   ```
-  See the full step-by-step Chainlink flow in [`packages/foundry/README.md`](packages/foundry/README.md#end-to-end-chainlink-flow).
+  See the package-level Chainlink flow in [`packages/foundry/README.md`](packages/foundry/README.md#end-to-end-chainlink-flow). Commands in that file are meant to be run from `packages/foundry`; commands in this root README are meant to be run from the repo root.
 - **Verify on Hashscan:**  
 After deploy, run (no extra arguments needed):
   ```bash
@@ -93,6 +93,62 @@ After deploy, run (no extra arguments needed):
   ```
 
 Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) or [Hashscan (mainnet)](https://hashscan.io/mainnet).
+
+### Foundry Chainlink oracle flow
+
+Run this checklist from the repo root when using the Foundry Chainlink oracle template.
+
+1. Install dependencies and initialize Forge submodules:
+
+```bash
+yarn install
+git submodule update --init --recursive
+```
+
+2. Create or import a Foundry keystore account:
+
+```bash
+yarn foundry:account:generate
+# or
+yarn foundry:account:import
+```
+
+3. Fund that Hedera account with testnet HBAR from the [Hedera Portal faucet](https://portal.hedera.com/faucet).
+
+4. Compile and run tests:
+
+```bash
+yarn foundry:compile
+yarn foundry:test
+yarn foundry:test:chainlink:testnet
+```
+
+5. Deploy and register the Chainlink oracle template on Hedera Testnet:
+
+```bash
+yarn foundry:deploy:chainlink:testnet
+```
+
+6. Check the exported deployment file:
+
+```bash
+cat packages/foundry/deployments/296.json
+```
+
+7. Read deployed Chainlink prices and demo conversion outputs:
+
+```bash
+yarn foundry:read:chainlink:testnet
+```
+
+This command is read-only. It uses the exported deployment file, reads `OracleRegistry`, and calls the
+`OracleConsumer` demo helpers without broadcasting transactions.
+
+8. Verify contracts on Hashscan:
+
+```bash
+yarn foundry:verify:testnet
+```
 
 ## Local testing with Hedera forking
 

@@ -16,6 +16,8 @@
     "format": "make format",
     "lint": "make lint",
     "lint-staged": "yarn lint",
+    "read:chainlink:testnet": "make read-chainlink-testnet",
+    "read:chainlink:mainnet": "make read-chainlink-mainnet",
     "test": "forge test",
     "test:testnet": "forge test --fork-url ${HEDERA_RPC_URL:-https://testnet.hashio.io/api} --chain-id 296 --ffi",
     "test:mainnet": "forge test --fork-url https://mainnet.hashio.io/api --chain-id 295 --ffi",
