@@ -17,6 +17,13 @@ localhost = "http://127.0.0.1:8545"
 hedera_testnet = "https://testnet.hashio.io/api"
 hedera_mainnet = "https://mainnet.hashio.io/api"
 
+# Hedera is now supported on the main Sourcify instance (sourcify.dev).
+# Use: forge verify-contract <ADDRESS> <CONTRACT> --chain-id 296 --verifier sourcify
+# See: https://hedera.com/blog/smart-contract-verification-sourcify-dev-now-supported
+[etherscan]
+hedera_testnet = { key = "", chain = 296, url = "https://hashscan.io/testnet" }
+hedera_mainnet = { key = "", chain = 295, url = "https://hashscan.io/mainnet" }
+
 [fmt]
 line_length = 120
 tab_width = 4

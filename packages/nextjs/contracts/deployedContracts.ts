@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 const deployedContracts = {
   296: {
     ScheduledVaultFactory: {
-      address: "0xbe652d6f59e555cffbe6899f80dbbe800986badb",
+      address: "0x4b05da11bd821d8676ebf1216ee5a3a0da6f196d",
       abi: [
         {
           type: "function",
@@ -122,10 +122,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 33544409,
+      deployedOnBlock: 35692435,
     },
     MemejobDCAStrategy: {
-      address: "0xbdd9ac787528251509038f22b6c0de7562652832",
+      address: "0x9882afa9140d2f281ccf76e2ffc08a335bd127bd",
       abi: [
         {
           type: "function",
@@ -216,7 +216,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 33544412,
+      deployedOnBlock: 35692438,
     },
   },
 } as const;
