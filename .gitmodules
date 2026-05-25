@@ -13,3 +13,6 @@
 [submodule "packages/foundry/lib/chainlink-brownie-contracts"]
 	path = packages/foundry/lib/chainlink-brownie-contracts
 	url = https://github.com/smartcontractkit/chainlink-brownie-contracts
+[submodule "packages/foundry/lib/pyth-sdk-solidity"]
+	path = packages/foundry/lib/pyth-sdk-solidity
+	url = https://github.com/pyth-network/pyth-sdk-solidity

@@ -14,6 +14,7 @@ const args = process.argv.slice(2);
 let fileName = "Deploy.s.sol";
 let network = "localhost";
 let keystoreArg = null;
+let makeTarget = "deploy-and-generate-abis";
 
 // Show help message if --help is provided
 if (args.includes("--help") || args.includes("-h")) {
@@ -23,6 +24,7 @@ Options:
   --file <filename>     Specify the deployment script file (default: Deploy.s.sol)
   --network <network>   Specify the network (default: localhost)
   --keystore <name>     Specify the keystore account to use (bypasses selection prompt)
+  --make-target <name>  Specify the Makefile target to run (default: deploy-and-generate-abis)
   --help, -h           Show this help message
 Examples:
   yarn deploy --file DeployYourContract.s.sol --network sepolia
@@ -43,6 +45,9 @@ for (let i = 0; i < args.length; i++) {
     i++; // Skip next arg since we used it
   } else if (args[i] === "--keystore" && args[i + 1]) {
     keystoreArg = args[i + 1];
+    i++; // Skip next arg since we used it
+  } else if (args[i] === "--make-target" && args[i + 1]) {
+    makeTarget = args[i + 1];
     i++; // Skip next arg since we used it
   }
 }
@@ -150,13 +155,14 @@ The default account (scaffold-hbar-default) can only be used for localhost deplo
 
 // Set environment variables for the make command
 process.env.DEPLOY_SCRIPT = `script/${fileName}`;
+process.env.SCRIPT = `script/${fileName}`;
 process.env.RPC_URL = network;
 process.env.ETH_KEYSTORE_ACCOUNT = selectedKeystore;
 
 // Run make from the foundry package root so it finds the Makefile and forge uses foundry.toml
 const foundryPackageRoot = join(__dirname, "..");
 
-const result = spawnSync("make", ["deploy-and-generate-abis"], {
+const result = spawnSync("make", [makeTarget], {
   stdio: "inherit",
   shell: true,
   cwd: foundryPackageRoot,

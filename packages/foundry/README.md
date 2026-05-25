@@ -138,7 +138,8 @@ FOUNDRY_PROFILE=integration forge test --fork-url https://testnet.hashio.io/api 
 ### Supra Research Config
 
 `script/HelperConfig.s.sol` also stores the currently validated Supra Push Oracle config under `config.supra`.
-This is deployment/script configuration only; the Supra adapter is not implemented yet.
+This is deployment/script configuration only. The adapter exists, but deploy scripts should only register pairs that
+pass a fresh fork smoke test on the target Hedera network.
 
 | Network        | Push oracle                                  |
 | -------------- | -------------------------------------------- |
@@ -147,12 +148,105 @@ This is deployment/script configuration only; the Supra adapter is not implement
 
 Default Supra pair IDs:
 
-| Pair     | Supra pair ID | Category       |
-| -------- | ------------- | -------------- |
-| BTC/USD  | `18`          | Supra Standard |
-| ETH/USD  | `19`          | Supra Standard |
-| HBAR/USD | `432`         | Supra Standard |
+| Pair      | Supra pair ID | Hedera push status                           |
+| --------- | ------------- | -------------------------------------------- |
+| BTC/USDT  | `0`           | Confirmed live on Hedera testnet             |
+| ETH/USDT  | `1`           | Confirmed live on Hedera testnet             |
+| HBAR/USDT | `75`          | Confirmed live on Hedera testnet and mainnet |
 
+Phase 2 targets the Supra push model only. Hedera's Supra documentation notes that mirror node payload limits make
+single-pair reads safer than multi-pair reads, so adapter and fork-test work should avoid batching price pairs.
+
+`script/DeploySupraOracle.s.sol` deploys:
+
+- `OracleRegistry`
+- one `SupraPriceOracleAdapter` for each configured `USDT` pair
+- `OracleConsumer` as a demo consumer
+
+It also registers the Supra adapters in `OracleRegistry`.
+The deploy wrapper runs `forge script` with `--broadcast`, so these commands send transactions and then export the
+deployed addresses to `deployments/<chainId>.json`.
+
+Deploy the Supra oracle demo on Hedera Testnet:
+
+```bash
+yarn deploy --file DeploySupraOracle.s.sol --network hedera_testnet
+```
+
+For mainnet, use:
+
+```bash
+yarn deploy --file DeploySupraOracle.s.sol --network hedera_mainnet
+```
+
+Supra fork tests use real Hedera push oracle addresses and are excluded from the default test suite:
+
+```bash
+FOUNDRY_PROFILE=integration forge test --fork-url https://testnet.hashio.io/api --match-path test/integration/SupraPriceOracleAdapterFork.t.sol
+```
+
+### Pyth Research Config
+
+`script/HelperConfig.s.sol` stores the currently validated Pyth contract and price IDs under `config.pyth`.
+Pyth is a pull oracle, so its adapter flow is different from Chainlink and Supra: callers provide fresh Pyth update
+data, pay the Pyth update fee, then read the normalized price.
+
+| Network        | Pyth contract                               |
+| -------------- | ------------------------------------------- |
+| Hedera Mainnet | `0xA2aa501b19aff244D90cc15a4Cf739D2725B5729` |
+| Hedera Testnet | `0xA2aa501b19aff244D90cc15a4Cf739D2725B5729` |
+
+Default Pyth price IDs:
+
+| Pair     | Price ID                                                           |
+| -------- | ------------------------------------------------------------------ |
+| HBAR/USD | `0x3728e591097635310e6341af53db8b7ee42da9b3a8d918f9463ce9cca886dfbd` |
+| BTC/USD  | `0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43` |
+| ETH/USD  | `0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace` |
+
+`PythPriceOracleAdapter` follows the pull-update pattern from the Pyth EVM guide: calculate the update fee with
+`getUpdateFee(updateData)`, call `updatePriceFeeds{ value: fee }(updateData)`, then read a fresh price with a
+bounded staleness check.
+
+`script/DeployPythOracle.s.sol` deploys:
+
+- `OracleRegistry`
+- one `PythPriceOracleAdapter` for each configured `USD` pair
+- `OracleConsumer` as a demo consumer
+
+It fetches fresh Hermes update data, updates each Pyth price feed individually, then registers the Pyth adapters in
+`OracleRegistry`. Single-feed updates avoid Hedera/Pyth batch payload edge cases during deployment. When the Pyth
+update fee is non-zero but below Hedera's minimum native transfer amount, the deploy script sends one tinybar. The
+read script uses the same rule before printing fresh registry and consumer values.
+
+Deploy the Pyth oracle demo on Hedera Testnet:
+
+```bash
+yarn deploy --file DeployPythOracle.s.sol --network hedera_testnet
+```
+
+For mainnet, use:
+
+```bash
+yarn deploy --file DeployPythOracle.s.sol --network hedera_mainnet
+```
+
+Read the deployed Pyth oracle demo on Hedera Testnet:
+
+```bash
+yarn read:pyth:testnet
+```
+
+This command prompts for a keystore because it broadcasts Pyth update transactions before reading prices. It fetches
+fresh Hermes update data through `ffi`, updates each deployed adapter, then prints prices and `OracleConsumer` demo
+conversions.
+
+Pyth fork tests use real Hedera Pyth addresses and fetch fresh update data from Hermes through `ffi`, so they are
+excluded from the default test suite:
+
+```bash
+FOUNDRY_PROFILE=integration forge test --fork-url https://testnet.hashio.io/api --ffi --match-path test/integration/PythPriceOracleAdapterFork.t.sol
+```
 
 ### End-To-End Chainlink Flow
 
@@ -226,6 +320,138 @@ For mainnet, use the same flow with `hedera_mainnet`, `yarn deploy:chainlink:mai
 `yarn read:chainlink:mainnet`, and `yarn verify:mainnet`. Use a funded mainnet Hedera account and confirm every
 feed address in `script/HelperConfig.s.sol` before broadcasting.
 
+### End-To-End Supra Flow
+
+Use this checklist from `packages/foundry` when deploying the Supra push oracle template to Hedera. For a fresh
+clone, run the workspace setup from the root README first.
+
+1. Create or import a Foundry keystore account:
+
+   ```bash
+   yarn account:generate
+   # or
+   yarn account:import
+   ```
+
+2. Fund that Hedera account with testnet HBAR from the [Hedera Portal faucet](https://portal.hedera.com/faucet).
+
+3. Compile the contracts:
+
+   ```bash
+   yarn compile
+   ```
+
+4. Run deterministic unit tests:
+
+   ```bash
+   yarn test
+   ```
+
+5. Run the Supra fork smoke test against real Hedera Testnet push oracle data:
+
+   ```bash
+   yarn test:supra:testnet
+   ```
+
+6. Deploy and register the Supra oracle template on Hedera Testnet:
+
+   ```bash
+   yarn deploy:supra:testnet
+   ```
+
+   The deploy command prompts for a keystore unless one is provided. To select one explicitly:
+
+   ```bash
+   yarn deploy --file DeploySupraOracle.s.sol --network hedera_testnet --keystore <keystore-name>
+   ```
+
+7. Check the exported deployment file:
+
+   ```bash
+   cat deployments/296.json
+   ```
+
+   The file should include `OracleRegistry`, `OracleConsumer`, and the three Supra adapter addresses.
+
+8. Read the deployed Supra oracle data and demo conversions:
+
+   ```bash
+   yarn read:supra:testnet
+   ```
+
+   This read-only script loads `deployments/296.json`, reads prices through `OracleRegistry`, and calls the
+   `OracleConsumer` demo conversion helpers. It does not broadcast transactions.
+
+For mainnet, use the same flow with `hedera_mainnet`, `yarn deploy:supra:mainnet`, and
+`yarn read:supra:mainnet`. Confirm every Supra pair in `script/HelperConfig.s.sol` passes a fresh fork smoke test
+on the target network before broadcasting.
+
+### End-To-End Pyth Flow
+
+Use this checklist from `packages/foundry` when deploying the Pyth pull oracle template to Hedera. For a fresh clone,
+run the workspace setup from the root README first.
+
+1. Create or import a Foundry keystore account:
+
+   ```bash
+   yarn account:generate
+   # or
+   yarn account:import
+   ```
+
+2. Fund that Hedera account with testnet HBAR from the [Hedera Portal faucet](https://portal.hedera.com/faucet).
+
+3. Compile the contracts:
+
+   ```bash
+   yarn compile
+   ```
+
+4. Run deterministic unit tests:
+
+   ```bash
+   yarn test
+   ```
+
+5. Run the Pyth fork smoke test against real Hedera Pyth addresses and fresh Hermes update data:
+
+   ```bash
+   yarn test:pyth:testnet
+   ```
+
+6. Deploy and register the Pyth oracle template on Hedera Testnet:
+
+   ```bash
+   yarn deploy:pyth:testnet
+   ```
+
+   The deploy command prompts for a keystore unless one is provided. To select one explicitly:
+
+   ```bash
+   yarn deploy --file DeployPythOracle.s.sol --network hedera_testnet --keystore <keystore-name>
+   ```
+
+7. Check the exported deployment file:
+
+   ```bash
+   cat deployments/296.json
+   ```
+
+   The file should include `OracleRegistry`, `OracleConsumer`, and the three Pyth adapter addresses.
+
+8. Update and read the deployed Pyth oracle data and demo conversions:
+
+   ```bash
+   yarn read:pyth:testnet
+   ```
+
+   This interaction script fetches fresh Hermes update data, broadcasts Pyth update transactions, then reads prices
+   through `OracleRegistry` and calls the `OracleConsumer` demo conversion helpers.
+
+For mainnet, use the same flow with `hedera_mainnet`, `yarn deploy:pyth:mainnet`, and `yarn read:pyth:mainnet`.
+Confirm every Pyth price ID in `script/HelperConfig.s.sol` passes a fresh fork smoke test on the target network before
+broadcasting.
+
 ### Extending The Template
 
 To add a new Chainlink pair:
@@ -254,6 +480,20 @@ From `packages/foundry`, contract deploys use **`yarn deploy`**.
   ```bash
   yarn deploy:chainlink:testnet
   yarn deploy:chainlink:mainnet
+  ```
+
+- **Supra oracle template:** Use the dedicated shortcuts to deploy the registry, Supra adapters, and demo consumer:
+
+  ```bash
+  yarn deploy:supra:testnet
+  yarn deploy:supra:mainnet
+  ```
+
+- **Pyth oracle template:** Use the dedicated shortcuts to deploy the registry, Pyth adapters, and demo consumer:
+
+  ```bash
+  yarn deploy:pyth:testnet
+  yarn deploy:pyth:mainnet
   ```
 
 ---

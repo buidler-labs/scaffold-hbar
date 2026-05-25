@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 const deployedContracts = {
   296: {
     OracleRegistry: {
-      address: "0x3979773dfec21101a916e075a565566957da1ebc",
+      address: "0x09f247f1ed2f28e99aa9c839e5340bb1949f6186",
       abi: [
         {
           type: "constructor",
@@ -310,7 +310,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 35644890,
+      deployedOnBlock: 35650029,
     },
     ChainlinkPriceOracleAdapter: {
       address: "0x0d4cffe6504fbac5d81fd132c54eeb32e698bf68",
@@ -459,7 +459,7 @@ const deployedContracts = {
       deployedOnBlock: 35644893,
     },
     OracleConsumer: {
-      address: "0xed41f1f959869544f57ab70595030ec86ae2629f",
+      address: "0x63ae290eeb7d16786ba95c5a7c91cc4637a96bfc",
       abi: [
         {
           type: "constructor",
@@ -575,7 +575,369 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 35644927,
+      deployedOnBlock: 35650050,
+    },
+    PythPriceOracleAdapter: {
+      address: "0x448382a1a99c7ad7166e7c94dfde298eb5bcc91d",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "pairKey_",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+            {
+              name: "pyth_",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "priceId_",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+            {
+              name: "maxStaleness_",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "MAX_STALENESS",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "PAIR_KEY",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "PRICE_ID",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "PROVIDER_KEY",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "PYTH",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "contract IPyth",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "latestPrice",
+          inputs: [],
+          outputs: [
+            {
+              name: "data",
+              type: "tuple",
+              internalType: "struct IPriceOracle.PriceData",
+              components: [
+                {
+                  name: "pairKey",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "providerKey",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "priceE18",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+                {
+                  name: "updatedAt",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+              ],
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "updatePrice",
+          inputs: [
+            {
+              name: "updateData",
+              type: "bytes[]",
+              internalType: "bytes[]",
+            },
+          ],
+          outputs: [],
+          stateMutability: "payable",
+        },
+        {
+          type: "error",
+          name: "OracleIncompleteRound",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "OracleInvalidPrice",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "OracleStalePrice",
+          inputs: [
+            {
+              name: "updatedAt",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "maxStaleness",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "PythInvalidConfidence",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "PythOracleIsZero",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "PythUpdateFeeTooLow",
+          inputs: [
+            {
+              name: "provided",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "required",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 35648619,
+    },
+    SupraPriceOracleAdapter: {
+      address: "0xd78a3dc7c832aeb5c1e9ef3b7b943eb814251cd3",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "pairKey_",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+            {
+              name: "supraOracle_",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "supraPairId_",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "maxStaleness_",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "MAX_STALENESS",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "PAIR_KEY",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "PROVIDER_KEY",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "SUPRA_ORACLE",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "contract ISupraSValueFeed",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "SUPRA_PAIR_ID",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "latestPrice",
+          inputs: [],
+          outputs: [
+            {
+              name: "data",
+              type: "tuple",
+              internalType: "struct IPriceOracle.PriceData",
+              components: [
+                {
+                  name: "pairKey",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "providerKey",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "priceE18",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+                {
+                  name: "updatedAt",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+              ],
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "error",
+          name: "OracleIncompleteRound",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "OracleInvalidPrice",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "OracleStalePrice",
+          inputs: [
+            {
+              name: "updatedAt",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "maxStaleness",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "SupraOracleIsZero",
+          inputs: [],
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 35650031,
     },
   },
 } as const;

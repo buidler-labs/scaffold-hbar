@@ -1,5 +1,6 @@
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 @chainlink/contracts/=lib/chainlink-brownie-contracts/contracts/
+@pythnetwork/pyth-sdk-solidity/=lib/pyth-sdk-solidity/
 forge-std/=lib/forge-std/src/
 solidity-bytes-utils/=lib/solidity-bytes-utils/contracts/
 hedera-forking/=lib/hedera-forking/contracts/
