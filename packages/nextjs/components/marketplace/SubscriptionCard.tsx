@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { AddressDisplay } from "./AddressDisplay";
 import { DateRangeDisplay } from "./DateDisplay";
 import { ClockIcon, TicketIcon, UserIcon } from "@heroicons/react/24/outline";
@@ -19,10 +20,20 @@ interface SubscriptionCardProps {
   subscription: SubscriptionData;
   showActions?: boolean;
   onCreateListing?: (serialNumber: bigint) => void;
+  onListForSale?: (serialNumber: bigint) => void;
+  listingStatus?: "sale" | "auction";
 }
 
-export const SubscriptionCard = ({ subscription, showActions = false, onCreateListing }: SubscriptionCardProps) => {
+export const SubscriptionCard = ({
+  subscription,
+  showActions = false,
+  onCreateListing,
+  onListForSale,
+  listingStatus,
+}: SubscriptionCardProps) => {
   const { serialNumber, provider, serviceTier, startDate, endDate, owner, isExpired } = subscription;
+
+  const isListed = !!listingStatus;
 
   return (
     <div
@@ -34,7 +45,11 @@ export const SubscriptionCard = ({ subscription, showActions = false, onCreateLi
             <TicketIcon className="h-5 w-5 text-primary" />
             <span className="text-xs text-base-content/60">#{serialNumber.toString()}</span>
           </div>
-          {isExpired && <span className="badge badge-error badge-sm">Expired</span>}
+          <div className="flex gap-1">
+            {listingStatus === "auction" && <span className="badge badge-info badge-sm">On Auction</span>}
+            {listingStatus === "sale" && <span className="badge badge-warning badge-sm">For Sale</span>}
+            {isExpired && <span className="badge badge-error badge-sm">Expired</span>}
+          </div>
         </div>
 
         <h3 className="card-title text-lg">{provider}</h3>
@@ -56,10 +71,21 @@ export const SubscriptionCard = ({ subscription, showActions = false, onCreateLi
         </div>
 
         {showActions && !isExpired && (
-          <div className="card-actions justify-end mt-4">
-            <button className="btn btn-primary btn-sm" onClick={() => onCreateListing?.(serialNumber)}>
-              Create Listing
-            </button>
+          <div className="card-actions justify-end mt-4 gap-2">
+            {isListed ? (
+              <Link href="/sales" className="btn btn-outline btn-sm">
+                View in Sales
+              </Link>
+            ) : (
+              <>
+                <button className="btn btn-outline btn-sm" onClick={() => onListForSale?.(serialNumber)}>
+                  List for Sale
+                </button>
+                <button className="btn btn-primary btn-sm" onClick={() => onCreateListing?.(serialNumber)}>
+                  Create Rental
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>

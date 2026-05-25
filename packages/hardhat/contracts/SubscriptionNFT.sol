@@ -24,6 +24,8 @@ contract SubscriptionNFT is Ownable {
     struct SubscriptionData {
         /// @notice Account that originally minted the subscription NFT.
         address minter;
+        /// @notice Address that receives royalty fees on secondary sales.
+        address providerAddress;
         /// @notice Human-readable provider label (for example, "Gym A").
         string provider;
         /// @notice Human-readable plan/tier label (for example, "Premium").
@@ -60,6 +62,8 @@ contract SubscriptionNFT is Ownable {
     error InvalidDateRange();
     /// @notice Thrown when a required string input is empty.
     error EmptyField();
+    /// @notice Thrown when provider address is zero.
+    error InvalidProviderAddress();
     /// @notice Thrown when composed metadata exceeds the configured byte limit.
     error MetadataTooLong();
     /// @notice Thrown when HTS mint returns an unexpected number of serials.
@@ -125,18 +129,21 @@ contract SubscriptionNFT is Ownable {
 
     /// @notice Mints a subscription NFT and transfers it to caller.
     /// @dev Caller must associate the HTS token before receiving the minted serial.
+    /// @param providerAddress Address that receives royalty fees on secondary sales.
     /// @param provider Provider metadata to persist on-chain.
     /// @param serviceTier Tier metadata to persist on-chain.
     /// @param startDate Subscription start timestamp (inclusive, Unix seconds).
     /// @param endDate Subscription end timestamp (exclusive, Unix seconds).
     /// @return serialNumber Newly minted HTS serial number.
     function mintSubscription(
+        address providerAddress,
         string calldata provider,
         string calldata serviceTier,
         uint256 startDate,
         uint256 endDate
     ) external returns (int64 serialNumber) {
         if (collectionAddress == address(0)) revert CollectionNotCreated();
+        if (providerAddress == address(0)) revert InvalidProviderAddress();
         if (bytes(provider).length == 0 || bytes(serviceTier).length == 0) revert EmptyField();
         if (startDate >= endDate) revert InvalidDateRange();
 
@@ -161,6 +168,7 @@ contract SubscriptionNFT is Ownable {
         _subscriptionExists[newSerial] = true;
         _subscriptions[newSerial] = SubscriptionData({
             minter: msg.sender,
+            providerAddress: providerAddress,
             provider: provider,
             serviceTier: serviceTier,
             startDate: startDate,
@@ -185,6 +193,14 @@ contract SubscriptionNFT is Ownable {
     function getEndDate(int64 serialNumber) external view returns (uint256) {
         if (!_subscriptionExists[serialNumber]) revert SubscriptionNotFound(serialNumber);
         return _subscriptions[serialNumber].endDate;
+    }
+
+    /// @notice Returns the provider address that receives royalty fees for a serial.
+    /// @param serialNumber Target serial number.
+    /// @return provider Address that receives royalty fees on secondary sales.
+    function getProviderAddress(int64 serialNumber) external view returns (address) {
+        if (!_subscriptionExists[serialNumber]) revert SubscriptionNotFound(serialNumber);
+        return _subscriptions[serialNumber].providerAddress;
     }
 
     /// @notice Checks whether a subscription serial is expired at the current block timestamp.

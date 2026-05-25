@@ -29,7 +29,9 @@ describe("SubscriptionMarketplace", function () {
     const dayBase = alignToDay(now);
     const startDate = dayBase + 10n * BigInt(DAY);
     const endDate = dayBase + 120n * BigInt(DAY);
-    await subscriptionNFT.connect(owner).mintSubscription("Anytime Fitness", "Premium", startDate, endDate);
+    await subscriptionNFT
+      .connect(owner)
+      .mintSubscription(owner.address, "Anytime Fitness", "Premium", startDate, endDate);
 
     const Marketplace = await ethers.getContractFactory("SubscriptionMarketplace");
     const marketplaceFeeBps = 500; // 5%

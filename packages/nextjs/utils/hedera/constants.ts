@@ -18,6 +18,12 @@ export const GAS_LIMITS = {
   CANCEL_BOOKING: 500_000n,
   CLAIM_PAYOUT: 500_000n,
   REMOVE_AVAILABILITY: 300_000n,
+  CREATE_SALE_LISTING: 800_000n,
+  BUY: 1_500_000n,
+  BID: 800_000n,
+  SETTLE: 1_500_000n,
+  CANCEL_LISTING: 500_000n,
+  APPROVE_NFT: 1_200_000n,
 } as const;
 
 // Addresses
@@ -40,4 +46,17 @@ export enum BookingStatus {
 export enum AvailabilityStatus {
   Active = 0,
   Removed = 1,
+}
+
+// Sales listing type enum (matches contract)
+export enum SalesListingType {
+  FixedPrice = 0,
+  Auction = 1,
+}
+
+// Sales listing status enum (matches contract)
+export enum SalesListingStatus {
+  Active = 0,
+  Sold = 1,
+  Cancelled = 2,
 }

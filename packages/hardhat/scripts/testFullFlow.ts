@@ -8,11 +8,12 @@ const MARKETPLACE_ADDRESS = "0x5B415432aef934929a0F46ae4455Cd8eb5f9D238";
 const RPC_URL = "https://testnet.hashio.io/api";
 
 const NFT_ABI = [
-  "function mintSubscription(string provider, string serviceTier, uint256 startDate, uint256 endDate) external returns (int64)",
-  "function getSubscription(int64 serialNumber) external view returns (tuple(address minter, string provider, string serviceTier, uint256 startDate, uint256 endDate))",
+  "function mintSubscription(address providerAddress, string provider, string serviceTier, uint256 startDate, uint256 endDate) external returns (int64)",
+  "function getSubscription(int64 serialNumber) external view returns (tuple(address minter, address providerAddress, string provider, string serviceTier, uint256 startDate, uint256 endDate))",
   "function currentOwner(int64 serialNumber) external view returns (address)",
   "function collectionAddress() external view returns (address)",
   "function isExpired(int64 serialNumber) external view returns (bool)",
+  "function getProviderAddress(int64 serialNumber) external view returns (address)",
   "event SubscriptionMinted(address indexed recipient, int64 indexed serialNumber, string provider, string serviceTier)",
 ];
 
@@ -95,7 +96,7 @@ async function main() {
   console.log(`  Start timestamp: ${subscriptionStart} -> ${formatDate(subscriptionStart)}`);
   console.log(`  End timestamp: ${subscriptionEnd} -> ${formatDate(subscriptionEnd)}`);
 
-  const mintTx = await nft.mintSubscription("Gym A", "Premium", subscriptionStart, subscriptionEnd, {
+  const mintTx = await nft.mintSubscription(signer.address, "Gym A", "Premium", subscriptionStart, subscriptionEnd, {
     gasLimit: 500_000,
   });
   console.log("  TX:", mintTx.hash);

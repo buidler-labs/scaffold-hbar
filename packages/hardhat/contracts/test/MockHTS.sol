@@ -161,11 +161,14 @@ contract MockHTS is IHederaTokenService {
 }
 
 /// @title MockNFTProxy
-/// @notice Minimal ERC-721 proxy for mock NFT tokens to support ownerOf and transferFrom.
+/// @notice Minimal ERC-721 proxy for mock NFT tokens to support ownerOf, transferFrom, and approvals.
 contract MockNFTProxy is IERC721 {
     MockHTS public immutable hts;
     string private _name;
     string private _symbol;
+
+    mapping(uint256 tokenId => address approved) private _tokenApprovals;
+    mapping(address owner => mapping(address operator => bool)) private _operatorApprovals;
 
     constructor(MockHTS _hts, string memory name_, string memory symbol_) {
         hts = _hts;
@@ -202,26 +205,38 @@ contract MockNFTProxy is IERC721 {
     }
 
     function transferFrom(address from, address to, uint256 tokenId) external override {
+        address owner = hts.ownerOf(address(this), int64(uint64(tokenId)));
+        require(
+            msg.sender == owner || 
+            _tokenApprovals[tokenId] == msg.sender || 
+            _operatorApprovals[owner][msg.sender],
+            "MockNFTProxy: not authorized"
+        );
         _transfer(from, to, tokenId);
     }
 
     function _transfer(address from, address to, uint256 tokenId) internal {
         hts.transferNFT(address(this), from, to, int64(uint64(tokenId)));
+        delete _tokenApprovals[tokenId];
     }
 
-    function approve(address /* to */, uint256 /* tokenId */) external pure override {
-        revert("MockNFTProxy: approve not supported");
+    function approve(address to, uint256 tokenId) external override {
+        address owner = hts.ownerOf(address(this), int64(uint64(tokenId)));
+        require(msg.sender == owner || _operatorApprovals[owner][msg.sender], "MockNFTProxy: not owner or operator");
+        _tokenApprovals[tokenId] = to;
+        emit Approval(owner, to, tokenId);
     }
 
-    function setApprovalForAll(address /* operator */, bool /* approved */) external pure override {
-        revert("MockNFTProxy: setApprovalForAll not supported");
+    function setApprovalForAll(address operator, bool approved) external override {
+        _operatorApprovals[msg.sender][operator] = approved;
+        emit ApprovalForAll(msg.sender, operator, approved);
     }
 
-    function getApproved(uint256 /* tokenId */) external pure override returns (address) {
-        return address(0);
+    function getApproved(uint256 tokenId) external view override returns (address) {
+        return _tokenApprovals[tokenId];
     }
 
-    function isApprovedForAll(address /* owner */, address /* operator */) external pure override returns (bool) {
-        return false;
+    function isApprovedForAll(address owner, address operator) external view override returns (bool) {
+        return _operatorApprovals[owner][operator];
     }
 }

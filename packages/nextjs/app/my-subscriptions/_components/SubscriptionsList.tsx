@@ -25,31 +25,91 @@ interface PendingSubscription {
 
 interface SubscriptionsListProps {
   onCreateListing: (serialNumber: bigint) => void;
+  onListForSale: (serialNumber: bigint) => void;
 }
 
-export const SubscriptionsList = ({ onCreateListing }: SubscriptionsListProps) => {
+export const SubscriptionsList = ({ onCreateListing, onListForSale }: SubscriptionsListProps) => {
   const { address: connectedAddress } = useAccount();
 
+  // Get minted subscriptions
   const {
     data: mintEvents,
-    isLoading: isLoadingEvents,
-    isFetching,
-    refetch,
+    isLoading: isLoadingMints,
+    isFetching: isFetchingMints,
+    refetch: refetchMints,
   } = useScaffoldEventHistory({
     contractName: "SubscriptionNFT",
     eventName: "SubscriptionMinted",
     watch: false,
   });
 
-  // Get owned serial numbers, sorted by serial number descending (newest first)
-  const ownedSerialNumbers = useMemo(() => {
-    if (!mintEvents || !connectedAddress) return [];
+  // Get purchased subscriptions from sales marketplace
+  const {
+    data: purchaseEvents,
+    isLoading: isLoadingPurchases,
+    isFetching: isFetchingPurchases,
+    refetch: refetchPurchases,
+  } = useScaffoldEventHistory({
+    contractName: "SubscriptionSalesMarketplace",
+    eventName: "ListingSold",
+    watch: false,
+  });
 
-    return mintEvents
-      .filter(event => event.args?.recipient?.toLowerCase() === connectedAddress.toLowerCase())
-      .map(event => event.args.serialNumber as bigint)
-      .sort((a, b) => (b > a ? 1 : b < a ? -1 : 0));
-  }, [mintEvents, connectedAddress]);
+  // Get sold subscriptions (to exclude from owned list)
+  const soldSerialNumbers = useMemo(() => {
+    if (!purchaseEvents || !connectedAddress) return new Set<string>();
+
+    const sold = new Set<string>();
+    purchaseEvents.forEach(event => {
+      // If connected user was the seller, they no longer own this NFT
+      if (event.args?.seller?.toLowerCase() === connectedAddress.toLowerCase()) {
+        sold.add((event.args.serialNumber as bigint).toString());
+      }
+    });
+    return sold;
+  }, [purchaseEvents, connectedAddress]);
+
+  // Get owned serial numbers from both minting and purchases
+  const ownedSerialNumbers = useMemo(() => {
+    if (!connectedAddress) return [];
+
+    const owned = new Map<string, bigint>();
+
+    // Add minted NFTs (if still owned)
+    if (mintEvents) {
+      mintEvents.forEach(event => {
+        if (event.args?.recipient?.toLowerCase() === connectedAddress.toLowerCase()) {
+          const serial = event.args.serialNumber as bigint;
+          if (!soldSerialNumbers.has(serial.toString())) {
+            owned.set(serial.toString(), serial);
+          }
+        }
+      });
+    }
+
+    // Add purchased NFTs
+    if (purchaseEvents) {
+      purchaseEvents.forEach(event => {
+        if (event.args?.buyer?.toLowerCase() === connectedAddress.toLowerCase()) {
+          const serial = event.args.serialNumber as bigint;
+          // Only add if not subsequently sold
+          if (!soldSerialNumbers.has(serial.toString())) {
+            owned.set(serial.toString(), serial);
+          }
+        }
+      });
+    }
+
+    return Array.from(owned.values()).sort((a, b) => (b > a ? 1 : b < a ? -1 : 0));
+  }, [mintEvents, purchaseEvents, soldSerialNumbers, connectedAddress]);
+
+  const isLoadingEvents = isLoadingMints || isLoadingPurchases;
+  const isFetching = isFetchingMints || isFetchingPurchases;
+
+  const refetch = useCallback(() => {
+    refetchMints();
+    refetchPurchases();
+  }, [refetchMints, refetchPurchases]);
 
   // Handle pending subscription with optimistic UI
   const { pendingItem: pendingSubscription, isPending } = usePendingItem<PendingSubscription>({
@@ -106,6 +166,7 @@ export const SubscriptionsList = ({ onCreateListing }: SubscriptionsListProps) =
             key={serialNumber.toString()}
             serialNumber={serialNumber}
             onCreateListing={onCreateListing}
+            onListForSale={onListForSale}
           />
         ))}
       </div>

@@ -5,6 +5,7 @@ export * from "./SubscriptionCard";
 export * from "./AvailabilityCard";
 export * from "./BookingCard";
 export * from "./CreateAvailabilityModal";
+export * from "./CreateSaleModal";
 export * from "./EmptyState";
 export * from "./ListHeader";
 export * from "./LoadMoreButton";

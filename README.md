@@ -8,6 +8,8 @@ This template—including **contracts, frontend, and tooling**—is **experiment
 
 ## How It Works
 
+### Rental Marketplace
+
 1. **Tokenize** - Mint your subscription as an NFT with provider, tier, and validity dates
 2. **List** - Create availability windows for periods you won't use, set a daily price
 3. **Rent** - Others book your listed periods, paying HBAR into escrow
@@ -15,19 +17,33 @@ This template—including **contracts, frontend, and tooling**—is **experiment
 
 The NFT stays with the owner throughout. Booking creates an on-chain **access-right record** — `userOf(serialNumber)` returns who currently has rental rights.
 
+### Sales Marketplace
+
+1. **List for Sale** - Create a fixed-price listing or start an English auction (3-day duration)
+2. **Buy/Bid** - Others can buy immediately or place bids on auctions
+3. **Transfer** - NFT ownership transfers to the buyer, seller receives payment (minus fees)
+4. **Provider Royalty** - 5% of sale price goes to the original service provider
+
+**Fee Structure on Sales:**
+
+- 5% Provider Royalty (goes to original minter/provider)
+- 5% Marketplace Fee
+- 90% goes to the seller
+
 ## Architecture
 
 ```
-┌─────────────────────┐     ┌──────────────────────────┐
-│  SubscriptionNFT    │     │  SubscriptionMarketplace │
-│  ─────────────────  │     │  ──────────────────────  │
-│  • createCollection │◄────│  • createAvailability    │
-│  • mintSubscription │     │  • book (escrow HBAR)    │
-│  • getSubscription  │     │  • userOf (rental check) │
-│  • currentOwner     │     │  • claimBookingPayout    │
-└─────────────────────┘     └──────────────────────────┘
-         │                              │
-         └──────────┬───────────────────┘
+┌─────────────────────┐     ┌──────────────────────────┐     ┌───────────────────────────────┐
+│  SubscriptionNFT    │     │  SubscriptionMarketplace │     │  SubscriptionSalesMarketplace │
+│  ─────────────────  │     │  ──────────────────────  │     │  ───────────────────────────  │
+│  • createCollection │◄────│  • createAvailability    │     │  • createFixedPriceListing    │
+│  • mintSubscription │     │  • book (escrow HBAR)    │◄────│  • createAuction              │
+│  • getSubscription  │     │  • userOf (rental check) │     │  • buy / bid                  │
+│  • currentOwner     │     │  • claimBookingPayout    │     │  • settleAuction              │
+│  • providerAddress  │     │  • hasActiveFutureBookings│     │  • 5% provider royalty        │
+└─────────────────────┘     └──────────────────────────┘     └───────────────────────────────┘
+         │                              │                                    │
+         └──────────┬───────────────────┴────────────────────────────────────┘
                     ▼
            ┌────────────────┐
            │  HTS Precompile │
@@ -40,19 +56,16 @@ The NFT stays with the owner throughout. Booking creates an on-chain **access-ri
 Before you begin, make sure you have the following installed:
 
 1. **Node.js** (v20.18.3 or higher)
-   - Download from [nodejs.org](https://nodejs.org/) or use [nvm](https://github.com/nvm-sh/nvm)
-   - Verify: `node --version`
-
+  - Download from [nodejs.org](https://nodejs.org/) or use [nvm](https://github.com/nvm-sh/nvm)
+  - Verify: `node --version`
 2. **Yarn** (package manager)
-   - Install via npm: `npm install -g yarn`
-   - Verify: `yarn --version`
-
+  - Install via npm: `npm install -g yarn`
+  - Verify: `yarn --version`
 3. **Git**
-   - Download from [git-scm.com](https://git-scm.com/)
-   - Verify: `git --version`
-
+  - Download from [git-scm.com](https://git-scm.com/)
+  - Verify: `git --version`
 4. **A Hedera-compatible wallet** (for using the frontend)
-   - [MetaMask](https://metamask.io/) or [HashPack](https://www.hashpack.app/)
+  - [MetaMask](https://metamask.io/) or [HashPack](https://www.hashpack.app/)
 
 ## Quick Start
 
@@ -72,12 +85,14 @@ yarn install
 The project comes with sensible defaults, but you can customize:
 
 **Hardhat** (`packages/hardhat/.env`):
+
 ```bash
 cp packages/hardhat/.env.example packages/hardhat/.env
 # Edit if you need a different RPC endpoint
 ```
 
 **Frontend** (`packages/nextjs/.env`):
+
 ```bash
 cp packages/nextjs/.env.example packages/nextjs/.env
 # Optional: Add WalletConnect project ID for better wallet support
@@ -101,6 +116,7 @@ yarn hardhat:account
 ```
 
 **Fund your deployer address** with testnet HBAR:
+
 1. Copy your deployer address from the output above
 2. Go to [Hedera Portal Faucet](https://portal.hedera.com/faucet)
 3. Paste your address and request testnet HBAR (you'll need ~50 HBAR for deployment + collection creation)
@@ -114,6 +130,7 @@ yarn hardhat:deploy --network hederaTestnet
 ```
 
 Enter your wallet password when prompted. This deploys two contracts:
+
 - `SubscriptionNFT` - Manages HTS NFT minting
 - `SubscriptionMarketplace` - Handles bookings and escrow
 
@@ -146,16 +163,18 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 To interact with the marketplace, connect a wallet:
 
 **Option A: MetaMask**
+
 1. Install [MetaMask browser extension](https://metamask.io/)
 2. Add Hedera Testnet network:
-   - Network Name: `Hedera Testnet`
-   - RPC URL: `https://testnet.hashio.io/api`
-   - Chain ID: `296`
-   - Currency Symbol: `HBAR`
-   - Explorer: `https://hashscan.io/testnet`
+  - Network Name: `Hedera Testnet`
+  - RPC URL: `https://testnet.hashio.io/api`
+  - Chain ID: `296`
+  - Currency Symbol: `HBAR`
+  - Explorer: `https://hashscan.io/testnet`
 3. Import or create an account and fund it via the [faucet](https://portal.hedera.com/faucet)
 
 **Option B: HashPack**
+
 1. Install [HashPack](https://www.hashpack.app/)
 2. Create or import a Hedera testnet account
 3. Fund via the [faucet](https://portal.hedera.com/faucet)
@@ -165,9 +184,10 @@ To interact with the marketplace, connect a wallet:
 With your wallet connected at [http://localhost:3000](http://localhost:3000):
 
 1. **Mint a Subscription** (`/mint`) - Create an NFT representing your subscription
-2. **My Subscriptions** (`/my-subscriptions`) - View your NFTs, create rental listings
-3. **Marketplace** (`/marketplace`) - Browse and book available listings
-4. **My Bookings** (`/my-bookings`) - View your rentals and claim payouts
+2. **My Subscriptions** (`/my-subscriptions`) - View your NFTs, create rental or sale listings
+3. **Rentals** (`/marketplace`) - Browse and book available rental listings
+4. **Sales** (`/sales`) - Browse, buy, or bid on subscriptions for sale
+5. **My Bookings** (`/my-bookings`) - View your rentals and claim payouts
 
 ## Optional: Run the Test Flow Script
 
@@ -179,6 +199,7 @@ npx ts-node scripts/testFullFlow.ts
 ```
 
 This demonstrates:
+
 1. Minting a subscription NFT ("Gym A - Premium", 90-day validity)
 2. Creating an availability listing (14-day window, 1 HBAR/day)
 3. Booking a 3-day rental period (pays 3 HBAR)
@@ -213,25 +234,41 @@ await contract.book(..., { value: costWei });
 ### SubscriptionNFT
 
 
-| Function                                               | Description                                            |
-| ------------------------------------------------------ | ------------------------------------------------------ |
-| `createCollection(name, symbol, memo)`                 | Owner creates HTS NFT collection (once, requires HBAR) |
-| `mintSubscription(provider, tier, startDate, endDate)` | Mint subscription NFT to caller                        |
-| `getSubscription(serialNumber)`                        | Get subscription metadata                              |
-| `currentOwner(serialNumber)`                           | Get current NFT owner via HTS                          |
-| `isExpired(serialNumber)`                              | Check if subscription has expired                      |
+| Function                                                        | Description                                            |
+| --------------------------------------------------------------- | ------------------------------------------------------ |
+| `createCollection(name, symbol, memo)`                          | Owner creates HTS NFT collection (once, requires HBAR) |
+| `mintSubscription(providerAddress, provider, tier, start, end)` | Mint subscription NFT to caller with royalty recipient |
+| `getSubscription(serialNumber)`                                 | Get subscription metadata                              |
+| `getProviderAddress(serialNumber)`                              | Get royalty recipient address                          |
+| `currentOwner(serialNumber)`                                    | Get current NFT owner via HTS                          |
+| `isExpired(serialNumber)`                                       | Check if subscription has expired                      |
 
 
-### SubscriptionMarketplace
+### SubscriptionMarketplace (Rentals)
 
 
-| Function                                              | Description                           |
-| ----------------------------------------------------- | ------------------------------------- |
-| `createAvailability(serial, start, end, pricePerDay)` | List rental window (owner only)       |
-| `book(availabilityId, startDate, days)`               | Book and pay (escrows HBAR)           |
-| `userOf(serialNumber)`                                | Returns active renter or zero address |
-| `cancelBooking(bookingId)`                            | Cancel before start for full refund   |
-| `claimBookingPayout(bookingId)`                       | Owner claims payment after start      |
+| Function                                              | Description                                |
+| ----------------------------------------------------- | ------------------------------------------ |
+| `createAvailability(serial, start, end, pricePerDay)` | List rental window (owner only)            |
+| `book(availabilityId, startDate, days)`               | Book and pay (escrows HBAR)                |
+| `userOf(serialNumber)`                                | Returns active renter or zero address      |
+| `cancelBooking(bookingId)`                            | Cancel before start for full refund        |
+| `claimBookingPayout(bookingId)`                       | Owner claims payment after start           |
+| `hasActiveFutureBookings(serialNumber)`               | Check if serial has future bookings (view) |
+
+
+### SubscriptionSalesMarketplace (Sales)
+
+
+| Function                                 | Description                                           |
+| ---------------------------------------- | ----------------------------------------------------- |
+| `createFixedPriceListing(serial, price)` | List NFT for immediate sale                           |
+| `createAuction(serial, reservePrice)`    | Start 3-day English auction                           |
+| `buy(listingId)`                         | Buy fixed-price listing                               |
+| `bid(listingId)`                         | Place bid on auction (payable)                        |
+| `settleAuction(listingId)`               | Settle ended auction (transfer NFT, distribute funds) |
+| `cancelListing(listingId)`               | Cancel listing (no bids for auction)                  |
+| `getMinimumBid(listingId)`               | Get minimum required bid for auction                  |
 
 
 ## Deployed Contracts (Testnet)
@@ -299,26 +336,31 @@ yarn hardhat:verify:testnet
 packages/
 ├── hardhat/
 │   ├── contracts/
-│   │   ├── SubscriptionNFT.sol         # HTS NFT minting & metadata
-│   │   ├── SubscriptionMarketplace.sol # Booking, escrow & payouts
-│   │   └── interfaces/                 # HTS precompile interfaces
-│   ├── deploy/                         # Hardhat deployment scripts
+│   │   ├── SubscriptionNFT.sol              # HTS NFT minting & metadata
+│   │   ├── SubscriptionMarketplace.sol      # Rental bookings, escrow & payouts
+│   │   ├── SubscriptionSalesMarketplace.sol # Sales: fixed-price & auctions
+│   │   └── interfaces/                      # HTS precompile interfaces
+│   ├── deploy/                              # Hardhat deployment scripts
+│   ├── tasks/                               # Custom Hardhat tasks (sales:*)
 │   ├── scripts/
-│   │   ├── createCollection.ts         # Initialize HTS collection
-│   │   └── testFullFlow.ts             # End-to-end test script
-│   └── test/                           # Unit tests with MockHTS
+│   │   ├── createCollection.ts              # Initialize HTS collection
+│   │   └── testFullFlow.ts                  # End-to-end test script
+│   └── test/                                # Unit tests with MockHTS
 └── nextjs/
     ├── app/
-    │   ├── page.tsx                    # Home page
-    │   ├── mint/                       # Mint new subscription NFTs
-    │   ├── marketplace/                # Browse & book listings
-    │   ├── my-subscriptions/           # View owned NFTs, create listings
-    │   ├── my-bookings/                # Renter & owner booking views
-    │   └── debug/                      # Direct contract interaction UI
-    ├── components/marketplace/         # Reusable marketplace components
-    ├── hooks/marketplace/              # Custom React hooks
-    ├── utils/hedera/                   # Hedera-specific utilities
-    └── contracts/deployedContracts.ts  # Auto-generated ABIs & addresses
+    │   ├── page.tsx                         # Home page
+    │   ├── mint/                            # Mint new subscription NFTs
+    │   ├── marketplace/                     # Browse & book rental listings
+    │   ├── sales/                           # Browse, buy, or bid on sales
+    │   ├── my-subscriptions/                # View owned NFTs, create listings
+    │   ├── my-bookings/                     # Renter & owner booking views
+    │   └── debug/                           # Direct contract interaction UI
+    ├── components/marketplace/              # Reusable marketplace components
+    ├── hooks/
+    │   ├── marketplace/                     # Rental marketplace hooks
+    │   └── sales/                           # Sales marketplace hooks
+    ├── utils/hedera/                        # Hedera-specific utilities
+    └── contracts/deployedContracts.ts       # Auto-generated ABIs & addresses
 ```
 
 ## Troubleshooting

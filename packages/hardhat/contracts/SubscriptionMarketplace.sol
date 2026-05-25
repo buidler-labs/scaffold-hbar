@@ -9,6 +9,8 @@ interface ISubscriptionNFT {
     struct SubscriptionData {
         /// @notice Account that originally minted the subscription NFT.
         address minter;
+        /// @notice Address that receives royalty fees on secondary sales.
+        address providerAddress;
         /// @notice Human-readable provider label.
         string provider;
         /// @notice Human-readable plan/tier label.
@@ -27,6 +29,10 @@ interface ISubscriptionNFT {
     /// @param serialNumber Target subscription serial number.
     /// @return endDate Subscription end timestamp (exclusive, Unix seconds).
     function getEndDate(int64 serialNumber) external view returns (uint256);
+    /// @notice Returns the provider address that receives royalty fees for a serial.
+    /// @param serialNumber Target subscription serial number.
+    /// @return provider Address that receives royalty fees on secondary sales.
+    function getProviderAddress(int64 serialNumber) external view returns (address);
     /// @notice Returns whether a subscription serial is currently expired.
     /// @param serialNumber Target subscription serial number.
     /// @return expired True when the subscription has expired.
@@ -480,6 +486,25 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         for (uint256 i = 0; i < len; i++) {
             list[i] = availabilities[availabilityIds[i]];
         }
+    }
+
+    /// @notice Checks if a subscription has any active bookings that end in the future.
+    /// @dev Used by sales marketplace to block sales when future bookings exist.
+    /// @param serialNumber Serial number to inspect.
+    /// @return hasFutureBookings True if any active booking has endDate > block.timestamp.
+    function hasActiveFutureBookings(int64 serialNumber) external view returns (bool) {
+        uint256[] storage bookingIds = _bookingIdsBySerial[serialNumber];
+        uint256 len = bookingIds.length;
+
+        for (uint256 i = 0; i < len; i++) {
+            Booking storage booking = bookingsById[bookingIds[i]];
+            if (booking.status != BookingStatus.Active) continue;
+            if (booking.endDate > block.timestamp) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// @notice Withdraws all accrued marketplace fees to recipient.

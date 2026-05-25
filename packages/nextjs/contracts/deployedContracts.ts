@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 const deployedContracts = {
   296: {
     SubscriptionMarketplace: {
-      address: "0x5B415432aef934929a0F46ae4455Cd8eb5f9D238",
+      address: "0x1630d60ACF7603fFCc8d4cdCc2Ae56A36D25bB0e",
       abi: [
         {
           inputs: [
@@ -852,6 +852,25 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "hasActiveFutureBookings",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "marketplaceFeeBps",
           outputs: [
@@ -1018,10 +1037,10 @@ const deployedContracts = {
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
-      deployedOnBlock: 35571137,
+      deployedOnBlock: 35823819,
     },
     SubscriptionNFT: {
-      address: "0x5B614Bf80Cb3841F9553b019F81135Ec1A58Ff8F",
+      address: "0xcFFd57C6AcE6A4D8A16DA549eDd1584cC9875F02",
       abi: [
         {
           inputs: [
@@ -1090,6 +1109,11 @@ const deployedContracts = {
         {
           inputs: [],
           name: "InvalidDateRange",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidProviderAddress",
           type: "error",
         },
         {
@@ -1380,6 +1404,25 @@ const deployedContracts = {
               type: "int64",
             },
           ],
+          name: "getProviderAddress",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
           name: "getSubscription",
           outputs: [
             {
@@ -1387,6 +1430,11 @@ const deployedContracts = {
                 {
                   internalType: "address",
                   name: "minter",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "providerAddress",
                   type: "address",
                 },
                 {
@@ -1439,6 +1487,11 @@ const deployedContracts = {
         },
         {
           inputs: [
+            {
+              internalType: "address",
+              name: "providerAddress",
+              type: "address",
+            },
             {
               internalType: "string",
               name: "provider",
@@ -1510,12 +1563,10 @@ const deployedContracts = {
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
-      deployedOnBlock: 35571132,
+      deployedOnBlock: 35823816,
     },
-  },
-  31337: {
-    SubscriptionMarketplace: {
-      address: "0x6431AF84d34F0522cAA58b221d94A150B5AdAC69",
+    SubscriptionSalesMarketplace: {
+      address: "0x2d925B5797bd85609E1DD189640D3423c7C55A30",
       abi: [
         {
           inputs: [
@@ -1530,6 +1581,11 @@ const deployedContracts = {
               type: "address",
             },
             {
+              internalType: "address",
+              name: "rentalMarketplaceAddress",
+              type: "address",
+            },
+            {
               internalType: "uint16",
               name: "initialMarketplaceFeeBps",
               type: "uint16",
@@ -1541,70 +1597,82 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "uint256",
-              name: "availabilityId",
-              type: "uint256",
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
             },
           ],
-          name: "AvailabilityInactive",
+          name: "AlreadyListed",
           type: "error",
         },
         {
           inputs: [
             {
               internalType: "uint256",
-              name: "availabilityId",
+              name: "listingId",
               type: "uint256",
             },
           ],
-          name: "AvailabilityNotFound",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "AvailabilityOutOfSubscriptionBounds",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "BookingAlreadyStarted",
+          name: "AuctionEnded",
           type: "error",
         },
         {
           inputs: [
             {
               internalType: "uint256",
-              name: "bookingId",
+              name: "listingId",
               type: "uint256",
             },
           ],
-          name: "BookingInactive",
+          name: "AuctionHasBids",
           type: "error",
         },
         {
           inputs: [
             {
               internalType: "uint256",
-              name: "bookingId",
+              name: "listingId",
               type: "uint256",
             },
           ],
-          name: "BookingNotFound",
+          name: "AuctionNotEnded",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "required",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "provided",
+              type: "uint256",
+            },
+          ],
+          name: "BidTooLow",
           type: "error",
         },
         {
           inputs: [],
-          name: "BookingOutOfAvailabilityBounds",
+          name: "CannotBidOnFixedPrice",
           type: "error",
         },
         {
           inputs: [],
-          name: "DateNotDayAligned",
+          name: "CannotBuyAuction",
           type: "error",
         },
         {
-          inputs: [],
-          name: "FeeTransferFailed",
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "HasActiveFutureBookings",
           type: "error",
         },
         {
@@ -1624,8 +1692,24 @@ const deployedContracts = {
           type: "error",
         },
         {
-          inputs: [],
-          name: "InvalidDateRange",
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "effectiveStartDate",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "minDate",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "maxDate",
+              type: "uint256",
+            },
+          ],
+          name: "InvalidEffectiveStartDate",
           type: "error",
         },
         {
@@ -1641,12 +1725,12 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "InvalidNumberOfDays",
+          name: "InvalidPrice",
           type: "error",
         },
         {
           inputs: [],
-          name: "InvalidPrice",
+          name: "InvalidRentalMarketplaceAddress",
           type: "error",
         },
         {
@@ -1655,23 +1739,63 @@ const deployedContracts = {
           type: "error",
         },
         {
-          inputs: [],
-          name: "NotBookingRenter",
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "listingId",
+              type: "uint256",
+            },
+          ],
+          name: "ListingNotActive",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "listingId",
+              type: "uint256",
+            },
+          ],
+          name: "ListingNotFound",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "NotApprovedForTransfer",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "NotCurrentOwner",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "listingId",
+              type: "uint256",
+            },
+          ],
+          name: "NotSeller",
           type: "error",
         },
         {
           inputs: [],
           name: "NothingToWithdraw",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "OverlappingAvailability",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "OverlappingBooking",
           type: "error",
         },
         {
@@ -1698,21 +1822,6 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "OwnerPayoutFailed",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "PayoutAlreadyClaimed",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "PayoutNotAvailableYet",
-          type: "error",
-        },
-        {
-          inputs: [],
           name: "ReentrancyGuardReentrantCall",
           type: "error",
         },
@@ -1728,14 +1837,8 @@ const deployedContracts = {
           type: "error",
         },
         {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-          ],
-          name: "UnauthorizedSubscriptionOwner",
+          inputs: [],
+          name: "TransferFailed",
           type: "error",
         },
         {
@@ -1744,7 +1847,7 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "uint256",
-              name: "availabilityId",
+              name: "listingId",
               type: "uint256",
             },
             {
@@ -1756,29 +1859,29 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "address",
-              name: "owner",
+              name: "seller",
               type: "address",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "windowStart",
+              name: "reservePrice",
               type: "uint256",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "windowEnd",
+              name: "effectiveStartDate",
               type: "uint256",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "pricePerDay",
+              name: "auctionEndTime",
               type: "uint256",
             },
           ],
-          name: "AvailabilityCreated",
+          name: "AuctionCreated",
           type: "event",
         },
         {
@@ -1787,23 +1890,35 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "uint256",
-              name: "availabilityId",
+              name: "listingId",
               type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "bidder",
+              type: "address",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "oldPricePerDay",
+              name: "amount",
               type: "uint256",
             },
             {
               indexed: false,
+              internalType: "address",
+              name: "previousBidder",
+              type: "address",
+            },
+            {
+              indexed: false,
               internalType: "uint256",
-              name: "newPricePerDay",
+              name: "previousBid",
               type: "uint256",
             },
           ],
-          name: "AvailabilityPriceUpdated",
+          name: "BidPlaced",
           type: "event",
         },
         {
@@ -1812,26 +1927,7 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "uint256",
-              name: "availabilityId",
-              type: "uint256",
-            },
-          ],
-          name: "AvailabilityRemoved",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "bookingId",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "availabilityId",
+              name: "listingId",
               type: "uint256",
             },
             {
@@ -1841,31 +1937,25 @@ const deployedContracts = {
               type: "int64",
             },
             {
-              indexed: false,
+              indexed: true,
               internalType: "address",
-              name: "renter",
+              name: "seller",
               type: "address",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "startDate",
+              name: "price",
               type: "uint256",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "endDate",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "totalPaid",
+              name: "effectiveStartDate",
               type: "uint256",
             },
           ],
-          name: "Booked",
+          name: "FixedPriceListingCreated",
           type: "event",
         },
         {
@@ -1874,23 +1964,17 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "uint256",
-              name: "bookingId",
+              name: "listingId",
               type: "uint256",
             },
             {
               indexed: true,
               internalType: "address",
-              name: "renter",
+              name: "seller",
               type: "address",
             },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "refundedAmount",
-              type: "uint256",
-            },
           ],
-          name: "BookingCancelled",
+          name: "ListingCancelled",
           type: "event",
         },
         {
@@ -1899,29 +1983,53 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "uint256",
-              name: "bookingId",
+              name: "listingId",
               type: "uint256",
             },
             {
               indexed: true,
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+            {
+              indexed: true,
               internalType: "address",
-              name: "owner",
+              name: "buyer",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "seller",
               type: "address",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "ownerPayout",
+              name: "salePrice",
               type: "uint256",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "feeAmount",
+              name: "providerFee",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "marketplaceFee",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "sellerProceeds",
               type: "uint256",
             },
           ],
-          name: "BookingPayoutClaimed",
+          name: "ListingSold",
           type: "event",
         },
         {
@@ -1983,6 +2091,19 @@ const deployedContracts = {
         },
         {
           inputs: [],
+          name: "AUCTION_DURATION",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "BPS_DENOMINATOR",
           outputs: [
             {
@@ -1996,7 +2117,20 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "DAY",
+          name: "MIN_BID_INCREMENT_BPS",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "PROVIDER_FEE_BPS",
           outputs: [
             {
               internalType: "uint256",
@@ -2023,47 +2157,17 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "uint256",
-              name: "availabilityId",
-              type: "uint256",
-            },
-          ],
-          name: "availabilities",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "id",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
               internalType: "int64",
               name: "serialNumber",
               type: "int64",
             },
+          ],
+          name: "activeListingBySerial",
+          outputs: [
             {
               internalType: "uint256",
-              name: "windowStart",
+              name: "listingId",
               type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "windowEnd",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "pricePerDay",
-              type: "uint256",
-            },
-            {
-              internalType: "enum SubscriptionMarketplace.AvailabilityStatus",
-              name: "status",
-              type: "uint8",
             },
           ],
           stateMutability: "view",
@@ -2073,28 +2177,12 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "uint256",
-              name: "availabilityId",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "startDate",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "numberOfDays",
+              name: "listingId",
               type: "uint256",
             },
           ],
-          name: "book",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "bookingId",
-              type: "uint256",
-            },
-          ],
+          name: "bid",
+          outputs: [],
           stateMutability: "payable",
           type: "function",
         },
@@ -2102,11 +2190,204 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "uint256",
-              name: "bookingId",
+              name: "listingId",
               type: "uint256",
             },
           ],
-          name: "bookingsById",
+          name: "buy",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "listingId",
+              type: "uint256",
+            },
+          ],
+          name: "cancelListing",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+            {
+              internalType: "uint256",
+              name: "reservePrice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "effectiveStartDate",
+              type: "uint256",
+            },
+          ],
+          name: "createAuction",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "listingId",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+            {
+              internalType: "uint256",
+              name: "askPrice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "effectiveStartDate",
+              type: "uint256",
+            },
+          ],
+          name: "createFixedPriceListing",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "listingId",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "listingId",
+              type: "uint256",
+            },
+          ],
+          name: "getListing",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "int64",
+                  name: "serialNumber",
+                  type: "int64",
+                },
+                {
+                  internalType: "address",
+                  name: "seller",
+                  type: "address",
+                },
+                {
+                  internalType: "enum SubscriptionSalesMarketplace.ListingType",
+                  name: "listingType",
+                  type: "uint8",
+                },
+                {
+                  internalType: "enum SubscriptionSalesMarketplace.ListingStatus",
+                  name: "status",
+                  type: "uint8",
+                },
+                {
+                  internalType: "uint256",
+                  name: "price",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "effectiveStartDate",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "auctionEndTime",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "highestBidder",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "highestBid",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct SubscriptionSalesMarketplace.Listing",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "listingId",
+              type: "uint256",
+            },
+          ],
+          name: "getMinimumBid",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+          ],
+          name: "hasActiveListing",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "listingId",
+              type: "uint256",
+            },
+          ],
+          name: "listings",
           outputs: [
             {
               internalType: "uint256",
@@ -2114,246 +2395,49 @@ const deployedContracts = {
               type: "uint256",
             },
             {
+              internalType: "int64",
+              name: "serialNumber",
+              type: "int64",
+            },
+            {
               internalType: "address",
-              name: "renter",
+              name: "seller",
+              type: "address",
+            },
+            {
+              internalType: "enum SubscriptionSalesMarketplace.ListingType",
+              name: "listingType",
+              type: "uint8",
+            },
+            {
+              internalType: "enum SubscriptionSalesMarketplace.ListingStatus",
+              name: "status",
+              type: "uint8",
+            },
+            {
+              internalType: "uint256",
+              name: "price",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "effectiveStartDate",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "auctionEndTime",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "highestBidder",
               type: "address",
             },
             {
               internalType: "uint256",
-              name: "availabilityId",
+              name: "highestBid",
               type: "uint256",
-            },
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-            {
-              internalType: "uint256",
-              name: "startDate",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "endDate",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "totalPaid",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "feeAmount",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "ownerPayout",
-              type: "uint256",
-            },
-            {
-              internalType: "bool",
-              name: "payoutClaimed",
-              type: "bool",
-            },
-            {
-              internalType: "enum SubscriptionMarketplace.BookingStatus",
-              name: "status",
-              type: "uint8",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "bookingId",
-              type: "uint256",
-            },
-          ],
-          name: "cancelBooking",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "bookingId",
-              type: "uint256",
-            },
-          ],
-          name: "claimBookingPayout",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-            {
-              internalType: "uint256",
-              name: "windowStart",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "windowEnd",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "pricePerDay",
-              type: "uint256",
-            },
-          ],
-          name: "createAvailability",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "availabilityId",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-          ],
-          name: "getAvailability",
-          outputs: [
-            {
-              components: [
-                {
-                  internalType: "uint256",
-                  name: "id",
-                  type: "uint256",
-                },
-                {
-                  internalType: "address",
-                  name: "owner",
-                  type: "address",
-                },
-                {
-                  internalType: "int64",
-                  name: "serialNumber",
-                  type: "int64",
-                },
-                {
-                  internalType: "uint256",
-                  name: "windowStart",
-                  type: "uint256",
-                },
-                {
-                  internalType: "uint256",
-                  name: "windowEnd",
-                  type: "uint256",
-                },
-                {
-                  internalType: "uint256",
-                  name: "pricePerDay",
-                  type: "uint256",
-                },
-                {
-                  internalType: "enum SubscriptionMarketplace.AvailabilityStatus",
-                  name: "status",
-                  type: "uint8",
-                },
-              ],
-              internalType: "struct SubscriptionMarketplace.AvailabilityWindow[]",
-              name: "list",
-              type: "tuple[]",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-          ],
-          name: "getBookings",
-          outputs: [
-            {
-              components: [
-                {
-                  internalType: "uint256",
-                  name: "id",
-                  type: "uint256",
-                },
-                {
-                  internalType: "address",
-                  name: "renter",
-                  type: "address",
-                },
-                {
-                  internalType: "uint256",
-                  name: "availabilityId",
-                  type: "uint256",
-                },
-                {
-                  internalType: "int64",
-                  name: "serialNumber",
-                  type: "int64",
-                },
-                {
-                  internalType: "uint256",
-                  name: "startDate",
-                  type: "uint256",
-                },
-                {
-                  internalType: "uint256",
-                  name: "endDate",
-                  type: "uint256",
-                },
-                {
-                  internalType: "uint256",
-                  name: "totalPaid",
-                  type: "uint256",
-                },
-                {
-                  internalType: "uint256",
-                  name: "feeAmount",
-                  type: "uint256",
-                },
-                {
-                  internalType: "uint256",
-                  name: "ownerPayout",
-                  type: "uint256",
-                },
-                {
-                  internalType: "bool",
-                  name: "payoutClaimed",
-                  type: "bool",
-                },
-                {
-                  internalType: "enum SubscriptionMarketplace.BookingStatus",
-                  name: "status",
-                  type: "uint8",
-                },
-              ],
-              internalType: "struct SubscriptionMarketplace.Booking[]",
-              name: "list",
-              type: "tuple[]",
             },
           ],
           stateMutability: "view",
@@ -2374,20 +2458,7 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "nextAvailabilityId",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "nextBookingId",
+          name: "nextListingId",
           outputs: [
             {
               internalType: "uint256",
@@ -2412,23 +2483,23 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "availabilityId",
-              type: "uint256",
-            },
-          ],
-          name: "removeAvailability",
+          inputs: [],
+          name: "renounceOwnership",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
         },
         {
           inputs: [],
-          name: "renounceOwnership",
-          outputs: [],
-          stateMutability: "nonpayable",
+          name: "rentalMarketplace",
+          outputs: [
+            {
+              internalType: "contract IRentalMarketplace",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -2445,11 +2516,24 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "listingId",
+              type: "uint256",
+            },
+          ],
+          name: "settleAuction",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "subscriptionNFT",
           outputs: [
             {
-              internalType: "contract ISubscriptionNFT",
+              internalType: "contract ISalesSubscriptionNFT",
               name: "",
               type: "address",
             },
@@ -2468,43 +2552,6 @@ const deployedContracts = {
           name: "transferOwnership",
           outputs: [],
           stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "availabilityId",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "newPricePerDay",
-              type: "uint256",
-            },
-          ],
-          name: "updateAvailability",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-          ],
-          name: "userOf",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
           type: "function",
         },
         {
@@ -2526,481 +2573,7 @@ const deployedContracts = {
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
-      deployedOnBlock: 35522251,
-    },
-    SubscriptionNFT: {
-      address: "0xeA8AE08513f8230cAA8d031D28cB4Ac8CE720c68",
-      abi: [
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "initialOwner",
-              type: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "constructor",
-        },
-        {
-          inputs: [],
-          name: "CollectionAlreadyCreated",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "CollectionNotCreated",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "EmptyField",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "responseCode",
-              type: "int64",
-            },
-          ],
-          name: "HtsCreateFailed",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "responseCode",
-              type: "int64",
-            },
-          ],
-          name: "HtsMintFailed",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "responseCode",
-              type: "int64",
-            },
-          ],
-          name: "HtsTransferFailed",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "InvalidDateRange",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-          ],
-          name: "InvalidSerialNumber",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "MetadataTooLong",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-          ],
-          name: "OwnableInvalidOwner",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "account",
-              type: "address",
-            },
-          ],
-          name: "OwnableUnauthorizedAccount",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-          ],
-          name: "SubscriptionNotFound",
-          type: "error",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "count",
-              type: "uint256",
-            },
-          ],
-          name: "UnexpectedSerialCount",
-          type: "error",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "collectionAddress",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "name",
-              type: "string",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "symbol",
-              type: "string",
-            },
-          ],
-          name: "CollectionCreated",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "previousOwner",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "newOwner",
-              type: "address",
-            },
-          ],
-          name: "OwnershipTransferred",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "recipient",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "provider",
-              type: "string",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "serviceTier",
-              type: "string",
-            },
-          ],
-          name: "SubscriptionMinted",
-          type: "event",
-        },
-        {
-          inputs: [],
-          name: "HTS",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "METADATA_MAX_BYTES",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "SUCCESS",
-          outputs: [
-            {
-              internalType: "int64",
-              name: "",
-              type: "int64",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "SUPPLY_KEY",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "collectionAddress",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "name",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "symbol",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "memo",
-              type: "string",
-            },
-          ],
-          name: "createCollection",
-          outputs: [
-            {
-              internalType: "address",
-              name: "createdAddress",
-              type: "address",
-            },
-          ],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-          ],
-          name: "currentOwner",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-          ],
-          name: "getEndDate",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-          ],
-          name: "getSubscription",
-          outputs: [
-            {
-              components: [
-                {
-                  internalType: "address",
-                  name: "minter",
-                  type: "address",
-                },
-                {
-                  internalType: "string",
-                  name: "provider",
-                  type: "string",
-                },
-                {
-                  internalType: "string",
-                  name: "serviceTier",
-                  type: "string",
-                },
-                {
-                  internalType: "uint256",
-                  name: "startDate",
-                  type: "uint256",
-                },
-                {
-                  internalType: "uint256",
-                  name: "endDate",
-                  type: "uint256",
-                },
-              ],
-              internalType: "struct SubscriptionNFT.SubscriptionData",
-              name: "",
-              type: "tuple",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-          ],
-          name: "isExpired",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "provider",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "serviceTier",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "startDate",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "endDate",
-              type: "uint256",
-            },
-          ],
-          name: "mintSubscription",
-          outputs: [
-            {
-              internalType: "int64",
-              name: "serialNumber",
-              type: "int64",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "owner",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "renounceOwnership",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "newOwner",
-              type: "address",
-            },
-          ],
-          name: "transferOwnership",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-      ],
-      inheritedFunctions: {
-        owner: "@openzeppelin/contracts/access/Ownable.sol",
-        renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
-        transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
-      },
-      deployedOnBlock: 35522249,
+      deployedOnBlock: 35829908,
     },
   },
 } as const;
