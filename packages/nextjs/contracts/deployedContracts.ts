@@ -6,64 +6,16 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 
 const deployedContracts = {
   296: {
-    OracleRegistry: {
-      address: "0x09f247f1ed2f28e99aa9c839e5340bb1949f6186",
+    ChainlinkPriceOracleAdapter: {
+      address: "0xa02f2f5c1f061662bf99efade44201bd494a2870",
       abi: [
         {
           type: "constructor",
           inputs: [
             {
-              name: "initialOwner",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "getOracle",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
-              name: "providerKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          outputs: [
-            {
-              name: "adapter",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "latestPrice",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
-              name: "providerKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          outputs: [
-            {
-              name: "data",
-              type: "tuple",
-              internalType: "struct IPriceOracle.PriceData",
+              name: "feedConfigs",
+              type: "tuple[]",
+              internalType: "struct ChainlinkPriceOracleAdapter.FeedConfig[]",
               components: [
                 {
                   name: "pairKey",
@@ -71,262 +23,11 @@ const deployedContracts = {
                   internalType: "bytes32",
                 },
                 {
-                  name: "providerKey",
-                  type: "bytes32",
-                  internalType: "bytes32",
-                },
-                {
-                  name: "priceE18",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-                {
-                  name: "updatedAt",
-                  type: "uint256",
-                  internalType: "uint256",
+                  name: "feed",
+                  type: "address",
+                  internalType: "address",
                 },
               ],
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "owner",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "registerOracle",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
-              name: "providerKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
-              name: "adapter",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "removeOracle",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
-              name: "providerKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "renounceOwnership",
-          inputs: [],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "transferOwnership",
-          inputs: [
-            {
-              name: "newOwner",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "event",
-          name: "OracleAdapterRegistered",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              indexed: true,
-              internalType: "bytes32",
-            },
-            {
-              name: "providerKey",
-              type: "bytes32",
-              indexed: true,
-              internalType: "bytes32",
-            },
-            {
-              name: "adapter",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "OracleAdapterRemoved",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              indexed: true,
-              internalType: "bytes32",
-            },
-            {
-              name: "providerKey",
-              type: "bytes32",
-              indexed: true,
-              internalType: "bytes32",
-            },
-            {
-              name: "adapter",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "OwnershipTransferred",
-          inputs: [
-            {
-              name: "previousOwner",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "newOwner",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "error",
-          name: "OracleAdapterIsZero",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "OracleAdapterNotFound",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
-              name: "providerKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "OracleAdapterPairMismatch",
-          inputs: [
-            {
-              name: "expectedPairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
-              name: "actualPairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "OracleAdapterProviderMismatch",
-          inputs: [
-            {
-              name: "expectedProviderKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
-              name: "actualProviderKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "OwnableInvalidOwner",
-          inputs: [
-            {
-              name: "owner",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "OwnableUnauthorizedAccount",
-          inputs: [
-            {
-              name: "account",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-        },
-      ],
-      inheritedFunctions: {},
-      deployedOnBlock: 35650029,
-    },
-    ChainlinkPriceOracleAdapter: {
-      address: "0x0d4cffe6504fbac5d81fd132c54eeb32e698bf68",
-      abi: [
-        {
-          type: "constructor",
-          inputs: [
-            {
-              name: "pairKey_",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
-              name: "feed_",
-              type: "address",
-              internalType: "address",
             },
             {
               name: "maxStaleness_",
@@ -338,19 +39,6 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "FEED",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "contract AggregatorV3Interface",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
           name: "MAX_STALENESS",
           inputs: [],
           outputs: [
@@ -358,19 +46,6 @@ const deployedContracts = {
               name: "",
               type: "uint256",
               internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "PAIR_KEY",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bytes32",
-              internalType: "bytes32",
             },
           ],
           stateMutability: "view",
@@ -390,8 +65,33 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "getFeed",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          outputs: [
+            {
+              name: "feed",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "latestPrice",
-          inputs: [],
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
           outputs: [
             {
               name: "data",
@@ -430,12 +130,33 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "OracleConfigIsEmpty",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "OracleIncompleteRound",
           inputs: [],
         },
         {
           type: "error",
           name: "OracleInvalidPrice",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "OraclePairAlreadyConfigured",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "OraclePairKeyIsZero",
           inputs: [],
         },
         {
@@ -454,18 +175,34 @@ const deployedContracts = {
             },
           ],
         },
+        {
+          type: "error",
+          name: "OracleUnsupportedPair",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 35644893,
+      deployedOnBlock: 35831761,
     },
     OracleConsumer: {
-      address: "0x63ae290eeb7d16786ba95c5a7c91cc4637a96bfc",
+      address: "0x78f803ed5cf13df57b6a97f88421bc8f0002df1b",
       abi: [
         {
           type: "constructor",
           inputs: [
             {
-              name: "registry_",
+              name: "oracle_",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "initialOwner",
               type: "address",
               internalType: "address",
             },
@@ -474,28 +211,10 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "REGISTRY",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "contract OracleRegistry",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
           name: "baseToQuote",
           inputs: [
             {
               name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
-              name: "providerKey",
               type: "bytes32",
               internalType: "bytes32",
             },
@@ -520,6 +239,32 @@ const deployedContracts = {
               name: "quoteAmount",
               type: "uint256",
               internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "oracle",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "contract IPriceOracle",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "owner",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
             },
           ],
           stateMutability: "view",
@@ -534,11 +279,6 @@ const deployedContracts = {
               internalType: "bytes32",
             },
             {
-              name: "providerKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-            {
               name: "quoteAmount",
               type: "uint256",
               internalType: "uint256",
@@ -564,39 +304,139 @@ const deployedContracts = {
           stateMutability: "view",
         },
         {
+          type: "function",
+          name: "renounceOwnership",
+          inputs: [],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "setOracle",
+          inputs: [
+            {
+              name: "newOracle",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "transferOwnership",
+          inputs: [
+            {
+              name: "newOwner",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "event",
+          name: "OracleUpdated",
+          inputs: [
+            {
+              name: "previousOracle",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "newOracle",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "OwnershipTransferred",
+          inputs: [
+            {
+              name: "previousOwner",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "newOwner",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
           type: "error",
           name: "InvalidPrice",
           inputs: [],
         },
         {
           type: "error",
-          name: "OracleRegistryIsZero",
+          name: "OracleIsZero",
           inputs: [],
+        },
+        {
+          type: "error",
+          name: "OwnableInvalidOwner",
+          inputs: [
+            {
+              name: "owner",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "OwnableUnauthorizedAccount",
+          inputs: [
+            {
+              name: "account",
+              type: "address",
+              internalType: "address",
+            },
+          ],
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 35650050,
+      deployedOnBlock: 35831785,
     },
     PythPriceOracleAdapter: {
-      address: "0x448382a1a99c7ad7166e7c94dfde298eb5bcc91d",
+      address: "0x43d7d3cfacbfe817783757b65c72bdaf5de4929a",
       abi: [
         {
           type: "constructor",
           inputs: [
-            {
-              name: "pairKey_",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
             {
               name: "pyth_",
               type: "address",
               internalType: "address",
             },
             {
-              name: "priceId_",
-              type: "bytes32",
-              internalType: "bytes32",
+              name: "priceConfigs",
+              type: "tuple[]",
+              internalType: "struct PythPriceOracleAdapter.PriceConfig[]",
+              components: [
+                {
+                  name: "pairKey",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "priceId",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+              ],
             },
             {
               name: "maxStaleness_",
@@ -615,32 +455,6 @@ const deployedContracts = {
               name: "",
               type: "uint256",
               internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "PAIR_KEY",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "PRICE_ID",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bytes32",
-              internalType: "bytes32",
             },
           ],
           stateMutability: "view",
@@ -673,8 +487,33 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "getPriceId",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          outputs: [
+            {
+              name: "priceId",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "latestPrice",
-          inputs: [],
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
           outputs: [
             {
               name: "data",
@@ -721,12 +560,33 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "OracleConfigIsEmpty",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "OracleIncompleteRound",
           inputs: [],
         },
         {
           type: "error",
           name: "OracleInvalidPrice",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "OraclePairAlreadyConfigured",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "OraclePairKeyIsZero",
           inputs: [],
         },
         {
@@ -747,12 +607,28 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "OracleUnsupportedPair",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
+        {
+          type: "error",
           name: "PythInvalidConfidence",
           inputs: [],
         },
         {
           type: "error",
           name: "PythOracleIsZero",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "PythPriceIdIsZero",
           inputs: [],
         },
         {
@@ -773,28 +649,35 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 35648619,
+      deployedOnBlock: 35831892,
     },
     SupraPriceOracleAdapter: {
-      address: "0xd78a3dc7c832aeb5c1e9ef3b7b943eb814251cd3",
+      address: "0x08d07bb3825a3f77740febb56e133b34fcfced86",
       abi: [
         {
           type: "constructor",
           inputs: [
-            {
-              name: "pairKey_",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
             {
               name: "supraOracle_",
               type: "address",
               internalType: "address",
             },
             {
-              name: "supraPairId_",
-              type: "uint256",
-              internalType: "uint256",
+              name: "pairConfigs",
+              type: "tuple[]",
+              internalType: "struct SupraPriceOracleAdapter.PairConfig[]",
+              components: [
+                {
+                  name: "pairKey",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "supraPairId",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+              ],
             },
             {
               name: "maxStaleness_",
@@ -813,19 +696,6 @@ const deployedContracts = {
               name: "",
               type: "uint256",
               internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "PAIR_KEY",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bytes32",
-              internalType: "bytes32",
             },
           ],
           stateMutability: "view",
@@ -858,11 +728,17 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "SUPRA_PAIR_ID",
-          inputs: [],
+          name: "getSupraPairId",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
           outputs: [
             {
-              name: "",
+              name: "supraPairId",
               type: "uint256",
               internalType: "uint256",
             },
@@ -872,7 +748,13 @@ const deployedContracts = {
         {
           type: "function",
           name: "latestPrice",
-          inputs: [],
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
           outputs: [
             {
               name: "data",
@@ -906,12 +788,33 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "OracleConfigIsEmpty",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "OracleIncompleteRound",
           inputs: [],
         },
         {
           type: "error",
           name: "OracleInvalidPrice",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "OraclePairAlreadyConfigured",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "OraclePairKeyIsZero",
           inputs: [],
         },
         {
@@ -932,12 +835,23 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "OracleUnsupportedPair",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
+        {
+          type: "error",
           name: "SupraOracleIsZero",
           inputs: [],
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 35650031,
+      deployedOnBlock: 35831833,
     },
   },
 } as const;

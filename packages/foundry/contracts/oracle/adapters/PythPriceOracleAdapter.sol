@@ -8,8 +8,7 @@ import { IPyth } from "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
 import { PythStructs } from "@pythnetwork/pyth-sdk-solidity/PythStructs.sol";
 
 /// @title PythPriceOracleAdapter
-/// @notice Normalizes one Pyth pull-oracle price feed into the shared `IPriceOracle` interface.
-/// @dev Each adapter is bound to one `BASE/QUOTE` pair and one Pyth price ID.
+/// @notice Normalizes Pyth pull-oracle price feeds into the shared `IPriceOracle` interface.
 contract PythPriceOracleAdapter is IPriceOracle {
     /// @notice Zero value used for validation comparisons.
     uint256 internal constant ZERO = 0;
@@ -26,8 +25,35 @@ contract PythPriceOracleAdapter is IPriceOracle {
     /// @notice Zero address used for oracle validation.
     address internal constant ZERO_ADDRESS = address(0);
 
+    /// @notice Zero pair key used for pair validation.
+    bytes32 internal constant ZERO_PAIR_KEY = bytes32(0);
+
+    /// @notice Zero price ID used for Pyth price ID validation.
+    bytes32 internal constant ZERO_PRICE_ID = bytes32(0);
+
+    /// @notice Pyth price config for one pair.
+    /// @param pairKey Deterministic BASE/QUOTE pair key served by the price ID.
+    /// @param priceId Pyth price feed ID for the configured pair.
+    struct PriceConfig {
+        bytes32 pairKey;
+        bytes32 priceId;
+    }
+
     /// @notice Returned when the Pyth contract address is zero.
     error PythOracleIsZero();
+
+    /// @notice Returned when no price configs are provided.
+    error OracleConfigIsEmpty();
+
+    /// @notice Returned when a pair key is zero.
+    error OraclePairKeyIsZero();
+
+    /// @notice Returned when a pair is configured more than once.
+    /// @param pairKey Duplicate pair key.
+    error OraclePairAlreadyConfigured(bytes32 pairKey);
+
+    /// @notice Returned when the Pyth price ID is zero.
+    error PythPriceIdIsZero();
 
     /// @notice Returned when the update caller sends less native token than Pyth requires.
     /// @param provided Native token amount sent by the caller.
@@ -40,33 +66,45 @@ contract PythPriceOracleAdapter is IPriceOracle {
     /// @notice Pyth contract read and updated by this adapter.
     IPyth public immutable PYTH;
 
-    /// @notice Pair key served by this adapter.
-    bytes32 public immutable PAIR_KEY;
-
     /// @notice Provider key for this adapter.
     bytes32 public immutable PROVIDER_KEY;
-
-    /// @notice Pyth price feed ID served by this adapter.
-    bytes32 public immutable PRICE_ID;
 
     /// @notice Maximum allowed age, in seconds, for Pyth prices.
     uint256 public immutable MAX_STALENESS;
 
-    /// @notice Initializes the adapter for one pair and Pyth price ID.
-    /// @param pairKey_ Deterministic `BASE/QUOTE` pair key served by the adapter.
+    mapping(bytes32 pairKey => bytes32 priceId) private priceIds;
+
+    /// @notice Initializes the adapter for one or more pair/price ID configs.
     /// @param pyth_ Pyth EVM contract address.
-    /// @param priceId_ Pyth price feed ID for the configured pair.
+    /// @param priceConfigs Pyth price configs served by this adapter.
     /// @param maxStaleness_ Maximum allowed age, in seconds, for price reads.
-    constructor(bytes32 pairKey_, address pyth_, bytes32 priceId_, uint256 maxStaleness_) {
+    constructor(address pyth_, PriceConfig[] memory priceConfigs, uint256 maxStaleness_) {
         if (pyth_ == ZERO_ADDRESS) {
             revert PythOracleIsZero();
         }
 
+        if (priceConfigs.length == ZERO) {
+            revert OracleConfigIsEmpty();
+        }
+
         PYTH = IPyth(pyth_);
-        PAIR_KEY = pairKey_;
         PROVIDER_KEY = ProviderLib.PYTH;
-        PRICE_ID = priceId_;
         MAX_STALENESS = maxStaleness_;
+
+        for (uint256 i = 0; i < priceConfigs.length; i++) {
+            _setPriceId(priceConfigs[i].pairKey, priceConfigs[i].priceId);
+        }
+    }
+
+    /// @notice Returns the Pyth price ID configured for a pair.
+    /// @param pairKey Pair key to inspect.
+    /// @return priceId Pyth price feed ID.
+    function getPriceId(bytes32 pairKey) external view returns (bytes32 priceId) {
+        priceId = priceIds[pairKey];
+
+        if (priceId == ZERO_PRICE_ID) {
+            revert OracleUnsupportedPair(pairKey);
+        }
     }
 
     /// @notice Pays Pyth to update price feeds from off-chain update payloads.
@@ -83,10 +121,17 @@ contract PythPriceOracleAdapter is IPriceOracle {
     }
 
     /// @notice Reads the latest Pyth price and returns the normalized shared price data.
+    /// @param pairKey Pair key to read.
     /// @dev Reverts when Pyth reports a stale, non-positive, or high-uncertainty price.
     /// @return data Normalized price data using `priceE18`.
-    function latestPrice() external view returns (PriceData memory data) {
-        PythStructs.Price memory price = PYTH.getPriceNoOlderThan(PRICE_ID, MAX_STALENESS);
+    function latestPrice(bytes32 pairKey) external view returns (PriceData memory data) {
+        bytes32 priceId = priceIds[pairKey];
+
+        if (priceId == ZERO_PRICE_ID) {
+            revert OracleUnsupportedPair(pairKey);
+        }
+
+        PythStructs.Price memory price = PYTH.getPriceNoOlderThan(priceId, MAX_STALENESS);
 
         if (price.publishTime == ZERO) {
             revert OracleIncompleteRound();
@@ -101,11 +146,30 @@ contract PythPriceOracleAdapter is IPriceOracle {
         }
 
         return PriceData({
-            pairKey: PAIR_KEY,
+            pairKey: pairKey,
             providerKey: PROVIDER_KEY,
             priceE18: _normalizeToE18(price.price, price.expo),
             updatedAt: price.publishTime
         });
+    }
+
+    /// @notice Stores one Pyth price ID config.
+    /// @param pairKey Pair key served by the Pyth price ID.
+    /// @param priceId Pyth price feed ID.
+    function _setPriceId(bytes32 pairKey, bytes32 priceId) private {
+        if (pairKey == ZERO_PAIR_KEY) {
+            revert OraclePairKeyIsZero();
+        }
+
+        if (priceId == ZERO_PRICE_ID) {
+            revert PythPriceIdIsZero();
+        }
+
+        if (priceIds[pairKey] != ZERO_PRICE_ID) {
+            revert OraclePairAlreadyConfigured(pairKey);
+        }
+
+        priceIds[pairKey] = priceId;
     }
 
     /// @notice Normalizes a Pyth signed price and exponent to 18 decimals.

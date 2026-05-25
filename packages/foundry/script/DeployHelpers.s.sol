@@ -55,13 +55,30 @@ contract ScaffoldHbarDeploy is Script {
     }
 
     function exportDeployments() internal {
-        // fetch already existing contracts
         root = vm.projectRoot();
         path = string.concat(root, "/deployments/");
         string memory chainIdStr = vm.toString(block.chainid);
         path = string.concat(path, string.concat(chainIdStr, ".json"));
 
         string memory jsonWrite;
+
+        if (vm.exists(path)) {
+            string memory existingDeploymentsJson = vm.readFile(path);
+            string[] memory keys = vm.parseJsonKeys(existingDeploymentsJson, ".");
+
+            for (uint256 i = 0; i < keys.length; i++) {
+                if (_isSameString(keys[i], "networkName")) {
+                    continue;
+                }
+
+                string memory valuePath = string.concat(".", keys[i]);
+                string memory deploymentName = vm.parseJsonString(existingDeploymentsJson, valuePath);
+
+                if (_shouldPreserveExistingDeployment(keys[i], deploymentName)) {
+                    vm.serializeString(jsonWrite, keys[i], deploymentName);
+                }
+            }
+        }
 
         uint256 len = deployments.length;
 
@@ -80,6 +97,36 @@ contract ScaffoldHbarDeploy is Script {
         vm.writeJson(jsonWrite, path);
     }
 
+    function _readDeployments() internal view returns (string memory deploymentsJson) {
+        string memory deploymentsRoot = vm.projectRoot();
+        string memory deploymentsPath =
+            string.concat(deploymentsRoot, "/deployments/", vm.toString(block.chainid), ".json");
+
+        return vm.readFile(deploymentsPath);
+    }
+
+    function _deploymentAddress(string memory deploymentsJson, string memory deploymentName)
+        internal
+        pure
+        returns (address deployment)
+    {
+        string[] memory keys = vm.parseJsonKeys(deploymentsJson, ".");
+
+        for (uint256 i = 0; i < keys.length; i++) {
+            if (_isSameString(keys[i], "networkName")) {
+                continue;
+            }
+
+            string memory valuePath = string.concat(".", keys[i]);
+            string memory value = vm.parseJsonString(deploymentsJson, valuePath);
+            if (_isSameString(value, deploymentName)) {
+                return vm.parseAddress(keys[i]);
+            }
+        }
+
+        revert(string.concat("Deployment not found: ", deploymentName));
+    }
+
     function findChainName() public returns (string memory) {
         uint256 thisChainId = block.chainid;
         string[2][] memory allRpcUrls = vm.rpcUrls();
@@ -93,5 +140,26 @@ contract ScaffoldHbarDeploy is Script {
             }
         }
         revert InvalidChain();
+    }
+
+    function _shouldPreserveExistingDeployment(string memory existingAddress, string memory existingName)
+        private
+        view
+        returns (bool shouldPreserve)
+    {
+        for (uint256 i = 0; i < deployments.length; i++) {
+            if (
+                _isSameString(existingAddress, vm.toString(deployments[i].addr))
+                    || _isSameString(existingName, deployments[i].name)
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function _isSameString(string memory left, string memory right) internal pure returns (bool isSame) {
+        return keccak256(bytes(left)) == keccak256(bytes(right));
     }
 }

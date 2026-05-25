@@ -4,16 +4,14 @@ pragma solidity ^0.8.19;
 import { PythPriceOracleAdapter } from "../contracts/oracle/adapters/PythPriceOracleAdapter.sol";
 import { IPriceOracle } from "../contracts/oracle/interfaces/IPriceOracle.sol";
 import { OracleConsumer } from "../contracts/oracle/OracleConsumer.sol";
-import { OracleRegistry } from "../contracts/oracle/OracleRegistry.sol";
 import { PairLib } from "../contracts/oracle/lib/PairLib.sol";
-import { ProviderLib } from "../contracts/oracle/lib/ProviderLib.sol";
 import { HelperConfig } from "./HelperConfig.s.sol";
 import { IPyth } from "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
 import { Script } from "forge-std/Script.sol";
 import { console2 } from "forge-std/console2.sol";
 
 /// @title ReadPythOracle
-/// @notice Updates deployed Pyth pull-oracle adapters and logs registry prices plus demo conversions.
+/// @notice Updates the deployed Pyth pull-oracle adapter and logs adapter prices plus demo conversions.
 /// @dev Unlike Chainlink and Supra reads, this script broadcasts Pyth update transactions before reading prices.
 contract ReadPythOracle is Script {
     /// @notice Decimal base used for display scaling.
@@ -58,33 +56,31 @@ contract ReadPythOracle is Script {
     /// @notice Loads deployments, updates Pyth prices, and logs current oracle values.
     function run() external {
         string memory deploymentsJson = _readDeployments();
-        OracleRegistry registry = OracleRegistry(_deploymentAddress(deploymentsJson, "OracleRegistry"));
         OracleConsumer consumer = OracleConsumer(_deploymentAddress(deploymentsJson, "OracleConsumer"));
-        PythPriceOracleAdapter hbarUsdAdapter =
-            PythPriceOracleAdapter(_deploymentAddress(deploymentsJson, "PythHbarUsdAdapter"));
-        PythPriceOracleAdapter btcUsdAdapter =
-            PythPriceOracleAdapter(_deploymentAddress(deploymentsJson, "PythBtcUsdAdapter"));
-        PythPriceOracleAdapter ethUsdAdapter =
-            PythPriceOracleAdapter(_deploymentAddress(deploymentsJson, "PythEthUsdAdapter"));
+        PythPriceOracleAdapter adapter =
+            PythPriceOracleAdapter(_deploymentAddress(deploymentsJson, "PythPriceOracleAdapter"));
         HelperConfig.PythConfig memory pyth = new HelperConfig().getConfig().pyth;
 
         console2.log("Chain ID:", block.chainid);
-        console2.log("OracleRegistry:", address(registry));
+        console2.log("PythPriceOracleAdapter:", address(adapter));
         console2.log("OracleConsumer:", address(consumer));
+
+        _requireConsumerOracle(consumer, address(adapter));
+
         console2.log("");
         console2.log("Updating Pyth prices...");
 
         vm.startBroadcast();
-        _updatePythPrice(pyth.pyth, pyth.hbarUsdPriceId, hbarUsdAdapter);
-        _updatePythPrice(pyth.pyth, pyth.btcUsdPriceId, btcUsdAdapter);
-        _updatePythPrice(pyth.pyth, pyth.ethUsdPriceId, ethUsdAdapter);
+        _updatePythPrice(pyth.pyth, pyth.hbarUsdPriceId, adapter);
+        _updatePythPrice(pyth.pyth, pyth.btcUsdPriceId, adapter);
+        _updatePythPrice(pyth.pyth, pyth.ethUsdPriceId, adapter);
         vm.stopBroadcast();
 
         console2.log("Pyth price updates complete.");
 
-        _logPair(registry, consumer, "HBAR", "USD", ONE_HBAR, HBAR_DECIMALS, HBAR_USD_DISPLAY_DECIMALS);
-        _logPair(registry, consumer, "BTC", "USD", ONE_BTC, BTC_DECIMALS, MAJOR_USD_DISPLAY_DECIMALS);
-        _logPair(registry, consumer, "ETH", "USD", ONE_ETH, ETH_DECIMALS, MAJOR_USD_DISPLAY_DECIMALS);
+        _logPair(adapter, consumer, "HBAR", "USD", ONE_HBAR, HBAR_DECIMALS, HBAR_USD_DISPLAY_DECIMALS);
+        _logPair(adapter, consumer, "BTC", "USD", ONE_BTC, BTC_DECIMALS, MAJOR_USD_DISPLAY_DECIMALS);
+        _logPair(adapter, consumer, "ETH", "USD", ONE_ETH, ETH_DECIMALS, MAJOR_USD_DISPLAY_DECIMALS);
     }
 
     /// @notice Updates one Pyth price feed through its deployed adapter.
@@ -155,8 +151,17 @@ contract ReadPythOracle is Script {
         revert(string.concat("Deployment not found: ", deploymentName));
     }
 
-    /// @notice Logs registry price data and example conversions for one Pyth pair.
-    /// @param registry Deployed oracle registry.
+    /// @notice Verifies that the consumer is configured to use the adapter read by this script.
+    /// @param consumer Deployed oracle consumer demo.
+    /// @param adapter Adapter expected to be selected by the consumer.
+    function _requireConsumerOracle(OracleConsumer consumer, address adapter) private view {
+        if (address(consumer.oracle()) != adapter) {
+            revert("OracleConsumer is not using PythPriceOracleAdapter");
+        }
+    }
+
+    /// @notice Logs adapter price data and example conversions for one Pyth pair.
+    /// @param adapter Deployed Pyth adapter.
     /// @param consumer Deployed oracle consumer demo.
     /// @param baseSymbol Canonical base symbol.
     /// @param quoteSymbol Canonical quote symbol.
@@ -164,7 +169,7 @@ contract ReadPythOracle is Script {
     /// @param baseDecimals Base asset decimals.
     /// @param usdDisplayDecimals Number of decimal places to display for USD amounts.
     function _logPair(
-        OracleRegistry registry,
+        PythPriceOracleAdapter adapter,
         OracleConsumer consumer,
         string memory baseSymbol,
         string memory quoteSymbol,
@@ -173,13 +178,13 @@ contract ReadPythOracle is Script {
         uint8 usdDisplayDecimals
     ) private view {
         bytes32 pairKey = PairLib.pairKey(baseSymbol, quoteSymbol);
-        IPriceOracle.PriceData memory data = registry.latestPrice(pairKey, ProviderLib.PYTH);
-        uint256 quoteAmount = consumer.baseToQuote(pairKey, ProviderLib.PYTH, oneBaseAmount, baseDecimals, USD_DECIMALS);
-        uint256 baseAmount = consumer.quoteToBase(pairKey, ProviderLib.PYTH, ONE_USD, baseDecimals, USD_DECIMALS);
+        IPriceOracle.PriceData memory data = adapter.latestPrice(pairKey);
+        uint256 quoteAmount = consumer.baseToQuote(pairKey, oneBaseAmount, baseDecimals, USD_DECIMALS);
+        uint256 baseAmount = consumer.quoteToBase(pairKey, ONE_USD, baseDecimals, USD_DECIMALS);
 
         console2.log("");
         console2.log(string.concat(baseSymbol, "/", quoteSymbol));
-        console2.log("  adapter:", registry.getOracle(pairKey, ProviderLib.PYTH));
+        console2.log("  adapter:", address(adapter));
         console2.log(string.concat("  price: ", _formatUsdPrice(data.priceE18, usdDisplayDecimals)));
         console2.log("  updatedAt:", data.updatedAt);
         console2.log(string.concat("  1 ", baseSymbol, " -> ", _formatUsdAmount(quoteAmount, usdDisplayDecimals)));

@@ -7,8 +7,7 @@ import { AssetConversionLib } from "../lib/AssetConversionLib.sol";
 import { ProviderLib } from "../lib/ProviderLib.sol";
 
 /// @title SupraPriceOracleAdapter
-/// @notice Normalizes one Supra Push Oracle S-Value feed into the shared `IPriceOracle` interface.
-/// @dev Each adapter is bound to one `BASE/QUOTE` pair and one Supra pair ID.
+/// @notice Normalizes Supra Push Oracle S-Value feeds into the shared `IPriceOracle` interface.
 contract SupraPriceOracleAdapter is IPriceOracle {
     /// @notice Zero value used for validation comparisons.
     uint256 internal constant ZERO = 0;
@@ -25,46 +24,85 @@ contract SupraPriceOracleAdapter is IPriceOracle {
     /// @notice Zero address used for oracle validation.
     address internal constant ZERO_ADDRESS = address(0);
 
+    /// @notice Zero pair key used for pair validation.
+    bytes32 internal constant ZERO_PAIR_KEY = bytes32(0);
+
+    /// @notice Supra feed config for one pair.
+    /// @param pairKey Deterministic BASE/QUOTE pair key served by the feed.
+    /// @param supraPairId Supra pair ID from the Data Feeds index.
+    struct PairConfig {
+        bytes32 pairKey;
+        uint256 supraPairId;
+    }
+
     /// @notice Returned when the Supra push oracle address is zero.
     error SupraOracleIsZero();
+
+    /// @notice Returned when no pair configs are provided.
+    error OracleConfigIsEmpty();
+
+    /// @notice Returned when a pair key is zero.
+    error OraclePairKeyIsZero();
+
+    /// @notice Returned when a pair is configured more than once.
+    /// @param pairKey Duplicate pair key.
+    error OraclePairAlreadyConfigured(bytes32 pairKey);
 
     /// @notice Supra Push Oracle read by this adapter.
     ISupraSValueFeed public immutable SUPRA_ORACLE;
 
-    /// @notice Pair key served by this adapter.
-    bytes32 public immutable PAIR_KEY;
-
     /// @notice Provider key for this adapter.
     bytes32 public immutable PROVIDER_KEY;
-
-    /// @notice Supra pair ID served by this adapter.
-    uint256 public immutable SUPRA_PAIR_ID;
 
     /// @notice Maximum allowed age, in seconds, for Supra feed updates.
     uint256 public immutable MAX_STALENESS;
 
-    /// @notice Initializes the adapter for one pair and Supra pair ID.
-    /// @param pairKey_ Deterministic `BASE/QUOTE` pair key served by the adapter.
+    mapping(bytes32 pairKey => uint256 supraPairId) private supraPairIds;
+    mapping(bytes32 pairKey => bool isConfigured) private configuredPairs;
+
+    /// @notice Initializes the adapter for one or more pair ID configs.
     /// @param supraOracle_ Supra Push Oracle address.
-    /// @param supraPairId_ Supra pair ID from the Data Feeds index.
+    /// @param pairConfigs Supra pair configs served by this adapter.
     /// @param maxStaleness_ Maximum allowed age, in seconds, for feed updates.
-    constructor(bytes32 pairKey_, address supraOracle_, uint256 supraPairId_, uint256 maxStaleness_) {
+    constructor(address supraOracle_, PairConfig[] memory pairConfigs, uint256 maxStaleness_) {
         if (supraOracle_ == ZERO_ADDRESS) {
             revert SupraOracleIsZero();
         }
 
+        if (pairConfigs.length == ZERO) {
+            revert OracleConfigIsEmpty();
+        }
+
         SUPRA_ORACLE = ISupraSValueFeed(supraOracle_);
-        PAIR_KEY = pairKey_;
         PROVIDER_KEY = ProviderLib.SUPRA;
-        SUPRA_PAIR_ID = supraPairId_;
         MAX_STALENESS = maxStaleness_;
+
+        for (uint256 i = 0; i < pairConfigs.length; i++) {
+            _setPair(pairConfigs[i].pairKey, pairConfigs[i].supraPairId);
+        }
+    }
+
+    /// @notice Returns the Supra pair ID configured for a pair.
+    /// @param pairKey Pair key to inspect.
+    /// @return supraPairId Supra pair ID from the Data Feeds index.
+    function getSupraPairId(bytes32 pairKey) external view returns (uint256 supraPairId) {
+        if (!configuredPairs[pairKey]) {
+            revert OracleUnsupportedPair(pairKey);
+        }
+
+        return supraPairIds[pairKey];
     }
 
     /// @notice Reads the latest Supra S-Value and returns the normalized shared price data.
+    /// @param pairKey Pair key to read.
     /// @dev Reverts when the feed response is stale, missing a timestamp, or reports a zero price.
     /// @return data Normalized price data using `priceE18`.
-    function latestPrice() external view returns (PriceData memory data) {
-        ISupraSValueFeed.PriceFeed memory priceFeed = SUPRA_ORACLE.getSvalue(SUPRA_PAIR_ID);
+    function latestPrice(bytes32 pairKey) external view returns (PriceData memory data) {
+        if (!configuredPairs[pairKey]) {
+            revert OracleUnsupportedPair(pairKey);
+        }
+
+        ISupraSValueFeed.PriceFeed memory priceFeed = SUPRA_ORACLE.getSvalue(supraPairIds[pairKey]);
 
         if (priceFeed.time == ZERO) {
             revert OracleIncompleteRound();
@@ -81,11 +119,27 @@ contract SupraPriceOracleAdapter is IPriceOracle {
         }
 
         return PriceData({
-            pairKey: PAIR_KEY,
+            pairKey: pairKey,
             providerKey: PROVIDER_KEY,
             priceE18: _normalizeToE18(priceFeed.price, priceFeed.decimals),
             updatedAt: updatedAt
         });
+    }
+
+    /// @notice Stores one Supra pair config.
+    /// @param pairKey Pair key served by the Supra pair ID.
+    /// @param supraPairId Supra pair ID from the Data Feeds index.
+    function _setPair(bytes32 pairKey, uint256 supraPairId) private {
+        if (pairKey == ZERO_PAIR_KEY) {
+            revert OraclePairKeyIsZero();
+        }
+
+        if (configuredPairs[pairKey]) {
+            revert OraclePairAlreadyConfigured(pairKey);
+        }
+
+        supraPairIds[pairKey] = supraPairId;
+        configuredPairs[pairKey] = true;
     }
 
     /// @notice Normalizes a Supra price to 18 decimals.

@@ -9,20 +9,20 @@ This project contains the provider-agnostic oracle foundation for the Hedera Fou
 The intended flow is:
 
 ```text
-Provider feed -> Provider adapter -> OracleRegistry -> Consumer contract
+Provider feed -> Multi-pair provider adapter -> Consumer contract
 ```
 
-Provider adapters normalize provider-specific price data into one shared `IPriceOracle` shape. Consumers can then
-read prices from `OracleRegistry` without knowing whether the price came from Chainlink, Supra, Pyth, or another
-adapter.
+Provider adapters normalize provider-specific price data into one shared `IPriceOracle` shape. The default template
+uses one selected provider adapter per consumer. To switch providers, deploy another adapter and call
+`OracleConsumer.setOracle(newAdapter)`.
 
 ### Normalized Price Interface
 
 Every provider adapter implements `IPriceOracle`.
 
-`latestPrice()` returns one `PriceData` struct:
+`latestPrice(pairKey)` returns one `PriceData` struct:
 
-- `pairKey`: deterministic key for the configured `BASE/QUOTE` pair.
+- `pairKey`: deterministic key for the requested `BASE/QUOTE` pair.
 - `providerKey`: deterministic key for the oracle provider.
 - `priceE18`: price of one whole base asset in quote asset units, scaled to 18 decimals.
 - `updatedAt`: upstream oracle update timestamp in seconds.
@@ -30,7 +30,7 @@ Every provider adapter implements `IPriceOracle`.
 ### Pair And Provider Keys
 
 A Solidity library is reusable code deployed without its own persistent storage. In this project, libraries keep
-shared key and conversion logic in one place so adapters, registries, and consumers use the same rules.
+shared key and conversion logic in one place so adapters and consumers use the same rules.
 
 `PairLib` derives pair keys with:
 
@@ -66,34 +66,48 @@ baseAmount = quoteAmount * (10 ** baseDecimals) / (10 ** quoteDecimals) * 1e18 /
 The library uses OpenZeppelin `Math.mulDiv` and rounds down when a conversion leaves a remainder.
 It rejects zero prices. Decimal validation is intentionally left to template users and future adapters.
 
-### Oracle Registry
+### Provider Adapters
 
-`OracleRegistry` maps:
+The template deploys one adapter contract per provider:
 
-```text
-pairKey + providerKey -> adapter address
-```
+- `ChainlinkPriceOracleAdapter`
+- `SupraPriceOracleAdapter`
+- `PythPriceOracleAdapter`
 
-Only the owner can register, replace, or remove adapters.
-During registration, the registry calls `latestPrice()` on the adapter and checks that the adapter reports the
-same `pairKey` and `providerKey` requested by the owner.
+Each adapter supports multiple pairs in one deployment. Pair config is constructor-only:
 
-Consumers can either:
+- Chainlink maps `pairKey -> feed address`.
+- Supra maps `pairKey -> Supra pair ID`.
+- Pyth maps `pairKey -> Pyth price ID`.
 
-- call `getOracle(pairKey, providerKey)` and read the adapter directly, or
-- call `latestPrice(pairKey, providerKey)` for a registry passthrough read.
+Adapters reject empty configs, zero pair keys, duplicate pair keys, and zero upstream addresses or price IDs.
+Unsupported pair reads revert with `OracleUnsupportedPair(pairKey)`.
 
 ### Oracle Consumer Demo
 
 `OracleConsumer` is a demo contract that shows one way to use this template. It is not required infrastructure.
 
-The demo reads a normalized price through `OracleRegistry`, then uses `AssetConversionLib` to expose:
+The demo stores one selected `IPriceOracle` adapter, then uses `AssetConversionLib` to expose:
 
-- `baseToQuote(...)`
-- `quoteToBase(...)`
+- `baseToQuote(pairKey, baseAmount, baseDecimals, quoteDecimals)`
+- `quoteToBase(pairKey, quoteAmount, baseDecimals, quoteDecimals)`
+
+The owner can switch the selected provider with `setOracle(newAdapter)`.
 
 Use it as a reference when building your own consumer contract. A real app can copy the same pattern and add its
 own business logic, permissions, payments, or accounting rules.
+
+### Consumer Deployment And Switching
+
+Provider adapter deployment is separated from consumer deployment:
+
+- deploy one provider adapter with `DeployChainlinkOracle.s.sol`, `DeploySupraOracle.s.sol`, or `DeployPythOracle.s.sol`
+- deploy `OracleConsumer` once with `DeployOracleConsumer.s.sol`
+- switch the existing consumer to another provider adapter with `SetConsumerOracle.s.sol`
+
+`DeployOracleConsumer.s.sol` and `SetConsumerOracle.s.sol` resolve adapters from `deployments/<chainId>.json`.
+Set `ORACLE_ADAPTER_NAME` to choose one of the exported adapter names, or set `ORACLE_ADAPTER_ADDRESS` directly.
+If neither is set, the scripts use `ChainlinkPriceOracleAdapter`.
 
 ### Chainlink Deployment Config
 
@@ -109,11 +123,8 @@ Unsupported chains revert from `getConfigByChainId`.
 
 `script/DeployChainlinkOracle.s.sol` deploys:
 
-- `OracleRegistry`
-- one `ChainlinkPriceOracleAdapter` for each configured pair
-- `OracleConsumer` as a demo consumer
+- one `ChainlinkPriceOracleAdapter` for all configured pairs
 
-It also registers the Chainlink adapters in `OracleRegistry`.
 The deploy wrapper runs `forge script` with `--broadcast`, so these commands send transactions and then export the
 deployed addresses to `deployments/<chainId>.json`.
 
@@ -138,8 +149,8 @@ FOUNDRY_PROFILE=integration forge test --fork-url https://testnet.hashio.io/api 
 ### Supra Research Config
 
 `script/HelperConfig.s.sol` also stores the currently validated Supra Push Oracle config under `config.supra`.
-This is deployment/script configuration only. The adapter exists, but deploy scripts should only register pairs that
-pass a fresh fork smoke test on the target Hedera network.
+This is deployment/script configuration only. Keep the constructor pair list limited to pairs that pass a fresh fork
+smoke test on the target Hedera network.
 
 | Network        | Push oracle                                  |
 | -------------- | -------------------------------------------- |
@@ -154,16 +165,13 @@ Default Supra pair IDs:
 | ETH/USDT  | `1`           | Confirmed live on Hedera testnet             |
 | HBAR/USDT | `75`          | Confirmed live on Hedera testnet and mainnet |
 
-Phase 2 targets the Supra push model only. Hedera's Supra documentation notes that mirror node payload limits make
-single-pair reads safer than multi-pair reads, so adapter and fork-test work should avoid batching price pairs.
+The template uses the Supra push model only. Hedera's Supra documentation notes that mirror node payload limits make
+single-pair reads safer than batched reads, so adapter and fork-test work should avoid batching upstream Supra calls.
 
 `script/DeploySupraOracle.s.sol` deploys:
 
-- `OracleRegistry`
-- one `SupraPriceOracleAdapter` for each configured `USDT` pair
-- `OracleConsumer` as a demo consumer
+- one `SupraPriceOracleAdapter` for all configured `USDT` pairs
 
-It also registers the Supra adapters in `OracleRegistry`.
 The deploy wrapper runs `forge script` with `--broadcast`, so these commands send transactions and then export the
 deployed addresses to `deployments/<chainId>.json`.
 
@@ -210,14 +218,12 @@ bounded staleness check.
 
 `script/DeployPythOracle.s.sol` deploys:
 
-- `OracleRegistry`
-- one `PythPriceOracleAdapter` for each configured `USD` pair
-- `OracleConsumer` as a demo consumer
+- one `PythPriceOracleAdapter` for all configured `USD` pairs
 
-It fetches fresh Hermes update data, updates each Pyth price feed individually, then registers the Pyth adapters in
-`OracleRegistry`. Single-feed updates avoid Hedera/Pyth batch payload edge cases during deployment. When the Pyth
-update fee is non-zero but below Hedera's minimum native transfer amount, the deploy script sends one tinybar. The
-read script uses the same rule before printing fresh registry and consumer values.
+It fetches fresh Hermes update data and updates each Pyth price feed individually before exporting deployments.
+Single-feed updates avoid Hedera/Pyth batch payload edge cases during deployment. When the Pyth update fee is
+non-zero but below Hedera's minimum native transfer amount, the deploy script sends one tinybar. The read script
+uses the same rule before printing fresh adapter and consumer values.
 
 Deploy the Pyth oracle demo on Hedera Testnet:
 
@@ -281,7 +287,7 @@ clone, run the workspace setup from the root README first.
    yarn test:chainlink:testnet
    ```
 
-6. Deploy and register the Chainlink oracle template on Hedera Testnet:
+6. Deploy the Chainlink adapter on Hedera Testnet:
 
    ```bash
    yarn deploy:chainlink:testnet
@@ -293,24 +299,30 @@ clone, run the workspace setup from the root README first.
    yarn deploy --file DeployChainlinkOracle.s.sol --network hedera_testnet --keystore <keystore-name>
    ```
 
-7. Check the exported deployment file:
+7. Deploy the consumer once, pointing at the Chainlink adapter:
+
+   ```bash
+   ORACLE_ADAPTER_NAME=ChainlinkPriceOracleAdapter yarn deploy:consumer:testnet
+   ```
+
+8. Check the exported deployment file:
 
    ```bash
    cat deployments/296.json
    ```
 
-   The file should include `OracleRegistry`, `OracleConsumer`, and the three Chainlink adapter addresses.
+   The file should include `OracleConsumer` and `ChainlinkPriceOracleAdapter`.
 
-8. Read the deployed Chainlink oracle data and demo conversions:
+9. Read the deployed Chainlink oracle data and demo conversions:
 
    ```bash
    yarn read:chainlink:testnet
    ```
 
-   This read-only script loads `deployments/296.json`, reads prices through `OracleRegistry`, and calls the
+   This read-only script loads `deployments/296.json`, reads prices through `ChainlinkPriceOracleAdapter`, and calls the
    `OracleConsumer` demo conversion helpers. It does not broadcast transactions.
 
-9. Verify contracts on Hashscan when needed:
+10. Verify contracts on Hashscan when needed:
 
    ```bash
    yarn verify:testnet
@@ -353,7 +365,7 @@ clone, run the workspace setup from the root README first.
    yarn test:supra:testnet
    ```
 
-6. Deploy and register the Supra oracle template on Hedera Testnet:
+6. Deploy the Supra adapter on Hedera Testnet:
 
    ```bash
    yarn deploy:supra:testnet
@@ -365,21 +377,29 @@ clone, run the workspace setup from the root README first.
    yarn deploy --file DeploySupraOracle.s.sol --network hedera_testnet --keystore <keystore-name>
    ```
 
-7. Check the exported deployment file:
+7. Deploy the consumer with Supra, or switch an existing consumer to Supra:
+
+   ```bash
+   ORACLE_ADAPTER_NAME=SupraPriceOracleAdapter yarn deploy:consumer:testnet
+   # or, if OracleConsumer already exists:
+   ORACLE_ADAPTER_NAME=SupraPriceOracleAdapter yarn set-oracle:testnet
+   ```
+
+8. Check the exported deployment file:
 
    ```bash
    cat deployments/296.json
    ```
 
-   The file should include `OracleRegistry`, `OracleConsumer`, and the three Supra adapter addresses.
+   The file should include `OracleConsumer` and `SupraPriceOracleAdapter`.
 
-8. Read the deployed Supra oracle data and demo conversions:
+9. Read the deployed Supra oracle data and demo conversions:
 
    ```bash
    yarn read:supra:testnet
    ```
 
-   This read-only script loads `deployments/296.json`, reads prices through `OracleRegistry`, and calls the
+   This read-only script loads `deployments/296.json`, reads prices through `SupraPriceOracleAdapter`, and calls the
    `OracleConsumer` demo conversion helpers. It does not broadcast transactions.
 
 For mainnet, use the same flow with `hedera_mainnet`, `yarn deploy:supra:mainnet`, and
@@ -419,7 +439,7 @@ run the workspace setup from the root README first.
    yarn test:pyth:testnet
    ```
 
-6. Deploy and register the Pyth oracle template on Hedera Testnet:
+6. Deploy the Pyth adapter on Hedera Testnet:
 
    ```bash
    yarn deploy:pyth:testnet
@@ -431,22 +451,30 @@ run the workspace setup from the root README first.
    yarn deploy --file DeployPythOracle.s.sol --network hedera_testnet --keystore <keystore-name>
    ```
 
-7. Check the exported deployment file:
+7. Deploy the consumer with Pyth, or switch an existing consumer to Pyth:
+
+   ```bash
+   ORACLE_ADAPTER_NAME=PythPriceOracleAdapter yarn deploy:consumer:testnet
+   # or, if OracleConsumer already exists:
+   ORACLE_ADAPTER_NAME=PythPriceOracleAdapter yarn set-oracle:testnet
+   ```
+
+8. Check the exported deployment file:
 
    ```bash
    cat deployments/296.json
    ```
 
-   The file should include `OracleRegistry`, `OracleConsumer`, and the three Pyth adapter addresses.
+   The file should include `OracleConsumer` and `PythPriceOracleAdapter`.
 
-8. Update and read the deployed Pyth oracle data and demo conversions:
+9. Update and read the deployed Pyth oracle data and demo conversions:
 
    ```bash
    yarn read:pyth:testnet
    ```
 
    This interaction script fetches fresh Hermes update data, broadcasts Pyth update transactions, then reads prices
-   through `OracleRegistry` and calls the `OracleConsumer` demo conversion helpers.
+   through `PythPriceOracleAdapter` and calls the `OracleConsumer` demo conversion helpers.
 
 For mainnet, use the same flow with `hedera_mainnet`, `yarn deploy:pyth:mainnet`, and `yarn read:pyth:mainnet`.
 Confirm every Pyth price ID in `script/HelperConfig.s.sol` passes a fresh fork smoke test on the target network before
@@ -457,9 +485,9 @@ broadcasting.
 To add a new Chainlink pair:
 
 1. Add the feed address to `script/HelperConfig.s.sol`.
-2. Deploy one `ChainlinkPriceOracleAdapter` for that pair.
-3. Register the adapter in `OracleRegistry` using `pairKey + ProviderLib.CHAINLINK`.
-4. Read prices through `OracleRegistry` or follow the `OracleConsumer` demo pattern.
+2. Add the new pair to the `FeedConfig[]` in `DeployChainlinkOracle.s.sol`.
+3. Deploy a new `ChainlinkPriceOracleAdapter` with the full pair set.
+4. Point `OracleConsumer` at the new adapter with `SetConsumerOracle.s.sol`, or call `setOracle(newAdapter)` from the owner.
 
 ## Setup
 
@@ -475,21 +503,28 @@ From `packages/foundry`, contract deploys use **`yarn deploy`**.
 
 - **Hedera testnet/mainnet:** Use `yarn deploy --network hedera_testnet` (or `hedera_mainnet`). You **must** use a keystore whose address is a **Hedera-created account** (created and funded via [Hedera Portal](https://portal.hedera.com) or faucet). If you see `Requested resource not found. address '0x...'`, that address does not exist on Hedera. Create or import one with `yarn account:generate` or `yarn account:import`, then deploy with `--keystore <name>`. For multi-contract deploys, the Makefile uses `--slow` so each transaction is confirmed before the next (avoids `WRONG_NONCE` on Hedera when both txs are in flight).
 
-- **Chainlink oracle template:** Use the dedicated Makefile/Yarn shortcuts to deploy the registry, Chainlink adapters, and demo consumer:
+- **Oracle consumer:** Deploy once after an adapter exists, then switch providers when needed:
+
+  ```bash
+  yarn deploy:consumer:testnet
+  ORACLE_ADAPTER_NAME=PythPriceOracleAdapter yarn set-oracle:testnet
+  ```
+
+- **Chainlink oracle template:** Use the dedicated Makefile/Yarn shortcuts to deploy the Chainlink adapter:
 
   ```bash
   yarn deploy:chainlink:testnet
   yarn deploy:chainlink:mainnet
   ```
 
-- **Supra oracle template:** Use the dedicated shortcuts to deploy the registry, Supra adapters, and demo consumer:
+- **Supra oracle template:** Use the dedicated shortcuts to deploy the Supra adapter:
 
   ```bash
   yarn deploy:supra:testnet
   yarn deploy:supra:mainnet
   ```
 
-- **Pyth oracle template:** Use the dedicated shortcuts to deploy the registry, Pyth adapters, and demo consumer:
+- **Pyth oracle template:** Use the dedicated shortcuts to deploy the Pyth adapter:
 
   ```bash
   yarn deploy:pyth:testnet

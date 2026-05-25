@@ -1,7 +1,9 @@
-.PHONY: help deploy deploy-and-generate-abis deploy-chainlink-testnet deploy-chainlink-mainnet deploy-supra-testnet deploy-supra-mainnet deploy-pyth-testnet deploy-pyth-mainnet run-script generate-abis get-address account compile flatten format lint read-chainlink-testnet read-chainlink-mainnet read-supra-testnet read-supra-mainnet read-pyth-testnet read-pyth-mainnet test test-chainlink-testnet test-chainlink-mainnet test-supra-testnet test-supra-mainnet test-pyth-testnet test-pyth-mainnet verify verify-testnet verify-mainnet
+.PHONY: help deploy deploy-and-generate-abis deploy-consumer-testnet deploy-consumer-mainnet deploy-chainlink-testnet deploy-chainlink-mainnet deploy-supra-testnet deploy-supra-mainnet deploy-pyth-testnet deploy-pyth-mainnet run-script set-consumer-oracle-testnet set-consumer-oracle-mainnet generate-abis get-address account compile flatten format lint read-chainlink-testnet read-chainlink-mainnet read-supra-testnet read-supra-mainnet read-pyth-testnet read-pyth-mainnet test test-chainlink-testnet test-chainlink-mainnet test-supra-testnet test-supra-mainnet test-pyth-testnet test-pyth-mainnet verify verify-testnet verify-mainnet
 
 DEPLOY_SCRIPT ?= script/DeployChainlinkOracle.s.sol
 SCRIPT ?= script/ReadPythOracle.s.sol
+CONSUMER_DEPLOY_SCRIPT := script/DeployOracleConsumer.s.sol
+SET_CONSUMER_ORACLE_SCRIPT := script/SetConsumerOracle.s.sol
 CHAINLINK_DEPLOY_SCRIPT := script/DeployChainlinkOracle.s.sol
 SUPRA_DEPLOY_SCRIPT := script/DeploySupraOracle.s.sol
 PYTH_DEPLOY_SCRIPT := script/DeployPythOracle.s.sol
@@ -26,6 +28,12 @@ help:
 	@echo "  make test"
 	@echo "  make lint"
 	@echo "  make format"
+	@echo ""
+	@echo "Consumer deployment:"
+	@echo "  make deploy-consumer-testnet ACCOUNT_NAME=<keystore> ORACLE_ADAPTER_NAME=ChainlinkPriceOracleAdapter"
+	@echo "  make deploy-consumer-mainnet ACCOUNT_NAME=<keystore> ORACLE_ADAPTER_NAME=ChainlinkPriceOracleAdapter"
+	@echo "  make set-consumer-oracle-testnet ACCOUNT_NAME=<keystore> ORACLE_ADAPTER_NAME=PythPriceOracleAdapter"
+	@echo "  make set-consumer-oracle-mainnet ACCOUNT_NAME=<keystore> ORACLE_ADAPTER_NAME=PythPriceOracleAdapter"
 	@echo ""
 	@echo "Chainlink deployment:"
 	@echo "  make deploy-chainlink-testnet ACCOUNT_NAME=<keystore>"
@@ -87,26 +95,40 @@ run-script:
 	fi
 	forge script $(SCRIPT) --rpc-url $(RPC_URL) $(ACCOUNT_ARGS) --broadcast --ffi --slow
 
-# Deploy and register the default Chainlink Hedera adapters.
+# Deploy the demo consumer once, pointing at an already deployed adapter.
+deploy-consumer-testnet:
+	$(MAKE) deploy-and-generate-abis DEPLOY_SCRIPT=$(CONSUMER_DEPLOY_SCRIPT) RPC_URL=hedera_testnet
+
+deploy-consumer-mainnet:
+	$(MAKE) deploy-and-generate-abis DEPLOY_SCRIPT=$(CONSUMER_DEPLOY_SCRIPT) RPC_URL=hedera_mainnet
+
+# Deploy the default multi-pair Chainlink Hedera adapter.
 deploy-chainlink-testnet:
 	$(MAKE) deploy-and-generate-abis DEPLOY_SCRIPT=$(CHAINLINK_DEPLOY_SCRIPT) RPC_URL=hedera_testnet
 
 deploy-chainlink-mainnet:
 	$(MAKE) deploy-and-generate-abis DEPLOY_SCRIPT=$(CHAINLINK_DEPLOY_SCRIPT) RPC_URL=hedera_mainnet
 
-# Deploy and register the default Supra Hedera push adapters.
+# Deploy the default multi-pair Supra Hedera push adapter.
 deploy-supra-testnet:
 	$(MAKE) deploy-and-generate-abis DEPLOY_SCRIPT=$(SUPRA_DEPLOY_SCRIPT) RPC_URL=hedera_testnet
 
 deploy-supra-mainnet:
 	$(MAKE) deploy-and-generate-abis DEPLOY_SCRIPT=$(SUPRA_DEPLOY_SCRIPT) RPC_URL=hedera_mainnet
 
-# Deploy and register the default Pyth Hedera pull adapters.
+# Deploy the default multi-pair Pyth Hedera pull adapter.
 deploy-pyth-testnet:
 	$(MAKE) deploy-and-generate-abis DEPLOY_SCRIPT=$(PYTH_DEPLOY_SCRIPT) RPC_URL=hedera_testnet
 
 deploy-pyth-mainnet:
 	$(MAKE) deploy-and-generate-abis DEPLOY_SCRIPT=$(PYTH_DEPLOY_SCRIPT) RPC_URL=hedera_mainnet
+
+# Update the deployed consumer to use a selected adapter.
+set-consumer-oracle-testnet:
+	$(MAKE) run-script SCRIPT=$(SET_CONSUMER_ORACLE_SCRIPT) RPC_URL=hedera_testnet
+
+set-consumer-oracle-mainnet:
+	$(MAKE) run-script SCRIPT=$(SET_CONSUMER_ORACLE_SCRIPT) RPC_URL=hedera_mainnet
 
 # Generate TypeScript ABIs for the Next.js frontend
 generate-abis:
@@ -140,21 +162,21 @@ lint:
 test:
 	forge test
 
-# Read deployed Chainlink registry prices and demo consumer conversions.
+# Read deployed Chainlink adapter prices and demo consumer conversions.
 read-chainlink-testnet:
 	forge script $(CHAINLINK_READ_SCRIPT) --rpc-url hedera_testnet
 
 read-chainlink-mainnet:
 	forge script $(CHAINLINK_READ_SCRIPT) --rpc-url hedera_mainnet
 
-# Read deployed Supra registry prices and demo consumer conversions.
+# Read deployed Supra adapter prices and demo consumer conversions.
 read-supra-testnet:
 	forge script $(SUPRA_READ_SCRIPT) --rpc-url hedera_testnet
 
 read-supra-mainnet:
 	forge script $(SUPRA_READ_SCRIPT) --rpc-url hedera_mainnet
 
-# Update deployed Pyth pull adapters, then read registry prices and demo consumer conversions.
+# Update deployed Pyth pull adapter, then read adapter prices and demo consumer conversions.
 read-pyth-testnet:
 	$(MAKE) run-script SCRIPT=$(PYTH_READ_SCRIPT) RPC_URL=hedera_testnet
 

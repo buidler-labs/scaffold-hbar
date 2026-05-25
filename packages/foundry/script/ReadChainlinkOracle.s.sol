@@ -3,14 +3,13 @@ pragma solidity ^0.8.19;
 
 import { Script } from "forge-std/Script.sol";
 import { console2 } from "forge-std/console2.sol";
+import { ChainlinkPriceOracleAdapter } from "../contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol";
 import { IPriceOracle } from "../contracts/oracle/interfaces/IPriceOracle.sol";
 import { OracleConsumer } from "../contracts/oracle/OracleConsumer.sol";
-import { OracleRegistry } from "../contracts/oracle/OracleRegistry.sol";
 import { PairLib } from "../contracts/oracle/lib/PairLib.sol";
-import { ProviderLib } from "../contracts/oracle/lib/ProviderLib.sol";
 
 /// @title ReadChainlinkOracle
-/// @notice Reads deployed Chainlink oracle template contracts and logs registry prices plus demo conversions.
+/// @notice Reads deployed Chainlink oracle template contracts and logs adapter prices plus demo conversions.
 /// @dev This script is read-only and intentionally does not start a broadcast.
 contract ReadChainlinkOracle is Script {
     /// @notice Decimal base used for display scaling.
@@ -49,16 +48,19 @@ contract ReadChainlinkOracle is Script {
     /// @notice Reads deployment addresses from `deployments/<chainId>.json` and logs oracle values.
     function run() external view {
         string memory deploymentsJson = _readDeployments();
-        OracleRegistry registry = OracleRegistry(_deploymentAddress(deploymentsJson, "OracleRegistry"));
+        ChainlinkPriceOracleAdapter adapter =
+            ChainlinkPriceOracleAdapter(_deploymentAddress(deploymentsJson, "ChainlinkPriceOracleAdapter"));
         OracleConsumer consumer = OracleConsumer(_deploymentAddress(deploymentsJson, "OracleConsumer"));
 
         console2.log("Chain ID:", block.chainid);
-        console2.log("OracleRegistry:", address(registry));
+        console2.log("ChainlinkPriceOracleAdapter:", address(adapter));
         console2.log("OracleConsumer:", address(consumer));
 
-        _logPair(registry, consumer, "HBAR", "USD", ONE_HBAR, HBAR_DECIMALS, HBAR_USD_DISPLAY_DECIMALS);
-        _logPair(registry, consumer, "BTC", "USD", ONE_BTC, BTC_DECIMALS, MAJOR_USD_DISPLAY_DECIMALS);
-        _logPair(registry, consumer, "ETH", "USD", ONE_ETH, ETH_DECIMALS, MAJOR_USD_DISPLAY_DECIMALS);
+        _requireConsumerOracle(consumer, address(adapter));
+
+        _logPair(adapter, consumer, "HBAR", "USD", ONE_HBAR, HBAR_DECIMALS, HBAR_USD_DISPLAY_DECIMALS);
+        _logPair(adapter, consumer, "BTC", "USD", ONE_BTC, BTC_DECIMALS, MAJOR_USD_DISPLAY_DECIMALS);
+        _logPair(adapter, consumer, "ETH", "USD", ONE_ETH, ETH_DECIMALS, MAJOR_USD_DISPLAY_DECIMALS);
     }
 
     /// @notice Reads the deployment export for the current chain.
@@ -95,8 +97,17 @@ contract ReadChainlinkOracle is Script {
         revert(string.concat("Deployment not found: ", deploymentName));
     }
 
-    /// @notice Logs registry price data and example conversions for one Chainlink pair.
-    /// @param registry Deployed oracle registry.
+    /// @notice Verifies that the consumer is configured to use the adapter read by this script.
+    /// @param consumer Deployed oracle consumer demo.
+    /// @param adapter Adapter expected to be selected by the consumer.
+    function _requireConsumerOracle(OracleConsumer consumer, address adapter) private view {
+        if (address(consumer.oracle()) != adapter) {
+            revert("OracleConsumer is not using ChainlinkPriceOracleAdapter");
+        }
+    }
+
+    /// @notice Logs adapter price data and example conversions for one Chainlink pair.
+    /// @param adapter Deployed Chainlink adapter.
     /// @param consumer Deployed oracle consumer demo.
     /// @param baseSymbol Canonical base symbol.
     /// @param quoteSymbol Canonical quote symbol.
@@ -104,7 +115,7 @@ contract ReadChainlinkOracle is Script {
     /// @param baseDecimals Base asset decimals.
     /// @param usdDisplayDecimals Number of decimal places to display for USD amounts.
     function _logPair(
-        OracleRegistry registry,
+        ChainlinkPriceOracleAdapter adapter,
         OracleConsumer consumer,
         string memory baseSymbol,
         string memory quoteSymbol,
@@ -113,14 +124,13 @@ contract ReadChainlinkOracle is Script {
         uint8 usdDisplayDecimals
     ) private view {
         bytes32 pairKey = PairLib.pairKey(baseSymbol, quoteSymbol);
-        IPriceOracle.PriceData memory data = registry.latestPrice(pairKey, ProviderLib.CHAINLINK);
-        uint256 quoteAmount =
-            consumer.baseToQuote(pairKey, ProviderLib.CHAINLINK, oneBaseAmount, baseDecimals, USD_DECIMALS);
-        uint256 baseAmount = consumer.quoteToBase(pairKey, ProviderLib.CHAINLINK, ONE_USD, baseDecimals, USD_DECIMALS);
+        IPriceOracle.PriceData memory data = adapter.latestPrice(pairKey);
+        uint256 quoteAmount = consumer.baseToQuote(pairKey, oneBaseAmount, baseDecimals, USD_DECIMALS);
+        uint256 baseAmount = consumer.quoteToBase(pairKey, ONE_USD, baseDecimals, USD_DECIMALS);
 
         console2.log("");
         console2.log(string.concat(baseSymbol, "/", quoteSymbol));
-        console2.log("  adapter:", registry.getOracle(pairKey, ProviderLib.CHAINLINK));
+        console2.log("  adapter:", address(adapter));
         console2.log(string.concat("  price: ", _formatUsdPrice(data.priceE18, usdDisplayDecimals)));
         console2.log("  updatedAt:", data.updatedAt);
         console2.log(string.concat("  1 ", baseSymbol, " -> ", _formatUsdAmount(quoteAmount, usdDisplayDecimals)));
