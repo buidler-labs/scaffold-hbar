@@ -12,6 +12,8 @@ import { MockPriceOracle } from "../harnesses/MockPriceOracle.sol";
 contract OracleConsumerTest is Test {
     event OracleUpdated(address indexed previousOracle, address indexed newOracle);
 
+    uint256 private constant UPDATED_AT = 1_714_000_000;
+
     address private owner = makeAddr("owner");
     address private notOwner = makeAddr("notOwner");
 
@@ -23,7 +25,7 @@ contract OracleConsumerTest is Test {
     OracleConsumer private consumer;
 
     function setUp() public {
-        adapter = new MockPriceOracle(hbarUsdPairKey, chainlinkProviderKey, 0.25e18, block.timestamp);
+        adapter = new MockPriceOracle(hbarUsdPairKey, chainlinkProviderKey, 0.25e18, UPDATED_AT);
         consumer = new OracleConsumer(address(adapter), owner);
     }
 
@@ -39,6 +41,14 @@ contract OracleConsumerTest is Test {
         uint256 quoteAmount = consumer.baseToQuote(hbarUsdPairKey, 10 * 1e8, 8, 6);
 
         assertEq(quoteAmount, 2_500_000, "Consumer should convert ten HBAR to 2.5 USD with 6 decimals");
+    }
+
+    function test_BaseToQuoteWithLatestUpdateReturnsQuoteAndTimestamp() public view {
+        (uint256 quoteAmount, uint256 latestUpdate) =
+            consumer.baseToQuoteWithLatestUpdate(hbarUsdPairKey, 10 * 1e8, 8, 6);
+
+        assertEq(quoteAmount, 2_500_000, "Consumer should convert ten HBAR to 2.5 USD with 6 decimals");
+        assertEq(latestUpdate, UPDATED_AT, "Consumer should return the upstream oracle update timestamp");
     }
 
     function test_QuoteToBaseConvertsThroughSelectedOraclePrice() public view {

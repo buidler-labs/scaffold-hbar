@@ -33,3 +33,12 @@ export const formatOracleAmount = (amount: bigint, decimals: number, displayDeci
     maximumFractionDigits: displayDecimals,
   }).format(value);
 };
+
+export const formatOracleLatestUpdate = (latestUpdate?: bigint) => {
+  if (latestUpdate === undefined || latestUpdate === 0n) return undefined;
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(Number(latestUpdate) * 1000));
+};

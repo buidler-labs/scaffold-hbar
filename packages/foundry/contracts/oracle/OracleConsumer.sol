@@ -47,9 +47,22 @@ contract OracleConsumer is Ownable {
         view
         returns (uint256 quoteAmount)
     {
-        IPriceOracle.PriceData memory data = oracle.latestPrice(pairKey);
+        (quoteAmount,) = _baseToQuote(pairKey, baseAmount, baseDecimals, quoteDecimals);
+    }
 
-        return AssetConversionLib.baseToQuote(baseAmount, baseDecimals, quoteDecimals, data.priceE18);
+    /// @notice Converts a base asset amount into a quote asset amount and returns the oracle update timestamp.
+    /// @param pairKey Deterministic `BASE/QUOTE` pair key to read.
+    /// @param baseAmount Amount of base asset in its smallest unit.
+    /// @param baseDecimals Decimal precision used by the base asset.
+    /// @param quoteDecimals Decimal precision used by the quote asset.
+    /// @return quoteAmount Amount of quote asset in its smallest unit.
+    /// @return latestUpdate Timestamp, in seconds, when the upstream oracle last updated the price.
+    function baseToQuoteWithLatestUpdate(bytes32 pairKey, uint256 baseAmount, uint8 baseDecimals, uint8 quoteDecimals)
+        external
+        view
+        returns (uint256 quoteAmount, uint256 latestUpdate)
+    {
+        return _baseToQuote(pairKey, baseAmount, baseDecimals, quoteDecimals);
     }
 
     /// @notice Converts a quote asset amount into a base asset amount using a registered oracle price.
@@ -66,6 +79,24 @@ contract OracleConsumer is Ownable {
         IPriceOracle.PriceData memory data = oracle.latestPrice(pairKey);
 
         return AssetConversionLib.quoteToBase(quoteAmount, baseDecimals, quoteDecimals, data.priceE18);
+    }
+
+    /// @notice Converts a base asset amount into a quote asset amount with its source timestamp.
+    /// @param pairKey Deterministic `BASE/QUOTE` pair key to read.
+    /// @param baseAmount Amount of base asset in its smallest unit.
+    /// @param baseDecimals Decimal precision used by the base asset.
+    /// @param quoteDecimals Decimal precision used by the quote asset.
+    /// @return quoteAmount Amount of quote asset in its smallest unit.
+    /// @return latestUpdate Timestamp, in seconds, when the upstream oracle last updated the price.
+    function _baseToQuote(bytes32 pairKey, uint256 baseAmount, uint8 baseDecimals, uint8 quoteDecimals)
+        private
+        view
+        returns (uint256 quoteAmount, uint256 latestUpdate)
+    {
+        IPriceOracle.PriceData memory data = oracle.latestPrice(pairKey);
+
+        quoteAmount = AssetConversionLib.baseToQuote(baseAmount, baseDecimals, quoteDecimals, data.priceE18);
+        latestUpdate = data.updatedAt;
     }
 
     /// @notice Stores a new selected oracle adapter.

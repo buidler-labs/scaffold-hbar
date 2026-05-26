@@ -9,6 +9,7 @@ import {
   type OraclePair,
   type OracleProvider,
   formatOracleAmount,
+  formatOracleLatestUpdate,
   getOracleBaseUnitAmount,
   getOraclePairKey,
 } from "~~/services/oracle";
@@ -25,6 +26,45 @@ type OracleQuoteCardProps = OracleQuoteGridProps & {
   pair: OraclePair;
 };
 
+type AbiFunction = {
+  name?: string;
+  type: string;
+};
+
+const hasAbiFunction = (abi: Abi | undefined, functionName: string) => {
+  return (abi as readonly AbiFunction[] | undefined)?.some(
+    entry => entry.type === "function" && entry.name === functionName,
+  );
+};
+
+const getQuoteAmount = (quoteResult: unknown) => {
+  if (typeof quoteResult === "bigint") return quoteResult;
+  if (Array.isArray(quoteResult)) return quoteResult[0] as bigint | undefined;
+  if (quoteResult && typeof quoteResult === "object" && "quoteAmount" in quoteResult) {
+    return quoteResult.quoteAmount as bigint | undefined;
+  }
+
+  return undefined;
+};
+
+const getQuoteLatestUpdate = (quoteResult: unknown) => {
+  if (Array.isArray(quoteResult)) return quoteResult[1] as bigint | undefined;
+  if (quoteResult && typeof quoteResult === "object" && "latestUpdate" in quoteResult) {
+    return quoteResult.latestUpdate as bigint | undefined;
+  }
+
+  return undefined;
+};
+
+const getPriceDataLatestUpdate = (priceData: unknown) => {
+  if (Array.isArray(priceData)) return priceData[3] as bigint | undefined;
+  if (priceData && typeof priceData === "object" && "updatedAt" in priceData) {
+    return priceData.updatedAt as bigint | undefined;
+  }
+
+  return undefined;
+};
+
 const OracleQuoteCard = ({
   consumerAddress,
   isActiveProvider,
@@ -35,29 +75,44 @@ const OracleQuoteCard = ({
   const { targetNetwork } = useTargetNetwork();
   const contractsData = useAllContracts();
   const consumerContract = contractsData[ORACLE_CONSUMER_CONTRACT_NAME];
+  const consumerAbi = consumerContract?.abi as Abi | undefined;
+  const providerContract = contractsData[provider.contractName];
+  const providerAbi = providerContract?.abi as Abi | undefined;
   const pairKey = getOraclePairKey(pair);
   const baseUnitAmount = getOracleBaseUnitAmount(pair);
   const canRead = Boolean(consumerAddress && isActiveProvider && !isCheckingActiveOracle);
+  const hasQuoteWithLatestUpdate = hasAbiFunction(consumerAbi, "baseToQuoteWithLatestUpdate");
   const {
-    data: quoteAmount,
+    data: quoteResult,
     error: quoteAmountError,
     isFetching,
     isLoading,
   } = useReadContract({
     address: consumerAddress,
-    abi: consumerContract?.abi as Abi | undefined,
+    abi: consumerAbi,
     chainId: targetNetwork.id,
-    functionName: "baseToQuote",
+    functionName: hasQuoteWithLatestUpdate ? "baseToQuoteWithLatestUpdate" : "baseToQuote",
     args: [pairKey, baseUnitAmount, pair.baseDecimals, pair.quoteDecimals],
     query: {
-      enabled: canRead && Boolean(consumerContract?.abi),
+      enabled: canRead && Boolean(consumerAbi),
+    },
+  } as any);
+  const { data: providerPriceData } = useReadContract({
+    address: providerContract?.address,
+    abi: providerAbi,
+    chainId: targetNetwork.id,
+    functionName: "latestPrice",
+    args: [pairKey],
+    query: {
+      enabled: canRead && !hasQuoteWithLatestUpdate && Boolean(providerContract?.address && providerAbi),
     },
   } as any);
   const isReading = isLoading || isFetching;
+  const quoteAmount = getQuoteAmount(quoteResult);
+  const latestUpdate = getQuoteLatestUpdate(quoteResult) ?? getPriceDataLatestUpdate(providerPriceData);
   const formattedQuoteAmount =
-    quoteAmount === undefined
-      ? undefined
-      : formatOracleAmount(quoteAmount as bigint, pair.quoteDecimals, pair.displayDecimals);
+    quoteAmount === undefined ? undefined : formatOracleAmount(quoteAmount, pair.quoteDecimals, pair.displayDecimals);
+  const formattedLatestUpdate = formatOracleLatestUpdate(latestUpdate);
 
   const status = !consumerAddress
     ? {
@@ -110,6 +165,12 @@ const OracleQuoteCard = ({
             </>
           )}
         </p>
+        <div className="mt-4 min-h-11 border-t border-base-300 pt-3">
+          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-base-content/50">Latest update</p>
+          <p className="m-0 mt-1 text-sm font-medium text-base-content/75">
+            {formattedLatestUpdate ?? (isReading ? "Reading timestamp..." : "Unavailable")}
+          </p>
+        </div>
       </div>
 
       <div className="mt-4 flex items-center gap-3 text-sm leading-5 text-base-content/70">
