@@ -53,7 +53,7 @@ npx create-scaffold-hbar@latest --template hedera-demo
 
 ## Deploy and verify on Hedera
 
-To deploy or verify on Hedera testnet, you need a deployer account with testnet HBAR. Generate or import one with your selected framework command, such as `yarn hardhat:account:generate`, `yarn hardhat:account:import`, `yarn foundry:account:generate`, or `yarn foundry:account:import`, then fund it using the [Hedera Portal faucet](https://portal.hedera.com/faucet). Without funds, deploy and verify will fail with "Sender account not found".
+To deploy on Hedera testnet, you need a deployer account with testnet HBAR. Generate or import one with your selected framework command, such as `yarn hardhat:account:generate`, `yarn hardhat:account:import`, `yarn foundry:account:generate`, or `yarn foundry:account:import`, then fund it using the [Hedera Portal faucet](https://portal.hedera.com/faucet). Without funds, deployment will fail with "Sender account not found".
 
 ### Hardhat
 
@@ -63,12 +63,12 @@ From repo root (you will be prompted to decrypt your deployer key):
   yarn hardhat:deploy --network hederaTestnet
   ```
   Or use `yarn hardhat:deploy --network hedera_testnet` (same network, alternate name).
--  **Verify on Hashscan:**
- After deploy, run (no extra arguments needed; uses last deployment):
+-  **Verify with Sourcify:**
+ After deploy, pass the deployed contract address and contract identifier:
 
   ```bash
-  yarn hardhat:verify:testnet   # chain 296
-  yarn hardhat:verify:mainnet   # chain 295
+  yarn hardhat:verify:testnet 0xContractAddress contracts/MyContract.sol:MyContract
+  yarn hardhat:verify:mainnet 0xContractAddress contracts/MyContract.sol:MyContract
   ```
 
 ### Foundry
@@ -85,14 +85,14 @@ Use a keystore with testnet HBAR (fund via [Hedera Portal faucet](https://portal
   yarn foundry:deploy:chainlink:mainnet
   ```
   See the package-level Chainlink flow in [`packages/foundry/README.md`](packages/foundry/README.md#end-to-end-chainlink-flow). Commands in that file are meant to be run from `packages/foundry`; commands in this root README are meant to be run from the repo root.
-- **Verify on Hashscan:**  
-After deploy, run (no extra arguments needed):
+- **Verify with Sourcify:**  
+After deploy, pass the deployed contract address and contract identifier:
   ```bash
-  yarn foundry:verify:testnet   # 296
-  yarn foundry:verify:mainnet   # 295
+  yarn foundry:verify:testnet 0xContractAddress contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol:ChainlinkPriceOracleAdapter
+  yarn foundry:verify:mainnet 0xContractAddress contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol:ChainlinkPriceOracleAdapter
   ```
 
-Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) or [Hashscan (mainnet)](https://hashscan.io/mainnet).
+Verified contracts are submitted to Sourcify. After Sourcify accepts the match, HashScan displays the verified status on [testnet](https://hashscan.io/testnet) or [mainnet](https://hashscan.io/mainnet).
 
 ### Foundry Chainlink oracle flow
 
@@ -144,10 +144,10 @@ yarn foundry:read:chainlink:testnet
 This command is read-only. It uses the exported deployment file, reads `OracleRegistry`, and calls the
 `OracleConsumer` demo helpers without broadcasting transactions.
 
-8. Verify contracts on Hashscan:
+8. Verify contracts with Sourcify:
 
 ```bash
-yarn foundry:verify:testnet
+yarn foundry:verify:testnet 0xContractAddress contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol:ChainlinkPriceOracleAdapter
 ```
 
 ## Local testing with Hedera forking
@@ -198,8 +198,8 @@ The Chainlink adapter smoke tests use real Hedera feed addresses and are exclude
 
 ## Project layout
 
-- **packages/hardhat** — Hardhat config, contracts, `deploy/` scripts, tests, `verifyHedera.js`
-- **packages/foundry** — Forge config, contracts, `script/` deploy scripts, tests, `scripts-js/verifyHedera.js`
+- **packages/hardhat** — Hardhat config, contracts, `deploy/` scripts, and tests
+- **packages/foundry** — Forge config, contracts, `script/` deploy scripts, and tests
 - **packages/nextjs** — Next.js app, RainbowKit, wagmi, scaffold config
 
 Network and RPC URLs are in `packages/hardhat/hardhat.config.ts` or `packages/foundry/foundry.toml`.

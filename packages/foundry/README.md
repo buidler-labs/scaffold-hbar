@@ -322,15 +322,16 @@ clone, run the workspace setup from the root README first.
    This read-only script loads `deployments/296.json`, reads prices through `ChainlinkPriceOracleAdapter`, and calls the
    `OracleConsumer` demo conversion helpers. It does not broadcast transactions.
 
-10. Verify contracts on Hashscan when needed:
+10. Verify contracts with Sourcify when needed:
 
    ```bash
-   yarn verify:testnet
+   yarn verify:testnet 0xContractAddress contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol:ChainlinkPriceOracleAdapter
    ```
 
 For mainnet, use the same flow with `hedera_mainnet`, `yarn deploy:chainlink:mainnet`,
-`yarn read:chainlink:mainnet`, and `yarn verify:mainnet`. Use a funded mainnet Hedera account and confirm every
-feed address in `script/HelperConfig.s.sol` before broadcasting.
+`yarn read:chainlink:mainnet`, and `yarn verify:mainnet 0xContractAddress contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol:ChainlinkPriceOracleAdapter`.
+Use a funded mainnet Hedera account and confirm every feed address in `script/HelperConfig.s.sol` before broadcasting.
+After Sourcify accepts the match, HashScan displays the verified status.
 
 ### End-To-End Supra Flow
 

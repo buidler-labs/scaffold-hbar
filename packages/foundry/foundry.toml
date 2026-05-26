@@ -9,6 +9,7 @@ fs_permissions = [
     { access = "read-write", path = "./" }
 ]
 ffi = true
+evm_version = "cancun"
 
 [profile.integration]
 no_match_path = 'NO_MATCHING_TEST_PATHS'
@@ -21,6 +22,10 @@ exclude_lints = ["mixed-case-variable", "mixed-case-function"]
 localhost = "http://127.0.0.1:8545"
 hedera_testnet = "https://testnet.hashio.io/api"
 hedera_mainnet = "https://mainnet.hashio.io/api"
+
+[etherscan]
+hedera_testnet = { key = "", url = "https://hashscan.io/testnet" }
+hedera_mainnet = { key = "", url = "https://hashscan.io/mainnet" }
 
 [fmt]
 line_length = 120

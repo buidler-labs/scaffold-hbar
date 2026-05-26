@@ -39,10 +39,8 @@
     "test:supra:mainnet": "make test-supra-mainnet",
     "test:pyth:testnet": "make test-pyth-testnet",
     "test:pyth:mainnet": "make test-pyth-mainnet",
-    "verify": "make verify RPC_URL=${1:-localhost}",
-    "verify:testnet": "node scripts-js/verifyHedera.js 296",
-    "verify:mainnet": "node scripts-js/verifyHedera.js 295",
-    "verify:contract": "node scripts-js/verifyHederaContract.js",
+    "verify:testnet": "forge verify-contract --chain-id 296 --verifier sourcify",
+    "verify:mainnet": "forge verify-contract --chain-id 295 --verifier sourcify",
     "postinstall": "shx cp -n .env.example .env"
   },
   "dependencies": {
