@@ -4,7 +4,7 @@ This branch is a Hedera-native demo focused on the Next.js application only. It 
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 20.18.3
+- [Node.js](https://nodejs.org/) v20.x LTS (recommended: 20.18.3 or higher). Node 22+ may work but is not officially tested.
 - [Yarn](https://yarnpkg.com/) (v1 or v2+)
 - [Git](https://git-scm.com/)
 

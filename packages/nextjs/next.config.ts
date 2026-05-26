@@ -48,6 +48,14 @@ const nextConfig: NextConfig = {
       config.externals.push("@walletconnect/modal");
     }
 
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings ?? []),
+      {
+        module: /node_modules\/@reown\/appkit\/node_modules\/ox/,
+        message: /Critical dependency/,
+      },
+    ];
+
     if (dev) {
       config.watchOptions = {
         followSymlinks: true,
