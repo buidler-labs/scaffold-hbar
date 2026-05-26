@@ -78,7 +78,7 @@ Use a keystore with testnet HBAR (fund via [Hedera Portal faucet](https://portal
   ```bash
   yarn foundry:deploy --network hedera_testnet
   ```
-  Or from `packages/foundry`: `make deploy` with `RPC_URL` and account set via env / Makefile.
+  The Foundry package delegates deploys through its internal orchestration layer so Hedera-specific flags and ABI generation stay consistent.
 - **Deploy the Chainlink oracle template:**
   ```bash
   yarn foundry:deploy:chainlink:testnet

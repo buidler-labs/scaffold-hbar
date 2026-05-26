@@ -24,7 +24,7 @@ Options:
   --file <filename>     Specify the deployment script file (default: Deploy.s.sol)
   --network <network>   Specify the network (default: localhost)
   --keystore <name>     Specify the keystore account to use (bypasses selection prompt)
-  --make-target <name>  Specify the Makefile target to run (default: deploy-and-generate-abis)
+  --make-target <name>  Advanced: internal Makefile target to run (default: deploy-and-generate-abis)
   --help, -h           Show this help message
 Examples:
   yarn deploy --file DeployYourContract.s.sol --network sepolia
@@ -153,13 +153,13 @@ The default account (scaffold-hbar-default) can only be used for localhost deplo
   process.exit(0);
 }
 
-// Set environment variables for the make command
+// Set environment variables for the internal Makefile orchestration.
 process.env.DEPLOY_SCRIPT = `script/${fileName}`;
 process.env.SCRIPT = `script/${fileName}`;
 process.env.RPC_URL = network;
 process.env.ETH_KEYSTORE_ACCOUNT = selectedKeystore;
 
-// Run make from the foundry package root so it finds the Makefile and forge uses foundry.toml
+// Run make from the foundry package root so it finds the Makefile and forge uses foundry.toml.
 const foundryPackageRoot = join(__dirname, "..");
 
 const result = spawnSync("make", [makeTarget], {

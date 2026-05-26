@@ -502,7 +502,7 @@ from `packages/foundry`.
 
 From `packages/foundry`, contract deploys use **`yarn deploy`**.
 
-- **Hedera testnet/mainnet:** Use `yarn deploy --network hedera_testnet` (or `hedera_mainnet`). You **must** use a keystore whose address is a **Hedera-created account** (created and funded via [Hedera Portal](https://portal.hedera.com) or faucet). If you see `Requested resource not found. address '0x...'`, that address does not exist on Hedera. Create or import one with `yarn account:generate` or `yarn account:import`, then deploy with `--keystore <name>`. For multi-contract deploys, the Makefile uses `--slow` so each transaction is confirmed before the next (avoids `WRONG_NONCE` on Hedera when both txs are in flight).
+- **Hedera testnet/mainnet:** Use `yarn deploy --network hedera_testnet` (or `hedera_mainnet`). You **must** use a keystore whose address is a **Hedera-created account** (created and funded via [Hedera Portal](https://portal.hedera.com) or faucet). If you see `Requested resource not found. address '0x...'`, that address does not exist on Hedera. Create or import one with `yarn account:generate` or `yarn account:import`, then deploy with `--keystore <name>`. Deploy commands use shared Foundry orchestration with `--slow` so each transaction is confirmed before the next (avoids `WRONG_NONCE` on Hedera when both txs are in flight).
 
 - **Oracle consumer:** Deploy once after an adapter exists, then switch providers when needed:
 
@@ -511,7 +511,7 @@ From `packages/foundry`, contract deploys use **`yarn deploy`**.
   ORACLE_ADAPTER_NAME=PythPriceOracleAdapter yarn set-oracle:testnet
   ```
 
-- **Chainlink oracle template:** Use the dedicated Makefile/Yarn shortcuts to deploy the Chainlink adapter:
+- **Chainlink oracle template:** Use the dedicated Yarn shortcuts to deploy the Chainlink adapter:
 
   ```bash
   yarn deploy:chainlink:testnet
