@@ -13,11 +13,11 @@
     "outro": {
       "steps": [
         "This template uses Hardhat and deploys to Hedera testnet/mainnet.",
-        "+Set up your deployer account: cd packages/hardhat && yarn account:generate",
-        "+Fund your account with testnet HBAR from https://portal.hedera.com/faucet",
-        "+Deploy contracts: yarn hardhat:deploy --network hederaTestnet",
-        "+Initialize the HTS NFT collection: cd packages/hardhat && npx ts-node scripts/createCollection.ts",
-        "+Start the frontend: {run:start}"
+        "+Set up deployer account: {run:hardhat:account:generate}",
+        "+Fund your account: https://portal.hedera.com/faucet",
+        "+Deploy contracts: {run:hardhat:deploy} --network hederaTestnet",
+        "+Create NFT collection: cd packages/hardhat && npx ts-node scripts/createCollection.ts",
+        "+Start the frontend: {run:next:start}"
       ]
     }
   }
