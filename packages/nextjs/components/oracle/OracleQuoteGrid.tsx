@@ -113,6 +113,8 @@ const OracleQuoteCard = ({
   const formattedQuoteAmount =
     quoteAmount === undefined ? undefined : formatOracleAmount(quoteAmount, pair.quoteDecimals, pair.displayDecimals);
   const formattedLatestUpdate = formatOracleLatestUpdate(latestUpdate);
+  const displayedQuoteAmount = canRead ? formattedQuoteAmount : undefined;
+  const displayedLatestUpdate = canRead ? formattedLatestUpdate : undefined;
 
   const status = !consumerAddress
     ? {
@@ -156,19 +158,26 @@ const OracleQuoteCard = ({
       <div className="mt-5 rounded-lg border border-base-300 bg-base-200 p-4">
         <p className="m-0 text-sm text-base-content/70">1 {pair.baseSymbol}</p>
         <p className="m-0 mt-1 text-2xl font-bold">
-          {formattedQuoteAmount ? (
-            `${formattedQuoteAmount} ${pair.quoteSymbol}`
-          ) : (
+          {displayedQuoteAmount ? (
+            `${displayedQuoteAmount} ${pair.quoteSymbol}`
+          ) : isReading && canRead ? (
             <>
               <span className="sr-only">Waiting for read</span>
               <span className="loading loading-dots loading-lg" aria-hidden="true" />
+            </>
+          ) : (
+            <>
+              <span className="sr-only">Quote unavailable</span>
+              <span className="text-base-content/40" aria-hidden="true">
+                --
+              </span>
             </>
           )}
         </p>
         <div className="mt-4 min-h-11 border-t border-base-300 pt-3">
           <p className="m-0 text-xs font-semibold uppercase tracking-wide text-base-content/50">Latest update</p>
           <p className="m-0 mt-1 text-sm font-medium text-base-content/75">
-            {formattedLatestUpdate ?? (isReading ? "Reading timestamp..." : "Unavailable")}
+            {displayedLatestUpdate ?? (isReading && canRead ? "Reading timestamp..." : "Unavailable")}
           </p>
         </div>
       </div>
