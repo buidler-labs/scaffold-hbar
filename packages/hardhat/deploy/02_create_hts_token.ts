@@ -26,9 +26,22 @@ const createHtsToken: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const decimals = 6;
   const hbarValue = 100_000_000n; // 1 HBAR (10^8 tinybars) for creation fee
 
-  const tokenAddress = await contract.createToken(name, symbol, initialSupply, decimals, {
+  const tx = await contract.createToken(name, symbol, initialSupply, decimals, {
     value: hbarValue,
   });
+  const receipt = await tx.wait();
+
+  const tokenCreatedEvent = receipt?.logs
+    .map(log => {
+      try {
+        return contract.interface.parseLog({ topics: log.topics as string[], data: log.data });
+      } catch {
+        return null;
+      }
+    })
+    .find(parsed => parsed?.name === "TokenCreated");
+
+  const tokenAddress = tokenCreatedEvent?.args?.tokenAddress ?? "unknown";
   console.log(`Created HTS token: ${tokenAddress}`);
   // On Hedera testnet/mainnet, users must associate their account with the token before receiving transfers.
 };

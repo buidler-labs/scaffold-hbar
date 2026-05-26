@@ -4,7 +4,7 @@ A Hedera-ready monorepo for building dApps with Next.js, Hardhat or Foundry, and
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 20.18.3
+- [Node.js](https://nodejs.org/) v20.x LTS (recommended: 20.18.3 or higher). Node 22+ may work but is not officially tested.
 - [Yarn](https://yarnpkg.com/) — **required** (this project uses Yarn workspaces; npm and pnpm are not supported)  
   Install via Corepack: `corepack enable && corepack prepare yarn@stable --activate`
 - [Git](https://git-scm.com/)
