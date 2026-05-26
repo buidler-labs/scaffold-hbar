@@ -1,8 +1,9 @@
 "use client";
 
-import type { Address as ViemAddress } from "viem";
+import type { Abi, Address as ViemAddress } from "viem";
+import { useReadContract } from "wagmi";
 import { ArrowPathIcon, CheckCircleIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-hbar";
+import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
 import {
   ORACLE_CONSUMER_CONTRACT_NAME,
   type OraclePair,
@@ -11,9 +12,7 @@ import {
   getOracleBaseUnitAmount,
   getOraclePairKey,
 } from "~~/services/oracle";
-import type { ContractName } from "~~/utils/scaffold-hbar/contract";
-
-const ORACLE_CONSUMER_CONTRACT = ORACLE_CONSUMER_CONTRACT_NAME as ContractName;
+import { useAllContracts } from "~~/utils/scaffold-hbar/contractsData";
 
 type OracleQuoteGridProps = {
   consumerAddress?: ViemAddress;
@@ -33,6 +32,9 @@ const OracleQuoteCard = ({
   pair,
   provider,
 }: OracleQuoteCardProps) => {
+  const { targetNetwork } = useTargetNetwork();
+  const contractsData = useAllContracts();
+  const consumerContract = contractsData[ORACLE_CONSUMER_CONTRACT_NAME];
   const pairKey = getOraclePairKey(pair);
   const baseUnitAmount = getOracleBaseUnitAmount(pair);
   const canRead = Boolean(consumerAddress && isActiveProvider && !isCheckingActiveOracle);
@@ -41,15 +43,16 @@ const OracleQuoteCard = ({
     error: quoteAmountError,
     isFetching,
     isLoading,
-  } = useScaffoldReadContract({
-    contractName: ORACLE_CONSUMER_CONTRACT,
+  } = useReadContract({
+    address: consumerAddress,
+    abi: consumerContract?.abi as Abi | undefined,
+    chainId: targetNetwork.id,
     functionName: "baseToQuote",
     args: [pairKey, baseUnitAmount, pair.baseDecimals, pair.quoteDecimals],
-    watch: true,
     query: {
-      enabled: canRead,
+      enabled: canRead && Boolean(consumerContract?.abi),
     },
-  });
+  } as any);
   const isReading = isLoading || isFetching;
   const formattedQuoteAmount =
     quoteAmount === undefined

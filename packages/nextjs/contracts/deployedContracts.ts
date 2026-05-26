@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 const deployedContracts = {
   296: {
     ChainlinkPriceOracleAdapter: {
-      address: "0x88e5e7816d58af58283e7f96bbea8f14d123d450",
+      address: "0x338EA1E4bcc1E0f7dE0694f42d7b98d41D8B7a99",
       abi: [
         {
           type: "constructor",
@@ -188,10 +188,210 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 35868419,
+    },
+    SupraPriceOracleAdapter: {
+      address: "0x4B38b2715d24a51Dc9B79B8F9A31334D5a2660fA",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "supraOracle_",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "pairConfigs",
+              type: "tuple[]",
+              internalType: "struct SupraPriceOracleAdapter.PairConfig[]",
+              components: [
+                {
+                  name: "pairKey",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "supraPairId",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+              ],
+            },
+            {
+              name: "maxStaleness_",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "MAX_STALENESS",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "PROVIDER_KEY",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "SUPRA_ORACLE",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "contract ISupraSValueFeed",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getSupraPairId",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          outputs: [
+            {
+              name: "supraPairId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "latestPrice",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          outputs: [
+            {
+              name: "data",
+              type: "tuple",
+              internalType: "struct IPriceOracle.PriceData",
+              components: [
+                {
+                  name: "pairKey",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "providerKey",
+                  type: "bytes32",
+                  internalType: "bytes32",
+                },
+                {
+                  name: "priceE18",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+                {
+                  name: "updatedAt",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+              ],
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "error",
+          name: "OracleConfigIsEmpty",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "OracleIncompleteRound",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "OracleInvalidPrice",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "OraclePairAlreadyConfigured",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "OraclePairKeyIsZero",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "OracleStalePrice",
+          inputs: [
+            {
+              name: "updatedAt",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "maxStaleness",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "OracleUnsupportedPair",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "SupraOracleIsZero",
+          inputs: [],
+        },
+      ],
+      inheritedFunctions: {},
     },
     OracleConsumer: {
-      address: "0x78f803ed5cf13df57b6a97f88421bc8f0002df1b",
+      address: "0xd183C8ba05d882Df0e6f6F2Db842E8975314bed5",
       abi: [
         {
           type: "constructor",
@@ -408,450 +608,6 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 35831785,
-    },
-    PythPriceOracleAdapter: {
-      address: "0x43d7d3cfacbfe817783757b65c72bdaf5de4929a",
-      abi: [
-        {
-          type: "constructor",
-          inputs: [
-            {
-              name: "pyth_",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "priceConfigs",
-              type: "tuple[]",
-              internalType: "struct PythPriceOracleAdapter.PriceConfig[]",
-              components: [
-                {
-                  name: "pairKey",
-                  type: "bytes32",
-                  internalType: "bytes32",
-                },
-                {
-                  name: "priceId",
-                  type: "bytes32",
-                  internalType: "bytes32",
-                },
-              ],
-            },
-            {
-              name: "maxStaleness_",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "MAX_STALENESS",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "PROVIDER_KEY",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "PYTH",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "contract IPyth",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getPriceId",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          outputs: [
-            {
-              name: "priceId",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "latestPrice",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          outputs: [
-            {
-              name: "data",
-              type: "tuple",
-              internalType: "struct IPriceOracle.PriceData",
-              components: [
-                {
-                  name: "pairKey",
-                  type: "bytes32",
-                  internalType: "bytes32",
-                },
-                {
-                  name: "providerKey",
-                  type: "bytes32",
-                  internalType: "bytes32",
-                },
-                {
-                  name: "priceE18",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-                {
-                  name: "updatedAt",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-              ],
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "updatePrice",
-          inputs: [
-            {
-              name: "updateData",
-              type: "bytes[]",
-              internalType: "bytes[]",
-            },
-          ],
-          outputs: [],
-          stateMutability: "payable",
-        },
-        {
-          type: "error",
-          name: "OracleConfigIsEmpty",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "OracleIncompleteRound",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "OracleInvalidPrice",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "OraclePairAlreadyConfigured",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "OraclePairKeyIsZero",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "OracleStalePrice",
-          inputs: [
-            {
-              name: "updatedAt",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "maxStaleness",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "OracleUnsupportedPair",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "PythInvalidConfidence",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "PythOracleIsZero",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "PythPriceIdIsZero",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "PythUpdateFeeTooLow",
-          inputs: [
-            {
-              name: "provided",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "required",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-      ],
-      inheritedFunctions: {},
-      deployedOnBlock: 35831892,
-    },
-    SupraPriceOracleAdapter: {
-      address: "0x08d07bb3825a3f77740febb56e133b34fcfced86",
-      abi: [
-        {
-          type: "constructor",
-          inputs: [
-            {
-              name: "supraOracle_",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "pairConfigs",
-              type: "tuple[]",
-              internalType: "struct SupraPriceOracleAdapter.PairConfig[]",
-              components: [
-                {
-                  name: "pairKey",
-                  type: "bytes32",
-                  internalType: "bytes32",
-                },
-                {
-                  name: "supraPairId",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-              ],
-            },
-            {
-              name: "maxStaleness_",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "MAX_STALENESS",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "PROVIDER_KEY",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "SUPRA_ORACLE",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "contract ISupraSValueFeed",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getSupraPairId",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          outputs: [
-            {
-              name: "supraPairId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "latestPrice",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          outputs: [
-            {
-              name: "data",
-              type: "tuple",
-              internalType: "struct IPriceOracle.PriceData",
-              components: [
-                {
-                  name: "pairKey",
-                  type: "bytes32",
-                  internalType: "bytes32",
-                },
-                {
-                  name: "providerKey",
-                  type: "bytes32",
-                  internalType: "bytes32",
-                },
-                {
-                  name: "priceE18",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-                {
-                  name: "updatedAt",
-                  type: "uint256",
-                  internalType: "uint256",
-                },
-              ],
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "error",
-          name: "OracleConfigIsEmpty",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "OracleIncompleteRound",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "OracleInvalidPrice",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "OraclePairAlreadyConfigured",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "OraclePairKeyIsZero",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "OracleStalePrice",
-          inputs: [
-            {
-              name: "updatedAt",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "maxStaleness",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "OracleUnsupportedPair",
-          inputs: [
-            {
-              name: "pairKey",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-        },
-        {
-          type: "error",
-          name: "SupraOracleIsZero",
-          inputs: [],
-        },
-      ],
-      inheritedFunctions: {},
-      deployedOnBlock: 35831833,
     },
   },
 } as const;

@@ -64,7 +64,9 @@ contract ScaffoldHbarDeploy is Script {
 
         if (vm.exists(path)) {
             string memory existingDeploymentsJson = vm.readFile(path);
-            string[] memory keys = vm.parseJsonKeys(existingDeploymentsJson, ".");
+            string[] memory keys = bytes(existingDeploymentsJson).length == 0
+                ? new string[](0)
+                : vm.parseJsonKeys(existingDeploymentsJson, ".");
 
             for (uint256 i = 0; i < keys.length; i++) {
                 if (_isSameString(keys[i], "networkName")) {
@@ -102,7 +104,17 @@ contract ScaffoldHbarDeploy is Script {
         string memory deploymentsPath =
             string.concat(deploymentsRoot, "/deployments/", vm.toString(block.chainid), ".json");
 
-        return vm.readFile(deploymentsPath);
+        if (!vm.exists(deploymentsPath)) {
+            return "{}";
+        }
+
+        deploymentsJson = vm.readFile(deploymentsPath);
+
+        if (bytes(deploymentsJson).length == 0) {
+            return "{}";
+        }
+
+        return deploymentsJson;
     }
 
     function _deploymentAddress(string memory deploymentsJson, string memory deploymentName)

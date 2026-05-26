@@ -120,15 +120,9 @@ export const useScaffoldEventHistory = <
     ((deployedContractData.abi as Abi).find(part => part.type === "event" && part.name === eventName) as AbiEvent);
 
   const isContractAddressAndClientReady = Boolean(deployedContractData?.address) && Boolean(publicClient);
+  const deployedOnBlock = (deployedContractData as { deployedOnBlock?: number } | undefined)?.deployedOnBlock;
 
-  const fromBlockValue =
-    fromBlock !== undefined
-      ? fromBlock
-      : BigInt(
-          deployedContractData && "deployedOnBlock" in deployedContractData
-            ? deployedContractData.deployedOnBlock || 0
-            : 0,
-        );
+  const fromBlockValue = fromBlock !== undefined ? fromBlock : BigInt(deployedOnBlock ?? 0);
 
   const query = useInfiniteQuery({
     queryKey: [

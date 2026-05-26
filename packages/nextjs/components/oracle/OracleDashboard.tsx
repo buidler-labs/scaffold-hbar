@@ -1,46 +1,46 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Address } from "viem";
-import { useAccount } from "wagmi";
+import type { Abi, Address } from "viem";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { OracleDeploymentStatus } from "~~/components/oracle/OracleDeploymentStatus";
 import { OracleProviderSelector } from "~~/components/oracle/OracleProviderSelector";
 import { OracleQuoteGrid } from "~~/components/oracle/OracleQuoteGrid";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-hbar";
+import { useTargetNetwork, useTransactor } from "~~/hooks/scaffold-hbar";
 import {
   ORACLE_CONSUMER_CONTRACT_NAME,
   ORACLE_PROVIDERS,
   type OracleProviderId,
   getOracleProvider,
 } from "~~/services/oracle";
-import type { ContractName } from "~~/utils/scaffold-hbar/contract";
 import { useAllContracts } from "~~/utils/scaffold-hbar/contractsData";
-
-const ORACLE_CONSUMER_CONTRACT = ORACLE_CONSUMER_CONTRACT_NAME as ContractName;
 
 export const OracleDashboard = () => {
   const { isConnected } = useAccount();
+  const { targetNetwork } = useTargetNetwork();
   const contractsData = useAllContracts();
+  const writeTx = useTransactor();
   const [selectedProviderId, setSelectedProviderId] = useState<OracleProviderId>("chainlink");
+  const [isSettingOracle, setIsSettingOracle] = useState(false);
   const selectedProvider = getOracleProvider(selectedProviderId);
 
   const providerAddress = contractsData[selectedProvider.contractName]?.address;
+  const consumerContract = contractsData[ORACLE_CONSUMER_CONTRACT_NAME];
   const consumerAddress = contractsData[ORACLE_CONSUMER_CONTRACT_NAME]?.address;
   const {
     data: activeOracleAddress,
     isLoading: isActiveOracleLoading,
     refetch: refetchActiveOracle,
-  } = useScaffoldReadContract({
-    contractName: ORACLE_CONSUMER_CONTRACT,
+  } = useReadContract({
+    address: consumerAddress,
+    abi: consumerContract?.abi as Abi | undefined,
+    chainId: targetNetwork.id,
     functionName: "oracle",
-    watch: true,
     query: {
-      enabled: Boolean(consumerAddress),
+      enabled: Boolean(consumerAddress && consumerContract?.abi),
     },
-  });
-  const { writeContractAsync, isMining: isSettingOracle } = useScaffoldWriteContract({
-    contractName: ORACLE_CONSUMER_CONTRACT,
-  });
+  } as any);
+  const { writeContractAsync } = useWriteContract();
 
   const selectedProviderIsActive =
     Boolean(activeOracleAddress) &&
@@ -58,19 +58,27 @@ export const OracleDashboard = () => {
   }, [activeOracleAddress, contractsData]);
 
   const handleSetActiveOracle = async () => {
-    if (!providerAddress) return;
+    if (!providerAddress || !consumerAddress || !consumerContract) return;
 
-    await writeContractAsync(
-      {
-        functionName: "setOracle",
-        args: [providerAddress],
-      },
-      {
-        onBlockConfirmation: () => {
-          void refetchActiveOracle();
+    try {
+      setIsSettingOracle(true);
+      await writeTx(
+        () =>
+          writeContractAsync({
+            address: consumerAddress,
+            abi: consumerContract.abi as Abi,
+            functionName: "setOracle",
+            args: [providerAddress],
+          } as any),
+        {
+          onBlockConfirmation: () => {
+            void refetchActiveOracle();
+          },
         },
-      },
-    );
+      );
+    } finally {
+      setIsSettingOracle(false);
+    }
   };
 
   return (

@@ -68,7 +68,17 @@ contract ReadChainlinkOracle is Script {
     function _readDeployments() private view returns (string memory deploymentsJson) {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/deployments/", vm.toString(block.chainid), ".json");
-        return vm.readFile(path);
+        if (!vm.exists(path)) {
+            return "{}";
+        }
+
+        deploymentsJson = vm.readFile(path);
+
+        if (bytes(deploymentsJson).length == 0) {
+            return "{}";
+        }
+
+        return deploymentsJson;
     }
 
     /// @notice Looks up a deployment address by exported deployment name.
