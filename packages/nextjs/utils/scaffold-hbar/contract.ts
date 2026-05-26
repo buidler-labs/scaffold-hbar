@@ -83,9 +83,15 @@ export const contracts = contractsData as GenericContractsDeclaration | null;
 
 type ConfiguredChainId = (typeof scaffoldConfig)["targetNetworks"][0]["id"];
 
-type IsContractDeclarationMissing<TYes, TNo> = typeof contractsData extends { [key in ConfiguredChainId]: any }
-  ? TNo
-  : TYes;
+type ConfiguredContractsData = typeof contractsData extends { [key in ConfiguredChainId]: infer TContracts }
+  ? TContracts
+  : never;
+
+type IsContractDeclarationMissing<TYes, TNo> = [ConfiguredContractsData] extends [never]
+  ? TYes
+  : keyof ConfiguredContractsData extends never
+    ? TYes
+    : TNo;
 
 type ContractsDeclaration = IsContractDeclarationMissing<GenericContractsDeclaration, typeof contractsData>;
 

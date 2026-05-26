@@ -90,7 +90,7 @@ export const AddressInfoDropdown = ({
                 rel="noopener noreferrer"
                 className="whitespace-nowrap"
               >
-                View on Block Explorer
+                View on Explorer
               </a>
             </button>
           </li>

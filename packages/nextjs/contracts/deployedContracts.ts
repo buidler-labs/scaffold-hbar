@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 const deployedContracts = {
   296: {
     ChainlinkPriceOracleAdapter: {
-      address: "0xa02f2f5c1f061662bf99efade44201bd494a2870",
+      address: "0x88e5e7816d58af58283e7f96bbea8f14d123d450",
       abi: [
         {
           type: "constructor",
@@ -188,7 +188,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 35831761,
+      deployedOnBlock: 35868419,
     },
     OracleConsumer: {
       address: "0x78f803ed5cf13df57b6a97f88421bc8f0002df1b",

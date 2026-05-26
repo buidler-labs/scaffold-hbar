@@ -1,33 +1,30 @@
 "use client";
 
-import React, { useRef } from "react";
+import type { ReactNode } from "react";
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bars3Icon, BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, BugAntIcon, CircleStackIcon } from "@heroicons/react/24/outline";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-hbar";
 import { useOutsideClick } from "~~/hooks/scaffold-hbar";
 
 type HeaderMenuLink = {
   label: string;
   href: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
 };
 
 export const menuLinks: HeaderMenuLink[] = [
   {
-    label: "Home",
+    label: "Oracles",
     href: "/",
+    icon: <CircleStackIcon className="h-4 w-4" />,
   },
   {
     label: "Debug Contracts",
     href: "/debug",
     icon: <BugAntIcon className="h-4 w-4" />,
-  },
-  {
-    label: "Block Explorer",
-    href: "/blockexplorer",
-    icon: <MagnifyingGlassIcon className="h-4 w-4" />,
   },
 ];
 
@@ -42,7 +39,6 @@ export const HeaderMenuLinks = () => {
           <li key={href}>
             <Link
               href={href}
-              passHref
               className={`${
                 isActive ? "bg-primary/10 text-primary font-semibold" : "hover:bg-primary/5"
               } py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col transition-colors`}
@@ -82,7 +78,7 @@ export const Header = () => {
             <HeaderMenuLinks />
           </ul>
         </details>
-        <Link href="/" passHref className="hidden lg:flex items-center gap-3 ml-4 mr-6 shrink-0">
+        <Link href="/" className="hidden lg:flex items-center gap-3 ml-4 mr-6 shrink-0">
           <div className="flex relative w-9 h-9">
             <Image alt="Hedera icon" className="cursor-pointer dark:hidden" fill src="/Hedera-Icon-Dark.svg" />
             <Image alt="Hedera icon" className="cursor-pointer hidden dark:block" fill src="/Hedera-Icon-White.svg" />
