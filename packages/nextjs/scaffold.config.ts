@@ -8,20 +8,7 @@ export type ScaffoldConfig = {
   walletConnectProjectId: string;
 };
 
-const hederaLocalFork = {
-  ...chains.hardhat,
-  name: "Hedera Local Fork",
-  nativeCurrency: {
-    name: "HBAR",
-    symbol: "HBAR",
-    // Note: HBAR has 8 protocol decimals (tinybar),
-    // but JSON-RPC msg.value & gasPrice use 18 decimals for EVM compatibility.
-    // We keep 18 here so tx.value formatting matches what viem/hardhat return.
-    decimals: 18,
-  },
-} as const satisfies chains.Chain;
-
-const targetNetworks = [chains.hederaTestnet, chains.hedera, hederaLocalFork] as const satisfies readonly [
+const targetNetworks = [chains.hederaTestnet, chains.hedera] as const satisfies readonly [
   chains.Chain,
   ...chains.Chain[],
 ];
