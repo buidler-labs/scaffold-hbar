@@ -12,7 +12,7 @@ const deploySubscriptionNFT: DeployFunction = async function (hre: HardhatRuntim
     log: true,
     autoMine: true,
     gasLimit: "3000000",
-    gasPrice: "1000000000000000000",
+    gasPrice: "1100000000000",
   });
 };
 

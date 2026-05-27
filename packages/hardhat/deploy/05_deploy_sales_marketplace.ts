@@ -16,7 +16,7 @@ const deploySalesMarketplace: DeployFunction = async function (hre: HardhatRunti
     log: true,
     autoMine: true,
     gasLimit: "3000000",
-    gasPrice: "1000000000000000000",
+    gasPrice: "1100000000000",
   });
 };
 
