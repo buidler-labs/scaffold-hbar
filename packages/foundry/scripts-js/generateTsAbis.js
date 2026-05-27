@@ -28,6 +28,16 @@ function getFiles(path) {
   });
 }
 
+function getDirectories(path) {
+  if (!existsSync(path)) {
+    return [];
+  }
+
+  return readdirSync(path).filter(function (file) {
+    return statSync(join(path, file)).isDirectory();
+  });
+}
+
 function getArtifactOfContract(contractName) {
   const current_path_to_artifacts = join(
     __dirname,
@@ -88,6 +98,65 @@ function readDeploymentFile(filePath) {
   }
 }
 
+function readJsonFile(filePath) {
+  try {
+    return JSON.parse(readFileSync(filePath, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function parseBlockNumber(blockNumber) {
+  if (!blockNumber) {
+    return undefined;
+  }
+
+  return Number(BigInt(blockNumber));
+}
+
+function getBroadcastDeployments(chainId) {
+  const broadcastPath = join(__dirname, "..", "broadcast");
+  const deploymentsByAddress = {};
+
+  for (const scriptDir of getDirectories(broadcastPath)) {
+    const chainBroadcastPath = join(broadcastPath, scriptDir, chainId);
+
+    for (const broadcastFile of getFiles(chainBroadcastPath).filter(
+      (file) => file.startsWith("run-") && file.endsWith(".json")
+    )) {
+      const broadcast = readJsonFile(join(chainBroadcastPath, broadcastFile));
+
+      if (!broadcast?.transactions?.length || !broadcast?.receipts?.length) {
+        continue;
+      }
+
+      for (const transaction of broadcast.transactions) {
+        if (
+          transaction.transactionType !== "CREATE" ||
+          !transaction.contractAddress
+        ) {
+          continue;
+        }
+
+        const receipt = broadcast.receipts.find(
+          ({ transactionHash }) => transactionHash === transaction.hash
+        );
+        const deployedOnBlock = parseBlockNumber(receipt?.blockNumber);
+
+        if (deployedOnBlock === undefined) {
+          continue;
+        }
+
+        deploymentsByAddress[transaction.contractAddress.toLowerCase()] = {
+          deployedOnBlock,
+        };
+      }
+    }
+  }
+
+  return deploymentsByAddress;
+}
+
 function processDeploymentExports(deploymentsPath) {
   const allContracts = {};
   const deploymentFiles = getFiles(deploymentsPath).filter((file) =>
@@ -96,6 +165,7 @@ function processDeploymentExports(deploymentsPath) {
 
   deploymentFiles.forEach((deploymentFile) => {
     const chainId = deploymentFile.slice(0, -5);
+    const broadcastDeployments = getBroadcastDeployments(chainId);
     const deploymentObject = readDeploymentFile(
       join(deploymentsPath, deploymentFile)
     );
@@ -129,6 +199,7 @@ function processDeploymentExports(deploymentsPath) {
         address,
         abi: artifact.abi,
         inheritedFunctions: getInheritedFunctions(artifact),
+        ...broadcastDeployments[address.toLowerCase()],
       };
     });
   });

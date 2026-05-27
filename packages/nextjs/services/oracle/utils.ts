@@ -26,12 +26,24 @@ export const getOracleBaseUnitAmount = ({ baseDecimals }: Pick<OraclePair, "base
   return 10n ** BigInt(baseDecimals);
 };
 
-export const formatOracleAmount = (amount: bigint, decimals: number, displayDecimals: number) => {
-  const value = Number(formatUnits(amount, decimals));
+const formatGroupedInteger = (value: string) => {
+  return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
 
-  return new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: displayDecimals,
-  }).format(value);
+export const formatOracleAmount = (amount: bigint, decimals: number, displayDecimals: number) => {
+  const [integerPart, fractionPart = ""] = formatUnits(amount, decimals).split(".");
+  const normalizedDisplayDecimals = Math.max(0, Math.trunc(displayDecimals));
+  const sign = integerPart.startsWith("-") ? "-" : "";
+  const unsignedIntegerPart = sign ? integerPart.slice(1) : integerPart;
+  const groupedIntegerPart = `${sign}${formatGroupedInteger(unsignedIntegerPart)}`;
+
+  if (normalizedDisplayDecimals === 0 || !fractionPart) {
+    return groupedIntegerPart;
+  }
+
+  const displayedFraction = fractionPart.slice(0, normalizedDisplayDecimals).replace(/0+$/, "");
+
+  return displayedFraction ? `${groupedIntegerPart}.${displayedFraction}` : groupedIntegerPart;
 };
 
 export const formatOracleLatestUpdate = (latestUpdate?: bigint) => {

@@ -188,6 +188,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
+      deployedOnBlock: 35871329,
     },
     SupraPriceOracleAdapter: {
       address: "0x4B38b2715d24a51Dc9B79B8F9A31334D5a2660fA",
@@ -389,9 +390,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
+      deployedOnBlock: 35871354,
     },
     OracleConsumer: {
-      address: "0xd183C8ba05d882Df0e6f6F2Db842E8975314bed5",
+      address: "0x86b0612511abb97B8DB5C0872C8B4016C8A3A247",
       abi: [
         {
           type: "constructor",
@@ -437,6 +439,45 @@ const deployedContracts = {
           outputs: [
             {
               name: "quoteAmount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "baseToQuoteWithLatestUpdate",
+          inputs: [
+            {
+              name: "pairKey",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+            {
+              name: "baseAmount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "baseDecimals",
+              type: "uint8",
+              internalType: "uint8",
+            },
+            {
+              name: "quoteDecimals",
+              type: "uint8",
+              internalType: "uint8",
+            },
+          ],
+          outputs: [
+            {
+              name: "quoteAmount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "latestUpdate",
               type: "uint256",
               internalType: "uint256",
             },
@@ -608,6 +649,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
+      deployedOnBlock: 35874355,
     },
   },
 } as const;
