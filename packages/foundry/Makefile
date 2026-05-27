@@ -26,9 +26,9 @@ deploy:
 	fi
 	@mkdir -p deployments
 	@if [ "$(RPC_URL)" = "hedera_testnet" ]; then \
-		forge script $(DEPLOY_SCRIPT) --rpc-url https://testnet.hashio.io/api --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy --skip-simulation; \
+		forge script $(DEPLOY_SCRIPT) --rpc-url https://testnet.hashio.io/api --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy; \
 	elif [ "$(RPC_URL)" = "hedera_mainnet" ]; then \
-		forge script $(DEPLOY_SCRIPT) --rpc-url https://mainnet.hashio.io/api --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy --skip-simulation; \
+		forge script $(DEPLOY_SCRIPT) --rpc-url https://mainnet.hashio.io/api --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy; \
 	else \
 		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) $(ACCOUNT_ARGS) --broadcast --ffi --slow; \
 	fi
