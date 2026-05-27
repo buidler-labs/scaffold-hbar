@@ -17,6 +17,7 @@ if (process.env.HEDERA_FORKING === "true") {
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
 
+import "./tasks/salesTasks";
 import generateTsAbis from "./scripts/generateTsAbis";
 
 // Hedera JSON-RPC URL (testnet default). Set HEDERA_RPC_URL in .env for mainnet.

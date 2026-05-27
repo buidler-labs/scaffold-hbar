@@ -16,6 +16,8 @@ export default function MintPage() {
   const [serviceTier, setServiceTier] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [useCustomProviderAddress, setUseCustomProviderAddress] = useState(false);
+  const [customProviderAddress, setCustomProviderAddress] = useState("");
   const [isMinting, setIsMinting] = useState(false);
   const [error, setError] = useState("");
 
@@ -56,6 +58,19 @@ export default function MintPage() {
       return;
     }
 
+    // Validate custom provider address if used
+    const providerAddress = useCustomProviderAddress ? customProviderAddress.trim() : connectedAddress;
+    if (useCustomProviderAddress) {
+      if (!customProviderAddress.trim()) {
+        setError("Please enter a provider address");
+        return;
+      }
+      if (!/^0x[a-fA-F0-9]{40}$/.test(customProviderAddress.trim())) {
+        setError("Invalid provider address format");
+        return;
+      }
+    }
+
     setIsMinting(true);
 
     try {
@@ -67,7 +82,7 @@ export default function MintPage() {
 
       await mintSubscription({
         functionName: "mintSubscription",
-        args: [provider.trim(), serviceTier.trim(), BigInt(alignedStart), BigInt(alignedEnd)],
+        args: [providerAddress, provider.trim(), serviceTier.trim(), BigInt(alignedStart), BigInt(alignedEnd)],
         gas: GAS_LIMITS.MINT_SUBSCRIPTION,
       });
 
@@ -159,6 +174,42 @@ export default function MintPage() {
                   maxLength={50}
                   required
                 />
+              </div>
+
+              <div className="form-control">
+                <label className="label cursor-pointer justify-start gap-3">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-primary"
+                    checked={useCustomProviderAddress}
+                    onChange={e => setUseCustomProviderAddress(e.target.checked)}
+                  />
+                  <span className="label-text">Use different provider address for royalties</span>
+                </label>
+                {useCustomProviderAddress && (
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      className="input input-bordered w-full font-mono text-sm"
+                      value={customProviderAddress}
+                      onChange={e => setCustomProviderAddress(e.target.value)}
+                      placeholder="0x..."
+                    />
+                    <label className="label">
+                      <span className="label-text-alt text-base-content/60">
+                        This address will receive 5% royalty on secondary sales
+                      </span>
+                    </label>
+                  </div>
+                )}
+                {!useCustomProviderAddress && (
+                  <label className="label pt-0">
+                    <span className="label-text-alt text-base-content/60">
+                      Your wallet ({connectedAddress?.slice(0, 6)}...{connectedAddress?.slice(-4)}) will receive 5%
+                      royalty on secondary sales
+                    </span>
+                  </label>
+                )}
               </div>
 
               <div className="form-control">

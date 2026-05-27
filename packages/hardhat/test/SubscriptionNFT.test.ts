@@ -52,12 +52,15 @@ describe("SubscriptionNFT", function () {
       const endDate = BigInt(now + 37 * 24 * 60 * 60);
 
       await expect(
-        subscriptionNFT.connect(alice).mintSubscription("Anytime Fitness", "Premium", startDate, endDate),
+        subscriptionNFT
+          .connect(alice)
+          .mintSubscription(alice.address, "Anytime Fitness", "Premium", startDate, endDate),
       ).to.emit(subscriptionNFT, "SubscriptionMinted");
 
       const serialNumber = 1n;
       const subscription = await subscriptionNFT.getSubscription(serialNumber);
       expect(subscription.minter).to.equal(alice.address);
+      expect(subscription.providerAddress).to.equal(alice.address);
       expect(subscription.provider).to.equal("Anytime Fitness");
       expect(subscription.serviceTier).to.equal("Premium");
       expect(subscription.startDate).to.equal(startDate);
@@ -73,7 +76,7 @@ describe("SubscriptionNFT", function () {
 
       const now = BigInt((await ethers.provider.getBlock("latest"))!.timestamp);
       await expect(
-        subscriptionNFT.connect(alice).mintSubscription("Provider", "Tier", now + 100n, now + 100n),
+        subscriptionNFT.connect(alice).mintSubscription(alice.address, "Provider", "Tier", now + 100n, now + 100n),
       ).to.be.revertedWithCustomError(subscriptionNFT, "InvalidDateRange");
     });
   });
@@ -86,7 +89,7 @@ describe("SubscriptionNFT", function () {
       const now = (await ethers.provider.getBlock("latest"))!.timestamp;
       const startDate = BigInt(now + 10);
       const endDate = BigInt(now + 1000);
-      await subscriptionNFT.connect(alice).mintSubscription("Provider", "Tier", startDate, endDate);
+      await subscriptionNFT.connect(alice).mintSubscription(alice.address, "Provider", "Tier", startDate, endDate);
 
       expect(await subscriptionNFT.getEndDate(1n)).to.equal(endDate);
       expect(await subscriptionNFT.isExpired(1n)).to.equal(false);

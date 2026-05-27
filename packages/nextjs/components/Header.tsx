@@ -8,6 +8,7 @@ import {
   Bars3Icon,
   BugAntIcon,
   CalendarDaysIcon,
+  CurrencyDollarIcon,
   PlusCircleIcon,
   ShoppingBagIcon,
   TicketIcon,
@@ -27,9 +28,14 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/",
   },
   {
-    label: "Marketplace",
+    label: "Rentals",
     href: "/marketplace",
     icon: <ShoppingBagIcon className="h-4 w-4" />,
+  },
+  {
+    label: "Sales",
+    href: "/sales",
+    icon: <CurrencyDollarIcon className="h-4 w-4" />,
   },
   {
     label: "My Subscriptions",
