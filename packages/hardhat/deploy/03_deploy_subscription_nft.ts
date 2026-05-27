@@ -11,6 +11,7 @@ const deploySubscriptionNFT: DeployFunction = async function (hre: HardhatRuntim
     args: [deployer, ethers.ZeroAddress],
     log: true,
     autoMine: true,
+    gasLimit: "3000000",
   });
 };
 
