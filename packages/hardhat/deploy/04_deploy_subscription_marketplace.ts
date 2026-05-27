@@ -14,6 +14,8 @@ const deploySubscriptionMarketplace: DeployFunction = async function (hre: Hardh
     args: [deployer, subscriptionNFT.address, INITIAL_MARKETPLACE_FEE_BPS],
     log: true,
     autoMine: true,
+    gasLimit: "3000000",
+    gasPrice: "1000000000000000000",
   });
 };
 
