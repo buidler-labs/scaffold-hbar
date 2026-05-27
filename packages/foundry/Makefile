@@ -17,26 +17,27 @@ setup-deployer:
 	rm -rf broadcast/Deploy.s.sol/31337
 	cast wallet import --private-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6 --unsafe-password 'localhost' scaffold-hbar-default
 
-# Deploy the contracts to the local Hedera-forked node (start with `make fork` or `yarn foundry:fork` from repo root)
-deploy: setup-deployer
+# Deploy the contracts
+deploy:
 	@if [ ! -f "$(DEPLOY_SCRIPT)" ]; then \
 		echo "Error: Deploy script '$(DEPLOY_SCRIPT)' not found"; \
 		exit 1; \
 	fi
 	@mkdir -p deployments
 	@if [ "$(RPC_URL)" = "localhost" ]; then \
+		$(MAKE) setup-deployer; \
 		rm -rf broadcast/Deploy.s.sol/31337; \
 		if [ "$(ETH_KEYSTORE_ACCOUNT)" = "scaffold-hbar-default" ]; then \
 			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --password localhost --broadcast --ffi; \
 		else \
-			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --broadcast --ffi; \
+			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi; \
 		fi \
 	elif [ "$(RPC_URL)" = "hedera_testnet" ]; then \
-		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --chain-id 296 --broadcast --ffi --slow --legacy --skip-simulation; \
+		forge script $(DEPLOY_SCRIPT) --rpc-url https://testnet.hashio.io/api --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy; \
 	elif [ "$(RPC_URL)" = "hedera_mainnet" ]; then \
-		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --chain-id 295 --broadcast --ffi --slow --legacy --skip-simulation; \
+		forge script $(DEPLOY_SCRIPT) --rpc-url https://mainnet.hashio.io/api --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy; \
 	else \
-		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --broadcast --ffi --slow; \
+		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow; \
 	fi
 
 # Deploy and generate ABIs (used by scripts-js/parseArgs.js)
@@ -86,4 +87,4 @@ verify:
 		echo "  yarn verify:mainnet 0xAddress contracts/MyContract.sol:MyContract"; \
 		exit 1; \
 	fi
-	@node scripts-js/verifySourcify.js $(CHAIN_ID) $(CONTRACT) $(CONTRACT_PATH)
+	forge verify-contract $(CONTRACT) $(CONTRACT_PATH) --chain-id $(CHAIN_ID) --verifier sourcify
