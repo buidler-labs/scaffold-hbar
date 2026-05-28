@@ -141,7 +141,7 @@ contract PythPriceOracleAdapter is IPriceOracle {
             revert OracleInvalidPrice();
         }
 
-        if (price.conf == ZERO || price.conf > uint64(price.price)) {
+        if (price.conf > uint64(price.price)) {
             revert PythInvalidConfidence();
         }
 
