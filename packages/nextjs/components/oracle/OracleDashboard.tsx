@@ -6,6 +6,7 @@ import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { OracleDeploymentStatus } from "~~/components/oracle/OracleDeploymentStatus";
 import { OracleProviderSelector } from "~~/components/oracle/OracleProviderSelector";
 import { OracleQuoteGrid } from "~~/components/oracle/OracleQuoteGrid";
+import { OracleSetupGuide } from "~~/components/oracle/OracleSetupGuide";
 import { useTargetNetwork, useTransactor } from "~~/hooks/scaffold-hbar";
 import {
   ORACLE_CONSUMER_CONTRACT_NAME,
@@ -107,6 +108,15 @@ export const OracleDashboard = () => {
           activeOracleAddress={activeOracleAddress as Address | undefined}
           activeOracleName={activeOracleProvider?.label}
           consumerAddress={consumerAddress}
+          isLoadingActiveOracle={isActiveOracleLoading}
+          provider={selectedProvider}
+          providerAddress={providerAddress}
+        />
+
+        <OracleSetupGuide
+          consumerAddress={consumerAddress}
+          isActiveProvider={selectedProviderIsActive}
+          isConnected={isConnected}
           isLoadingActiveOracle={isActiveOracleLoading}
           provider={selectedProvider}
           providerAddress={providerAddress}
