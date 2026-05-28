@@ -6,15 +6,31 @@ import { spawn } from "child_process";
 import { config } from "hardhat";
 
 /**
- * Unencrypts the private key and runs the hardhat deploy command
+ * Unencrypts the private key and runs the hardhat deploy command.
+ * Accepts network as either:
+ *   - Positional argument: ts-node runHardhatDeployWithPK.ts hederaTestnet
+ *   - Flag argument: ts-node runHardhatDeployWithPK.ts --network hederaTestnet
  */
 async function main() {
   const networkIndex = process.argv.indexOf("--network");
-  const networkName = networkIndex !== -1 ? process.argv[networkIndex + 1] : config.defaultNetwork;
+  let networkName: string;
+  let extraArgs: string[];
+
+  if (networkIndex !== -1) {
+    networkName = process.argv[networkIndex + 1];
+    extraArgs = process.argv.slice(2).filter((_, i) => i !== networkIndex - 2 && i !== networkIndex - 1);
+  } else if (process.argv[2] && !process.argv[2].startsWith("-")) {
+    networkName = process.argv[2];
+    extraArgs = process.argv.slice(3);
+  } else {
+    networkName = config.defaultNetwork;
+    extraArgs = process.argv.slice(2);
+  }
+
+  const hardhatArgs = ["deploy", "--network", networkName, ...extraArgs];
 
   if (networkName === "localhost" || networkName === "hardhat") {
-    // Deploy command on the localhost network
-    const hardhat = spawn("hardhat", ["deploy", ...process.argv.slice(2)], {
+    const hardhat = spawn("hardhat", hardhatArgs, {
       stdio: "inherit",
       env: process.env,
       shell: process.platform === "win32",
@@ -39,7 +55,7 @@ async function main() {
     const wallet = await Wallet.fromEncryptedJson(encryptedKey, pass);
     process.env.__RUNTIME_DEPLOYER_PRIVATE_KEY = wallet.privateKey;
 
-    const hardhat = spawn("hardhat", ["deploy", ...process.argv.slice(2)], {
+    const hardhat = spawn("hardhat", hardhatArgs, {
       stdio: "inherit",
       env: process.env,
       shell: process.platform === "win32",
