@@ -10,7 +10,6 @@ import { hederaTestnet } from "viem/chains";
 import { WagmiProvider } from "wagmi";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
-import { LocalChainErrorBanner } from "~~/components/LocalChainErrorBanner";
 import { BlockieAvatar } from "~~/components/scaffold-hbar";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 
@@ -19,7 +18,6 @@ const ScaffoldHbarApp = ({ children }: { children: React.ReactNode }) => {
     <>
       <div className="flex flex-col min-h-screen">
         <Header />
-        <LocalChainErrorBanner />
         <main className="relative flex flex-col flex-1">{children}</main>
         <Footer />
       </div>
@@ -70,7 +68,7 @@ export const ScaffoldHbarAppWithProviders = ({ children }: { children: React.Rea
       });
 
   return (
-    <WagmiProvider config={wagmiConfig}>
+    <WagmiProvider config={wagmiConfig} reconnectOnMount={false}>
       <QueryClientProvider client={queryClient}>
         <ProgressBar height="3px" color="#2299dd" />
         <RainbowKitProvider avatar={BlockieAvatar} coolMode initialChain={hederaTestnet} theme={rainbowKitTheme}>
