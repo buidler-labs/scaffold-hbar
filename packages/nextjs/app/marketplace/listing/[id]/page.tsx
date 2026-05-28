@@ -411,6 +411,10 @@ export default function ListingDetailPage() {
                     </div>
                   </div>
 
+                  <div className="text-xs text-base-content/50 bg-base-200 rounded-lg p-2">
+                    Fee breakdown: 5% provider royalty + 5% marketplace fee (deducted from owner payout)
+                  </div>
+
                   <button
                     className="btn btn-primary w-full"
                     onClick={handleBook}

@@ -49,6 +49,8 @@ interface ISubscriptionNFT {
 contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
     /// @notice Basis points denominator for fee calculations.
     uint256 public constant BPS_DENOMINATOR = 10_000;
+    /// @notice Provider royalty fee in basis points (5%).
+    uint256 public constant PROVIDER_FEE_BPS = 500;
     /// @notice Day size used for alignment and booking length.
     uint256 public constant DAY = 1 days;
 
@@ -100,6 +102,8 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         uint256 totalPaid;
         /// @notice Marketplace fee portion in wei.
         uint256 feeAmount;
+        /// @notice Provider royalty fee portion in wei.
+        uint256 providerFeeAmount;
         /// @notice Owner payout portion in wei.
         uint256 ownerPayout;
         /// @notice True after owner payout is claimed.
@@ -189,7 +193,7 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
     /// @notice Emitted when a renter cancels an active pre-start booking.
     event BookingCancelled(uint256 indexed bookingId, address indexed renter, uint256 refundedAmount);
     /// @notice Emitted when owner payout is claimed for a started booking.
-    event BookingPayoutClaimed(uint256 indexed bookingId, address indexed owner, uint256 ownerPayout, uint256 feeAmount);
+    event BookingPayoutClaimed(uint256 indexed bookingId, address indexed owner, uint256 ownerPayout, uint256 feeAmount, uint256 providerFeeAmount);
     /// @notice Emitted when marketplace fee basis points change.
     event MarketplaceFeeUpdated(uint16 oldFeeBps, uint16 newFeeBps);
     /// @notice Emitted when marketplace owner withdraws accrued fees.
@@ -246,6 +250,8 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
     error FeeTransferFailed();
     /// @notice Thrown when owner payout transfer fails.
     error OwnerPayoutFailed();
+    /// @notice Thrown when provider royalty payout transfer fails.
+    error ProviderPayoutFailed();
     /// @notice Thrown when payout is claimed before booking start.
     error PayoutNotAvailableYet();
     /// @notice Thrown when payout has already been claimed.
@@ -366,28 +372,32 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         if (availability.id == 0) revert AvailabilityNotFound(availabilityId);
         if (availability.status != AvailabilityStatus.Active) revert AvailabilityInactive(availabilityId);
 
-        uint256 endDate = startDate + (numberOfDays * DAY);
-        if (startDate >= endDate) revert InvalidDateRange();
-        if (startDate < availability.windowStart || endDate > availability.windowEnd) {
-            revert BookingOutOfAvailabilityBounds();
-        }
+        {
+            uint256 endDate = startDate + (numberOfDays * DAY);
+            if (startDate >= endDate) revert InvalidDateRange();
+            if (startDate < availability.windowStart || endDate > availability.windowEnd) {
+                revert BookingOutOfAvailabilityBounds();
+            }
 
-        uint256[] storage bookingIds = _bookingIdsBySerial[availability.serialNumber];
-        uint256 len = bookingIds.length;
-        for (uint256 i = 0; i < len; i++) {
-            Booking storage existing = bookingsById[bookingIds[i]];
-            if (existing.status != BookingStatus.Active) continue;
-            if (_isBookingExpired(existing)) continue;
-            if (_rangesOverlap(startDate, endDate, existing.startDate, existing.endDate)) {
-                revert OverlappingBooking();
+            uint256[] storage bookingIds = _bookingIdsBySerial[availability.serialNumber];
+            uint256 len = bookingIds.length;
+            for (uint256 i = 0; i < len; i++) {
+                Booking storage existing = bookingsById[bookingIds[i]];
+                if (existing.status != BookingStatus.Active) continue;
+                if (_isBookingExpired(existing)) continue;
+                if (_rangesOverlap(startDate, endDate, existing.startDate, existing.endDate)) {
+                    revert OverlappingBooking();
+                }
             }
         }
 
-        uint256 expectedPayment = availability.pricePerDay * numberOfDays;
-        if (msg.value != expectedPayment) revert IncorrectPayment(expectedPayment, msg.value);
+        {
+            uint256 expectedPayment = availability.pricePerDay * numberOfDays;
+            if (msg.value != expectedPayment) revert IncorrectPayment(expectedPayment, msg.value);
+        }
 
         uint256 feeAmount = (msg.value * marketplaceFeeBps) / BPS_DENOMINATOR;
-        uint256 ownerPayout = msg.value - feeAmount;
+        uint256 providerFeeAmount = (msg.value * PROVIDER_FEE_BPS) / BPS_DENOMINATOR;
 
         bookingId = nextBookingId++;
         bookingsById[bookingId] = Booking({
@@ -396,16 +406,18 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
             availabilityId: availabilityId,
             serialNumber: availability.serialNumber,
             startDate: startDate,
-            endDate: endDate,
+            endDate: startDate + (numberOfDays * DAY),
             totalPaid: msg.value,
             feeAmount: feeAmount,
-            ownerPayout: ownerPayout,
+            providerFeeAmount: providerFeeAmount,
+            ownerPayout: msg.value - feeAmount - providerFeeAmount,
             payoutClaimed: false,
             status: BookingStatus.Active
         });
         _bookingIdsBySerial[availability.serialNumber].push(bookingId);
 
-        emit Booked(bookingId, availabilityId, availability.serialNumber, msg.sender, startDate, endDate, msg.value);
+        Booking storage newBooking = bookingsById[bookingId];
+        emit Booked(bookingId, availabilityId, newBooking.serialNumber, msg.sender, newBooking.startDate, newBooking.endDate, msg.value);
     }
 
     /// @notice Cancels an active booking before its start time and refunds renter in full.
@@ -427,7 +439,7 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
     }
 
     /// @notice Claims the owner payout for a started booking.
-    /// @dev Marketplace fee is recognized only when owner payout is claimed.
+    /// @dev Marketplace fee and provider royalty are paid when owner payout is claimed.
     /// @param bookingId Booking id to settle.
     function claimBookingPayout(uint256 bookingId) external nonReentrant onlyCurrentBookingOwner(bookingId) {
         Booking storage booking = bookingsById[bookingId];
@@ -440,10 +452,17 @@ contract SubscriptionMarketplace is Ownable, ReentrancyGuard {
         booking.payoutClaimed = true;
         accruedMarketplaceFees += booking.feeAmount;
 
+        // Pay provider royalty
+        address providerAddress = subscriptionNFT.getProviderAddress(booking.serialNumber);
+        if (booking.providerFeeAmount > 0 && providerAddress != address(0)) {
+            (bool providerPaid, ) = payable(providerAddress).call{ value: booking.providerFeeAmount }("");
+            if (!providerPaid) revert ProviderPayoutFailed();
+        }
+
         (bool sent, ) = payable(payoutRecipient).call{ value: booking.ownerPayout }("");
         if (!sent) revert OwnerPayoutFailed();
 
-        emit BookingPayoutClaimed(bookingId, payoutRecipient, booking.ownerPayout, booking.feeAmount);
+        emit BookingPayoutClaimed(bookingId, payoutRecipient, booking.ownerPayout, booking.feeAmount, booking.providerFeeAmount);
     }
 
     /// @notice Returns active renter for a serial at current block timestamp.

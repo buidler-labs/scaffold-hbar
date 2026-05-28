@@ -29,6 +29,7 @@ export interface ParsedBooking {
   endDate: bigint;
   totalPaid: bigint;
   feeAmount: bigint;
+  providerFeeAmount: bigint;
   ownerPayout: bigint;
   payoutClaimed: boolean;
   status: number;
@@ -65,7 +66,7 @@ export function parseSubscription(data: unknown): ParsedSubscription | null {
 /**
  * Parse booking data from SubscriptionMarketplace.bookingsById()
  * Struct order: id(0), renter(1), availabilityId(2), serialNumber(3), startDate(4), endDate(5),
- *               totalPaid(6), feeAmount(7), ownerPayout(8), payoutClaimed(9), status(10)
+ *               totalPaid(6), feeAmount(7), providerFeeAmount(8), ownerPayout(9), payoutClaimed(10), status(11)
  */
 export function parseBooking(data: unknown, fallbackId?: bigint): ParsedBooking | null {
   if (!data) return null;
@@ -81,9 +82,10 @@ export function parseBooking(data: unknown, fallbackId?: bigint): ParsedBooking 
     endDate: toBigInt(d.endDate ?? d[5]),
     totalPaid: toBigInt(d.totalPaid ?? d[6]),
     feeAmount: toBigInt(d.feeAmount ?? d[7]),
-    ownerPayout: toBigInt(d.ownerPayout ?? d[8]),
-    payoutClaimed: Boolean(d.payoutClaimed ?? d[9] ?? false),
-    status: Number(d.status ?? d[10] ?? 0),
+    providerFeeAmount: toBigInt(d.providerFeeAmount ?? d[8]),
+    ownerPayout: toBigInt(d.ownerPayout ?? d[9]),
+    payoutClaimed: Boolean(d.payoutClaimed ?? d[10] ?? false),
+    status: Number(d.status ?? d[11] ?? 0),
   };
 }
 

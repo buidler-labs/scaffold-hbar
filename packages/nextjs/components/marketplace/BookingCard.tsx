@@ -20,6 +20,7 @@ export interface BookingData {
   endDate: bigint;
   totalPaid: bigint;
   feeAmount: bigint;
+  providerFeeAmount: bigint;
   ownerPayout: bigint;
   payoutClaimed: boolean;
   status: number;
@@ -42,7 +43,19 @@ export const BookingCard = ({
   isClaimingPayout = false,
   isCancelling = false,
 }: BookingCardProps) => {
-  const { id, renter, serialNumber, startDate, endDate, totalPaid, ownerPayout, payoutClaimed, status } = booking;
+  const {
+    id,
+    renter,
+    serialNumber,
+    startDate,
+    endDate,
+    totalPaid,
+    feeAmount,
+    providerFeeAmount,
+    ownerPayout,
+    payoutClaimed,
+    status,
+  } = booking;
 
   const isActive = status === BookingStatus.Active;
   const hasStarted = isDateInPast(startDate);
@@ -90,12 +103,18 @@ export const BookingCard = ({
             </div>
           )}
           {isOwner && (
-            <div className="flex items-center gap-2">
-              <CheckCircleIcon className="h-4 w-4 text-base-content/60" />
-              <span>Your payout:</span>
-              <HbarAmount tinybars={ownerPayout} />
-              {payoutClaimed && <span className="badge badge-success badge-xs">Claimed</span>}
-            </div>
+            <>
+              <div className="flex items-center gap-2">
+                <CheckCircleIcon className="h-4 w-4 text-base-content/60" />
+                <span>Your payout:</span>
+                <HbarAmount tinybars={ownerPayout} />
+                {payoutClaimed && <span className="badge badge-success badge-xs">Claimed</span>}
+              </div>
+              <div className="text-xs text-base-content/50 ml-6">
+                (5% marketplace fee: <HbarAmount tinybars={feeAmount} /> + 5% provider fee:{" "}
+                <HbarAmount tinybars={providerFeeAmount} />)
+              </div>
+            </>
           )}
         </div>
 

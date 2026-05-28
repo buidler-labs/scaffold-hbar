@@ -10,7 +10,7 @@ describe("SubscriptionMarketplace", function () {
   };
 
   async function deployFixture() {
-    const [deployer, owner, renterA, renterB] = await ethers.getSigners();
+    const [deployer, owner, renterA, renterB, provider] = await ethers.getSigners();
 
     // Deploy MockHTS for testing (works with both local and forked networks)
     const MockHTS = await ethers.getContractFactory("MockHTS");
@@ -29,9 +29,10 @@ describe("SubscriptionMarketplace", function () {
     const dayBase = alignToDay(now);
     const startDate = dayBase + 10n * BigInt(DAY);
     const endDate = dayBase + 120n * BigInt(DAY);
+    // Use a separate provider address for royalty payments
     await subscriptionNFT
       .connect(owner)
-      .mintSubscription(owner.address, "Anytime Fitness", "Premium", startDate, endDate);
+      .mintSubscription(provider.address, "Anytime Fitness", "Premium", startDate, endDate);
 
     const Marketplace = await ethers.getContractFactory("SubscriptionMarketplace");
     const marketplaceFeeBps = 500; // 5%
@@ -42,7 +43,7 @@ describe("SubscriptionMarketplace", function () {
     );
     await marketplace.waitForDeployment();
 
-    return { subscriptionNFT, marketplace, deployer, owner, renterA, renterB, startDate, endDate };
+    return { subscriptionNFT, marketplace, deployer, owner, renterA, renterB, provider, startDate, endDate };
   }
 
   describe("availability", function () {
@@ -180,8 +181,8 @@ describe("SubscriptionMarketplace", function () {
         .withArgs(1n, renterA.address, totalPaid);
     });
 
-    it("allows owner to claim payout after booking start and accrues fee", async function () {
-      const { marketplace, owner, renterA, startDate } = await deployFixture();
+    it("allows owner to claim payout after booking start and accrues fee with provider royalty", async function () {
+      const { marketplace, owner, renterA, provider, startDate } = await deployFixture();
       const windowStart = startDate + 10n * BigInt(DAY);
       const windowEnd = windowStart + 10n * BigInt(DAY);
       const pricePerDay = ethers.parseEther("1");
@@ -199,10 +200,17 @@ describe("SubscriptionMarketplace", function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [Number(windowStart) + 1]);
       await ethers.provider.send("evm_mine", []);
 
+      // Track provider balance change (provider is separate from owner)
+      const providerBalanceBefore = await ethers.provider.getBalance(provider.address);
+
       await expect(marketplace.connect(owner).claimBookingPayout(1n)).to.emit(marketplace, "BookingPayoutClaimed");
 
-      // 5% fee on 2 ETH = 0.1 ETH
+      // 5% marketplace fee on 2 ETH = 0.1 ETH
       expect(await marketplace.accruedMarketplaceFees()).to.equal(ethers.parseEther("0.1"));
+
+      // 5% provider fee on 2 ETH = 0.1 ETH
+      const providerBalanceAfter = await ethers.provider.getBalance(provider.address);
+      expect(providerBalanceAfter - providerBalanceBefore).to.equal(ethers.parseEther("0.1"));
     });
 
     it("routes payout claim to current NFT owner after transfer", async function () {
@@ -234,9 +242,10 @@ describe("SubscriptionMarketplace", function () {
       );
 
       // New owner can claim and receives payout.
+      // 2 ETH total: 90% owner (1.8 ETH), 5% marketplace (0.1 ETH), 5% provider (0.1 ETH)
       await expect(marketplace.connect(renterB).claimBookingPayout(1n))
         .to.emit(marketplace, "BookingPayoutClaimed")
-        .withArgs(1n, renterB.address, ethers.parseEther("1.9"), ethers.parseEther("0.1"));
+        .withArgs(1n, renterB.address, ethers.parseEther("1.8"), ethers.parseEther("0.1"), ethers.parseEther("0.1"));
     });
   });
 

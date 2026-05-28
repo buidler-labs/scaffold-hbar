@@ -60,12 +60,17 @@ It mirrors the NatSpec in the contracts so reviewers and contributors can reason
 ## Payout and Fee Flow
 
 - Booking payment is escrowed in marketplace contract.
+- Fee structure (same as sales):
+  - 5% provider royalty (sent to `providerAddress` stored in subscription metadata),
+  - 5% marketplace fee (accrued for marketplace owner withdrawal),
+  - 90% owner payout.
 - Payout claim is allowed only when:
   - booking is active,
   - payout not yet claimed,
   - booking has started (`block.timestamp >= startDate`),
   - caller is current owner of the related subscription serial.
 - On payout claim:
+  - provider royalty is transferred to `subscriptionNFT.getProviderAddress(serial)`,
   - owner payout is transferred to caller,
   - marketplace fee is added to `accruedMarketplaceFees`,
   - booking is marked `payoutClaimed = true`.
