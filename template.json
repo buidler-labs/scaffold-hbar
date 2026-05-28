@@ -1,0 +1,33 @@
+{
+  "name": "oracles",
+  "description": "Hedera oracle template with Foundry contracts and Chainlink, Supra, and Pyth adapters.",
+  "create-scaffold-hbar": {
+    "capabilities": {
+      "frontend": [
+        "nextjs-app"
+      ],
+      "solidityFramework": [
+        "foundry"
+      ]
+    },
+    "defaults": {
+      "frontend": "nextjs-app",
+      "solidityFramework": "foundry"
+    },
+    "outro": {
+      "steps": [
+        "This template uses Hedera oracle providers. Chainlink and Supra are push-style reads, while Pyth requires fresh update data before reading.",
+        "Suggested steps:",
+        "1. Generate/import a deployer account: {run:foundry:account:generate}",
+        "2. Compile contracts: {run:foundry:compile}",
+        "3. Run unit tests: {run:foundry:test}",
+        "4. Run a provider fork smoke test, for example: {run:foundry:test:chainlink:testnet}",
+        "5. Deploy an oracle adapter to Hedera testnet, for example: {run:foundry:deploy:chainlink:testnet}",
+        "6. Deploy the demo consumer: ORACLE_ADAPTER_NAME=ChainlinkPriceOracleAdapter {run:foundry:deploy:consumer:testnet}",
+        "7. Read oracle prices: {run:foundry:read:chainlink:testnet}",
+        "8. Start the frontend: {run:next:dev}",
+        "After this, customize the supported pairs, provider config, contracts, or frontend to fit your product."
+      ]
+    }
+  }
+}
