@@ -14,6 +14,20 @@ const nextConfig: NextConfig = {
   webpack: (config, { dev }) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
     config.externals.push("pino-pretty", "lokijs", "encoding");
+
+    // Suppress "Critical dependency" warnings from @coinbase/cdp-sdk and related packages
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      {
+        module: /node_modules\/@coinbase\/cdp-sdk/,
+        message: /Critical dependency/,
+      },
+      {
+        module: /node_modules\/ox/,
+        message: /Critical dependency/,
+      },
+    ];
+
     if (dev) {
       config.watchOptions = {
         followSymlinks: true,
