@@ -17,60 +17,77 @@ type OracleSetupGuideState = {
   title: string;
 };
 
-const getSetupGuideState = ({
+type OracleSetupStatus =
+  | "adapter-missing"
+  | "consumer-missing"
+  | "checking-active-oracle"
+  | "wallet-required"
+  | "oracle-inactive"
+  | "ready";
+
+const getOracleSetupStatus = ({
   consumerAddress,
   isActiveProvider,
   isConnected,
   isLoadingActiveOracle,
-  provider,
   providerAddress,
-}: OracleSetupGuideProps): OracleSetupGuideState => {
-  if (!isConnected) {
-    return {
-      icon: "info",
-      title: "Next step",
-      message: "Connect your wallet to activate an oracle after deployment.",
-    };
-  }
+}: OracleSetupGuideProps): OracleSetupStatus => {
+  if (!providerAddress) return "adapter-missing";
+  if (!consumerAddress) return "consumer-missing";
+  if (isLoadingActiveOracle) return "checking-active-oracle";
+  if (!isActiveProvider && !isConnected) return "wallet-required";
+  if (!isActiveProvider) return "oracle-inactive";
 
-  if (!providerAddress) {
-    return {
-      icon: "info",
-      title: `${provider.label} adapter not deployed`,
-      message: `${provider.label} is selected, but ${provider.contractName} is not deployed yet. Use the command in the Oracle contract card above to deploy it.`,
-    };
-  }
+  return "ready";
+};
 
-  if (!consumerAddress) {
-    return {
-      icon: "info",
-      title: "OracleConsumer not deployed",
-      message:
-        "The adapter is ready, but OracleConsumer is not deployed yet. Use the command in the Consumer card above so the app can read normalized prices.",
-    };
-  }
+const getSetupGuideState = (props: OracleSetupGuideProps): OracleSetupGuideState => {
+  const { provider } = props;
 
-  if (isLoadingActiveOracle) {
-    return {
-      icon: "loading",
-      title: "Checking setup",
-      message: "Checking which oracle OracleConsumer is using.",
-    };
-  }
+  switch (getOracleSetupStatus(props)) {
+    case "adapter-missing":
+      return {
+        icon: "info",
+        title: `${provider.label} adapter not deployed`,
+        message: `${provider.label} is selected, but ${provider.contractName} is not deployed yet. Use the command in the Oracle contract card above to deploy it.`,
+      };
 
-  if (!isActiveProvider) {
-    return {
-      icon: "info",
-      title: `${provider.label} is not active`,
-      message: `${provider.label} is deployed, but OracleConsumer is still using another oracle. Set ${provider.label} as active using the action button above.`,
-    };
-  }
+    case "consumer-missing":
+      return {
+        icon: "info",
+        title: "OracleConsumer not deployed",
+        message:
+          "The adapter is ready, but OracleConsumer is not deployed yet. Use the command in the Consumer card above so the app can read normalized prices.",
+      };
 
-  return {
-    icon: "success",
-    title: "Configuration ready",
-    message: "Configuration ready. Prices below are being read through OracleConsumer.",
-  };
+    case "checking-active-oracle":
+      return {
+        icon: "loading",
+        title: "Checking setup",
+        message: "Checking which oracle OracleConsumer is using.",
+      };
+
+    case "wallet-required":
+      return {
+        icon: "info",
+        title: "Wallet connection required",
+        message: `${provider.label} is deployed, but OracleConsumer is still using another oracle. Connect your wallet to set ${provider.label} as active.`,
+      };
+
+    case "oracle-inactive":
+      return {
+        icon: "info",
+        title: `${provider.label} is not active`,
+        message: `${provider.label} is deployed, but OracleConsumer is still using another oracle. Set ${provider.label} as active using the action button above.`,
+      };
+
+    case "ready":
+      return {
+        icon: "success",
+        title: "Configuration ready",
+        message: "Configuration ready. Prices below are being read through OracleConsumer.",
+      };
+  }
 };
 
 export const OracleSetupGuide = (props: OracleSetupGuideProps) => {
