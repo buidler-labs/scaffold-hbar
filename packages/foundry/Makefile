@@ -16,7 +16,6 @@ help:
 	@echo "Internal Foundry orchestration targets:"
 	@echo "  make deploy-and-generate-abis DEPLOY_SCRIPT=script/Deploy.s.sol RPC_URL=hedera_testnet ETH_KEYSTORE_ACCOUNT=<keystore>"
 	@echo "  make run-script SCRIPT=script/ReadPythOracle.s.sol RPC_URL=hedera_testnet ACCOUNT_NAME=<keystore>"
-	@echo "Use yarn scripts for normal development commands."
 
 # Deploy the selected script to Hedera testnet/mainnet.
 deploy:

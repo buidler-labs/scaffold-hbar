@@ -1,6 +1,7 @@
 export * from "./useContractLogs";
 export * from "./useCopyToClipboard";
 export * from "./useDeployedContractInfo";
+export * from "./useDeployedContractOwner";
 export * from "./useFetchHbarPrice";
 export * from "./useNetworkColor";
 export * from "./useOutsideClick";
