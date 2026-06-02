@@ -86,8 +86,8 @@ Deploy to **Hedera testnet** or **mainnet** as in [How to start](#how-to-start).
 ### 5. Verify (optional, on Hashscan)
 
 ```bash
-yarn foundry:verify:testnet   # chain 296
-yarn foundry:verify:mainnet   # chain 295
+yarn foundry:verify:testnet 0xYourContractAddress contracts/ScheduledVaultFactory.sol:ScheduledVaultFactory
+yarn foundry:verify:mainnet 0xYourContractAddress contracts/ScheduledVaultFactory.sol:ScheduledVaultFactory
 ```
 
 Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) and [Hashscan (mainnet)](https://hashscan.io/mainnet)

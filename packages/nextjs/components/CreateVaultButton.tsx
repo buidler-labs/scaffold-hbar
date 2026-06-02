@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { ExclamationTriangleIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useCreateVault } from "~~/hooks/scaffold-hbar/useCreateVault";
 
 type CreateVaultButtonProps = {
@@ -25,29 +25,37 @@ export const CreateVaultButton = ({
   pendingLabel = "Creating vault…",
   idleLabel = "Create vault",
 }: CreateVaultButtonProps) => {
-  const { createVault, isPending, canCreate } = useCreateVault({ onSuccess });
+  const { createVault, isPending, canCreate, disabledReason } = useCreateVault({ onSuccess });
 
   const sizeClass = size === "sm" ? "btn-sm" : size === "lg" ? "btn-lg" : "";
   const variantClass = variant === "outline" ? "btn-outline btn-primary" : "btn-primary";
 
   return (
-    <button
-      type="button"
-      className={`btn ${sizeClass} ${variantClass} gap-2 ${className}`.trim()}
-      disabled={isPending || !canCreate}
-      onClick={() => void createVault()}
-    >
-      {isPending ? (
-        <>
-          <span className="loading loading-spinner loading-sm" />
-          {pendingLabel}
-        </>
-      ) : (
-        <>
-          {showIcon && <PlusIcon className="h-4 w-4 shrink-0" />}
-          {children ?? idleLabel}
-        </>
-      )}
-    </button>
+    <>
+      <button
+        type="button"
+        className={`btn ${sizeClass} ${variantClass} gap-2 ${className}`.trim()}
+        disabled={isPending || !canCreate}
+        onClick={() => void createVault()}
+      >
+        {isPending ? (
+          <>
+            <span className="loading loading-spinner loading-sm" />
+            {pendingLabel}
+          </>
+        ) : (
+          <>
+            {showIcon && <PlusIcon className="h-4 w-4 shrink-0" />}
+            {children ?? idleLabel}
+          </>
+        )}
+      </button>
+      {!isPending && disabledReason ? (
+        <div className="alert alert-warning mt-4 max-w-md justify-center gap-2 px-4 py-3 text-left text-sm shadow-sm">
+          <ExclamationTriangleIcon className="h-5 w-5 shrink-0" />
+          <span>{disabledReason}</span>
+        </div>
+      ) : null}
+    </>
   );
 };
