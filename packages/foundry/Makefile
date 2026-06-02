@@ -34,8 +34,18 @@ deploy:
 			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --account $$LOCAL_ETH_KEYSTORE_ACCOUNT --broadcast --ffi; \
 		fi \
 	elif [ "$(RPC_URL)" = "hedera_testnet" ]; then \
+		if [ -z "$(ETH_KEYSTORE_ACCOUNT)" ]; then \
+			echo "Error: ETH_KEYSTORE_ACCOUNT is required for Hedera testnet deployments"; \
+			echo "Usage: make deploy RPC_URL=hedera_testnet ETH_KEYSTORE_ACCOUNT=<keystore-account> DEPLOY_SCRIPT=$(DEPLOY_SCRIPT)"; \
+			exit 1; \
+		fi; \
 		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --chain-id 296 --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy; \
 	elif [ "$(RPC_URL)" = "hedera_mainnet" ]; then \
+		if [ -z "$(ETH_KEYSTORE_ACCOUNT)" ]; then \
+			echo "Error: ETH_KEYSTORE_ACCOUNT is required for Hedera mainnet deployments"; \
+			echo "Usage: make deploy RPC_URL=hedera_mainnet ETH_KEYSTORE_ACCOUNT=<keystore-account> DEPLOY_SCRIPT=$(DEPLOY_SCRIPT)"; \
+			exit 1; \
+		fi; \
 		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --chain-id 295 --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy; \
 	else \
 		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow; \

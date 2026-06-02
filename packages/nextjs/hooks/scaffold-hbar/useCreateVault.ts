@@ -3,8 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-hbar/useDeployedContractInfo";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-hbar/useScaffoldWriteContract";
 import { useSelectedNetwork } from "~~/hooks/scaffold-hbar/useSelectedNetwork";
-import { ContractName } from "~~/utils/scaffold-hbar/contract";
-import { contracts } from "~~/utils/scaffold-hbar/contract";
+import { ContractName, contracts } from "~~/utils/scaffold-hbar/contract";
 import { invalidateVaultQueries } from "~~/utils/scaffold-hbar/invalidateVaultQueries";
 
 type UseCreateVaultOptions = {
