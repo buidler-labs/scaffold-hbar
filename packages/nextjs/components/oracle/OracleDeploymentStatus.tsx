@@ -1,5 +1,6 @@
 import type { Address as ViemAddress } from "viem";
 import { OracleDeploymentItem } from "~~/components/oracle/OracleDeploymentItem";
+import { useDeployedContractOwner } from "~~/hooks/scaffold-hbar";
 import { ORACLE_CONSUMER_CONTRACT_NAME, type OracleProvider, getOracleConsumerDeployCommand } from "~~/services/oracle";
 
 type OracleDeploymentStatusProps = {
@@ -19,6 +20,10 @@ export const OracleDeploymentStatus = ({
   provider,
   providerAddress,
 }: OracleDeploymentStatusProps) => {
+  const consumerOwner = useDeployedContractOwner({
+    address: consumerAddress,
+    contractName: ORACLE_CONSUMER_CONTRACT_NAME,
+  });
   const activeOracleLabel = consumerAddress
     ? isLoadingActiveOracle
       ? "Checking active oracle"
@@ -51,6 +56,7 @@ export const OracleDeploymentStatus = ({
           address={providerAddress}
           command={provider.deployCommand}
           eyebrow="Oracle contract"
+          hideOwner
           statusClassName={providerAddress ? "badge-success" : "badge-warning"}
           statusLabel={providerAddress ? "Ready" : "Not deployed"}
           title={provider.contractName}
@@ -59,14 +65,18 @@ export const OracleDeploymentStatus = ({
           address={consumerAddress}
           command={getOracleConsumerDeployCommand(provider.contractName)}
           eyebrow="Consumer"
+          isOwnerLoading={consumerOwner.isLoading}
+          owner={consumerOwner.owner}
           statusClassName={consumerAddress ? "badge-success" : "badge-warning"}
           statusLabel={consumerAddress ? "Ready" : "Not deployed"}
+          supportsOwner={consumerOwner.supportsOwner}
           title={ORACLE_CONSUMER_CONTRACT_NAME}
         />
         <OracleDeploymentItem
           address={consumerAddress ? activeOracleAddress : undefined}
           emptyText={consumerAddress ? "No active oracle loaded yet" : "Deploy OracleConsumer first"}
           eyebrow="Active oracle"
+          hideOwner
           statusClassName={activeOracleBadgeClassName}
           statusLabel={activeOracleBadgeLabel}
           title={activeOracleLabel}

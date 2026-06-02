@@ -1,3 +1,4 @@
+import { getPackageRunCommand } from "./commands";
 import { ORACLE_PROVIDERS } from "./constants";
 import type { OraclePair, OracleProviderId } from "./types";
 import { encodeAbiParameters, formatUnits, keccak256 } from "viem";
@@ -7,7 +8,7 @@ export const getOracleProvider = (providerId: OracleProviderId) => {
 };
 
 export const getOracleConsumerDeployCommand = (adapterName: string) => {
-  return `ORACLE_ADAPTER_NAME=${adapterName} yarn foundry:deploy:consumer:testnet`;
+  return `ORACLE_ADAPTER_NAME=${adapterName} ${getPackageRunCommand("foundry:deploy:consumer:testnet")}`;
 };
 
 export const getOraclePairKey = ({ baseSymbol, quoteSymbol }: Pick<OraclePair, "baseSymbol" | "quoteSymbol">) => {

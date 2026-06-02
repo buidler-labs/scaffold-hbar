@@ -1,7 +1,17 @@
+import rootPackageJson from "../../package.json";
 import type { NextConfig } from "next";
 import path from "path";
 
+const getPackageManagerName = (packageManager?: string) => {
+  const [name] = packageManager?.split("@") ?? [];
+
+  return name === "npm" || name === "yarn" ? name : "yarn";
+};
+
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_PACKAGE_MANAGER: getPackageManagerName(rootPackageJson.packageManager),
+  },
   outputFileTracingRoot: path.join(__dirname, "../.."),
   reactStrictMode: true,
   devIndicators: false,
@@ -14,6 +24,20 @@ const nextConfig: NextConfig = {
   webpack: (config, { dev }) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
     config.externals.push("pino-pretty", "lokijs", "encoding");
+
+    // Suppress "Critical dependency" warnings from @coinbase/cdp-sdk and related packages
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      {
+        module: /node_modules\/@coinbase\/cdp-sdk/,
+        message: /Critical dependency/,
+      },
+      {
+        module: /node_modules\/ox/,
+        message: /Critical dependency/,
+      },
+    ];
+
     if (dev) {
       config.watchOptions = {
         followSymlinks: true,
@@ -23,15 +47,5 @@ const nextConfig: NextConfig = {
     return config;
   },
 };
-
-const isIpfs = process.env.NEXT_PUBLIC_IPFS_BUILD === "true";
-
-if (isIpfs) {
-  nextConfig.output = "export";
-  nextConfig.trailingSlash = true;
-  nextConfig.images = {
-    unoptimized: true,
-  };
-}
 
 module.exports = nextConfig;

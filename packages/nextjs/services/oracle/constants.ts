@@ -1,3 +1,4 @@
+import { getPackageRunCommand } from "./commands";
 import type { OraclePair, OracleProvider } from "./types";
 
 export const USD_ORACLE_PAIRS = [
@@ -59,21 +60,21 @@ export const ORACLE_PROVIDERS = [
     id: "chainlink",
     label: "Chainlink",
     contractName: "ChainlinkPriceOracleAdapter",
-    deployCommand: "yarn foundry:deploy:chainlink:testnet",
+    deployCommand: getPackageRunCommand("foundry:deploy:chainlink:testnet"),
     pairs: USD_ORACLE_PAIRS,
   },
   {
     id: "supra",
     label: "Supra",
     contractName: "SupraPriceOracleAdapter",
-    deployCommand: "yarn foundry:deploy:supra:testnet",
+    deployCommand: getPackageRunCommand("foundry:deploy:supra:testnet"),
     pairs: USDT_ORACLE_PAIRS,
   },
   {
     id: "pyth",
     label: "Pyth",
     contractName: "PythPriceOracleAdapter",
-    deployCommand: "yarn foundry:deploy:pyth:testnet",
+    deployCommand: getPackageRunCommand("foundry:deploy:pyth:testnet"),
     pairs: USD_ORACLE_PAIRS,
   },
 ] as const satisfies readonly OracleProvider[];
