@@ -18,7 +18,7 @@ export const useLatestUserVault = () => {
       enabled: !!address,
       retry: false,
     },
-  });
+  } as any);
 
   const raw = latestVault as Address | undefined;
   const vaultAddress = raw && raw !== zeroAddress ? raw : undefined;

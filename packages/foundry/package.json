@@ -19,8 +19,8 @@
     "test:local": "forge test --fork-url http://127.0.0.1:8545 --chain-id 296 --ffi",
     "test:testnet": "forge test --fork-url ${HEDERA_RPC_URL:-https://testnet.hashio.io/api} --chain-id 296 --ffi",
     "test:mainnet": "forge test --fork-url https://mainnet.hashio.io/api --chain-id 295 --ffi",
-    "verify:testnet": "node scripts-js/verifySourcify.js 296",
-    "verify:mainnet": "node scripts-js/verifySourcify.js 295",
+    "verify:testnet": "forge verify-contract --chain-id 296 --verifier sourcify",
+    "verify:mainnet": "forge verify-contract --chain-id 295 --verifier sourcify",
     "postinstall": "shx cp -n .env.example .env"
   },
   "dependencies": {

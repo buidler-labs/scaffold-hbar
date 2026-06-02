@@ -7,6 +7,7 @@ fs_permissions = [
     { access = "read-write", path = "./" },
 ]
 ffi = true
+evm_version = "cancun"
 
 # Suppress style lints for API/modifier names we don't control
 [lint]
@@ -21,8 +22,8 @@ hedera_mainnet = "https://mainnet.hashio.io/api"
 # Use: forge verify-contract <ADDRESS> <CONTRACT> --chain-id 296 --verifier sourcify
 # See: https://hedera.com/blog/smart-contract-verification-sourcify-dev-now-supported
 [etherscan]
-hedera_testnet = { key = "", chain = 296, url = "https://hashscan.io/testnet" }
-hedera_mainnet = { key = "", chain = 295, url = "https://hashscan.io/mainnet" }
+hedera_testnet = { key = "", url = "https://hashscan.io/testnet" }
+hedera_mainnet = { key = "", url = "https://hashscan.io/mainnet" }
 
 [fmt]
 line_length = 120

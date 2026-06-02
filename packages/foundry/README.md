@@ -141,34 +141,30 @@ The Makefile uses `--slow` on non-localhost RPCs so transactions confirm in orde
 
 `yarn foundry:deploy` also runs `**generate-abis`** (`scripts-js/generateTsAbis.js`), which merges `broadcast/` and `deployments/` into generated bindings (see the script for output paths). You can run `**make generate-abis`** alone if needed.
 
-## Verify (Hashscan / Sourcify v1)
+## Verify (HashScan / Sourcify)
 
 After deploying to Hedera testnet (296) or mainnet (295):
 
 ```bash
-yarn foundry:verify:testnet   # chain 296
-yarn foundry:verify:mainnet   # chain 295
+yarn foundry:verify:testnet 0xYourContractAddress contracts/ScheduledVaultFactory.sol:ScheduledVaultFactory
+yarn foundry:verify:mainnet 0xYourContractAddress contracts/ScheduledVaultFactory.sol:ScheduledVaultFactory
 ```
 
-Verification reads `broadcast/Deploy.s.sol/<chainId>/run-latest.json` (same path as a default `**yarn foundry:deploy**`). If you only used split deploy scripts, run a full deploy with `**Deploy.s.sol**` on that network before `**yarn foundry:verify:***`, or verify contracts manually on Hashscan.
 
-Single contract:
 
 ```bash
-yarn foundry:verify:contract MemejobDCAStrategy testnet
+yarn foundry:verify:testnet 0xYourStrategyAddress contracts/strategies/MemejobDCAStrategy.sol:MemejobDCAStrategy
 ```
 
-For any contract **in this package** (you have its build artifact under `out/` after `forge build`), if it is **already on-chain** at a known address but **not** present in the deployment broadcast, verify it by passing the **address as a third argument**. The tool uses `out/<Contract>.sol/<Contract>.json` for metadata instead of resolving a `CREATE` from `run-latest.json`:
+You can also use the Makefile target, which accepts either an explicit `CHAIN_ID` or derives it from `RPC_URL` for Hedera networks:
 
 ```bash
-yarn foundry:verify:contract ScheduledVault testnet 0xYourVaultAddress
-# network and address can be swapped:
-yarn foundry:verify:contract ScheduledVault 0xYourVaultAddress mainnet
+make verify CONTRACT=0xYourContractAddress CONTRACT_PATH=contracts/ScheduledVaultFactory.sol:ScheduledVaultFactory RPC_URL=hedera_testnet
+make verify CONTRACT=0xYourContractAddress CONTRACT_PATH=contracts/ScheduledVaultFactory.sol:ScheduledVaultFactory CHAIN_ID=296
 ```
 
 Requires `forge build` so `out/<Contract>.sol/<Contract>.json` exists. The on-chain bytecode must match that build (same compiler settings and sources).
 
-**Note:** `make verify RPC_URL=localhost` does not use Hashscan. For Hedera verification use `**yarn foundry:verify:testnet`** / `**yarn foundry:verify:mainnet`**, or `make verify` with `RPC_URL=hedera_testnet` or `hedera_mainnet`.
 
 ## Using this repo as a starter
 
