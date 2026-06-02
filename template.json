@@ -1,0 +1,16 @@
+{
+  "name": "blank",
+  "description": "Blank Scaffold-HBAR starter with a minimal setup and no example contracts.",
+  "create-scaffold-hbar": {
+    "capabilities": {
+      "frontend": ["nextjs-app"],
+      "solidityFramework": ["foundry", "hardhat"],
+      "packageManager": ["yarn", "npm"]
+    },
+    "defaults": {
+      "frontend": "nextjs-app",
+      "solidityFramework": "foundry",
+      "packageManager": "yarn"
+    }
+  }
+}
