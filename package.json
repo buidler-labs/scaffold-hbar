@@ -53,7 +53,6 @@
     "next:check-types": "yarn workspace @sh/nextjs check-types",
     "next:dev": "yarn workspace @sh/nextjs dev",
     "next:format": "yarn workspace @sh/nextjs format",
-    "next:ipfs": "yarn workspace @sh/nextjs ipfs",
     "next:lint": "yarn workspace @sh/nextjs lint",
     "next:serve": "yarn workspace @sh/nextjs serve",
     "next:start": "yarn workspace @sh/nextjs start",
