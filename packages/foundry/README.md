@@ -141,7 +141,7 @@ The Makefile uses `--slow` on non-localhost RPCs so transactions confirm in orde
 
 `yarn foundry:deploy` also runs `**generate-abis`** (`scripts-js/generateTsAbis.js`), which merges `broadcast/` and `deployments/` into generated bindings (see the script for output paths). You can run `**make generate-abis`** alone if needed.
 
-## Verify (Hashscan / Sourcify v1)
+## Verify (HashScan / Sourcify)
 
 After deploying to Hedera testnet (296) or mainnet (295):
 
@@ -150,7 +150,7 @@ yarn foundry:verify:testnet   # chain 296
 yarn foundry:verify:mainnet   # chain 295
 ```
 
-Verification reads `broadcast/Deploy.s.sol/<chainId>/run-latest.json` (same path as a default `**yarn foundry:deploy**`). If you only used split deploy scripts, run a full deploy with `**Deploy.s.sol**` on that network before `**yarn foundry:verify:***`, or verify contracts manually on Hashscan.
+Verification reads `broadcast/Deploy.s.sol/<chainId>/run-latest.json` (same path as a default `**yarn foundry:deploy**`). If you only used split deploy scripts, run a full deploy with `**Deploy.s.sol**` on that network before `**yarn foundry:verify:***`, or verify contracts manually on HashScan.
 
 Single contract:
 

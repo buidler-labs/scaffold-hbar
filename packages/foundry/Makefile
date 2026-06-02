@@ -27,15 +27,16 @@ deploy:
 	@if [ "$(RPC_URL)" = "localhost" ]; then \
 		$(MAKE) setup-deployer; \
 		rm -rf broadcast/Deploy.s.sol/31337; \
-		if [ "$(ETH_KEYSTORE_ACCOUNT)" = "scaffold-hbar-default" ]; then \
-			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --password localhost --broadcast --ffi; \
+		LOCAL_ETH_KEYSTORE_ACCOUNT="$${ETH_KEYSTORE_ACCOUNT:-scaffold-hbar-default}"; \
+		if [ "$$LOCAL_ETH_KEYSTORE_ACCOUNT" = "scaffold-hbar-default" ]; then \
+			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --account $$LOCAL_ETH_KEYSTORE_ACCOUNT --password localhost --broadcast --ffi; \
 		else \
-			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi; \
+			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --account $$LOCAL_ETH_KEYSTORE_ACCOUNT --broadcast --ffi; \
 		fi \
 	elif [ "$(RPC_URL)" = "hedera_testnet" ]; then \
-		forge script $(DEPLOY_SCRIPT) --rpc-url https://testnet.hashio.io/api --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy; \
+		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --chain-id 296 --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy; \
 	elif [ "$(RPC_URL)" = "hedera_mainnet" ]; then \
-		forge script $(DEPLOY_SCRIPT) --rpc-url https://mainnet.hashio.io/api --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy; \
+		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --chain-id 295 --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy; \
 	else \
 		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow; \
 	fi
@@ -77,14 +78,24 @@ test:
 
 # Verify contracts on Sourcify (Hedera is now supported on the main Sourcify instance)
 # Usage: make verify CONTRACT=0xAddress CONTRACT_PATH=contracts/MyContract.sol:MyContract CHAIN_ID=296
+# Or:    make verify CONTRACT=0xAddress CONTRACT_PATH=contracts/MyContract.sol:MyContract RPC_URL=hedera_testnet
 # See: https://hedera.com/blog/smart-contract-verification-sourcify-dev-now-supported
 verify:
-	@if [ -z "$(CONTRACT)" ] || [ -z "$(CONTRACT_PATH)" ]; then \
+	@VERIFY_CHAIN_ID="$(CHAIN_ID)"; \
+	if [ -z "$$VERIFY_CHAIN_ID" ]; then \
+		if [ "$(RPC_URL)" = "hedera_testnet" ]; then \
+			VERIFY_CHAIN_ID=296; \
+		elif [ "$(RPC_URL)" = "hedera_mainnet" ]; then \
+			VERIFY_CHAIN_ID=295; \
+		fi; \
+	fi; \
+	if [ -z "$(CONTRACT)" ] || [ -z "$(CONTRACT_PATH)" ] || [ -z "$$VERIFY_CHAIN_ID" ]; then \
 		echo "Usage: make verify CONTRACT=0xAddress CONTRACT_PATH=contracts/MyContract.sol:MyContract CHAIN_ID=296"; \
+		echo "   or: make verify CONTRACT=0xAddress CONTRACT_PATH=contracts/MyContract.sol:MyContract RPC_URL=hedera_testnet"; \
 		echo ""; \
 		echo "Or use yarn commands:"; \
-		echo "  yarn verify:testnet 0xAddress contracts/MyContract.sol:MyContract"; \
-		echo "  yarn verify:mainnet 0xAddress contracts/MyContract.sol:MyContract"; \
+		echo "  yarn foundry:verify:testnet 0xAddress contracts/MyContract.sol:MyContract"; \
+		echo "  yarn foundry:verify:mainnet 0xAddress contracts/MyContract.sol:MyContract"; \
 		exit 1; \
-	fi
-	forge verify-contract $(CONTRACT) $(CONTRACT_PATH) --chain-id $(CHAIN_ID) --verifier sourcify
+	fi; \
+	forge verify-contract $(CONTRACT) $(CONTRACT_PATH) --chain-id $$VERIFY_CHAIN_ID --verifier sourcify
