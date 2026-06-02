@@ -191,11 +191,15 @@ export const CreateAvailabilityModal = ({ isOpen, onClose, serialNumber }: Creat
               placeholder="1.00"
               required
             />
-            <label className="label">
-              <span className="label-text-alt text-base-content/60">
-                Fee: 5% provider royalty + 5% marketplace (you receive 90%)
-              </span>
-            </label>
+          </div>
+
+          <div className="bg-base-200 rounded-lg p-3 text-sm">
+            <p className="font-semibold mb-1">Fee Breakdown:</p>
+            <ul className="list-disc list-inside text-base-content/70">
+              <li>5% Provider Royalty (goes to original provider)</li>
+              <li>5% Marketplace Fee</li>
+              <li>90% goes to you (the lister)</li>
+            </ul>
           </div>
 
           {error && (
