@@ -11,6 +11,8 @@
     "hedera:plan:cancel": "hardhat run hedera-orchestrator/scripts/cancel-plan.ts --config hedera-orchestrator/hardhat.config.ts --network hedera-testnet",
     "hedera:plan:latest": "hardhat run hedera-orchestrator/scripts/latest-plan.ts --config hedera-orchestrator/hardhat.config.ts --network hedera-testnet",
     "hedera:fund": "hardhat run hedera-orchestrator/scripts/fund-orchestrator.ts --config hedera-orchestrator/hardhat.config.ts --network hedera-testnet",
+    "hedera:withdraw:orchestrator": "hardhat run hedera-orchestrator/scripts/withdraw-orchestrator.ts --config hedera-orchestrator/hardhat.config.ts --network hedera-testnet",
+    "hedera:withdraw:sender": "hardhat run hedera-orchestrator/scripts/withdraw-sender.ts --config hedera-orchestrator/hardhat.config.ts --network hedera-testnet",
     "sepolia:compile": "hardhat compile --config sepolia-executor/hardhat.config.ts",
     "sepolia:test": "hardhat test --config sepolia-executor/hardhat.config.ts",
     "sepolia:deploy": "hardhat run sepolia-executor/scripts/deploy.ts --config sepolia-executor/hardhat.config.ts --network sepolia",
@@ -18,6 +20,8 @@
     "sepolia:verify": "hardhat run sepolia-executor/scripts/verify.ts --config sepolia-executor/hardhat.config.ts --network sepolia",
     "sepolia:fund:usdc": "hardhat run sepolia-executor/scripts/fund-usdc.ts --config sepolia-executor/hardhat.config.ts --network sepolia",
     "sepolia:balance:check": "hardhat run sepolia-executor/scripts/balance-check.ts --config sepolia-executor/hardhat.config.ts --network sepolia",
+    "sepolia:withdraw:executor": "hardhat run sepolia-executor/scripts/withdraw-executor.ts --config sepolia-executor/hardhat.config.ts --network sepolia",
+    "sepolia:withdraw:receiver": "hardhat run sepolia-executor/scripts/withdraw-receiver.ts --config sepolia-executor/hardhat.config.ts --network sepolia",
     "deploy": "bash scripts/deploy-all.sh"
   },
   "devDependencies": {

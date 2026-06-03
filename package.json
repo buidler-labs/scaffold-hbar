@@ -70,6 +70,8 @@
     "dca:hedera:plan:cancel": "yarn workspace @sh/cross-chain-dca hedera:plan:cancel",
     "dca:hedera:plan:latest": "yarn workspace @sh/cross-chain-dca hedera:plan:latest",
     "dca:hedera:fund": "yarn workspace @sh/cross-chain-dca hedera:fund",
+    "dca:hedera:withdraw:orchestrator": "yarn workspace @sh/cross-chain-dca hedera:withdraw:orchestrator",
+    "dca:hedera:withdraw:sender": "yarn workspace @sh/cross-chain-dca hedera:withdraw:sender",
     "dca:sepolia:compile": "yarn workspace @sh/cross-chain-dca sepolia:compile",
     "dca:sepolia:test": "yarn workspace @sh/cross-chain-dca sepolia:test",
     "dca:sepolia:deploy": "yarn workspace @sh/cross-chain-dca sepolia:deploy",
@@ -77,6 +79,8 @@
     "dca:sepolia:verify": "yarn workspace @sh/cross-chain-dca sepolia:verify",
     "dca:sepolia:fund:usdc": "yarn workspace @sh/cross-chain-dca sepolia:fund:usdc",
     "dca:sepolia:balance:check": "yarn workspace @sh/cross-chain-dca sepolia:balance:check",
+    "dca:sepolia:withdraw:executor": "yarn workspace @sh/cross-chain-dca sepolia:withdraw:executor",
+    "dca:sepolia:withdraw:receiver": "yarn workspace @sh/cross-chain-dca sepolia:withdraw:receiver",
     "postinstall": "husky",
     "precommit": "lint-staged",
     "lint-staged": "lint-staged"
