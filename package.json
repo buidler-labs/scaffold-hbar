@@ -6,7 +6,8 @@
     "packages": [
       "packages/hardhat",
       "packages/nextjs",
-      "packages/foundry"
+      "packages/foundry",
+      "packages/cross-chain-dca"
     ]
   },
   "scripts": {
@@ -60,6 +61,22 @@
     "next:vercel": "yarn workspace @sh/nextjs vercel",
     "next:vercel:login": "yarn workspace @sh/nextjs vercel:login",
     "next:vercel:yolo": "yarn workspace @sh/nextjs vercel:yolo",
+    "dca:deploy": "yarn workspace @sh/cross-chain-dca deploy",
+    "dca:hedera:compile": "yarn workspace @sh/cross-chain-dca hedera:compile",
+    "dca:hedera:test": "yarn workspace @sh/cross-chain-dca hedera:test",
+    "dca:hedera:deploy": "yarn workspace @sh/cross-chain-dca hedera:deploy",
+    "dca:hedera:wire": "yarn workspace @sh/cross-chain-dca hedera:wire",
+    "dca:hedera:plan:create": "yarn workspace @sh/cross-chain-dca hedera:plan:create",
+    "dca:hedera:plan:cancel": "yarn workspace @sh/cross-chain-dca hedera:plan:cancel",
+    "dca:hedera:plan:latest": "yarn workspace @sh/cross-chain-dca hedera:plan:latest",
+    "dca:hedera:fund": "yarn workspace @sh/cross-chain-dca hedera:fund",
+    "dca:sepolia:compile": "yarn workspace @sh/cross-chain-dca sepolia:compile",
+    "dca:sepolia:test": "yarn workspace @sh/cross-chain-dca sepolia:test",
+    "dca:sepolia:deploy": "yarn workspace @sh/cross-chain-dca sepolia:deploy",
+    "dca:sepolia:wire": "yarn workspace @sh/cross-chain-dca sepolia:wire",
+    "dca:sepolia:verify": "yarn workspace @sh/cross-chain-dca sepolia:verify",
+    "dca:sepolia:fund:usdc": "yarn workspace @sh/cross-chain-dca sepolia:fund:usdc",
+    "dca:sepolia:balance:check": "yarn workspace @sh/cross-chain-dca sepolia:balance:check",
     "postinstall": "husky",
     "precommit": "lint-staged",
     "lint-staged": "lint-staged"

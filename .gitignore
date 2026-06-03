@@ -21,3 +21,12 @@ node_modules
 
 # cli
 dist
+
+# Hardhat
+artifacts/
+cache/
+typechain-types/
+
+# cross-chain-dca — generated at deploy time, contains environment-specific addresses
+packages/cross-chain-dca/config/deployed-addresses.json
+packages/cross-chain-dca/.env

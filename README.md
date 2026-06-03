@@ -32,11 +32,12 @@ The `create-scaffold-hbar` CLI resolves templates from this repository's templat
 Current built-in templates are:
 
 
-| Template               | Branch                         | What you get                                                                                                                                    |
-| ---------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **blank**              | `templates/blank-template`     | Minimal baseline scaffold with no opinionated app features; ideal starting point for custom products.                                           |
-| **payments-scheduler** | `templates/payments-scheduler` | Starter for scheduled-payment style flows, with app and contract structure tailored for recurring/payment orchestration patterns using HSS.     |
-| **hedera-demo**        | `templates/hedera-demo`        | Hedera demo/proofwall-style starter focused on showcasing Hedera integrations with Hedera Services[HTS, HCS, MirroNode] and end-to-end demo UX. |
+| Template               | Branch                              | What you get                                                                                                                                    |
+| ---------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **blank**              | `templates/blank-template`          | Minimal baseline scaffold with no opinionated app features; ideal starting point for custom products.                                           |
+| **payments-scheduler** | `templates/payments-scheduler`      | Starter for scheduled-payment style flows, with app and contract structure tailored for recurring/payment orchestration patterns using HSS.     |
+| **hedera-demo**        | `templates/hedera-demo`             | Hedera demo/proofwall-style starter focused on showcasing Hedera integrations with Hedera Services[HTS, HCS, MirroNode] and end-to-end demo UX. |
+| **cross-chain-dca**    | `draft-templates/cross-chain-dca`   | Cross-chain DCA template: Hedera orchestrates recurring token swaps on Sepolia via Axelar GMP and the Hedera Schedule Service. See [`packages/cross-chain-dca`](packages/cross-chain-dca/README.md). |
 
 
 ### Template selection examples
@@ -152,6 +153,7 @@ This keeps local testing on a single path and avoids chain id drift between diff
 - **packages/hardhat** — Hardhat config, contracts, `deploy/` scripts, tests, `verifyHedera.js`
 - **packages/foundry** — Forge config, contracts, `script/` deploy scripts, tests, `scripts-js/verifyHedera.js`
 - **packages/nextjs** — Next.js app, RainbowKit, wagmi, scaffold config
+- **packages/cross-chain-dca** — Cross-chain DCA template package: `hedera-orchestrator/` (DcaOrchestrator + Axelar sender, Hedera testnet) and `sepolia-executor/` (DcaExecutor + Axelar receiver, Sepolia). See [`packages/cross-chain-dca/README.md`](packages/cross-chain-dca/README.md).
 
 Network and RPC URLs are in `packages/hardhat/hardhat.config.ts` or `packages/foundry/foundry.toml`.
 
