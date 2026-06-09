@@ -72,7 +72,7 @@ Provider tutorials:
 
 | Provider | What it demonstrates | Runbook |
 | --- | --- | --- |
-| Axelar | Interchain Token Service linking a Sepolia ERC20 to a native Hedera HTS token | [`packages/foundry/script/axelar/README.md`](packages/foundry/script/axelar/README.md) |
+| Axelar | Interchain Token Service creating a native Hedera HTS token through ITS and deploying its remote Sepolia token through ITS | [`packages/foundry/script/axelar/README.md`](packages/foundry/script/axelar/README.md) |
 | CCIP | Chainlink Cross-Chain Token burn-and-mint flow | [`packages/foundry/script/ccip/README.md`](packages/foundry/script/ccip/README.md) |
 | LayerZero | LayerZero V2 OFT flow with a Hedera HTS connector | [`packages/foundry/script/layerzero/README.md`](packages/foundry/script/layerzero/README.md) |
 

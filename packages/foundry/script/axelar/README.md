@@ -1,12 +1,12 @@
 # Axelar ITS Bridge
 
-This runbook uses the Common Prefix Hedera ITS fork to create the Hedera-side token through Axelar ITS instead of deploying our old `MyBridgeHtsToken` wrapper.
+This runbook uses the Common Prefix Hedera ITS implementation to create the Hedera-side token through Axelar ITS.
 
 - Hedera is the origin chain for the new flow.
 - `InterchainTokenFactory.deployInterchainToken` creates a native HTS token on Hedera.
 - `InterchainTokenFactory.deployRemoteInterchainToken*` deploys the matching ERC20 interchain token on Sepolia.
 - Token addresses are resolved with `InterchainTokenService.registeredTokenAddress(tokenId)`.
-- The legacy custom Sepolia ERC20 + Hedera wrapper flow is still available under explicit legacy commands.
+- This is an educational testnet starter, not a production-ready bridge.
 
 Run all commands from `packages/foundry`.
 
@@ -46,7 +46,7 @@ Run all commands from `packages/foundry`.
    make bridge-sync-next PROVIDER=axelar
    ```
 
-Use `make axelar-status` at any point to print the saved salt/token id plus the resolved token-manager and registered-token addresses on both chains.
+Use `make axelar-status` at any point to print the saved salt/token id plus the resolved token-manager and registered-token addresses on both chains. If a command tells you a token is not associated, associate the Hedera account with the HTS token before retrying.
 
 ## Required `.env`
 
@@ -135,18 +135,6 @@ packages/nextjs/services/bridge/config/axelar.json
 | `make axelar-send-from-hedera AMOUNT=... [RECIPIENT=0x...]` | Send Hedera -> Sepolia |
 | `make axelar-send-from-sepolia AMOUNT=... [RECIPIENT=0x...]` | Send Sepolia -> Hedera |
 | `make bridge-sync-next PROVIDER=axelar` | Sync recorded Axelar values into Next.js config |
-
-Legacy wrapper/custom-token commands remain available for rollback:
-
-| Command | What |
-| --- | --- |
-| `make axelar-deploy-sepolia-custom` | Deploy the old custom Sepolia `BridgeToken` |
-| `make axelar-deploy-hedera-wrapper` | Deploy the old `MyBridgeHtsToken` wrapper |
-| `make axelar-metadata-sepolia` | Legacy custom-token metadata registration |
-| `make axelar-metadata-hedera` | Legacy custom-token metadata registration |
-| `make axelar-register-custom` | Legacy Sepolia custom token registration |
-| `make axelar-link-remote` | Legacy Sepolia -> Hedera token link |
-| `make axelar-transfer-mintership-sepolia` | Legacy Sepolia mintership transfer |
 
 ## Troubleshooting
 

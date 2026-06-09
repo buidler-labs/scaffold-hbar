@@ -78,33 +78,30 @@ Each provider has a detailed runbook. Start with one provider, complete its setu
 
 ## Axelar ITS
 
-Axelar links a Sepolia ERC20 (`BridgeToken`) to a native Hedera HTS token created by `MyBridgeHtsToken`.
+Axelar starts on Hedera: the Interchain Token Factory creates a native HTS token through the Hedera-compatible ITS deployment, then sends a remote deployment message so Sepolia gets the matching interchain ERC20. Token addresses are resolved with `registeredTokenAddress(tokenId)` after each deployment step.
 
 ```bash
 cd packages/foundry
 
-make axelar-deploy-sepolia
 make axelar-deploy-hedera
+make axelar-deploy-sepolia
+# Wait for the remote deployment message in AxelarScan.
+make axelar-resolve-sepolia-token
 
-make axelar-metadata-sepolia
-make axelar-metadata-hedera
-# Wait for both TokenMetadataRegistered messages in AxelarScan.
+# Mint small test supply if you kept testnet minter rights.
+make axelar-mint-hedera AMOUNT=100000000000000000
+make axelar-mint-sepolia AMOUNT=100000000000000000
 
-make axelar-register-custom
-make axelar-link-remote
-# Wait for the link message in AxelarScan.
-
-make axelar-transfer-mintership-sepolia
-make axelar-send-from-sepolia AMOUNT=100000000000000000
-
-# Hedera -> Sepolia uses a lock/unlock manager, so approve first.
+# Hedera -> Sepolia uses HTS/ERC20 allowance, so approve first.
 make axelar-approve-hedera AMOUNT=100000000000000000
 make axelar-send-from-hedera AMOUNT=100000000000000000
+
+make axelar-send-from-sepolia AMOUNT=100000000000000000
 
 make bridge-sync-next PROVIDER=axelar
 ```
 
-Important: `HEDERA_BRIDGE_TOKEN` is the HTS mirror token address returned by `MyBridgeHtsToken.token()`, not the wrapper contract address. The helper records the correct token address automatically.
+Important: `HEDERA_BRIDGE_TOKEN` is the HTS token address returned by `InterchainTokenService.registeredTokenAddress(tokenId)`. It is the token itself and should not be replaced with the deployer EOA.
 
 After syncing, start the frontend with `yarn next:start`, select **Axelar**, choose a direction, and send a small test amount.
 
@@ -170,4 +167,4 @@ After syncing, start the frontend with `yarn next:start`, select **LayerZero**, 
 - Keep placeholder addresses in `.env` commented until you have real deployed addresses.
 - Use small amounts when testing bridge flows.
 - Some Hedera HTS paths require the receiving account to associate with the token before receiving transfers.
-- Hedera `cast send` and `forge script` commands use legacy transaction mode in the wrappers because HashIO does not reliably support EIP-1559 transactions.
+- Hedera `cast send` and `forge script` commands use pre-EIP-1559 transaction mode because HashIO does not reliably support EIP-1559 transactions.

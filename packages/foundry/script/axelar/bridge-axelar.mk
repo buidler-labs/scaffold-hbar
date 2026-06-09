@@ -15,8 +15,6 @@ axelar-help:
 	@echo "                                   make axelar-send-from-hedera AMOUNT=100000000000000000 [RECIPIENT=0x...]"
 	@echo "  Test Sepolia -> Hedera:           make axelar-send-from-sepolia AMOUNT=100000000000000000 [RECIPIENT=0x...]"
 	@echo "  Final sync frontend config:      make bridge-sync-next PROVIDER=axelar"
-	@echo "  Legacy custom flow:              make axelar-deploy-sepolia-custom"
-	@echo "                                   make axelar-deploy-hedera-wrapper"
 
 axelar-deploy: axelar-deploy-hedera axelar-deploy-sepolia
 
