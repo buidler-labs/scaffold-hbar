@@ -27,9 +27,9 @@ const getAxelarApprovalSteps = (route: BridgeRoute): AxelarApprovalStep[] => {
   return [
     {
       id: "its",
-      label: "Approve ITS",
+      label: "Approve Axelar spender",
       tokenAddress: route.axelar.sourceTokenAddress,
-      spenderAddress: route.axelar.interchainTokenServiceAddress,
+      spenderAddress: route.axelar.sourceApprovalSpenderAddress ?? route.axelar.interchainTokenServiceAddress,
       isApproved: false,
     },
   ];

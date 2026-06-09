@@ -70,6 +70,10 @@ const unsignedIntegerStringSchema = z
 export const axelarChainConfigSchema = z.object({
   axelarName: requiredStringSchema("Axelar chain name"),
   bridgeToken: addressSchema,
+  tokenManager: addressSchema.optional(),
+  approvalSpender: addressSchema.optional(),
+  whbar: addressSchema.optional(),
+  tokenCreationPrice: unsignedIntegerStringSchema.optional(),
   gasLimit: unsignedIntegerStringSchema.optional(),
   gasValue: unsignedIntegerStringSchema.optional(),
   nativeFee: unsignedIntegerStringSchema.optional(),

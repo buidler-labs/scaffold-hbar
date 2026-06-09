@@ -74,6 +74,9 @@ const buildAxelarMetadata = (
   interchainTokenServiceAddress: routeConfig.interchainTokenService as Address,
   sourceTokenAddress: source.bridgeToken as Address,
   destinationTokenAddress: destination.bridgeToken as Address,
+  sourceTokenManagerAddress: source.tokenManager as Address | undefined,
+  destinationTokenManagerAddress: destination.tokenManager as Address | undefined,
+  sourceApprovalSpenderAddress: source.approvalSpender as Address | undefined,
   destinationAxelarName: destination.axelarName,
   gasValue: source.gasValue ?? routeConfig.gasValue,
   nativeFee: source.nativeFee ?? routeConfig.nativeFee,
@@ -89,6 +92,8 @@ const buildAxelarRoute = (direction: BridgeDirection): BridgeRoute => {
   const routeConfig = getAxelarRouteConfig();
   const sourceToken = rawSource.bridgeToken as string | undefined;
   const destinationToken = rawDestination.bridgeToken as string | undefined;
+  const sourceTokenManager = rawSource.tokenManager as string | undefined;
+  const destinationTokenManager = rawDestination.tokenManager as string | undefined;
 
   return {
     providerId: "axelar",
@@ -113,7 +118,11 @@ const buildAxelarRoute = (direction: BridgeDirection): BridgeRoute => {
     contractChecks: [
       check("Axelar ITS", sourceChainId, axelarConfig.interchainTokenService),
       check("Source bridge token", sourceChainId, sourceToken),
+      ...(sourceTokenManager ? [check("Source token manager", sourceChainId, sourceTokenManager)] : []),
       check("Destination bridge token", destinationChainId, destinationToken),
+      ...(destinationTokenManager
+        ? [check("Destination token manager", destinationChainId, destinationTokenManager)]
+        : []),
     ],
   };
 };
