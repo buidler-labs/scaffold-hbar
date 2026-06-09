@@ -7,13 +7,18 @@
     "296": {
       "axelarName": "hedera",
       "bridgeToken": "0x00000000000000000000000000000000008662B5",
+      "tokenManager": "0x372285aF5A1D33C229D8eCdB5B204298E56D007a",
+      "approvalSpender": "0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C",
+      "whbar": "0xb1F616b8134F602c3Bb465fB5b5e6565cCAd37Ed",
+      "tokenCreationPrice": "1495525886",
       "gasValue": "100000000",
       "nativeFee": "1000000000000000000",
       "gasLimit": "15000000"
     },
     "11155111": {
       "axelarName": "ethereum-sepolia",
-      "bridgeToken": "0x13Df9453D7bE15E8ceDBa5aF0B39C947Ec90D014"
+      "bridgeToken": "0x13Df9453D7bE15E8ceDBa5aF0B39C947Ec90D014",
+      "tokenManager": "0x372285aF5A1D33C229D8eCdB5B204298E56D007a"
     }
   }
 }

@@ -131,12 +131,28 @@ resolve_registered_token() {
 	cast call "${INTERCHAIN_TOKEN_SERVICE}" "registeredTokenAddress(bytes32)(address)" "${token_id}" --rpc-url "${rpc_url}"
 }
 
+resolve_hedera_approval_spender() {
+	local token_id=$1
+	local token_manager implementation_type
+	token_manager="$(resolve_token_manager hedera_testnet "${token_id}")"
+	implementation_type="$(cast call "${token_manager}" "implementationType()(uint256)" --rpc-url hedera_testnet)"
+	if [[ "${implementation_type}" == "${NATIVE_INTERCHAIN_TOKEN_TYPE}" ]]; then
+		printf '%s\n' "${token_manager}"
+	else
+		printf '%s\n' "${INTERCHAIN_TOKEN_SERVICE}"
+	fi
+}
+
 safe_resolve_token_manager() {
 	resolve_token_manager "$@" 2>/dev/null || printf '<unavailable>'
 }
 
 safe_resolve_registered_token() {
 	resolve_registered_token "$@" 2>/dev/null || printf '<unavailable>'
+}
+
+safe_resolve_hedera_approval_spender() {
+	resolve_hedera_approval_spender "$@" 2>/dev/null || printf '<unavailable>'
 }
 
 has_code() {
@@ -230,18 +246,20 @@ deploy_hedera_its() {
 	ensure_eoa
 	ensure_native_salt
 	local minter="${HEDERA_ITS_MINTER:-${EOA}}"
-	local gas_price token_id token_manager token_address whbar price
+	local gas_price token_id token_manager token_address approval_spender whbar price
 	echo "[AXELAR] Deploying Hedera-native ITS HTS token ${TOKEN_NAME} ${TOKEN_SYMBOL}"
 	token_id="$(resolve_token_id_from_factory)"
 	token_manager="$(resolve_token_manager hedera_testnet "${token_id}")"
 	if has_code hedera_testnet "${token_manager}"; then
 		token_address="$(resolve_registered_token hedera_testnet "${token_id}")"
+		approval_spender="$(resolve_hedera_approval_spender "${token_id}")"
 		printf '%s\n' "${token_id}" > script/axelar/.tokenid
-		record_bridge_state hedera bridgeToken="${token_address}" tokenManager="${token_manager}" gasLimit="${HEDERA_DEPLOY_GAS_LIMIT}"
+		record_bridge_state hedera bridgeToken="${token_address}" tokenManager="${token_manager}" approvalSpender="${approval_spender}" gasLimit="${HEDERA_DEPLOY_GAS_LIMIT}"
 		record_bridge_state route tokenId="${token_id}" salt="${SALT}" interchainTokenService="${INTERCHAIN_TOKEN_SERVICE}" gasValue="${GAS_VALUE_ITS}" nativeFee="${NATIVE_FEE_ITS}" hederaGasValue="${HEDERA_SEND_GAS_VALUE_ITS}" hederaNativeFee="${HEDERA_SEND_NATIVE_FEE_ITS}"
 		echo "[AXELAR] Hedera native token already deployed"
 		echo "[AXELAR] Hedera tokenId: ${token_id}"
 		echo "[AXELAR] Hedera token manager: ${token_manager}"
+		echo "[AXELAR] Hedera approval spender: ${approval_spender}"
 		echo "[AXELAR] Hedera registered HTS token: ${token_address}"
 		return
 	fi
@@ -264,12 +282,14 @@ deploy_hedera_its() {
 		--legacy
 	printf '%s\n' "${token_id}" > script/axelar/.tokenid
 	token_address="$(resolve_registered_token hedera_testnet "${token_id}")"
+	approval_spender="$(resolve_hedera_approval_spender "${token_id}")"
 	whbar="${HEDERA_WHBAR_ADDRESS:-$(hedera_its_call "whbarAddress()(address)")}"
 	price="$(uint_value "${HEDERA_TOKEN_CREATION_PRICE_TINYBARS:-$(hedera_its_call "tokenCreationPriceTinybars()(uint256)")}")"
-	record_bridge_state hedera bridgeToken="${token_address}" tokenManager="${token_manager}" whbar="${whbar}" tokenCreationPrice="${price}" gasLimit="${HEDERA_DEPLOY_GAS_LIMIT}"
+	record_bridge_state hedera bridgeToken="${token_address}" tokenManager="${token_manager}" approvalSpender="${approval_spender}" whbar="${whbar}" tokenCreationPrice="${price}" gasLimit="${HEDERA_DEPLOY_GAS_LIMIT}"
 	record_bridge_state route tokenId="${token_id}" salt="${SALT}" interchainTokenService="${INTERCHAIN_TOKEN_SERVICE}" gasValue="${GAS_VALUE_ITS}" nativeFee="${NATIVE_FEE_ITS}" hederaGasValue="${HEDERA_SEND_GAS_VALUE_ITS}" hederaNativeFee="${HEDERA_SEND_NATIVE_FEE_ITS}"
 	echo "[AXELAR] Hedera tokenId: ${token_id}"
 	echo "[AXELAR] Hedera token manager: ${token_manager}"
+	echo "[AXELAR] Hedera approval spender: ${approval_spender}"
 	echo "[AXELAR] Hedera registered HTS token: ${token_address}"
 }
 
@@ -320,14 +340,16 @@ deploy_remote_sepolia() {
 
 resolve_hedera_token() {
 	ensure_token_id
-	local token_address token_manager whbar price
+	local token_address token_manager approval_spender whbar price
 	token_address="$(resolve_registered_token hedera_testnet "${TOKEN_ID}")"
 	token_manager="$(resolve_token_manager hedera_testnet "${TOKEN_ID}")"
+	approval_spender="$(resolve_hedera_approval_spender "${TOKEN_ID}")"
 	whbar="${HEDERA_WHBAR_ADDRESS:-$(hedera_its_call "whbarAddress()(address)")}"
 	price="$(uint_value "${HEDERA_TOKEN_CREATION_PRICE_TINYBARS:-$(hedera_its_call "tokenCreationPriceTinybars()(uint256)")}")"
-	record_bridge_state hedera bridgeToken="${token_address}" tokenManager="${token_manager}" whbar="${whbar}" tokenCreationPrice="${price}" gasLimit="${HEDERA_DEPLOY_GAS_LIMIT}"
+	record_bridge_state hedera bridgeToken="${token_address}" tokenManager="${token_manager}" approvalSpender="${approval_spender}" whbar="${whbar}" tokenCreationPrice="${price}" gasLimit="${HEDERA_DEPLOY_GAS_LIMIT}"
 	echo "[AXELAR] Hedera tokenId: ${TOKEN_ID}"
 	echo "[AXELAR] Hedera token manager: ${token_manager}"
+	echo "[AXELAR] Hedera approval spender: ${approval_spender}"
 	echo "[AXELAR] Hedera registered token: ${token_address}"
 }
 
@@ -464,17 +486,11 @@ approve_hedera() {
 	read_token_id
 	echo "[AXELAR] Approve Hedera token for Axelar ITS transfer"
 	HEDERA_GAS_PRICE=$(cast gas-price --rpc-url hedera_testnet)
-	local spender token_manager implementation_type
+	local spender
 	if [[ -n "${HEDERA_APPROVAL_SPENDER:-}" ]]; then
 		spender="${HEDERA_APPROVAL_SPENDER}"
 	elif [[ -n "${TOKEN_ID:-}" ]]; then
-		token_manager="$(resolve_token_manager hedera_testnet "${TOKEN_ID}")"
-		implementation_type="$(cast call "${token_manager}" "implementationType()(uint256)" --rpc-url hedera_testnet)"
-		if [[ "${implementation_type}" == "${NATIVE_INTERCHAIN_TOKEN_TYPE}" ]]; then
-			spender="${token_manager}"
-		else
-			spender="${INTERCHAIN_TOKEN_SERVICE}"
-		fi
+		spender="$(resolve_hedera_approval_spender "${TOKEN_ID}")"
 	else
 		spender="${INTERCHAIN_TOKEN_SERVICE}"
 	fi
@@ -486,6 +502,7 @@ approve_hedera() {
 		--gas-limit "${HEDERA_TRANSFER_GAS_LIMIT}" \
 		--account "${ACCOUNT}" \
 		--legacy
+	record_bridge_state hedera approvalSpender="${spender}"
 }
 
 send_from_hedera() {
@@ -518,6 +535,7 @@ status() {
 	echo "[AXELAR] tokenId: ${TOKEN_ID:-<missing>}"
 	if [[ -n "${TOKEN_ID:-}" ]]; then
 		echo "[AXELAR] Hedera token manager: $(safe_resolve_token_manager hedera_testnet "${TOKEN_ID}")"
+		echo "[AXELAR] Hedera approval spender: $(safe_resolve_hedera_approval_spender "${TOKEN_ID}")"
 		echo "[AXELAR] Hedera registered token: $(safe_resolve_registered_token hedera_testnet "${TOKEN_ID}")"
 		echo "[AXELAR] Sepolia token manager: $(safe_resolve_token_manager sepolia "${TOKEN_ID}")"
 		echo "[AXELAR] Sepolia registered token: $(safe_resolve_registered_token sepolia "${TOKEN_ID}")"

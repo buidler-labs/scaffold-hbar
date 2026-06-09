@@ -191,8 +191,10 @@ const printEnv = (provider) => {
     provider === "axelar"
       ? [
           shellDefault("SEPOLIA_BRIDGE_TOKEN", sepolia.bridgeToken),
+          shellDefault("SEPOLIA_TOKEN_MANAGER", sepolia.tokenManager),
           shellDefault("HEDERA_BRIDGE_TOKEN", hedera.bridgeToken),
-          shellDefault("AXELAR_HEDERA_WRAPPER", hedera.wrapper),
+          shellDefault("HEDERA_TOKEN_MANAGER", hedera.tokenManager),
+          shellDefault("HEDERA_APPROVAL_SPENDER", hedera.approvalSpender),
           shellDefault("TOKEN_ID", route.tokenId),
           shellDefault("SALT", route.salt),
         ]
@@ -246,6 +248,20 @@ const syncAxelar = () => {
         bridgeToken:
           hedera.bridgeToken ??
           existing.chains?.[CHAIN_IDS.hedera]?.bridgeToken,
+        tokenManager:
+          hedera.tokenManager ??
+          existing.chains?.[CHAIN_IDS.hedera]?.tokenManager,
+        approvalSpender:
+          hedera.approvalSpender ??
+          existing.chains?.[CHAIN_IDS.hedera]?.approvalSpender,
+        whbar:
+          hedera.whbar ??
+          existing.chains?.[CHAIN_IDS.hedera]?.whbar,
+        tokenCreationPrice:
+          normalizeIntegerConfigValue(
+            hedera.tokenCreationPrice ??
+              existing.chains?.[CHAIN_IDS.hedera]?.tokenCreationPrice
+          ),
         gasValue:
           normalizeIntegerConfigValue(
             route.hederaGasValue ??
@@ -266,6 +282,9 @@ const syncAxelar = () => {
         bridgeToken:
           sepolia.bridgeToken ??
           existing.chains?.[CHAIN_IDS.sepolia]?.bridgeToken,
+        tokenManager:
+          sepolia.tokenManager ??
+          existing.chains?.[CHAIN_IDS.sepolia]?.tokenManager,
       }),
     },
   };
