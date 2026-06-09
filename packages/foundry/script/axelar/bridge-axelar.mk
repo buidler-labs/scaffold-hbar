@@ -1,5 +1,5 @@
 # Axelar — Hedera ITS helpers (see bridge-axelar.sh); included from Makefile
-.PHONY: axelar-help axelar-deploy axelar-deploy-sepolia axelar-deploy-hedera axelar-deploy-remote-sepolia axelar-resolve-hedera-token axelar-resolve-sepolia-token axelar-fund-whbar-hedera axelar-mint-hedera axelar-mint-sepolia axelar-status axelar-deploy-sepolia-custom axelar-deploy-hedera-wrapper axelar-verify-sepolia axelar-verify-hedera axelar-metadata-sepolia axelar-metadata-hedera axelar-register-custom axelar-link-remote axelar-transfer-mintership-sepolia axelar-approve-hedera axelar-send-from-sepolia axelar-send-from-hedera
+.PHONY: axelar-help axelar-deploy axelar-deploy-sepolia axelar-deploy-hedera axelar-deploy-remote-sepolia axelar-resolve-hedera-token axelar-resolve-sepolia-token axelar-fund-whbar-hedera axelar-mint-hedera axelar-mint-sepolia axelar-status axelar-approve-hedera axelar-send-from-sepolia axelar-send-from-hedera
 
 BRIDGE_AXELAR_SH := $(FOUNDRY_DIR)/script/axelar/bridge-axelar.sh
 
@@ -44,39 +44,6 @@ axelar-mint-sepolia:
 
 axelar-status:
 	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" status
-
-axelar-deploy-sepolia-custom:
-	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" deploy-sepolia-custom
-
-axelar-deploy-hedera-wrapper:
-	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" deploy-hedera-wrapper
-
-axelar-verify-sepolia:
-ifndef ADDR
-	$(error ADDR is required, e.g. make axelar-verify-sepolia ADDR=0x...)
-endif
-	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" verify-sepolia "$(ADDR)"
-
-axelar-verify-hedera:
-ifndef ADDR
-	$(error ADDR is required, e.g. make axelar-verify-hedera ADDR=0x...)
-endif
-	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" verify-hedera "$(ADDR)"
-
-axelar-metadata-sepolia:
-	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" metadata-sepolia
-
-axelar-metadata-hedera:
-	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" metadata-hedera
-
-axelar-register-custom:
-	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" register-custom
-
-axelar-link-remote:
-	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" link-remote
-
-axelar-transfer-mintership-sepolia:
-	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_AXELAR_SH)" transfer-mintership-sepolia
 
 axelar-approve-hedera:
 	@cd "$(FOUNDRY_DIR)" && AMOUNT="$(AMOUNT)" bash "$(BRIDGE_AXELAR_SH)" approve-hedera

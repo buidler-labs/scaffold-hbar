@@ -25,7 +25,6 @@ Options:
   --keystore <name>     Specify the keystore account to use (bypasses selection prompt)
   --help, -h           Show this help message
 Examples:
-  yarn deploy --file axelar/DeployBridgeTokens.s.sol --network sepolia
   yarn deploy --file ccip/TokenAndPoolDeployer.s.sol --network hedera_testnet --keystore my-account
   yarn deploy --file layerzero/DeployOFT.s.sol --network sepolia
 
@@ -61,7 +60,6 @@ Use a protocol-specific deploy script with --file, or run one of the helper menu
   make layerzero-help
 
 Examples:
-  yarn deploy --file axelar/DeployBridgeTokens.s.sol --network sepolia
   yarn deploy --file ccip/TokenAndPoolDeployer.s.sol --network hedera_testnet
   yarn deploy --file layerzero/DeployOFT.s.sol --network sepolia
 `);
