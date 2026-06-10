@@ -17,7 +17,7 @@ fi
 # Token defaults
 TOKEN_NAME="${AXELAR_TOKEN_NAME:-BridgeToken}"
 TOKEN_SYMBOL="${AXELAR_TOKEN_SYMBOL:-BTK}"
-TOKEN_DECIMALS="${AXELAR_TOKEN_DECIMALS:-18}"
+TOKEN_DECIMALS="${AXELAR_TOKEN_DECIMALS:-8}"
 
 # Hedera transaction settings
 HEDERA_DEPLOY_GAS_LIMIT="${HEDERA_DEPLOY_GAS_LIMIT:-15000000}"
@@ -26,21 +26,24 @@ HEDERA_TRANSFER_GAS_LIMIT="${HEDERA_TRANSFER_GAS_LIMIT:-${HEDERA_DEPLOY_GAS_LIMI
 # Axelar ITS contracts and fees
 INTERCHAIN_TOKEN_SERVICE="${INTERCHAIN_TOKEN_SERVICE:-0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C}"
 INTERCHAIN_TOKEN_FACTORY="${INTERCHAIN_TOKEN_FACTORY:-0x83a93500d23Fbc3e82B410aD07A6a9F7A0670D66}"
+GAS_SERVICE="${AXELAR_GAS_SERVICE:-${GAS_SERVICE:-0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6}}"
 GAS_VALUE_ITS="${GAS_VALUE_ITS:-0.0001ether}"
 NATIVE_FEE_ITS="${NATIVE_FEE_ITS:-0.001ether}"
 
 # Hedera source-chain transfers need Hedera-aware native value scaling.
 # gasValue is passed through Axelar ITS/GasService as tinybar-style units, while
 # JSON-RPC msg.value is 18-decimal wei-style HBAR.
-HEDERA_SEND_GAS_VALUE_ITS="${HEDERA_SEND_GAS_VALUE_ITS:-100000000}" # 1 HBAR in tinybar units
-HEDERA_SEND_NATIVE_FEE_ITS="${HEDERA_SEND_NATIVE_FEE_ITS:-1000000000000000000}" # 1 HBAR in wei-style units
-HEDERA_REMOTE_DEPLOY_GAS_VALUE_ITS="${HEDERA_REMOTE_DEPLOY_GAS_VALUE_ITS:-${HEDERA_SEND_GAS_VALUE_ITS}}"
-HEDERA_REMOTE_DEPLOY_NATIVE_FEE_ITS="${HEDERA_REMOTE_DEPLOY_NATIVE_FEE_ITS:-${HEDERA_SEND_NATIVE_FEE_ITS}}"
+HEDERA_SEND_GAS_VALUE_ITS="${HEDERA_SEND_GAS_VALUE_ITS:-2500000000}" # 25 HBAR in tinybar units
+HEDERA_SEND_NATIVE_FEE_ITS="${HEDERA_SEND_NATIVE_FEE_ITS:-25000000000000000000}" # 25 HBAR in wei-style units
+HEDERA_REMOTE_DEPLOY_GAS_VALUE_ITS="${HEDERA_REMOTE_DEPLOY_GAS_VALUE_ITS:-5000000000}" # 50 HBAR in tinybar units
+HEDERA_REMOTE_DEPLOY_NATIVE_FEE_ITS="${HEDERA_REMOTE_DEPLOY_NATIVE_FEE_ITS:-50000000000000000000}" # 50 HBAR in wei-style units
+HEDERA_ADD_GAS_NATIVE_FEE="${HEDERA_ADD_GAS_NATIVE_FEE:-${HEDERA_SEND_NATIVE_FEE_ITS}}"
 
 # Token manager defaults
 NATIVE_INTERCHAIN_TOKEN_TYPE="${NATIVE_INTERCHAIN_TOKEN_TYPE:-0}"
 SEPOLIA_REMOTE_DESTINATION_CHAIN="${SEPOLIA_REMOTE_DESTINATION_CHAIN:-ethereum-sepolia}"
 ZERO_ADDRESS="0x0000000000000000000000000000000000000000"
+HEDERA_HTS_MAX_MINT_AMOUNT="9223372036854775807"
 
 ensure_eoa() {
 	[[ -n "${EOA:-}" ]] || EOA=$(cast wallet address --account "${ACCOUNT:?set ACCOUNT or EOA in .env}")
@@ -48,6 +51,19 @@ ensure_eoa() {
 
 ensure_amount() {
 	[[ -n "${AMOUNT:-}" ]] || { echo "[AXELAR] AMOUNT is required" >&2; exit 1; }
+}
+
+ensure_hedera_hts_amount() {
+	ensure_amount
+	node -e '
+const amount = BigInt(process.argv[1]);
+const max = BigInt(process.argv[2]);
+if (amount > max) {
+  console.error(`[AXELAR] Hedera HTS mint amount exceeds int64 max (${max.toString()} raw units).`);
+  console.error(`[AXELAR] Current token decimals: ${process.argv[3]}. Lower AXELAR_TOKEN_DECIMALS for new deployments or mint a smaller amount.`);
+  process.exit(1);
+}
+' "${AMOUNT}" "${HEDERA_HTS_MAX_MINT_AMOUNT}" "${TOKEN_DECIMALS}"
 }
 
 record_bridge_state() {
@@ -191,7 +207,7 @@ deploy_hedera_its() {
 		approval_spender="$(resolve_hedera_approval_spender "${token_id}")"
 		printf '%s\n' "${token_id}" > script/axelar/.tokenid
 		record_bridge_state hedera bridgeToken="${token_address}" tokenManager="${token_manager}" approvalSpender="${approval_spender}" gasLimit="${HEDERA_DEPLOY_GAS_LIMIT}"
-		record_bridge_state route tokenId="${token_id}" salt="${SALT}" interchainTokenService="${INTERCHAIN_TOKEN_SERVICE}" gasValue="${GAS_VALUE_ITS}" nativeFee="${NATIVE_FEE_ITS}" hederaGasValue="${HEDERA_SEND_GAS_VALUE_ITS}" hederaNativeFee="${HEDERA_SEND_NATIVE_FEE_ITS}"
+		record_bridge_state route tokenId="${token_id}" salt="${SALT}" interchainTokenService="${INTERCHAIN_TOKEN_SERVICE}" gasValue="${GAS_VALUE_ITS}" nativeFee="${NATIVE_FEE_ITS}" hederaGasValue="${HEDERA_SEND_GAS_VALUE_ITS}" hederaNativeFee="${HEDERA_SEND_NATIVE_FEE_ITS}" hederaRemoteDeployGasValue="${HEDERA_REMOTE_DEPLOY_GAS_VALUE_ITS}" hederaRemoteDeployNativeFee="${HEDERA_REMOTE_DEPLOY_NATIVE_FEE_ITS}"
 		echo "[AXELAR] Hedera native token already deployed"
 		echo "[AXELAR] Hedera tokenId: ${token_id}"
 		echo "[AXELAR] Hedera token manager: ${token_manager}"
@@ -222,7 +238,7 @@ deploy_hedera_its() {
 	whbar="${HEDERA_WHBAR_ADDRESS:-$(hedera_its_call "whbarAddress()(address)")}"
 	price="$(uint_value "${HEDERA_TOKEN_CREATION_PRICE_TINYBARS:-$(hedera_its_call "tokenCreationPriceTinybars()(uint256)")}")"
 	record_bridge_state hedera bridgeToken="${token_address}" tokenManager="${token_manager}" approvalSpender="${approval_spender}" whbar="${whbar}" tokenCreationPrice="${price}" gasLimit="${HEDERA_DEPLOY_GAS_LIMIT}"
-	record_bridge_state route tokenId="${token_id}" salt="${SALT}" interchainTokenService="${INTERCHAIN_TOKEN_SERVICE}" gasValue="${GAS_VALUE_ITS}" nativeFee="${NATIVE_FEE_ITS}" hederaGasValue="${HEDERA_SEND_GAS_VALUE_ITS}" hederaNativeFee="${HEDERA_SEND_NATIVE_FEE_ITS}"
+	record_bridge_state route tokenId="${token_id}" salt="${SALT}" interchainTokenService="${INTERCHAIN_TOKEN_SERVICE}" gasValue="${GAS_VALUE_ITS}" nativeFee="${NATIVE_FEE_ITS}" hederaGasValue="${HEDERA_SEND_GAS_VALUE_ITS}" hederaNativeFee="${HEDERA_SEND_NATIVE_FEE_ITS}" hederaRemoteDeployGasValue="${HEDERA_REMOTE_DEPLOY_GAS_VALUE_ITS}" hederaRemoteDeployNativeFee="${HEDERA_REMOTE_DEPLOY_NATIVE_FEE_ITS}"
 	echo "[AXELAR] Hedera tokenId: ${token_id}"
 	echo "[AXELAR] Hedera token manager: ${token_manager}"
 	echo "[AXELAR] Hedera approval spender: ${approval_spender}"
@@ -237,6 +253,8 @@ deploy_remote_sepolia() {
 	printf '%s\n' "${token_id}" > script/axelar/.tokenid
 	echo "[AXELAR] Deploying remote Sepolia interchain token from Hedera"
 	echo "[AXELAR] tokenId: ${token_id}"
+	echo "[AXELAR] remote deploy gasValue (tinybar-style): ${HEDERA_REMOTE_DEPLOY_GAS_VALUE_ITS}"
+	echo "[AXELAR] remote deploy msg.value (wei-style HBAR): ${HEDERA_REMOTE_DEPLOY_NATIVE_FEE_ITS}"
 	local_minter="${HEDERA_ITS_MINTER:-${EOA}}"
 	remote_minter="${SEPOLIA_REMOTE_MINTER:-${local_minter}}"
 	gas_price=$(hedera_gas_price)
@@ -271,7 +289,7 @@ deploy_remote_sepolia() {
 			--account "${ACCOUNT}" \
 			--legacy
 	fi
-	record_bridge_state route tokenId="${token_id}" salt="${SALT}" interchainTokenService="${INTERCHAIN_TOKEN_SERVICE}" gasValue="${GAS_VALUE_ITS}" nativeFee="${NATIVE_FEE_ITS}" hederaGasValue="${HEDERA_SEND_GAS_VALUE_ITS}" hederaNativeFee="${HEDERA_SEND_NATIVE_FEE_ITS}"
+	record_bridge_state route tokenId="${token_id}" salt="${SALT}" interchainTokenService="${INTERCHAIN_TOKEN_SERVICE}" gasValue="${GAS_VALUE_ITS}" nativeFee="${NATIVE_FEE_ITS}" hederaGasValue="${HEDERA_SEND_GAS_VALUE_ITS}" hederaNativeFee="${HEDERA_SEND_NATIVE_FEE_ITS}" hederaRemoteDeployGasValue="${HEDERA_REMOTE_DEPLOY_GAS_VALUE_ITS}" hederaRemoteDeployNativeFee="${HEDERA_REMOTE_DEPLOY_NATIVE_FEE_ITS}"
 }
 
 resolve_hedera_token() {
@@ -302,7 +320,7 @@ resolve_sepolia_token() {
 
 mint_hedera() {
 	ensure_eoa
-	ensure_amount
+	ensure_hedera_hts_amount
 	ensure_token_id
 	local recipient="${RECIPIENT:-${EOA}}"
 	local token_address token_manager gas_price
@@ -324,15 +342,38 @@ mint_sepolia() {
 	ensure_amount
 	ensure_token_id
 	local recipient="${RECIPIENT:-${EOA}}"
-	local token_address token_manager
+	local token_address
 	token_address="${SEPOLIA_BRIDGE_TOKEN:-$(resolve_registered_token sepolia "${TOKEN_ID}")}"
-	token_manager="${SEPOLIA_TOKEN_MANAGER:-$(resolve_token_manager sepolia "${TOKEN_ID}")}"
-	echo "[AXELAR] Minting Sepolia remote ITS token"
-	forge script script/axelar/MintInterchainToken.s.sol:MintInterchainToken \
-		--rpc-url sepolia --account "${ACCOUNT}" --broadcast -vvv \
-		--sender "${EOA}" --chain-id 11155111 \
-		--sig "run(address,address,address,uint256)" \
-		"${token_manager}" "${token_address}" "${recipient}" "${AMOUNT}"
+	echo "[AXELAR] Minting Sepolia remote ITS ERC20 token"
+	cast send "${token_address}" \
+		"mint(address,uint256)" "${recipient}" "${AMOUNT}" \
+		--rpc-url sepolia \
+		--account "${ACCOUNT}"
+}
+
+associate_hedera() {
+	ensure_eoa
+	ensure_token_id
+	local token_address gas_price associated
+	token_address="${HEDERA_BRIDGE_TOKEN:-$(resolve_registered_token hedera_testnet "${TOKEN_ID}")}"
+	associated="$(cast call "${token_address}" "isAssociated()(bool)" --from "${EOA}" --rpc-url hedera_testnet || true)"
+	if [[ "${associated}" == "true" ]]; then
+		echo "[AXELAR] Hedera wallet is already associated with the HTS token"
+		echo "[AXELAR] wallet: ${EOA}"
+		echo "[AXELAR] Hedera token: ${token_address}"
+		return
+	fi
+	gas_price=$(hedera_gas_price)
+	echo "[AXELAR] Associating wallet with Hedera HTS token"
+	echo "[AXELAR] wallet: ${EOA}"
+	echo "[AXELAR] Hedera token: ${token_address}"
+	cast send "${token_address}" \
+		"associate()" \
+		--rpc-url hedera_testnet \
+		--gas-price "${HEDERA_GAS_PRICE_WEI:-${gas_price}}" \
+		--gas-limit "${HEDERA_TRANSFER_GAS_LIMIT}" \
+		--account "${ACCOUNT}" \
+		--legacy
 }
 
 send_from_sepolia() {
@@ -377,6 +418,8 @@ send_from_hedera() {
 	ensure_amount
 	local recipient="${RECIPIENT:-${EOA}}"
 	echo "[AXELAR] Send interchain transfer Hedera -> Sepolia"
+	echo "[AXELAR] transfer gasValue (tinybar-style): ${HEDERA_SEND_GAS_VALUE_ITS}"
+	echo "[AXELAR] transfer msg.value (wei-style HBAR): ${HEDERA_SEND_NATIVE_FEE_ITS}"
 	ensure_token_id
 	HEDERA_GAS_PRICE=$(cast gas-price --rpc-url hedera_testnet)
 	cast send "${INTERCHAIN_TOKEN_SERVICE}" \
@@ -388,6 +431,28 @@ send_from_hedera() {
 		"0x" \
 		"${HEDERA_SEND_GAS_VALUE_ITS}" \
 		--value "${HEDERA_SEND_NATIVE_FEE_ITS}" \
+		--rpc-url hedera_testnet \
+		--gas-price "${HEDERA_GAS_PRICE_WEI:-${HEDERA_GAS_PRICE}}" \
+		--gas-limit "${HEDERA_TRANSFER_GAS_LIMIT}" \
+		--account "${ACCOUNT}" \
+		--legacy
+}
+
+add_gas_hedera() {
+	ensure_eoa
+	[[ -n "${TX_HASH:-}" ]] || { echo "[AXELAR] TX_HASH is required" >&2; exit 1; }
+	[[ -n "${LOG_INDEX:-}" ]] || { echo "[AXELAR] LOG_INDEX is required" >&2; exit 1; }
+	HEDERA_GAS_PRICE=$(cast gas-price --rpc-url hedera_testnet)
+	echo "[AXELAR] Adding native gas for Hedera-sourced Axelar message"
+	echo "[AXELAR] source tx: ${TX_HASH}"
+	echo "[AXELAR] log index: ${LOG_INDEX}"
+	echo "[AXELAR] msg.value (wei-style HBAR): ${HEDERA_ADD_GAS_NATIVE_FEE}"
+	cast send "${GAS_SERVICE}" \
+		"addNativeGas(bytes32,uint256,address)" \
+		"${TX_HASH}" \
+		"${LOG_INDEX}" \
+		"${EOA}" \
+		--value "${HEDERA_ADD_GAS_NATIVE_FEE}" \
 		--rpc-url hedera_testnet \
 		--gas-price "${HEDERA_GAS_PRICE_WEI:-${HEDERA_GAS_PRICE}}" \
 		--gas-limit "${HEDERA_TRANSFER_GAS_LIMIT}" \
@@ -418,12 +483,14 @@ resolve-hedera-token) resolve_hedera_token ;;
 resolve-sepolia-token) resolve_sepolia_token ;;
 mint-hedera) mint_hedera ;;
 mint-sepolia) mint_sepolia ;;
+associate-hedera) associate_hedera ;;
 approve-hedera) approve_hedera ;;
 send-from-sepolia) send_from_sepolia ;;
 send-from-hedera) send_from_hedera ;;
+add-gas-hedera) add_gas_hedera ;;
 status) status ;;
 "")
-	echo "usage: $0 deploy-hedera | fund-whbar-hedera | deploy-remote-sepolia | resolve-hedera-token | resolve-sepolia-token | mint-hedera | mint-sepolia | approve-hedera | send-from-hedera | send-from-sepolia | status" >&2
+	echo "usage: $0 deploy-hedera | fund-whbar-hedera | deploy-remote-sepolia | resolve-hedera-token | resolve-sepolia-token | mint-hedera | mint-sepolia | associate-hedera | approve-hedera | send-from-hedera | send-from-sepolia | add-gas-hedera | status" >&2
 	exit 1
 	;;
 *)

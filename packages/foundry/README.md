@@ -89,16 +89,25 @@ make axelar-deploy-sepolia
 make axelar-resolve-sepolia-token
 
 # Mint small test supply if you kept testnet minter rights.
-make axelar-mint-hedera AMOUNT=100000000000000000
-make axelar-mint-sepolia AMOUNT=100000000000000000
+make axelar-mint-hedera AMOUNT=100000000
+make axelar-mint-sepolia AMOUNT=100000000
+
+# Associate the Hedera account before receiving HTS tokens.
+make axelar-associate-hedera
 
 # Hedera -> Sepolia uses HTS/ERC20 allowance, so approve first.
-make axelar-approve-hedera AMOUNT=100000000000000000
-make axelar-send-from-hedera AMOUNT=100000000000000000
+make axelar-approve-hedera AMOUNT=100000000
+make axelar-send-from-hedera AMOUNT=100000000
 
-make axelar-send-from-sepolia AMOUNT=100000000000000000
+make axelar-send-from-sepolia AMOUNT=100000000
 
 make bridge-sync-next PROVIDER=axelar
+```
+
+If AxelarScan reports `EXECUTOR/INSUFFICIENT_GAS_FOR_EXECUTION` for a Hedera-sourced message, add native gas with the source transaction hash and log index shown by AxelarScan:
+
+```bash
+make axelar-add-gas-hedera TX_HASH=0x... LOG_INDEX=3
 ```
 
 Important: `HEDERA_BRIDGE_TOKEN` is the HTS token address returned by `InterchainTokenService.registeredTokenAddress(tokenId)`. It is the token itself and should not be replaced with the deployer EOA.

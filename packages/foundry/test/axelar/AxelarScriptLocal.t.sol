@@ -5,7 +5,6 @@ import { Test } from "forge-std/Test.sol";
 import { AddressBytes } from "@axelar-network/axelar-gmp-sdk-solidity/contracts/libs/AddressBytes.sol";
 
 import { HelperConfig, NetworkConfig } from "../../script/axelar/HelperConfig.s.sol";
-import { MintInterchainToken } from "../../script/axelar/MintInterchainToken.s.sol";
 import { SendInterchainTransfer } from "../../script/axelar/SendInterchainTransfer.s.sol";
 
 contract MockInterchainTokenService {
@@ -44,18 +43,6 @@ contract MockInterchainTokenService {
         lastMetadata = metadata;
         lastGasValue = gasValue;
         lastNativeFee = msg.value;
-    }
-}
-
-contract MockTokenManager {
-    address public lastTokenAddress;
-    address public lastRecipient;
-    uint256 public lastAmount;
-
-    function mintToken(address tokenAddress, address recipient, uint256 amount) external {
-        lastTokenAddress = tokenAddress;
-        lastRecipient = recipient;
-        lastAmount = amount;
     }
 }
 
@@ -101,16 +88,4 @@ contract AxelarScriptLocalTest is Test {
         assertEq(service.lastNativeFee(), nativeFee);
     }
 
-    function test_mintInterchainToken_callsTokenManagerMint() public {
-        MockTokenManager tokenManager = new MockTokenManager();
-        address tokenAddress = makeAddr("itsToken");
-        address recipient = makeAddr("recipient");
-        uint256 amount = 123 ether;
-
-        new MintInterchainToken().run(address(tokenManager), tokenAddress, recipient, amount);
-
-        assertEq(tokenManager.lastTokenAddress(), tokenAddress);
-        assertEq(tokenManager.lastRecipient(), recipient);
-        assertEq(tokenManager.lastAmount(), amount);
-    }
 }

@@ -29,19 +29,24 @@ Run all commands from `packages/foundry`.
    ```
 5. Mint test supply if the deployer kept minter rights:
    ```bash
-   make axelar-mint-hedera AMOUNT=100000000000000000
-   make axelar-mint-sepolia AMOUNT=100000000000000000
+   make axelar-mint-hedera AMOUNT=100000000
+   make axelar-mint-sepolia AMOUNT=100000000
    ```
-6. Test Hedera -> Sepolia:
+   Hedera mints through the HTS token manager. Sepolia mints directly on the remote ERC20 because the deployer is granted the ERC20 minter role.
+6. Associate the Hedera wallet before receiving Sepolia -> Hedera transfers:
    ```bash
-   make axelar-approve-hedera AMOUNT=100000000000000000
-   make axelar-send-from-hedera AMOUNT=100000000000000000
+   make axelar-associate-hedera
    ```
-7. Test Sepolia -> Hedera:
+7. Test Hedera -> Sepolia:
    ```bash
-   make axelar-send-from-sepolia AMOUNT=100000000000000000
+   make axelar-approve-hedera AMOUNT=100000000
+   make axelar-send-from-hedera AMOUNT=100000000
    ```
-8. Sync the proven config for the frontend later:
+8. Test Sepolia -> Hedera:
+   ```bash
+   make axelar-send-from-sepolia AMOUNT=100000000
+   ```
+9. Sync the proven config for the frontend later:
    ```bash
    make bridge-sync-next PROVIDER=axelar
    ```
@@ -61,7 +66,7 @@ Optional native-flow settings:
 ```bash
 AXELAR_TOKEN_NAME=BridgeToken
 AXELAR_TOKEN_SYMBOL=BTK
-AXELAR_TOKEN_DECIMALS=18
+AXELAR_TOKEN_DECIMALS=8
 
 # Defaults to the deployer EOA. Keep this nonzero for testnet mint commands.
 HEDERA_ITS_MINTER=0x...
@@ -88,18 +93,23 @@ GAS_VALUE_ITS=0.0001ether
 NATIVE_FEE_ITS=0.001ether
 
 # Hedera source-chain transfers.
-HEDERA_SEND_GAS_VALUE_ITS=100000000
-HEDERA_SEND_NATIVE_FEE_ITS=1000000000000000000
+HEDERA_SEND_GAS_VALUE_ITS=2500000000
+HEDERA_SEND_NATIVE_FEE_ITS=25000000000000000000
 
 # Hedera -> Sepolia remote deployment message.
-HEDERA_REMOTE_DEPLOY_GAS_VALUE_ITS=100000000
-HEDERA_REMOTE_DEPLOY_NATIVE_FEE_ITS=1000000000000000000
+HEDERA_REMOTE_DEPLOY_GAS_VALUE_ITS=5000000000
+HEDERA_REMOTE_DEPLOY_NATIVE_FEE_ITS=50000000000000000000
+
+# Recovery add-gas value. Defaults to HEDERA_SEND_NATIVE_FEE_ITS.
+HEDERA_ADD_GAS_NATIVE_FEE=25000000000000000000
 ```
 
 The Hedera values are intentionally split:
 
 - `HEDERA_*_GAS_VALUE_ITS` is tinybar-style and is passed to Axelar ITS/GasService.
 - `HEDERA_*_NATIVE_FEE_ITS` is JSON-RPC `msg.value`, 18-decimal wei-style HBAR.
+- Hedera -> Sepolia transfers use a higher default than the minimal testnet examples because the route goes through ITS Hub and then executes on Sepolia. Axelar refunds excess gas after execution.
+- Remote Sepolia deployment uses an even higher default because the destination execution deploys a token contract. If AxelarScan still shows `INSUFFICIENT_GAS`, increase both `HEDERA_REMOTE_DEPLOY_*` values and rerun `make axelar-deploy-sepolia`.
 
 ## Generated State
 
@@ -130,10 +140,12 @@ packages/nextjs/services/bridge/config/axelar.json
 | `make axelar-resolve-sepolia-token` | Resolve and record Sepolia registered token/token-manager addresses |
 | `make axelar-status` | Print salt, token id, token managers, and registered token addresses |
 | `make axelar-mint-hedera AMOUNT=...` | Mint test HTS supply through the Hedera token manager |
-| `make axelar-mint-sepolia AMOUNT=...` | Mint test Sepolia supply through the Sepolia token manager |
+| `make axelar-mint-sepolia AMOUNT=...` | Mint test Sepolia supply directly through the remote ERC20 |
+| `make axelar-associate-hedera` | Associate the connected Hedera account with the HTS token before receiving |
 | `make axelar-approve-hedera AMOUNT=...` | Approve the correct Hedera spender for outbound ITS transfer |
 | `make axelar-send-from-hedera AMOUNT=... [RECIPIENT=0x...]` | Send Hedera -> Sepolia |
 | `make axelar-send-from-sepolia AMOUNT=... [RECIPIENT=0x...]` | Send Sepolia -> Hedera |
+| `make axelar-add-gas-hedera TX_HASH=0x... LOG_INDEX=3` | Add native gas to recover a Hedera-sourced Axelar message |
 | `make bridge-sync-next PROVIDER=axelar` | Sync recorded Axelar values into Next.js config |
 
 ## Troubleshooting
@@ -145,8 +157,11 @@ packages/nextjs/services/bridge/config/axelar.json
 | `ZeroSupplyToken` | Hedera deploy used zero initial supply and no minter | Keep `HEDERA_ITS_MINTER` as the deployer for testnet |
 | Sepolia registered token is `0x000...` or query reverts | Axelar remote deployment has not executed yet | Wait in AxelarScan, then run `make axelar-resolve-sepolia-token` again |
 | `SPENDER_DOES_NOT_HAVE_ALLOWANCE` on Hedera transfer | Wallet has not approved the spender selected for the token manager type | Run `make axelar-approve-hedera AMOUNT=...` |
-| Hedera transfer succeeds on-chain but AxelarScan shows `Insufficient Fee` | Hedera source gas payment too low | Increase the Hedera gas/native fee values together |
-| `MissingRole(..., 0)` while minting | The caller is not a minter on that token manager | Deploy with `HEDERA_ITS_MINTER`/`SEPOLIA_REMOTE_MINTER` set to your EOA for testnet |
+| AxelarScan shows `EXECUTOR/INSUFFICIENT_GAS_FOR_EXECUTION` during remote deployment | The Hedera -> Sepolia remote deploy gas payment was too low for Sepolia contract creation | Increase `HEDERA_REMOTE_DEPLOY_GAS_VALUE_ITS` and `HEDERA_REMOTE_DEPLOY_NATIVE_FEE_ITS` together, then rerun `make axelar-deploy-sepolia` |
+| Hedera transfer succeeds on-chain but AxelarScan shows `Insufficient Fee` or `EXECUTOR/INSUFFICIENT_GAS_FOR_EXECUTION` | Hedera source gas payment too low for the final Sepolia execution | For a sent message, run `make axelar-add-gas-hedera TX_HASH=0x... LOG_INDEX=3`; for future messages, increase `HEDERA_SEND_GAS_VALUE_ITS` and `HEDERA_SEND_NATIVE_FEE_ITS` together |
+| `NotService(...)` while minting Sepolia | The remote ERC20 should be minted directly, not through the token manager | Use `make axelar-mint-sepolia AMOUNT=...` after this update |
+| `InvalidAmount()` or selector `0x2c5211c6` while minting Hedera | The HTS mint amount exceeds Hedera's `int64` raw-unit limit | Mint a smaller raw amount, or deploy future tokens with the default `AXELAR_TOKEN_DECIMALS=8` |
+| `MissingRole(..., 0)` while minting | The caller is not a minter | Deploy with `HEDERA_ITS_MINTER`/`SEPOLIA_REMOTE_MINTER` set to your EOA for testnet |
 
 ## Tests
 
