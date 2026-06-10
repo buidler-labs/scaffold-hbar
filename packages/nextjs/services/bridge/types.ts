@@ -189,6 +189,9 @@ export type BridgeAxelarRouteMetadata = {
   interchainTokenServiceAddress: Address;
   sourceTokenAddress: Address;
   destinationTokenAddress: Address;
+  sourceTokenManagerAddress?: Address;
+  destinationTokenManagerAddress?: Address;
+  sourceApprovalSpenderAddress?: Address;
   destinationAxelarName: string;
   gasValue: string;
   nativeFee: string;

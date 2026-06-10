@@ -10,6 +10,10 @@ if [[ -f .env ]]; then
 	set +a
 fi
 
+if [[ -f scripts-js/syncBridgeConfig.js ]]; then
+	eval "$(node scripts-js/syncBridgeConfig.js env ccip)"
+fi
+
 # Chain aliases from foundry.toml
 SEPOLIA_RPC_ALIAS="${SEPOLIA_RPC_ALIAS:-sepolia}"
 HEDERA_RPC_ALIAS="${HEDERA_RPC_ALIAS:-hedera_testnet}"
@@ -61,24 +65,44 @@ hedera_ccip_value_from_fee() {
 	node -e 'const fee = BigInt(process.argv[1]); const bps = BigInt(process.argv[2]); const bufferedTinybar = (fee * bps + 9999n) / 10000n; console.log((bufferedTinybar * 10000000000n).toString())' "$1" "${CCIP_HEDERA_FEE_BUFFER_BPS}"
 }
 
+record_bridge_state() {
+	node scripts-js/syncBridgeConfig.js record ccip "$@"
+}
+
 deploy_sepolia() {
 	ensure_account
 	echo "[CCIP] Deploying ${CCIP_TOKEN_NAME} ${CCIP_TOKEN_SYMBOL} on Sepolia"
+	local output_file
+	output_file=$(mktemp)
 	forge script script/ccip/TokenAndPoolDeployer.s.sol:TokenAndPoolDeployer \
 		--rpc-url "${SEPOLIA_RPC_ALIAS}" --account "${ACCOUNT}" --broadcast \
 		--sig "run(string,string,uint8,uint256)" \
-		"${CCIP_TOKEN_NAME}" "${CCIP_TOKEN_SYMBOL}" "${CCIP_TOKEN_DECIMALS}" "${CCIP_PREMINT_SEPOLIA}"
-	echo "[CCIP] Copy the printed Token and Pool into CCIP_SEPOLIA_TOKEN and CCIP_SEPOLIA_POOL."
+		"${CCIP_TOKEN_NAME}" "${CCIP_TOKEN_SYMBOL}" "${CCIP_TOKEN_DECIMALS}" "${CCIP_PREMINT_SEPOLIA}" | tee "${output_file}"
+	local token
+	local pool
+	token=$(awk '/CCIP_TOKEN=/ {sub(/.*CCIP_TOKEN= ?/, ""); print $1}' "${output_file}" | tail -1)
+	pool=$(awk '/CCIP_POOL=/ {sub(/.*CCIP_POOL= ?/, ""); print $1}' "${output_file}" | tail -1)
+	rm -f "${output_file}"
+	[[ -n "${token}" && -n "${pool}" ]] && record_bridge_state sepolia token="${token}" pool="${pool}"
+	echo "[CCIP] Recorded Sepolia Token and Pool for bridge-sync-next."
 }
 
 deploy_hedera() {
 	ensure_account
 	echo "[CCIP] Deploying ${CCIP_TOKEN_NAME} ${CCIP_TOKEN_SYMBOL} on Hedera"
+	local output_file
+	output_file=$(mktemp)
 	forge script script/ccip/TokenAndPoolDeployer.s.sol:TokenAndPoolDeployer \
 		--rpc-url "${HEDERA_RPC_ALIAS}" --account "${ACCOUNT}" --broadcast --slow --legacy \
 		--sig "run(string,string,uint8,uint256)" \
-		"${CCIP_TOKEN_NAME}" "${CCIP_TOKEN_SYMBOL}" "${CCIP_TOKEN_DECIMALS}" "${CCIP_PREMINT_HEDERA}"
-	echo "[CCIP] Copy the printed Token and Pool into CCIP_HEDERA_TOKEN and CCIP_HEDERA_POOL."
+		"${CCIP_TOKEN_NAME}" "${CCIP_TOKEN_SYMBOL}" "${CCIP_TOKEN_DECIMALS}" "${CCIP_PREMINT_HEDERA}" | tee "${output_file}"
+	local token
+	local pool
+	token=$(awk '/CCIP_TOKEN=/ {sub(/.*CCIP_TOKEN= ?/, ""); print $1}' "${output_file}" | tail -1)
+	pool=$(awk '/CCIP_POOL=/ {sub(/.*CCIP_POOL= ?/, ""); print $1}' "${output_file}" | tail -1)
+	rm -f "${output_file}"
+	[[ -n "${token}" && -n "${pool}" ]] && record_bridge_state hedera token="${token}" pool="${pool}"
+	echo "[CCIP] Recorded Hedera Token and Pool for bridge-sync-next."
 }
 
 deploy_hedera_hts() {

@@ -17,7 +17,7 @@ contract SendInterchainTransfer is Script, HelperConfig {
 
     /**
      * @notice Sends tokens through Axelar ITS from the current chain to `destinationAxelarName`.
-     * @dev When `tokenId` is zero, the script reads the id persisted by `RegisterCustomToken`.
+     * @dev When `tokenId` is zero, the script reads the id persisted by the native Axelar ITS helpers.
      * @param tokenId Axelar ITS token id; pass zero to read `script/axelar/.tokenid`.
      * @param destinationAxelarName Axelar name of the destination chain, for example `hedera` or `ethereum-sepolia`.
      * @param recipient Destination EVM address, encoded for ITS as 20-byte address bytes.

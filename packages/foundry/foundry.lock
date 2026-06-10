@@ -42,10 +42,7 @@
     }
   },
   "lib/interchain-token-service": {
-    "tag": {
-      "name": "v2.2.0",
-      "rev": "51cc72ca925441aa262b4a6c2392f7872c407b18"
-    }
+    "rev": "c6fda1781dfb0a00d9e74e420cca7beba9bbcda8"
   },
   "lib/openzeppelin-contracts": {
     "tag": {

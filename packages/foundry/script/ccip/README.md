@@ -17,7 +17,7 @@ Run all commands from `packages/foundry`.
 1. Configure your account and RPC URLs in `.env`.
 2. Deploy the Sepolia token and pool.
 3. Deploy the Hedera token and pool.
-4. Put all four deployed addresses in `.env`.
+4. The deploy helpers record token and pool addresses locally.
 5. Configure the Sepolia pool with the Hedera remote lane.
 6. Configure the Hedera pool with the Sepolia remote lane.
 7. Send a small test transfer in either direction.
@@ -42,7 +42,8 @@ CCIP_PREMINT_HEDERA_HTS=0
 CCIP_HEDERA_HTS_CREATE_VALUE=20ether
 ```
 
-After deployment, add:
+After deployment, the helpers record these values in `deployments/bridge/ccip.json`.
+You can still set them manually in `.env` if you want to override or debug a step:
 
 ```bash
 CCIP_SEPOLIA_TOKEN=0x...
@@ -64,7 +65,7 @@ is the native HTS token users see in Hedera wallets.
 make ccip-deploy-sepolia
 ```
 
-Copy the printed addresses into `.env`:
+The command records the printed addresses. If you want to override them manually, set:
 
 ```bash
 CCIP_SEPOLIA_TOKEN=0x...
@@ -79,7 +80,7 @@ For a vanilla EVM ERC20 on Hedera:
 make ccip-deploy-hedera
 ```
 
-Copy the printed addresses into `.env`:
+The command records the printed addresses. If you want to override them manually, set:
 
 ```bash
 CCIP_HEDERA_TOKEN=0x...
@@ -92,7 +93,7 @@ For a native HTS-backed token on Hedera:
 make ccip-deploy-hedera-hts
 ```
 
-Copy all three printed addresses into `.env`:
+The command records these addresses. If you want to override them manually, set:
 
 ```bash
 CCIP_HEDERA_TOKEN=0x...      # wrapper registered with CCIP
@@ -143,11 +144,26 @@ make ccip-send-from-sepolia AMOUNT=1000000000 RECIPIENT=0x...
 
 Track messages on [CCIP Explorer](https://ccip.chain.link).
 
+## Sync the Next.js config
+
+After the deploy and configure steps have completed, sync the recorded values into the frontend config:
+
+```bash
+make bridge-sync-next PROVIDER=ccip
+```
+
+This updates `packages/nextjs/services/bridge/config/ccip.json`. The generated state lives in
+`packages/foundry/deployments/bridge/ccip.json` and is ignored by git.
+
+If you prefer to learn every moving piece manually, you can still copy values into `.env` and edit the
+Next.js JSON yourself. The sync command is just a convenience for this educational template.
+
 ## Command Reference
 
 | Command | What |
 | --- | --- |
 | `make ccip-help` | Print CCIP commands |
+| `make ccip-deploy` | Run the Sepolia and vanilla Hedera deploy steps |
 | `make ccip-deploy-sepolia` | Deploy Sepolia `BurnMintERC20` + pool and register/set pool |
 | `make ccip-deploy-hedera` | Deploy Hedera EVM `BurnMintERC20` + pool and register/set pool |
 | `make ccip-deploy-hedera-hts` | Deploy Hedera HTS-backed wrapper + pool and register/set pool |
@@ -158,6 +174,7 @@ Track messages on [CCIP Explorer](https://ccip.chain.link).
 | `make ccip-send-from-sepolia AMOUNT=... [RECIPIENT=0x...]` | Send Sepolia to Hedera, paying native fees |
 | `make ccip-send-from-hedera AMOUNT=... [RECIPIENT=0x...]` | Send Hedera to Sepolia, paying native fees |
 | `make ccip-send-from-hedera-hts AMOUNT=... [RECIPIENT=0x...]` | Send HTS-backed Hedera token to Sepolia |
+| `make bridge-sync-next PROVIDER=ccip` | Sync recorded CCIP values into the Next.js config |
 
 The same steps can be called directly:
 

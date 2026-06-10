@@ -33,7 +33,8 @@ make layerzero-deploy-sepolia
 make layerzero-deploy-hedera
 ```
 
-Copy the printed addresses into `.env`:
+The commands record the printed addresses in `deployments/bridge/layerzero.json`.
+If you want to override them manually, set:
 
 ```bash
 SEPOLIA_OFT=0x...
@@ -51,7 +52,7 @@ make layerzero-deploy-workers-sepolia
 make layerzero-deploy-workers-hedera
 ```
 
-Copy the printed worker addresses into `.env`:
+The commands record the printed worker addresses. If you want to override them manually, set:
 
 ```bash
 SEPOLIA_WORKERS_DVN=0x...
@@ -92,11 +93,27 @@ Copy the source transaction hash and relay it:
 make layerzero-relay DIRECTION=hedera-to-sepolia TX=0x...
 ```
 
+## Sync the Next.js config
+
+After the deploy and wire steps have completed, sync the recorded values into the frontend config:
+
+```bash
+make bridge-sync-next PROVIDER=layerzero
+```
+
+This updates `packages/nextjs/services/bridge/config/layerzero.json`. The generated state lives in
+`packages/foundry/deployments/bridge/layerzero.json` and is ignored by git.
+
+If you prefer to learn every moving piece manually, you can still copy values into `.env` and edit the
+Next.js JSON yourself. The sync command is just a convenience for this educational template.
+
 ## Helpers
 
 ```bash
 make layerzero-help
+make layerzero-deploy
 make layerzero-balances
+make bridge-sync-next PROVIDER=layerzero
 ```
 
 This test flow uses simple workers, so `layerzero-relay` is required. It parses

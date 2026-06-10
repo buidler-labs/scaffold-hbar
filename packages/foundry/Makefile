@@ -1,16 +1,19 @@
-.PHONY: build deploy deploy-and-generate-abis generate-abis get-address account chain fork compile flatten format lint test verify
+.PHONY: build deploy deploy-and-generate-abis generate-abis get-address account chain fork compile flatten format lint test verify bridge-sync-next
 
 DEPLOY_SCRIPT ?=
+PROVIDER ?= all
 FOUNDRY_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
 include script/axelar/bridge-axelar.mk
 include script/ccip/bridge-ccip.mk
 include script/layerzero/bridge-layerzero.mk
 
-# Start a plain local Anvil chain (no fork)
+# Low-level local dev helper only. The bridge tutorials target Sepolia + Hedera Testnet.
+# Starts a plain local Anvil chain without Hedera-specific behavior.
 chain:
 	anvil
 
+# Low-level local dev helper only. Starts an Anvil fork using the configured Hedera RPC alias.
 fork:
 	@FORK_URL=$${FORK_URL:-hedera_testnet}; \
 	echo "Starting Anvil fork against $$FORK_URL with chain-id 296..."; \
@@ -22,7 +25,8 @@ setup-deployer:
 	rm -rf broadcast/Deploy.s.sol/31337
 	cast wallet import --private-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6 --unsafe-password 'localhost' scaffold-hbar-default
 
-# Deploy the contracts to the local Hedera-forked node (start with `make fork` or `yarn fork` in this package)
+# Generic deploy entrypoint for custom scripts. New bridge users should prefer
+# the provider runbooks: make axelar-help, make ccip-help, or make layerzero-help.
 deploy:
 	@if [ -z "$(DEPLOY_SCRIPT)" ]; then \
 		echo "Error: no deploy script specified."; \
@@ -53,6 +57,9 @@ deploy-and-generate-abis: deploy generate-abis
 # Generate TypeScript ABIs for the Next.js frontend
 generate-abis:
 	node scripts-js/generateTsAbis.js
+
+bridge-sync-next:
+	@node scripts-js/syncBridgeConfig.js sync "$(PROVIDER)"
 
 # List account
 account:
