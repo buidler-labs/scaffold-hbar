@@ -1,71 +1,88 @@
-# Hardhat package (Hedera)
+# packages/hardhat — cross-chain DCA
 
-Hardhat config, contracts, deploy scripts, tests, and Hashscan verification for this monorepo.
+Hardhat config, contracts, scripts, and tests for the cross-chain DCA template. Contains contracts for both chains:
 
-## Local development
+- `contracts/hedera/` — `DcaOrchestrator` + `AxelarMessageSender` (Hedera testnet, chain 296)
+- `contracts/sepolia/` — `DcaExecutor` + `AxelarMessageReceiver` (Sepolia, chain 11155111)
 
-From the repo root, use the explicit `hardhat:*` scripts for this package. Inside `packages/hardhat`, use the unprefixed package-local scripts.
+## Setup
 
-1. **Start the local chain** (terminal 1, from repo root):
-   ```bash
-   yarn hardhat:chain
-   ```
-   This starts `hardhat node` with **Hedera testnet forking** (`HEDERA_FORKING=true` and `@hashgraph/system-contracts-forking`). JSON-RPC is served at **http://127.0.0.1:8545**.
+```bash
+cp .env.example .env
+# Fill in HEDERA_PRIVATE_KEY, SEPOLIA_PRIVATE_KEY, SEPOLIA_RPC_URL, AXELAR_GATEWAY_SEPOLIA
+```
 
-2. **Deploy to the running fork** (terminal 2):
-   ```bash
-   yarn hardhat:deploy --network localhost
-   ```
-   Use **`localhost`** so Hardhat connects to the long-running node on port 8545.
+## Compile
 
-   **`yarn hardhat:deploy` without `--network localhost`** uses the default network `hardhat`, which is the **in-process ephemeral** Hardhat network—**not** the same process as `yarn hardhat:chain`. For deploys against the forked node you started in step 1, always pass **`--network localhost`** while that node is running.
+```bash
+yarn compile          # both contract sets
+yarn hedera:compile   # same — alias kept for symmetry
+yarn sepolia:compile  # same — alias kept for symmetry
+```
 
-3. **Run contract tests** (from repo root; tests use `HEDERA_FORKING=true` and can run against the fork or standalone):
-   ```bash
-   yarn hardhat:test
-   ```
+## Deploy
 
-## Deploy and verify on Hedera testnet/mainnet
+```bash
+yarn deploy           # full 8-step deployment (both chains + funding + plan)
+yarn hedera:deploy    # Hedera contracts only (--network hedera-testnet)
+yarn sepolia:deploy   # Sepolia contracts only (--network sepolia)
+yarn hedera:wire      # re-wire AxelarMessageSender after Sepolia deploy
+yarn sepolia:wire     # re-wire AxelarMessageReceiver after Hedera deploy
+```
 
-You need a deployer account with HBAR on the target network. Without funds, deploy and verify will fail with "Sender account not found".
+## Fund and manage
 
-1. **Generate or import an account** (from the repo root):
-   ```bash
-   yarn hardhat:account:generate
-   ```
-   or
-   ```bash
-   yarn hardhat:account:import
-   ```
-   The encrypted key is stored in `packages/hardhat/.env`.
+```bash
+yarn hedera:fund            # send HBAR to DcaOrchestrator
+yarn sepolia:fund:usdc      # send USDC to DcaExecutor
+yarn hedera:plan:create     # create a DCA plan
+yarn hedera:plan:cancel     # cancel (set CANCEL_PLAN_ID=<id>)
+yarn hedera:plan:latest     # inspect the latest plan
+yarn sepolia:balance:check  # check ETH / USDC / WETH balances
+```
 
-2. **Fund the account on testnet:**  
-   Use the [Hedera Portal faucet](https://portal.hedera.com/faucet) to receive testnet HBAR.
+## Withdraw
 
-3. **Deploy to Hedera testnet** (from repo root):
-   ```bash
-   yarn hardhat:deploy --network hederaTestnet
-   ```
-   or
-   ```bash
-   yarn hardhat:deploy --network hedera_testnet
-   ```
-   You will be prompted to enter the password to decrypt your deployer key.
+```bash
+yarn hedera:withdraw:orchestrator
+yarn hedera:withdraw:sender
+yarn sepolia:withdraw:executor
+yarn sepolia:withdraw:receiver
+```
 
-4. **Verify on Hashscan** (uses deployment JSON under `deployments/<network>/`, which includes compiler metadata and sources):
-   ```bash
-   yarn hardhat:verify:testnet   # all contracts on chain 296
-   yarn hardhat:verify:mainnet   # all contracts on chain 295
-   yarn workspace @sh/hardhat verify:contract -- HederaToken testnet
-   yarn workspace @sh/hardhat verify:contract -- HederaToken testnet 0xYourContractAddress
-   ```
+## Test
+
+```bash
+yarn test               # all tests
+yarn hedera:test        # Hedera contracts only
+yarn sepolia:test       # Sepolia contracts only
+```
+
+Tests run on the in-process Hardhat network — no `.env` or live RPC required.
+
+## Verify
+
+```bash
+yarn verify:testnet               # Hedera contracts via Sourcify (chain 296)
+yarn sepolia:verify               # Sepolia contracts via Etherscan (requires ETHERSCAN_API_KEY)
+```
 
 ## Layout
 
-- `contracts/` — Solidity sources
-- `deploy/` — hardhat-deploy scripts (e.g. `00_deploy_hedera_token.ts`)
-- `scripts/` — generateAccount, importAccount, verifyHedera.js, etc.
-- `test/` — contract tests
-- `hardhat.config.ts` — networks (`hardhat`, `localhost` for RPC at 127.0.0.1:8545, `hederaTestnet`, `hederaMainnet`)
-
-Network and RPC URLs are in `hardhat.config.ts`. Deployer key is read from `.env` (encrypted) and decrypted at deploy time for live networks.
+```
+contracts/
+  hedera/           DcaOrchestrator.sol, AxelarMessageSender.sol, interfaces/, test/
+  sepolia/          DcaExecutor.sol, AxelarMessageReceiver.sol, interfaces/, test/
+scripts/
+  hedera/           deploy, wire, fund, plan management, withdraw scripts
+  sepolia/          deploy, wire, fund, balance-check, verify, withdraw scripts
+  generate-deployed-contracts.ts  writes packages/nextjs/contracts/deployedContracts.ts
+  deploy-all.sh     full 8-step deployment
+test/
+  hedera/           DcaOrchestrator.ts, AxelarMessageSender.ts
+  sepolia/          DcaExecutor.ts
+config/
+  deployed-addresses.example.json  shape reference
+  deployed-addresses.json          written at deploy time, gitignored
+hardhat.config.ts   networks: hardhat, hedera-testnet, hederaTestnet, hederaMainnet, sepolia
+```

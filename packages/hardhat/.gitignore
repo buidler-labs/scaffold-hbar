@@ -23,6 +23,9 @@ cache-zk
 # deployments
 deployments
 
+# dca deployed addresses (generated at deploy time)
+config/deployed-addresses.json
+
 # typescript
 *.tsbuildinfo
 

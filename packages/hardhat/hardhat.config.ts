@@ -8,29 +8,23 @@ import "@nomicfoundation/hardhat-verify";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
-// Only load the Hedera forking plugin when starting the local node (yarn hardhat:chain / yarn hardhat:fork).
-// Deploying to an already-running node doesn't need it and would fail with EADDRINUSE.
-if (process.env.HEDERA_FORKING === "true") {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports -- conditional plugin load
-  require("@hashgraph/system-contracts-forking/plugin");
-}
-import "hardhat-deploy";
-import "hardhat-deploy-ethers";
-
 import generateTsAbis from "./scripts/generateTsAbis";
 
-// Hedera JSON-RPC URL (testnet default). Set HEDERA_RPC_URL in .env for mainnet.
+// Hedera — key injected at runtime by runHardhatDeployWithPK.ts
 const hederaRpcUrl = process.env.HEDERA_RPC_URL || "https://testnet.hashio.io/api";
+const hederaPrivateKey =
+  process.env.__RUNTIME_HEDERA_PRIVATE_KEY || "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 
-// Deployer key: run `yarn account:generate` or `yarn account:import`, or set __RUNTIME_DEPLOYER_PRIVATE_KEY at runtime.
-const deployerPrivateKey =
-  process.env.__RUNTIME_DEPLOYER_PRIVATE_KEY ?? "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+// Sepolia — key injected at runtime by runHardhatDeployWithPK.ts
+const sepoliaRpcUrl = process.env.SEPOLIA_RPC_URL || "";
+const sepoliaPrivateKey = process.env.__RUNTIME_ETH_PRIVATE_KEY || "";
+const etherscanApiKey = process.env.ETHERSCAN_API_KEY || "";
 
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.28",
+        version: "0.8.24",
         settings: {
           optimizer: {
             enabled: true,
@@ -41,41 +35,31 @@ const config: HardhatUserConfig = {
     ],
   },
   defaultNetwork: "hardhat",
-  namedAccounts: {
-    deployer: {
-      default: 0,
-    },
-  },
   networks: {
-    hardhat: {
-      forking: {
-        url: hederaRpcUrl,
-        // @ts-expect-error - custom property for hedera-forking plugin
-        chainId: 296,
-        workerPort: 10001,
-      },
-    },
     hederaTestnet: {
-      url: "https://testnet.hashio.io/api",
-      accounts: [deployerPrivateKey],
+      url: hederaRpcUrl,
+      accounts: hederaPrivateKey ? [hederaPrivateKey] : [],
       chainId: 296,
+      gas: 4_000_000,
+      gasPrice: 1_200_000_000_000,
     },
     hederaMainnet: {
       url: "https://mainnet.hashio.io/api",
-      accounts: [deployerPrivateKey],
+      accounts: hederaPrivateKey ? [hederaPrivateKey] : [],
       chainId: 295,
     },
+    ethereumSepolia: {
+      url: sepoliaRpcUrl,
+      accounts: sepoliaPrivateKey ? [sepoliaPrivateKey] : [],
+      chainId: 11155111,
+    },
   },
-  // Hedera is now supported on the main Sourcify instance (sourcify.dev).
-  // No custom verifier URL required — standard tooling works out of the box.
-  // See: https://hedera.com/blog/smart-contract-verification-sourcify-dev-now-supported
+  // Hedera uses Sourcify; Sepolia uses Etherscan.
   sourcify: {
     enabled: true,
   },
-  // Disable Etherscan verification (Hedera uses Sourcify only)
   etherscan: {
-    enabled: false,
-    apiKey: {},
+    apiKey: etherscanApiKey,
   },
   typechain: {
     outDir: "typechain-types",

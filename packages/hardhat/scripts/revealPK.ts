@@ -1,28 +1,31 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import { Wallet } from "ethers";
-import password from "@inquirer/password";
+import { decryptKey } from "./utils/decryptKey";
 
 async function main() {
-  const encryptedKey = process.env.DEPLOYER_PRIVATE_KEY_ENCRYPTED;
+  const hederaEncryptedKey = process.env.HEDERA_DEPLOYER_PRIVATE_KEY_ENCRYPTED;
+  const ethEncryptedKey = process.env.ETH_DEPLOYER_PRIVATE_KEY_ENCRYPTED;
 
-  if (!encryptedKey) {
-    console.log("🚫️ You don't have a deployer account. Run `yarn account:generate` or `yarn account:import` first");
+  if (!hederaEncryptedKey && !ethEncryptedKey) {
+    console.log("🚫️ You don't have any deployer accounts. Run `yarn account:generate` or `yarn account:import` first");
     return;
   }
 
-  console.log("👀 This will reveal your private key on the console.\n");
+  console.log("👀 This will reveal your private key(s) on the console.\n");
 
-  const pass = await password({ message: "Enter your password to decrypt the private key:" });
-  let wallet: Wallet;
-  try {
-    wallet = (await Wallet.fromEncryptedJson(encryptedKey, pass)) as Wallet;
-  } catch {
-    console.log("❌ Failed to decrypt private key. Wrong password?");
-    return;
+  if (hederaEncryptedKey) {
+    const wallet = await decryptKey(hederaEncryptedKey, "Hedera");
+    console.log("\n🔑 Hedera private key:", wallet.privateKey);
+  } else {
+    console.log("⚠️  No Hedera deployer account found.");
   }
 
-  console.log("\n🔑 Private key:", wallet.privateKey);
+  if (ethEncryptedKey) {
+    const wallet = await decryptKey(ethEncryptedKey, "ETH");
+    console.log("\n🔑 ETH private key:", wallet.privateKey);
+  } else {
+    console.log("⚠️  No ETH deployer account found.");
+  }
 }
 
 main().catch(error => {
