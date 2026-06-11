@@ -40,6 +40,12 @@ SEPOLIA_RPC_URL=https://...
 HEDERA_TESTNET_RPC_URL=https://testnet.hashio.io/api
 ```
 
+For the frontend, copy `packages/nextjs/.env.example` to `packages/nextjs/.env` if you want to override browser RPC URLs or use the LayerZero automatic relay from the UI. The LayerZero relay needs a server-only funded testnet key:
+
+```bash
+LAYERZERO_RELAY_PRIVATE_KEY=0x...
+```
+
 You also need native testnet gas on the same deployer EOA:
 
 - Sepolia ETH for Sepolia deployments and sends.
@@ -99,6 +105,8 @@ yarn next:start
 ```
 
 Open [http://localhost:3000](http://localhost:3000), connect the wallet for the same funded EOA, choose the provider and direction, approve when prompted, and send a small test amount.
+
+LayerZero uses educational simple workers in this template. The UI attempts to relay automatically when `LAYERZERO_RELAY_PRIVATE_KEY` is configured; otherwise it shows the manual `make layerzero-relay ...` command to run from `packages/foundry`.
 
 See [`packages/nextjs/README.md`](packages/nextjs/README.md) for the full UI testing checklist.
 

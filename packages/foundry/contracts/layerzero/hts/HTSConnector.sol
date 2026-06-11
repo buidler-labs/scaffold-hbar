@@ -29,8 +29,9 @@ abstract contract HTSConnector is OFTCore, KeyHelper, HederaTokenService {
         payable
         OFTCore(HTS_DECIMALS, _lzEndpoint, _delegate)
     {
+        supplyContract = address(this);
         IHederaTokenService.TokenKey[] memory keys = new IHederaTokenService.TokenKey[](1);
-        keys[0] = getSingleKey(KeyType.SUPPLY, KeyValueType.INHERIT_ACCOUNT_KEY, bytes(""));
+        keys[0] = getSingleKey(KeyType.SUPPLY, KeyValueType.CONTRACT_ID, bytes(""));
 
         IHederaTokenService.Expiry memory expiry = IHederaTokenService.Expiry(0, address(this), 8000000);
 

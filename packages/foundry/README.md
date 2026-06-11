@@ -153,10 +153,14 @@ make layerzero-wire-sepolia
 make layerzero-wire-hedera
 make layerzero-verify-wiring
 
+make layerzero-associate-hedera
+
 make bridge-sync-next PROVIDER=layerzero
 ```
 
 After syncing, start the frontend with `yarn next:start`, select **LayerZero**, choose a direction, approve if prompted, and send a small test amount. The UI attempts the relay flow for this template; the detailed runbook also documents manual `make layerzero-relay` usage.
+
+For automatic LayerZero relay from the UI, copy `packages/nextjs/.env.example` to `packages/nextjs/.env`, set `LAYERZERO_RELAY_PRIVATE_KEY` to a funded testnet-only key, and restart the Next.js dev server. Without that key, use the manual relay command shown by the UI or runbook.
 
 ## Command Reference
 

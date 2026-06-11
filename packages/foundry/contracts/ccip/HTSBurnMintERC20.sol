@@ -55,22 +55,23 @@ contract HTSBurnMintERC20 is IBurnMintERC20, IGetCCIPAdmin, AccessControl, Heder
         // Set up the owner as the initial minter and burner
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
+        supplyContract = address(this);
         IHederaTokenService.TokenKey[] memory keys = new IHederaTokenService.TokenKey[](1);
-        keys[0] = getSingleKey(KeyType.SUPPLY, KeyValueType.INHERIT_ACCOUNT_KEY, bytes(""));
+        keys[0] = getSingleKey(KeyType.SUPPLY, KeyValueType.CONTRACT_ID, bytes(""));
 
         IHederaTokenService.Expiry memory expiry = IHederaTokenService.Expiry(0, address(this), 8000000);
 
-        IHederaTokenService.HederaToken memory htsToken;
-        htsToken.name = _name;
-        htsToken.symbol = _symbol;
-        htsToken.treasury = address(this);
-        htsToken.tokenSupplyType = finiteTotalSupplyType;
-        htsToken.freezeDefault = false;
-        htsToken.tokenKeys = keys;
-        htsToken.expiry = expiry;
+        IHederaTokenService.HederaToken memory htsTokenConfig;
+        htsTokenConfig.name = _name;
+        htsTokenConfig.symbol = _symbol;
+        htsTokenConfig.treasury = address(this);
+        htsTokenConfig.tokenSupplyType = finiteTotalSupplyType;
+        htsTokenConfig.freezeDefault = false;
+        htsTokenConfig.tokenKeys = keys;
+        htsTokenConfig.expiry = expiry;
 
         (int256 responseCode, address tokenAddress) =
-            HederaTokenService.createFungibleToken(htsToken, 0, int32(int8(int256(uint256(i_decimals)))));
+            HederaTokenService.createFungibleToken(htsTokenConfig, 0, int32(int8(int256(uint256(i_decimals)))));
 
         if (responseCode != HederaTokenService.SUCCESS_CODE) revert HtsTokenCreationFailed(responseCode);
 

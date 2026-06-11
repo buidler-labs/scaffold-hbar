@@ -87,5 +87,4 @@ contract AxelarScriptLocalTest is Test {
         assertEq(service.lastGasValue(), gasValue);
         assertEq(service.lastNativeFee(), nativeFee);
     }
-
 }

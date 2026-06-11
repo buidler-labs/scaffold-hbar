@@ -35,6 +35,16 @@ The sync command updates:
 
 Wallet and RPC settings are configured in `packages/nextjs/scaffold.config.ts`. By default the app targets Hedera Testnet and Ethereum Sepolia.
 
+Optional frontend env values live in `packages/nextjs/.env.example`. Copy it to `packages/nextjs/.env` if you need custom RPC URLs, WalletConnect, or LayerZero automatic relay:
+
+```bash
+NEXT_PUBLIC_HEDERA_TESTNET_RPC_URL=
+NEXT_PUBLIC_SEPOLIA_RPC_URL=
+LAYERZERO_RELAY_PRIVATE_KEY=0x...
+```
+
+`LAYERZERO_RELAY_PRIVATE_KEY` is server-only and is used by `/api/bridge/layerzero/relay` to deliver the educational simple-worker packet after the source transaction confirms. Use a funded testnet-only key. If it is not configured, the UI can still submit the transfer and will show the manual relay command from the LayerZero runbook.
+
 ## Test the UI
 
 Run these steps after completing one Foundry provider runbook and syncing the config.
@@ -70,7 +80,7 @@ Run these steps after completing one Foundry provider runbook and syncing the co
     - CCIP: [CCIP Explorer](https://ccip.chain.link)
     - LayerZero: [LayerZero Scan testnet](https://testnet.layerzeroscan.com)
 
-LayerZero in this template uses an educational simple-worker relay. The UI attempts the relay flow; the Foundry runbook also documents manual `make layerzero-relay` usage if you need to deliver a specific source transaction.
+LayerZero in this template uses an educational simple-worker relay. The UI attempts the relay flow when `LAYERZERO_RELAY_PRIVATE_KEY` is configured; the Foundry runbook also documents manual `make layerzero-relay` usage if you need to deliver a specific source transaction.
 
 ## Commands
 
@@ -92,4 +102,5 @@ Run these from the repo root.
 | Wallet is on the wrong network | Switch to the source chain selected in the bridge UI |
 | Balance is zero | Confirm you are using the same EOA from the Foundry runbook and that the previous bridge step completed |
 | Approval button does not clear | Wait for the approval transaction to confirm, then refresh the quote/status |
+| LayerZero relay reports missing private key | Set `LAYERZERO_RELAY_PRIVATE_KEY` in `packages/nextjs/.env` and restart `yarn next:start`, or run the displayed manual relay command from `packages/foundry` |
 | Transfer submitted but not delivered | Track the message in the provider explorer and follow the provider runbook troubleshooting section |

@@ -8,9 +8,6 @@ import { readFileSync } from "fs";
 import { parse } from "toml";
 import { ethers } from "ethers";
 
-const ALCHEMY_API_KEY =
-  process.env.ALCHEMY_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
-
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -28,13 +25,10 @@ async function getBalanceForEachNetwork(address) {
     // Extract rpc_endpoints from parsedToml
     const rpcEndpoints = parsedToml.rpc_endpoints;
 
-    // Expand any ${VAR} placeholder against process.env (populated from .env
-    // by dotenv.config above).  Keeps a sane default for ALCHEMY_API_KEY so
-    // the script still works out of the box.
+    // Expand any ${VAR} placeholder against process.env populated from .env.
     function expandEnvPlaceholders(input) {
-      const env = { ALCHEMY_API_KEY, ...process.env };
       return input.replace(/\$\{([A-Z0-9_]+)\}/gi, (match, name) =>
-        env[name] !== undefined ? env[name] : match
+        process.env[name] !== undefined ? process.env[name] : match
       );
     }
 

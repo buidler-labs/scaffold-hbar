@@ -1,5 +1,5 @@
 # LayerZero — Chapter 1 OFT flow wrappers (see bridge-layerzero.sh)
-.PHONY: layerzero-help layerzero-deploy layerzero-deploy-sepolia layerzero-deploy-hedera layerzero-deploy-workers-sepolia layerzero-deploy-workers-hedera layerzero-wire-sepolia layerzero-wire-hedera layerzero-verify-wiring layerzero-send-from-sepolia layerzero-send-from-hedera layerzero-relay layerzero-balances
+.PHONY: layerzero-help layerzero-deploy layerzero-deploy-sepolia layerzero-deploy-hedera layerzero-deploy-workers-sepolia layerzero-deploy-workers-hedera layerzero-wire-sepolia layerzero-wire-hedera layerzero-verify-wiring layerzero-associate-hedera layerzero-send-from-sepolia layerzero-send-from-hedera layerzero-relay layerzero-balances
 
 BRIDGE_LAYERZERO_SH := $(FOUNDRY_DIR)/script/layerzero/bridge-layerzero.sh
 
@@ -13,6 +13,7 @@ layerzero-help:
 	@echo "  Step 2 wire both chains:         make layerzero-wire-sepolia"
 	@echo "                                   make layerzero-wire-hedera"
 	@echo "  Step 3 verify wiring:            make layerzero-verify-wiring"
+	@echo "  Associate Hedera receiver:       make layerzero-associate-hedera [RECIPIENT=0x...]"
 	@echo "  Step 4 test Sepolia -> Hedera:   make layerzero-send-from-sepolia AMOUNT=10000000000000000 [RECIPIENT=0x...]"
 	@echo "                                   make layerzero-relay DIRECTION=sepolia-to-hedera TX=0x..."
 	@echo "  Step 5 test Hedera -> Sepolia:   make layerzero-send-from-hedera AMOUNT=10000000000000000 [RECIPIENT=0x...]"
@@ -42,6 +43,9 @@ layerzero-wire-hedera:
 
 layerzero-verify-wiring:
 	@cd "$(FOUNDRY_DIR)" && bash "$(BRIDGE_LAYERZERO_SH)" verify-wiring
+
+layerzero-associate-hedera:
+	@cd "$(FOUNDRY_DIR)" && RECIPIENT="$${RECIPIENT:-$(RECIPIENT)}" bash "$(BRIDGE_LAYERZERO_SH)" associate-hedera
 
 layerzero-send-from-sepolia:
 	@cd "$(FOUNDRY_DIR)" && AMOUNT="$${AMOUNT:-$(AMOUNT)}" RECIPIENT="$${RECIPIENT:-$(RECIPIENT)}" bash "$(BRIDGE_LAYERZERO_SH)" send-from-sepolia

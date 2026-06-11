@@ -35,6 +35,7 @@ TX="${TX:-}"
 HEDERA_ENDPOINT="0xbD672D1562Dd32C23B563C989d8140122483631d"
 SEPOLIA_RECEIVE_ULN302="0xdAf00F5eE2158dD58E0d3857851c432E34A3A851"
 HEDERA_RECEIVE_ULN302="0xc0c34919A04d69415EF2637A3Db5D637a7126cd0"
+HEDERA_HTS_PRECOMPILE="0x0000000000000000000000000000000000000167"
 HEDERA_DEPLOY_GAS_LIMIT="${HEDERA_DEPLOY_GAS_LIMIT:-15000000}"
 HEDERA_TRANSFER_GAS_LIMIT="${HEDERA_TRANSFER_GAS_LIMIT:-${HEDERA_DEPLOY_GAS_LIMIT}}"
 HEDERA_HTS_CREATE_VALUE="${HEDERA_HTS_CREATE_VALUE:-40ether}"
@@ -188,6 +189,21 @@ verify_wiring() {
 	echo "[LAYERZERO] Wiring verification passed"
 }
 
+associate_hedera() {
+	ensure_eoa
+	local account="${RECIPIENT:-${EOA}}"
+	local gas_price
+	gas_price=$(cast gas-price --rpc-url "${HEDERA_RPC_ALIAS}")
+	echo "[LAYERZERO] Associating ${account} with Hedera HTS token ${HEDERA_HTS_TOKEN:?set HEDERA_HTS_TOKEN}"
+	cast send "${HEDERA_HTS_PRECOMPILE}" "associateToken(address,address)" \
+		"${account}" "${HEDERA_HTS_TOKEN}" \
+		--rpc-url "${HEDERA_RPC_ALIAS}" \
+		--gas-price "${HEDERA_GAS_PRICE_WEI:-${gas_price}}" \
+		--gas-limit "${HEDERA_TRANSFER_GAS_LIMIT}" \
+		--account "${ACCOUNT}" \
+		--legacy
+}
+
 send_from_sepolia() {
 	ensure_eoa
 	echo "[LAYERZERO] Sending OFT Sepolia -> Hedera"
@@ -298,12 +314,13 @@ deploy-workers-hedera) deploy_workers_hedera ;;
 wire-sepolia) wire_sepolia ;;
 wire-hedera) wire_hedera ;;
 verify-wiring) verify_wiring ;;
+associate-hedera) associate_hedera ;;
 send-from-sepolia) send_from_sepolia ;;
 send-from-hedera) send_from_hedera ;;
 relay) relay ;;
 balances) balances ;;
 "")
-	echo "usage: $0 deploy-sepolia | deploy-hedera | deploy-workers-sepolia | deploy-workers-hedera | wire-sepolia | wire-hedera | verify-wiring | send-from-sepolia | send-from-hedera | relay | balances" >&2
+	echo "usage: $0 deploy-sepolia | deploy-hedera | deploy-workers-sepolia | deploy-workers-hedera | wire-sepolia | wire-hedera | verify-wiring | associate-hedera | send-from-sepolia | send-from-hedera | relay | balances" >&2
 	exit 1
 	;;
 *)
