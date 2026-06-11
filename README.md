@@ -1,6 +1,6 @@
 # SubRent - Subscription NFT Marketplace
 
-A Hedera-ready monorepo for building dApps with **Next.js**, **Hardhat**, and Hedera networks (testnet, mainnet). This repository is the source for [create-scaffold-hbar](https://github.com/buidler-labs/create-scaffold-hbar) templates; it uses the **Hardhat** stack and ships the **nft-subscription-marketplace** pattern: tokenize subscriptions (gym memberships, WiFi access, streaming services, etc.) as HTS NFTs and rent out unused periods to others.
+A Hedera-ready monorepo for building dApps with **Next.js**, **Hardhat**, and Hedera networks (testnet, mainnet). This repository is the source for [create-scaffold-hbar](https://github.com/hedera-dev/create-scaffold-hbar) templates; it uses the **Hardhat** stack and ships the **nft-subscription-marketplace** pattern: tokenize subscriptions (gym memberships, WiFi access, streaming services, etc.) as HTS NFTs and rent out unused periods to others.
 
 ## Disclaimer
 
