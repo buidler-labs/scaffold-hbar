@@ -4,23 +4,23 @@
   "minAmountBps": "9000",
   "chains": {
     "296": {
-      "oft": "0xE9e71938a601d3Dc4E5D31C7c4Ada29eF88c312D",
-      "htsToken": "0x00000000000000000000000000000000008C3aba",
+      "oft": "",
+      "htsToken": "",
       "endpointV2": "0xbD672D1562Dd32C23B563C989d8140122483631d",
       "receiveUln302": "0xc0c34919A04d69415EF2637A3Db5D637a7126cd0",
-      "workersDvn": "0x359B340b0A838ac8f15433Fa1c72ffbD5eE5DC7f",
-      "workersExecutor": "0x8c191482B5B6E042a8c878a86E82D1cb275Ab086",
+      "workersDvn": "",
+      "workersExecutor": "",
       "eid": 40285,
       "remoteEid": 40161,
       "gasLimit": "15000000",
       "relayReceiveGas": "500000"
     },
     "11155111": {
-      "oft": "0xC01F6aCacd4708aCc2e79Ad4a4c90695fB03c0cf",
+      "oft": "",
       "endpointV2": "0x6EDCE65403992e310A62460808c4b910D972f10f",
       "receiveUln302": "0xdAf00F5eE2158dD58E0d3857851c432E34A3A851",
-      "workersDvn": "0x4DfC5ed3a8530AD78c0cd8395C95efA65997F9E9",
-      "workersExecutor": "0x5D724024D50D6c4Be492a353f95E5E887C5Ae19F",
+      "workersDvn": "",
+      "workersExecutor": "",
       "eid": 40161,
       "remoteEid": 40285,
       "relayReceiveGas": "500000"

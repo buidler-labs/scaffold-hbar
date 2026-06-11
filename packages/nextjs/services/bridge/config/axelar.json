@@ -1,14 +1,14 @@
 {
-  "tokenId": "0x122814ea9478f77403a5226223037eed1ea2aa3905136246daf345c4754ebd53",
+  "tokenId": "",
   "interchainTokenService": "0xB5FB4BE02232B1bBA4dC8f81dc24C26980dE9e3C",
   "gasValue": "100000000000000",
   "nativeFee": "1000000000000000",
   "chains": {
     "296": {
       "axelarName": "hedera",
-      "bridgeToken": "0x00000000000000000000000000000000008C146F",
-      "tokenManager": "0x7efCdA347AC20f12e29d15EE4f478080258EdF81",
-      "approvalSpender": "0x7efCdA347AC20f12e29d15EE4f478080258EdF81",
+      "bridgeToken": "",
+      "tokenManager": "",
+      "approvalSpender": "",
       "whbar": "0xb1F616b8134F602c3Bb465fB5b5e6565cCAd37Ed",
       "tokenCreationPrice": "1525940997",
       "gasValue": "100000000",
@@ -17,8 +17,8 @@
     },
     "11155111": {
       "axelarName": "ethereum-sepolia",
-      "bridgeToken": "0x20cbf28076aBd96F14153459e64878dB12220327",
-      "tokenManager": "0x7efCdA347AC20f12e29d15EE4f478080258EdF81"
+      "bridgeToken": "",
+      "tokenManager": ""
     }
   }
 }
