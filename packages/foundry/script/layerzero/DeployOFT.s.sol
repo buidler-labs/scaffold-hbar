@@ -27,9 +27,9 @@ import { HelperConfig } from "./HelperConfig.s.sol";
 //   `msg.sender` here and become the contract owner.
 //
 //   Example:
-//     EOA=$(cast wallet address --account baditu-dev)
+//     EOA=$(cast wallet address --account my-testnet-keystore)
 //     forge script .../DeployOFT.s.sol:DeployOFT \
-//       --account baditu-dev --sender "$EOA" --broadcast \
+//       --account my-testnet-keystore --sender "$EOA" --broadcast \
 //       --sig "run(string,string,uint256)" "BridgeToken" "BTK" 1e18
 // ─────────────────────────────────────────────────────────────────────────────
 contract DeployOFT is Script {

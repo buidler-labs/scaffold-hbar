@@ -18,7 +18,7 @@ const nextBridgeConfigDir = join(
   "nextjs",
   "services",
   "bridge",
-  "config",
+  "config"
 );
 
 const CHAIN_IDS = {
@@ -99,7 +99,7 @@ const parseValuePairs = (pairs) =>
       if (separatorIndex === -1)
         throw new Error(`Expected key=value, received "${pair}"`);
       return [pair.slice(0, separatorIndex), pair.slice(separatorIndex + 1)];
-    }),
+    })
   );
 
 const readTextIfExists = (path) =>
@@ -108,8 +108,8 @@ const readTextIfExists = (path) =>
 const compactObject = (object) =>
   Object.fromEntries(
     Object.entries(object).filter(
-      ([, value]) => value !== undefined && value !== "",
-    ),
+      ([, value]) => value !== undefined && value !== ""
+    )
   );
 
 const unitDecimals = {
@@ -148,7 +148,7 @@ const record = (provider, scope, pairs) => {
   assertProvider(provider);
   if (!scope)
     throw new Error(
-      "Missing record scope. Use a chain id, chain alias, or route.",
+      "Missing record scope. Use a chain id, chain alias, or route."
     );
 
   const state = readState(provider);
@@ -257,21 +257,21 @@ const syncAxelar = () => {
         whbar: hedera.whbar ?? existing.chains?.[CHAIN_IDS.hedera]?.whbar,
         tokenCreationPrice: normalizeIntegerConfigValue(
           hedera.tokenCreationPrice ??
-            existing.chains?.[CHAIN_IDS.hedera]?.tokenCreationPrice,
+            existing.chains?.[CHAIN_IDS.hedera]?.tokenCreationPrice
         ),
         gasValue:
           normalizeIntegerConfigValue(
             route.hederaGasValue ??
-              existing.chains?.[CHAIN_IDS.hedera]?.gasValue,
+              existing.chains?.[CHAIN_IDS.hedera]?.gasValue
           ) ?? DEFAULTS.axelar.hederaGasValue,
         nativeFee:
           normalizeIntegerConfigValue(
             route.hederaNativeFee ??
-              existing.chains?.[CHAIN_IDS.hedera]?.nativeFee,
+              existing.chains?.[CHAIN_IDS.hedera]?.nativeFee
           ) ?? DEFAULTS.axelar.hederaNativeFee,
         gasLimit:
           normalizeIntegerConfigValue(
-            hedera.gasLimit ?? existing.chains?.[CHAIN_IDS.hedera]?.gasLimit,
+            hedera.gasLimit ?? existing.chains?.[CHAIN_IDS.hedera]?.gasLimit
           ) ?? DEFAULTS.axelar.hederaGasLimit,
       }),
       [CHAIN_IDS.sepolia]: compactObject({
@@ -419,7 +419,7 @@ const sync = (provider) => {
 const assertProvider = (provider) => {
   if (!providerNames.includes(provider)) {
     throw new Error(
-      `Unknown provider "${provider}". Use ${providerNames.join(", ")} or all.`,
+      `Unknown provider "${provider}". Use ${providerNames.join(", ")} or all.`
     );
   }
 };

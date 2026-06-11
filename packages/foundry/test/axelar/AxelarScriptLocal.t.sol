@@ -66,7 +66,7 @@ contract AxelarScriptLocalTest is Test {
 
         bytes32 tokenId = keccak256("registered-token-id");
         address localToken = makeAddr("localToken");
-        address recipient = 0xB00E8a2dE865080dd706F34642289aCa5E5958CA;
+        address recipient = makeAddr("recipient");
         uint256 amount = 10 ether;
         uint256 gasValue = 0.0001 ether;
         uint256 nativeFee = 0.001 ether;
