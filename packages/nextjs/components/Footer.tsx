@@ -34,7 +34,7 @@ export const Footer = () => {
         <ul className="menu menu-horizontal w-full">
           <div className="flex justify-center items-center gap-3 text-sm w-full text-base-content/60">
             <a
-              href="https://github.com/buidler-labs/scaffold-hbar"
+              href="https://github.com/hedera-dev/scaffold-hbar"
               target="_blank"
               rel="noreferrer"
               className="link hover:text-primary"
