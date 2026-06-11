@@ -1,0 +1,34 @@
+{
+  "name": "bridge",
+  "description": "Hedera bridge starter template with Foundry contracts and Axelar ITS, Chainlink CCIP, and LayerZero OFT flows.",
+  "create-scaffold-hbar": {
+    "capabilities": {
+      "frontend": [
+        "nextjs-app"
+      ],
+      "solidityFramework": [
+        "foundry"
+      ]
+    },
+    "defaults": {
+      "frontend": "nextjs-app",
+      "solidityFramework": "foundry"
+    },
+    "outro": {
+      "steps": [
+        "This template is an educational bridge starter, not a production-ready bridge implementation. Review and audit before using with real value.",
+        "Suggested steps:",
+        "1. Generate or import a deployer account: {run:foundry:account:generate}",
+        "2. Configure packages/foundry/.env with ACCOUNT, SEPOLIA_RPC_URL, and HEDERA_TESTNET_RPC_URL.",
+        "3. Compile contracts: {run:foundry:compile}",
+        "4. Run unit tests: {run:foundry:test}",
+        "5. Choose one bridge provider and open its runbook: cd packages/foundry && make axelar-help, make ccip-help, or make layerzero-help.",
+        "6. Deploy and configure that provider by following its README from packages/foundry/script/<provider>/README.md.",
+        "7. Sync the deployed provider config into the frontend: cd packages/foundry && make bridge-sync-next PROVIDER=<provider>.",
+        "8. Start the frontend: {run:next:dev}",
+        "9. Connect a funded testnet wallet, select the configured provider, and send a small test transfer. Some Hedera HTS flows require receiver association before receiving.",
+        "After this, customize the bridge provider config, contracts, UI, limits, fees, and operational controls to fit your product."
+      ]
+    }
+  }
+}
