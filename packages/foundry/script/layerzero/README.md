@@ -134,8 +134,10 @@ make bridge-sync-next PROVIDER=layerzero
 This updates `packages/nextjs/services/bridge/config/layerzero.json`. The generated state lives in
 `packages/foundry/deployments/bridge/layerzero.json` and is ignored by git.
 
-If you prefer to learn every moving piece manually, you can still copy values into `.env` and edit the
-Next.js JSON yourself. The sync command is just a convenience for this educational template.
+Keep the generated LayerZero addresses in `deployments/bridge/layerzero.json` instead of copying them
+into `.env`. The helper scripts load that recorded state before each step, which prevents stale
+terminal variables from being reused after a fresh deploy. Use `.env` for account names, RPC URLs,
+keys, and optional tuning values.
 
 For automatic LayerZero relay from the UI, copy `packages/nextjs/.env.example` to `packages/nextjs/.env`, set `LAYERZERO_RELAY_PRIVATE_KEY` to a funded testnet-only key, and restart `yarn next:start`. If you do not set it, the UI still submits the source transfer and shows the manual relay command.
 

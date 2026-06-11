@@ -64,7 +64,7 @@ The sync command updates:
 packages/nextjs/services/bridge/config/*.json
 ```
 
-You can still override values manually in `.env` or edit the Next.js JSON files while learning, but the sync command is the easiest path for new users.
+Keep generated bridge addresses in `deployments/bridge/` instead of copying them into `.env`. The helper scripts load that state before each step so repeated commands use the latest recorded deployment. Use `.env` for account names, RPC URLs, keys, and optional tuning values.
 
 ## Provider Tutorials
 

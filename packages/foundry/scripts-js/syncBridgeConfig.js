@@ -171,13 +171,13 @@ const record = (provider, scope, pairs) => {
   console.log(`[bridge-config] recorded ${provider} ${scope}`);
 };
 
-const shellDefault = (name, value) => {
+const shellAssign = (name, value) => {
   if (value === undefined || value === "") return "";
   const escaped = String(value)
     .replaceAll("\\", "\\\\")
     .replaceAll('"', '\\"')
     .replaceAll("$", "\\$");
-  return `: "\${${name}:=\"${escaped}\"}"; export ${name}`;
+  return `export ${name}="${escaped}"`;
 };
 
 const printEnv = (provider) => {
@@ -190,31 +190,31 @@ const printEnv = (provider) => {
   const lines =
     provider === "axelar"
       ? [
-          shellDefault("SEPOLIA_BRIDGE_TOKEN", sepolia.bridgeToken),
-          shellDefault("SEPOLIA_TOKEN_MANAGER", sepolia.tokenManager),
-          shellDefault("HEDERA_BRIDGE_TOKEN", hedera.bridgeToken),
-          shellDefault("HEDERA_TOKEN_MANAGER", hedera.tokenManager),
-          shellDefault("HEDERA_APPROVAL_SPENDER", hedera.approvalSpender),
-          shellDefault("TOKEN_ID", route.tokenId),
-          shellDefault("SALT", route.salt),
+          shellAssign("SEPOLIA_BRIDGE_TOKEN", sepolia.bridgeToken),
+          shellAssign("SEPOLIA_TOKEN_MANAGER", sepolia.tokenManager),
+          shellAssign("HEDERA_BRIDGE_TOKEN", hedera.bridgeToken),
+          shellAssign("HEDERA_TOKEN_MANAGER", hedera.tokenManager),
+          shellAssign("HEDERA_APPROVAL_SPENDER", hedera.approvalSpender),
+          shellAssign("TOKEN_ID", route.tokenId),
+          shellAssign("SALT", route.salt),
         ]
       : provider === "ccip"
       ? [
-          shellDefault("CCIP_SEPOLIA_TOKEN", sepolia.token),
-          shellDefault("CCIP_SEPOLIA_POOL", sepolia.pool),
-          shellDefault("CCIP_HEDERA_TOKEN", hedera.token),
-          shellDefault("CCIP_HEDERA_WRAPPER", hedera.wrapper),
-          shellDefault("CCIP_HEDERA_POOL", hedera.pool),
-          shellDefault("CCIP_HEDERA_HTS_TOKEN", hedera.htsToken),
+          shellAssign("CCIP_SEPOLIA_TOKEN", sepolia.token),
+          shellAssign("CCIP_SEPOLIA_POOL", sepolia.pool),
+          shellAssign("CCIP_HEDERA_TOKEN", hedera.token),
+          shellAssign("CCIP_HEDERA_WRAPPER", hedera.wrapper),
+          shellAssign("CCIP_HEDERA_POOL", hedera.pool),
+          shellAssign("CCIP_HEDERA_HTS_TOKEN", hedera.htsToken),
         ]
       : [
-          shellDefault("SEPOLIA_OFT", sepolia.oft),
-          shellDefault("HEDERA_OFT", hedera.oft),
-          shellDefault("HEDERA_HTS_TOKEN", hedera.htsToken),
-          shellDefault("SEPOLIA_WORKERS_DVN", sepolia.workersDvn),
-          shellDefault("SEPOLIA_WORKERS_EXECUTOR", sepolia.workersExecutor),
-          shellDefault("HEDERA_WORKERS_DVN", hedera.workersDvn),
-          shellDefault("HEDERA_WORKERS_EXECUTOR", hedera.workersExecutor),
+          shellAssign("SEPOLIA_OFT", sepolia.oft),
+          shellAssign("HEDERA_OFT", hedera.oft),
+          shellAssign("HEDERA_HTS_TOKEN", hedera.htsToken),
+          shellAssign("SEPOLIA_WORKERS_DVN", sepolia.workersDvn),
+          shellAssign("SEPOLIA_WORKERS_EXECUTOR", sepolia.workersExecutor),
+          shellAssign("HEDERA_WORKERS_DVN", hedera.workersDvn),
+          shellAssign("HEDERA_WORKERS_EXECUTOR", hedera.workersExecutor),
         ];
 
   console.log(lines.filter(Boolean).join("\n"));

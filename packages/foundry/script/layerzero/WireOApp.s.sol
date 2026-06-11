@@ -68,8 +68,8 @@ contract WireOApp is Script {
         console.log("setPeer done - remoteEid:", cfg.remoteEid);
 
         IMessageLibManager ep = IMessageLibManager(cfg.endpointV2);
-        ep.setSendLibrary(localOApp, cfg.remoteEid, cfg.sendUln302);
-        ep.setReceiveLibrary(localOApp, cfg.remoteEid, cfg.receiveUln302, 0);
+        _setSendLibraryIfNeeded(ep, localOApp, cfg.remoteEid, cfg.sendUln302);
+        _setReceiveLibraryIfNeeded(ep, localOApp, cfg.remoteEid, cfg.receiveUln302);
         console.log("send/receive libs set");
 
         _setExecutorConfig(ep, localOApp, cfg.sendUln302, cfg.remoteEid, executor);
@@ -87,6 +87,30 @@ contract WireOApp is Script {
         vm.stopBroadcast();
 
         console.log("WireOApp complete for oapp:", localOApp);
+    }
+
+    function _setSendLibraryIfNeeded(IMessageLibManager _ep, address _oapp, uint32 _remoteEid, address _sendLib)
+        internal
+    {
+        address currentSendLib = _ep.getSendLibrary(_oapp, _remoteEid);
+        if (currentSendLib == _sendLib) {
+            console.log("send library already set");
+            return;
+        }
+
+        _ep.setSendLibrary(_oapp, _remoteEid, _sendLib);
+    }
+
+    function _setReceiveLibraryIfNeeded(IMessageLibManager _ep, address _oapp, uint32 _remoteEid, address _receiveLib)
+        internal
+    {
+        (address currentReceiveLib,) = _ep.getReceiveLibrary(_oapp, _remoteEid);
+        if (currentReceiveLib == _receiveLib) {
+            console.log("receive library already set");
+            return;
+        }
+
+        _ep.setReceiveLibrary(_oapp, _remoteEid, _receiveLib, 0);
     }
 
     function _setExecutorConfig(

@@ -128,7 +128,6 @@ deploy_workers_hedera() {
 		--broadcast \
 		--slow \
 		--legacy \
-		--skip-simulation \
 		--gas-price "${HEDERA_GAS_PRICE_WEI:-${HEDERA_GAS_PRICE}}" \
 		--chain-id "${HEDERA_CHAIN_ID}" | tee "${output_file}"
 	local dvn
@@ -166,7 +165,6 @@ wire_hedera() {
 		--broadcast \
 		--slow \
 		--legacy \
-		--skip-simulation \
 		--gas-price "${HEDERA_GAS_PRICE_WEI:-${HEDERA_GAS_PRICE}}" \
 		--chain-id "${HEDERA_CHAIN_ID}" \
 		--sig "run(address,address,address,address)" \
