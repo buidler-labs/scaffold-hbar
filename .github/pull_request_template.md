@@ -4,8 +4,8 @@ _Concise description of proposed changes, We recommend using screenshots and vid
 
 ## Additional Information
 
-- [ ] I have read the [contributing docs](https://github.com/buidler-labs/scaffold-hbar/blob/main/CONTRIBUTING.md) (if this is your first contribution)
-- [ ] This is not a duplicate of any [existing pull request](https://github.com/buidler-labs/scaffold-hbar/pulls)
+- [ ] I have read the [contributing docs](https://github.com/hedera-dev/scaffold-hbar/blob/main/CONTRIBUTING.md) (if this is your first contribution)
+- [ ] This is not a duplicate of any [existing pull request](https://github.com/hedera-dev/scaffold-hbar/pulls)
 
 ## Related Issues
 
