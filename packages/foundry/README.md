@@ -173,7 +173,7 @@ For automatic LayerZero relay from the UI, copy `packages/nextjs/.env.example` t
 | `yarn foundry:compile` | Compile contracts |
 | `yarn foundry:test` | Run Foundry tests |
 | `yarn foundry:lint` | Check Forge and JS formatting |
-| `yarn foundry:verify:testnet` | Verify Hedera Testnet deployments on HashScan |
+| `yarn foundry:verify:testnet 0xAddress contracts/MyContract.sol:MyContract` | Verify a Hedera Testnet contract on Sourcify |
 
 ## Notes
 

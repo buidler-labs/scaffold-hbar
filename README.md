@@ -120,7 +120,7 @@ Run these from the repo root unless noted otherwise.
 | `yarn foundry:account:import` | Import an existing private key into a Foundry keystore |
 | `yarn foundry:compile` | Compile Foundry contracts |
 | `yarn foundry:test` | Run Foundry tests |
-| `yarn foundry:verify:testnet` | Verify Hedera Testnet deployments on HashScan |
+| `yarn foundry:verify:testnet 0xAddress contracts/MyContract.sol:MyContract` | Verify a Hedera Testnet contract on Sourcify |
 | `yarn next:start` | Start the Next.js bridge UI |
 | `yarn next:build` | Build the Next.js app |
 | `yarn next:check-types` | Type-check the Next.js app |

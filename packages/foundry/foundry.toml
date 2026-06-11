@@ -8,6 +8,7 @@ fs_permissions = [
 ]
 ffi = true
 solc_version = "0.8.24"
+evm_version = "cancun"
 
 # Suppress style lints for API/modifier names we don't control
 [lint]
@@ -18,6 +19,12 @@ localhost = "http://127.0.0.1:8545"
 hedera_testnet = "${HEDERA_TESTNET_RPC_URL}"
 hedera_mainnet = "${HEDERA_MAINNET_RPC_URL}"
 sepolia = "${SEPOLIA_RPC_URL}"
+
+# Hedera is supported by the main Sourcify instance.
+# Use: forge verify-contract <ADDRESS> <CONTRACT> --chain-id 296 --verifier sourcify
+[etherscan]
+hedera_testnet = { key = "", url = "https://hashscan.io/testnet" }
+hedera_mainnet = { key = "", url = "https://hashscan.io/mainnet" }
 
 [fmt]
 line_length = 120

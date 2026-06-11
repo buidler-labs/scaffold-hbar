@@ -16,7 +16,7 @@
     },
     "outro": {
       "steps": [
-        "This template is an educational bridge starter, not a production-ready bridge implementation. Review and audit before using with real value.",
+        "This template is an educational bridge starter.",
         "Suggested steps:",
         "1. Generate or import a deployer account: {run:foundry:account:generate}",
         "2. Configure packages/foundry/.env with ACCOUNT, SEPOLIA_RPC_URL, and HEDERA_TESTNET_RPC_URL.",

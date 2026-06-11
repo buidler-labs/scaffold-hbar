@@ -24,10 +24,8 @@
     "test:local": "forge test --fork-url http://127.0.0.1:8545 --chain-id 296 --ffi",
     "test:testnet": "forge test --fork-url hedera_testnet --chain-id 296 --ffi",
     "test:mainnet": "forge test --fork-url hedera_mainnet --chain-id 295 --ffi",
-    "verify": "make verify RPC_URL=${1:-localhost}",
-    "verify:testnet": "node scripts-js/verifyHedera.js 296",
-    "verify:mainnet": "node scripts-js/verifyHedera.js 295",
-    "verify:contract": "node scripts-js/verifyHederaContract.js",
+    "verify:testnet": "forge verify-contract --chain-id 296 --verifier sourcify",
+    "verify:mainnet": "forge verify-contract --chain-id 295 --verifier sourcify",
     "postinstall": "shx cp -n .env.example .env"
   },
   "dependencies": {

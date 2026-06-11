@@ -2,6 +2,8 @@
 
 DEPLOY_SCRIPT ?=
 PROVIDER ?= all
+RPC_URL ?= localhost
+ETH_KEYSTORE_ACCOUNT ?= scaffold-hbar-default
 FOUNDRY_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
 include script/axelar/bridge-axelar.mk
@@ -38,17 +40,19 @@ deploy:
 		echo "Error: Deploy script '$(DEPLOY_SCRIPT)' not found"; \
 		exit 1; \
 	fi
-	@$(MAKE) setup-deployer
 	@mkdir -p deployments
 	@if [ "$(RPC_URL)" = "localhost" ]; then \
+		$(MAKE) setup-deployer; \
 		rm -rf broadcast/Deploy.s.sol/31337; \
 		if [ "$(ETH_KEYSTORE_ACCOUNT)" = "scaffold-hbar-default" ]; then \
 			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --password localhost --broadcast --ffi; \
 		else \
-			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --broadcast --ffi; \
+			forge script $(DEPLOY_SCRIPT) --rpc-url localhost --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi; \
 		fi \
+	elif [ "$(RPC_URL)" = "hedera_testnet" ] || [ "$(RPC_URL)" = "hedera_mainnet" ]; then \
+		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow --legacy; \
 	else \
-		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --broadcast --ffi --slow; \
+		forge script $(DEPLOY_SCRIPT) --rpc-url $(RPC_URL) --account $(ETH_KEYSTORE_ACCOUNT) --broadcast --ffi --slow; \
 	fi
 
 # Deploy and generate ABIs (used by scripts-js/parseArgs.js)
@@ -89,13 +93,15 @@ lint:
 test:
 	forge test
 
-# Verify contracts
-# For Hedera networks (chainId 295/296) this calls verifyHedera.js which uses
-# Hashscan's legacy Sourcify v1 API directly (forge's built-in Sourcify client
-# uses APIv2 which Hashscan does not support).
+# Verify contracts on Sourcify. Hedera testnet/mainnet are supported by the main Sourcify instance.
+# Usage: make verify CONTRACT=0xAddress CONTRACT_PATH=contracts/MyContract.sol:MyContract CHAIN_ID=296
 verify:
-	@if [ "$(RPC_URL)" = "hedera_testnet" ] || [ "$(RPC_URL)" = "hedera_mainnet" ]; then \
-		node scripts-js/verifyHedera.js $$([ "$(RPC_URL)" = "hedera_mainnet" ] && echo 295 || echo 296); \
-	else \
-		forge script script/VerifyAll.s.sol --ffi --rpc-url $(RPC_URL); \
+	@if [ -z "$(CONTRACT)" ] || [ -z "$(CONTRACT_PATH)" ] || [ -z "$(CHAIN_ID)" ]; then \
+		echo "Usage: make verify CONTRACT=0xAddress CONTRACT_PATH=contracts/MyContract.sol:MyContract CHAIN_ID=296"; \
+		echo ""; \
+		echo "Or use yarn commands:"; \
+		echo "  yarn foundry:verify:testnet 0xAddress contracts/MyContract.sol:MyContract"; \
+		echo "  yarn foundry:verify:mainnet 0xAddress contracts/MyContract.sol:MyContract"; \
+		exit 1; \
 	fi
+	forge verify-contract $(CONTRACT) $(CONTRACT_PATH) --chain-id $(CHAIN_ID) --verifier sourcify
