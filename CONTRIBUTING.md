@@ -50,7 +50,7 @@ Issues should be used to report problems, request a new feature, or discuss pote
 
 #### Solve an issue
 
-Scan through our [existing issues](https://github.com/buidler-labs/scaffold-hbar/issues) to find one that interests you.
+Scan through our [existing issues](https://github.com/hedera-dev/scaffold-hbar/issues) to find one that interests you.
 
 If a contributor is working on the issue, they will be assigned to the individual. If you find an issue to work on, you are welcome to assign it to yourself and open a PR with a fix for it.
 
