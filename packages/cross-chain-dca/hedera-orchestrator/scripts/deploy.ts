@@ -59,8 +59,8 @@ async function main() {
 
   if (!destinationAddress) {
     console.log("\n=== Next steps ===");
-    console.log("  1. Deploy sepolia-executor:  yarn dca:sepolia:deploy");
-    console.log("  2. Wire destination address: yarn dca:hedera:wire");
+    console.log("  1. Deploy sepolia-executor:  yarn hardhat:sepolia:deploy");
+    console.log("  2. Wire destination address: yarn hardhat:hedera:wire");
   }
 }
 

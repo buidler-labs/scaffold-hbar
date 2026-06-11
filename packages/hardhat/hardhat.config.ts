@@ -54,12 +54,26 @@ const config: HardhatUserConfig = {
       chainId: 11155111,
     },
   },
-  // Hedera uses Sourcify; Sepolia uses Etherscan.
+  // Hedera uses Sourcify (chainId 295/296 supported by Sourcify, not Etherscan).
+  // Sepolia uses Etherscan — requires customChains so hardhat-verify maps the
+  // custom network name "ethereumSepolia" to the correct Etherscan API endpoint.
   sourcify: {
     enabled: true,
   },
   etherscan: {
-    apiKey: etherscanApiKey,
+    apiKey: {
+      ethereumSepolia: etherscanApiKey,
+    },
+    customChains: [
+      {
+        network: "ethereumSepolia",
+        chainId: 11155111,
+        urls: {
+          apiURL: "https://api-sepolia.etherscan.io/api",
+          browserURL: "https://sepolia.etherscan.io",
+        },
+      },
+    ],
   },
   typechain: {
     outDir: "typechain-types",

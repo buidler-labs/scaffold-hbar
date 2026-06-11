@@ -48,7 +48,9 @@ async function main() {
 
   fs.mkdirSync(configDir, { recursive: true });
   deployed.hederaMessageSender = senderAddress;
+  deployed.hederaMessageSenderArgs = [gateway, gasService, destinationChain, destinationAddress];
   deployed.hederaOrchestrator = orchestratorAddress;
+  deployed.hederaOrchestratorArgs = [senderAddress];
   fs.writeFileSync(deployedPath, JSON.stringify(deployed, null, 2));
   console.log("\nAddresses saved to config/deployed-addresses.json");
 
@@ -57,8 +59,8 @@ async function main() {
 
   if (!destinationAddress) {
     console.log("\n=== Next steps ===");
-    console.log("  1. Deploy sepolia-executor:  yarn dca:sepolia:deploy");
-    console.log("  2. Wire destination address: yarn dca:hedera:wire");
+    console.log("  1. Deploy sepolia-executor:  yarn hardhat:sepolia:deploy");
+    console.log("  2. Wire destination address: yarn hardhat:hedera:wire");
   }
 }
 

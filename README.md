@@ -59,22 +59,22 @@ Deploys Hedera contracts first, then Sepolia (wired to the Hedera sender address
 ### Step-by-step
 
 ```bash
-yarn dca:hedera:deploy
-yarn dca:sepolia:deploy
-yarn dca:hedera:wire    # re-wire if Sepolia was deployed after Hedera
+yarn hardhat:hedera:deploy
+yarn hardhat:sepolia:deploy
+yarn hardhat:hedera:wire    # re-wire if Sepolia was deployed after Hedera
 ```
 
 ### Fund the contracts
 
 ```bash
-yarn dca:hedera:fund          # send HBAR to DcaOrchestrator to cover Axelar relay gas
-yarn dca:sepolia:fund:usdc    # send USDC to DcaExecutor on Sepolia
+yarn hardhat:hedera:fund          # send HBAR to DcaOrchestrator to cover Axelar relay gas
+yarn hardhat:sepolia:fund:usdc    # send USDC to DcaExecutor on Sepolia
 ```
 
 ## Create a DCA plan
 
 ```bash
-yarn dca:hedera:plan:create   # uses env overrides for amount, interval, max executions
+yarn hardhat:hedera:plan:create   # uses env overrides for amount, interval, max executions
 ```
 
 | Variable               | Default      | Description                                              |
@@ -88,8 +88,8 @@ yarn dca:hedera:plan:create   # uses env overrides for amount, interval, max exe
 ## Test
 
 ```bash
-yarn dca:hedera:test    # Hardhat unit tests — no .env or live RPC required
-yarn dca:sepolia:test   # Hardhat unit tests — no .env or live RPC required
+yarn hardhat:hedera:test    # Hardhat unit tests — no .env or live RPC required
+yarn hardhat:sepolia:test   # Hardhat unit tests — no .env or live RPC required
 ```
 
 ## Frontend

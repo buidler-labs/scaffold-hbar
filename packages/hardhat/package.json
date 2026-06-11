@@ -26,6 +26,7 @@
     "hedera:plan:create": "hardhat run scripts/hedera/create-plan.ts --network hederaTestnet",
     "hedera:plan:cancel": "hardhat run scripts/hedera/cancel-plan.ts --network hederaTestnet",
     "hedera:plan:latest": "hardhat run scripts/hedera/latest-plan.ts --network hederaTestnet",
+    "hedera:verify": "hardhat run scripts/hedera/verify.ts --network hederaTestnet",
     "hedera:withdraw:orchestrator": "hardhat run scripts/hedera/withdraw-orchestrator.ts --network hederaTestnet",
     "hedera:withdraw:sender": "hardhat run scripts/hedera/withdraw-sender.ts --network hederaTestnet",
     "sepolia:compile": "hardhat compile",

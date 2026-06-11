@@ -1,7 +1,11 @@
 {
   "hederaMessageSender": "0x0000000000000000000000000000000000000000",
+  "hederaMessageSenderArgs": ["0xGateway", "0xGasService", "ethereum-sepolia", ""],
   "hederaOrchestrator": "0x0000000000000000000000000000000000000000",
+  "hederaOrchestratorArgs": ["0xMessageSender"],
   "sepoliaExecutor": "0x0000000000000000000000000000000000000000",
+  "sepoliaExecutorArgs": ["0xUniswapRouter", "0xUsdcAddress"],
   "sepoliaMessageReceiver": "0x0000000000000000000000000000000000000000",
+  "sepoliaMessageReceiverArgs": ["0xGateway", "hedera", "0xhederamessagesender", "0xExecutor"],
   "testPlanId": "0"
 }

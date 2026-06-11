@@ -63,8 +63,8 @@ yarn install
 ## Compile
 
 ```bash
-yarn dca:hedera:compile
-yarn dca:sepolia:compile
+yarn hardhat:hedera:compile
+yarn hardhat:sepolia:compile
 ```
 
 ## Deploy
@@ -72,7 +72,7 @@ yarn dca:sepolia:compile
 ### Full deployment (recommended)
 
 ```bash
-yarn dca:deploy
+yarn hardhat:deploy
 ```
 
 Deploys Hedera first (writes `hederaMessageSender` + `hederaOrchestrator` to `config/deployed-addresses.json`), then deploys Sepolia (reads `hederaMessageSender` to wire the receiver). After both deploys, `deployedContracts.ts` in the Next.js package is updated automatically.
@@ -82,9 +82,9 @@ Deploys Hedera first (writes `hederaMessageSender` + `hederaOrchestrator` to `co
 Deploy Hedera first — Sepolia deploy requires the `hederaMessageSender` address:
 
 ```bash
-yarn dca:hedera:deploy
-yarn dca:sepolia:deploy
-yarn dca:hedera:wire     # update AxelarMessageSender destination if Sepolia wasn't deployed at Hedera deploy time
+yarn hardhat:hedera:deploy
+yarn hardhat:sepolia:deploy
+yarn hardhat:hedera:wire     # update AxelarMessageSender destination if Sepolia wasn't deployed at Hedera deploy time
 ```
 
 ### Fund the orchestrator
@@ -92,7 +92,7 @@ yarn dca:hedera:wire     # update AxelarMessageSender destination if Sepolia was
 The orchestrator forwards `feeForSender` HBAR to `AxelarMessageSender` on each execution to cover Axelar relay gas. Fund it with at least `maxExecutions × feeForSender` HBAR:
 
 ```bash
-yarn dca:hedera:fund
+yarn hardhat:hedera:fund
 # default: 10 HBAR — override with ORCHESTRATOR_FUND_AMOUNT=50
 ```
 
@@ -101,16 +101,16 @@ yarn dca:hedera:fund
 The executor is pre-funded with USDC on Sepolia — it swaps this for the target token on each DCA cycle:
 
 ```bash
-yarn dca:sepolia:fund:usdc
+yarn hardhat:sepolia:fund:usdc
 # default: 5 USDC — override with FUND_USDC_AMOUNT=100
 ```
 
 ## Manage DCA plans
 
 ```bash
-yarn dca:hedera:plan:create     # create a new DCA plan (see env vars below)
-yarn dca:hedera:plan:cancel     # cancel a plan (requires CANCEL_PLAN_ID=<id>)
-yarn dca:hedera:plan:latest     # inspect the latest plan — no tx sent
+yarn hardhat:hedera:plan:create     # create a new DCA plan (see env vars below)
+yarn hardhat:hedera:plan:cancel     # cancel a plan (requires CANCEL_PLAN_ID=<id>)
+yarn hardhat:hedera:plan:latest     # inspect the latest plan — no tx sent
 ```
 
 ### Plan creation env overrides
@@ -127,8 +127,8 @@ yarn dca:hedera:plan:latest     # inspect the latest plan — no tx sent
 ## Run tests
 
 ```bash
-yarn dca:hedera:test
-yarn dca:sepolia:test
+yarn hardhat:hedera:test
+yarn hardhat:sepolia:test
 ```
 
 Tests run on a local in-process Hardhat network — no `.env` or live RPC required.
@@ -136,9 +136,9 @@ Tests run on a local in-process Hardhat network — no `.env` or live RPC requir
 ## Sepolia utilities
 
 ```bash
-yarn dca:sepolia:balance:check   # check ETH, USDC, WETH balances of DcaExecutor
-yarn dca:sepolia:verify          # verify contracts on Sepolia Etherscan (requires ETHERSCAN_API_KEY)
-yarn dca:sepolia:wire            # re-wire AxelarMessageReceiver source chain/address
+yarn hardhat:sepolia:balance:check   # check ETH, USDC, WETH balances of DcaExecutor
+yarn hardhat:sepolia:verify          # verify contracts on Sepolia Etherscan (requires ETHERSCAN_API_KEY)
+yarn hardhat:sepolia:wire            # re-wire AxelarMessageReceiver source chain/address
 ```
 
 ## Environment variables

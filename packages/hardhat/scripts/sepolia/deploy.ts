@@ -51,7 +51,9 @@ async function main() {
 
   fs.mkdirSync(configDir, { recursive: true });
   deployed.sepoliaExecutor = executorAddress;
+  deployed.sepoliaExecutorArgs = [swapRouter, sourceToken];
   deployed.sepoliaMessageReceiver = receiverAddress;
+  deployed.sepoliaMessageReceiverArgs = [gateway, sourceChain, expectedSourceAddress, executorAddress];
   fs.writeFileSync(deployedPath, JSON.stringify(deployed, null, 2));
   console.log("\nAddresses saved to config/deployed-addresses.json");
 
