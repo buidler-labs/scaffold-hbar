@@ -19,94 +19,207 @@ For lower-level package details (contracts, scripts, environment variables) see 
 - [Yarn](https://yarnpkg.com/) — **required** (Yarn workspaces; npm and pnpm are not supported)  
   Install via Corepack: `corepack enable && corepack prepare yarn@stable --activate`
 - [Git](https://git-scm.com/)
-- **Hedera testnet account** — create one at [portal.hedera.com](https://portal.hedera.com) and fund it from the [Hedera faucet](https://portal.hedera.com/faucet)
-- **Sepolia RPC URL** — [Infura](https://infura.io), [Alchemy](https://www.alchemy.com), or a public endpoint
-- **Sepolia ETH** for gas — get testnet ETH from a faucet such as [sepolia-faucet.pk910.de](https://sepolia-faucet.pk910.de/) (PoW faucet, no daily cap) or the [Alchemy Sepolia faucet](https://www.alchemy.com/faucets/ethereum-sepolia)
-- **Sepolia USDC** — the executor is pre-funded with USDC; get some from [faucet.circle.com](https://faucet.circle.com/)
+- **Hedera testnet account** — create one at [portal.hedera.com](https://portal.hedera.com) and fund it from the built-in faucet
+- **Sepolia RPC URL** — get a free key at [dashboard.alchemy.com](https://dashboard.alchemy.com); format: `https://eth-sepolia.g.alchemy.com/v2/<YOUR_KEY>`
+- **Sepolia ETH** for gas — [sepolia-faucet.pk910.de](https://sepolia-faucet.pk910.de/) (PoW, no daily cap) or [Alchemy Sepolia faucet](https://www.alchemy.com/faucets/ethereum-sepolia)
+- **Sepolia USDC** — get testnet USDC from [faucet.circle.com](https://faucet.circle.com/)
+- **Etherscan API key** — for Sepolia contract verification, get one at [etherscan.io/myapikey](https://etherscan.io/myapikey)
 
-## Setup
+## Quickstart
+
+The fastest path to a running cross-chain DCA deployment. The `yarn hardhat:deploy` command handles all 10 steps — compile, deploy both chains, wire, fund, create a plan, and verify — and prompts interactively for anything it needs.
 
 ```bash
 # 1. Clone and install
 git clone <repo> && cd scaffold-hbar
 yarn install
 
-# 2. Configure environment
-cp packages/hardhat/.env.example packages/hardhat/.env
-# Edit packages/hardhat/.env:
-#   HEDERA_PRIVATE_KEY  — EVM private key for your Hedera testnet account
-#   SEPOLIA_PRIVATE_KEY — EVM private key for your Sepolia account
-#   SEPOLIA_RPC_URL     — your Sepolia JSON-RPC endpoint
-#   AXELAR_GATEWAY_SEPOLIA — Axelar Gateway address on Sepolia
+# 2. Generate deployer accounts — run once for Hedera, once for Sepolia
+yarn hardhat:account:generate
 ```
 
-## Compile
+Fund both accounts before deploying:
+- **Hedera testnet** — [portal.hedera.com](https://portal.hedera.com) (built-in faucet)
+- **Sepolia ETH** — [sepolia-faucet.pk910.de](https://sepolia-faucet.pk910.de/)
+- **Sepolia USDC** — [faucet.circle.com](https://faucet.circle.com/)
+
+```bash
+# 3. Run the full 10-step deployment
+yarn hardhat:deploy
+```
+
+The script prompts for the following before touching any network:
+
+| Prompt | When |
+|---|---|
+| Sepolia RPC URL | Only if not already saved in `.env` |
+| Hedera key password | Every run (decrypts the encrypted private key) |
+| Sepolia key password | Every run (decrypts the encrypted private key) |
+| Etherscan API key | Only if not already saved in `.env` |
+| Confirmation | Always — shows full config before proceeding |
+
+Once confirmed, all 10 steps run automatically:
+
+1. Compile all contracts
+2. Deploy `DcaOrchestrator` + `AxelarMessageSender` to Hedera testnet
+3. Deploy `DcaExecutor` + `AxelarMessageReceiver` to Sepolia
+4. Wire Hedera — set Sepolia receiver as Axelar destination
+5. Wire Sepolia — set Hedera sender as expected Axelar source
+6. Fund `DcaOrchestrator` with HBAR (covers Axelar relay gas)
+7. Fund `DcaExecutor` with USDC (swap capital)
+8. Create the first DCA plan
+9. Verify Hedera contracts on Sourcify
+10. Verify Sepolia contracts on Etherscan
+
+After deployment, `packages/nextjs/contracts/deployedContracts.ts` is auto-generated. Do not edit it manually — it is overwritten on every deploy.
+
+```bash
+# 4. Start the frontend
+yarn next:dev   # http://localhost:3000/dca
+```
+
+## Manual deployment
+
+Use these commands when re-running individual steps after a partial failure or when customizing the deployment sequence.
+
+### Environment setup
+
+```bash
+cp packages/hardhat/.env.example packages/hardhat/.env
+```
+
+See the [environment variable reference](packages/hardhat/README.md#setup) in `packages/hardhat/README.md` for the full list of variables and where to obtain each value.
+
+### Account setup
+
+```bash
+yarn hardhat:account:generate   # Generate a new wallet for Hedera or Sepolia
+yarn hardhat:account:import     # Import an existing private key
+yarn hardhat:account            # Display address and balance for configured accounts
+```
+
+### Compile
 
 ```bash
 yarn hardhat:compile
 ```
 
-## Deploy
-
-### Full deployment (recommended)
+### Deploy contracts
 
 ```bash
-yarn hardhat:deploy
-```
-
-Deploys Hedera contracts first, then Sepolia (wired to the Hedera sender address), funds both sides, and creates the first DCA plan. Updates `packages/nextjs/contracts/deployedContracts.ts` automatically.
-
-### Step-by-step
-
-```bash
-yarn hardhat:hedera:deploy
-yarn hardhat:sepolia:deploy
-yarn hardhat:hedera:wire    # re-wire if Sepolia was deployed after Hedera
+yarn hardhat:hedera:deploy    # Deploy DcaOrchestrator + AxelarMessageSender to Hedera testnet
+yarn hardhat:sepolia:deploy   # Deploy DcaExecutor + AxelarMessageReceiver to Sepolia
+yarn hardhat:hedera:wire      # Set Sepolia receiver as destination on AxelarMessageSender
+yarn hardhat:sepolia:wire     # Set Hedera sender as expected source on AxelarMessageReceiver
 ```
 
 ### Fund the contracts
 
 ```bash
-yarn hardhat:hedera:fund          # send HBAR to DcaOrchestrator to cover Axelar relay gas
-yarn hardhat:sepolia:fund:usdc    # send USDC to DcaExecutor on Sepolia
+yarn hardhat:hedera:fund          # Send HBAR to DcaOrchestrator (covers Axelar relay gas)
+yarn hardhat:sepolia:fund:usdc    # Send USDC to DcaExecutor on Sepolia
 ```
 
-## Create a DCA plan
+### Create a DCA plan
 
 ```bash
-yarn hardhat:hedera:plan:create   # uses env overrides for amount, interval, max executions
+yarn hardhat:hedera:plan:create   # Create a new plan using values from .env
 ```
 
-| Variable               | Default      | Description                                              |
-| ---------------------- | ------------ | -------------------------------------------------------- |
-| `AMOUNT_PER_EXECUTION` | `1000000`    | Source token amount per cycle (base units; 1 USDC = 1M) |
-| `FEE_FOR_SENDER`       | `1`          | HBAR forwarded per execution to cover Axelar relay gas  |
-| `INTERVAL_SECONDS`     | `60`         | Seconds between executions                               |
-| `TARGET_TOKEN`         | Sepolia WETH | Token address to purchase on Sepolia                     |
-| `MAX_EXECUTIONS`       | `3`          | 0 = unlimited                                            |
+| Variable | Default | Description |
+|---|---|---|
+| `AMOUNT_PER_EXECUTION` | `1000000` | Source amount per cycle in base units (1 USDC = 1 000 000) |
+| `FEE_FOR_SENDER` | `1` | HBAR forwarded per execution to cover Axelar relay gas |
+| `INTERVAL_SECONDS` | `60` | Seconds between executions (minimum 60) |
+| `TARGET_TOKEN` | Sepolia WETH | Token address to purchase on Sepolia |
+| `MAX_EXECUTIONS` | `3` | 0 = unlimited |
+
+Additional plan management:
+
+```bash
+yarn hardhat:hedera:plan:latest      # Inspect the most recently created plan
+yarn hardhat:hedera:plan:cancel      # Cancel a plan (set CANCEL_PLAN_ID=<id> in .env first)
+yarn hardhat:hedera:plan:reschedule  # Reschedule a plan that failed its initial scheduling attempt
+yarn hardhat:sepolia:balance:check   # Check ETH, USDC, and WETH balances on DcaExecutor
+```
+
+### Verify contracts
+
+```bash
+yarn hardhat:hedera:verify    # Verify Hedera contracts on Sourcify (no API key required)
+yarn hardhat:sepolia:verify   # Verify Sepolia contracts on Etherscan (prompts for API key if not saved)
+```
+
+### Withdraw
+
+```bash
+yarn hardhat:hedera:withdraw:orchestrator   # Withdraw all HBAR from DcaOrchestrator
+yarn hardhat:hedera:withdraw:sender         # Withdraw all HBAR from AxelarMessageSender
+yarn hardhat:sepolia:withdraw:executor      # Withdraw all ETH and ERC-20 tokens from DcaExecutor
+yarn hardhat:sepolia:withdraw:receiver      # Withdraw all ETH and ERC-20 tokens from AxelarMessageReceiver
+```
 
 ## Test
 
 ```bash
-yarn hardhat:hedera:test    # Hardhat unit tests — no .env or live RPC required
-yarn hardhat:sepolia:test   # Hardhat unit tests — no .env or live RPC required
+yarn hardhat:hedera:test    # Unit tests for Hedera contracts — no .env or live RPC required
+yarn hardhat:sepolia:test   # Unit tests for Sepolia contracts — no .env or live RPC required
 ```
 
 ## Frontend
 
-```bash
-yarn next:start   # http://localhost:3000
-```
+Navigate to `http://localhost:3000/dca` after starting `yarn next:dev`. Connect your wallet to **Hedera testnet** (chain 296) to create and cancel plans. The execution log loads data from both chains in read-only mode without requiring a wallet.
 
-Navigate to `http://localhost:3000/dca`. Connect your wallet to **Hedera testnet** to create and cancel plans. Sepolia execution data loads in read-only mode without a wallet switch.
+### Create plan
 
-- **Create plan** — form to create a DCA plan on Hedera testnet
-- **Active plans** — list active plans with a cancel button
-- **Execution log** — Hedera `ExecutionTriggered` events and Sepolia `SwapExecuted` events
+A form that submits a new DCA plan to `DcaOrchestrator`. Requires a wallet connected to Hedera testnet.
+
+| Field | Default | Description |
+|---|---|---|
+| Amount per execution (USDC) | 1 | USDC amount swapped each cycle |
+| Relay fee per execution (HBAR) | 1 | HBAR forwarded per execution to cover Axelar relay gas |
+| Interval (seconds) | 3600 | Minimum 60 s |
+| Max executions | 0 | 0 = unlimited |
+| Target token address (Sepolia) | Sepolia WETH (`0xfFf9…`) | Token to purchase on Sepolia via Uniswap v3 |
+
+### Active plans
+
+Reads all plans from `DcaOrchestrator` and displays a live table. No wallet required.
+
+| Column | Description |
+|---|---|
+| ID | Plan ID |
+| Amount | USDC amount per execution |
+| Interval | Execution interval, displayed as hours or seconds |
+| Executions | `count / max` — shows ∞ when unlimited |
+| Status | `active`, `completed`, or `cancelled` |
+| Action | Cancel button — visible to the plan owner for active plans |
+
+### Execution log
+
+Displays the last 10,000 blocks of on-chain events from both chains with live updates. Hedera at ~1.8 s/block covers roughly 5 hours; Sepolia at ~12 s/block covers roughly 33 hours.
+
+**Hedera — Execution Triggers** (`DcaOrchestrator.ExecutionTriggered`):
+
+| Column | Description |
+|---|---|
+| Block | Hedera block number |
+| Plan ID | Plan that was triggered |
+| Execution # | Cumulative execution count for that plan |
+
+**Sepolia — Swap Executions** (`DcaExecutor.SwapExecuted`):
+
+| Column | Description |
+|---|---|
+| Block | Sepolia block number |
+| Plan ID | Matching plan ID originating from Hedera |
+| Amount In | USDC sent to Uniswap v3 |
+| Amount Out | Tokens received (WETH by default) |
+| Token Out | Target token address |
 
 ## Links
 
-- [`packages/hardhat/README.md`](packages/hardhat/README.md) — package-level details: contract layout, scripts, environment variables
+- [`packages/hardhat/README.md`](packages/hardhat/README.md) — contract layout, all scripts, environment variables
 - [Hedera Documentation](https://docs.hedera.com/)
 - [Axelar Documentation](https://docs.axelar.dev/)
 - [Hashscan testnet](https://hashscan.io/testnet) — Hedera block explorer

@@ -1,0 +1,26 @@
+{
+  "name": "cross-chain-dca",
+  "description": "Cross-chain DCA template: Hedera DcaOrchestrator schedules recurring swaps executed on Sepolia via Axelar GMP and Uniswap v3.",
+  "create-scaffold-hbar": {
+    "capabilities": {
+      "frontend": ["nextjs-app"],
+      "solidityFramework": ["hardhat"]
+    },
+    "defaults": {
+      "frontend": "nextjs-app",
+      "solidityFramework": "hardhat"
+    },
+    "outro": {
+      "steps": [
+        "This template deploys contracts to two live testnets — Hedera testnet (chain 296) and Ethereum Sepolia (chain 11155111). It cannot run on a local chain.",
+        "+Suggested steps:",
+        "1. Copy the env file: packages/hardhat/.env.example → packages/hardhat/.env, if you want to modify or add env variables manually go directly to the packages/hardhat/ file and make the changes there",
+        "2. Generate or import deployer accounts for both chains: {run:hardhat:account:generate}",
+        "   Fund your accounts before deploying — Hedera testnet: https://portal.hedera.com, Sepolia: https://sepolia-faucet.pk910.de/",
+        "3. Run the full 10-step deployment (compile, deploy, wire, fund, create plan, verify): {run:hardhat:deploy}",
+        "4. Start the frontend: {run:next:dev}",
+        "After this, inspect the active plan with {run:hardhat:hedera:plan:latest} or check Sepolia balances with {run:hardhat:sepolia:balance:check}."
+      ]
+    }
+  }
+}

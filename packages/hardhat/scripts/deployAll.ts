@@ -77,11 +77,19 @@ const runStep = (label: string, args: string[], env: NodeJS.ProcessEnv): Promise
 
 // ── main ──────────────────────────────────────────────────────────────────────
 async function main() {
+  // Prompt for SEPOLIA_RPC_URL if not already saved
+  if (!process.env.SEPOLIA_RPC_URL) {
+    console.log("\n  SEPOLIA_RPC_URL is required. Get a free API key at https://dashboard.alchemy.com");
+    console.log("  Format: https://eth-sepolia.g.alchemy.com/v2/<YOUR_KEY>\n");
+    const rpcUrl = await password({ message: "Enter Sepolia RPC URL:" });
+    writeEnvVar("SEPOLIA_RPC_URL", rpcUrl);
+    process.env.SEPOLIA_RPC_URL = rpcUrl;
+  }
+
   // Required variable check
   const missing: string[] = [];
   if (!process.env.HEDERA_DEPLOYER_PRIVATE_KEY_ENCRYPTED) missing.push("HEDERA_DEPLOYER_PRIVATE_KEY_ENCRYPTED");
   if (!process.env.ETH_DEPLOYER_PRIVATE_KEY_ENCRYPTED) missing.push("ETH_DEPLOYER_PRIVATE_KEY_ENCRYPTED");
-  if (!process.env.SEPOLIA_RPC_URL) missing.push("SEPOLIA_RPC_URL");
   if (!cfg.axelarGatewaySepolia) missing.push("AXELAR_GATEWAY_SEPOLIA");
 
   if (missing.length > 0) {
