@@ -9,7 +9,7 @@
     }
   },
   "lib/ccip": {
-    "rev": "5e7b2096586bc32c6e975fc13f4c411eb687f833"
+    "rev": "478f0e5c44d2ba578f36e351cc332c4e6c7a9daa"
   },
   "lib/chainlink-ccip": {
     "rev": "0e3e0fc5c0f70f0d50dca66b139142ddf3009294"
