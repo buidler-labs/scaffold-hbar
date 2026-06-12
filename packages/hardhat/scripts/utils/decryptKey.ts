@@ -12,7 +12,7 @@ export const decryptKey = async (encryptedJson: string, chain: "Hedera" | "ETH")
 };
 
 // Returns the ETH (Sepolia) deployer wallet.
-// When __RUNTIME_ETH_PRIVATE_KEY is set (injected by deploy-all.ts), uses it directly
+// When __RUNTIME_ETH_PRIVATE_KEY is set (injected by deployAll.ts), uses it directly
 // so the user is not prompted for a password a second time.
 export const getEthWallet = async (): Promise<Wallet> => {
   if (process.env.__RUNTIME_ETH_PRIVATE_KEY) {
@@ -27,7 +27,7 @@ export const getEthWallet = async (): Promise<Wallet> => {
 };
 
 // Returns the Hedera deployer wallet.
-// When __RUNTIME_HEDERA_PRIVATE_KEY is set (injected by deploy-all.ts), uses it directly
+// When __RUNTIME_HEDERA_PRIVATE_KEY is set (injected by deployAll.ts), uses it directly
 // so the user is not prompted for a password a second time.
 export const getHederaWallet = async (): Promise<Wallet> => {
   if (process.env.__RUNTIME_HEDERA_PRIVATE_KEY) {

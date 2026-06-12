@@ -65,9 +65,9 @@ async function main() {
 }
 
 async function generateDeployedContracts(configDir: string) {
-  const scriptPath = path.resolve(__dirname, "../../scripts/generate-deployed-contracts.ts");
+  const scriptPath = path.resolve(__dirname, "../../scripts/generateDeployedContracts.ts");
   if (fs.existsSync(scriptPath)) {
-    const { generateDeployedContracts } = await import("../generate-deployed-contracts");
+    const { generateDeployedContracts } = await import("../generateDeployedContracts");
     await generateDeployedContracts(configDir);
   }
 }

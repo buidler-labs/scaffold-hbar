@@ -2,31 +2,26 @@ import { ethers } from "ethers";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as path from "path";
-import { getTokensWithBalance } from "./lib/token-scanner";
+import { getTokensWithBalance } from "./lib/tokenScanner";
+import { getEthWallet } from "../utils/decryptKey";
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-const RECEIVER_ABI = [
-  "function withdrawETH() external",
-  "function withdrawToken(address token) external",
-];
+const RECEIVER_ABI = ["function withdrawETH() external", "function withdrawToken(address token) external"];
 
 async function main() {
   const deployedPath = path.resolve(__dirname, "../../config/deployed-addresses.json");
-  if (!fs.existsSync(deployedPath))
-    throw new Error("config/deployed-addresses.json not found — run deploy.ts first");
+  if (!fs.existsSync(deployedPath)) throw new Error("config/deployed-addresses.json not found — run deploy.ts first");
 
   const deployed = JSON.parse(fs.readFileSync(deployedPath, "utf8"));
   const receiverAddr = deployed.sepoliaMessageReceiver;
   if (!receiverAddr) throw new Error("sepoliaMessageReceiver not found in deployed-addresses.json");
 
   const rpcUrl = process.env.SEPOLIA_RPC_URL;
-  const privateKey = process.env.SEPOLIA_PRIVATE_KEY;
   if (!rpcUrl) throw new Error("SEPOLIA_RPC_URL not set in .env");
-  if (!privateKey) throw new Error("SEPOLIA_PRIVATE_KEY not set in .env");
 
   const provider = new ethers.JsonRpcProvider(rpcUrl);
-  const owner = new ethers.Wallet(privateKey, provider);
+  const owner = (await getEthWallet()).connect(provider);
   const receiver = new ethers.Contract(receiverAddr, RECEIVER_ABI, owner);
 
   console.log("=== Withdrawing from AxelarMessageReceiver ===");
@@ -50,9 +45,7 @@ async function main() {
     console.log("  No ERC-20 tokens with non-zero balance found.");
   } else {
     for (const token of tokens) {
-      console.log(
-        `\n  ${token.symbol} (${token.address}): ${ethers.formatUnits(token.balance, token.decimals)}`
-      );
+      console.log(`\n  ${token.symbol} (${token.address}): ${ethers.formatUnits(token.balance, token.decimals)}`);
       const tx = await receiver.withdrawToken(token.address);
       await tx.wait();
       console.log("  Withdrawn. Tx:", tx.hash);
@@ -62,7 +55,7 @@ async function main() {
   console.log("\n✅ Done.");
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error(err);
   process.exitCode = 1;
 });

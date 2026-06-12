@@ -144,17 +144,17 @@ async function main() {
   );
   await runStep(
     "6/8  Fund DcaOrchestrator with HBAR",
-    ["run", "scripts/hedera/fund-orchestrator.ts", "--network", "hederaTestnet"],
+    ["run", "scripts/hedera/fundOrchestrator.ts", "--network", "hederaTestnet"],
     hederaEnv,
   );
   await runStep(
     "7/8  Fund DcaExecutor with USDC",
-    ["run", "scripts/sepolia/fund-usdc.ts", "--network", "ethereumSepolia"],
+    ["run", "scripts/sepolia/fundUsdc.ts", "--network", "ethereumSepolia"],
     ethEnv,
   );
   await runStep(
     "8/8  Create DCA plan",
-    ["run", "scripts/hedera/create-plan.ts", "--network", "hederaTestnet"],
+    ["run", "scripts/hedera/createPlan.ts", "--network", "hederaTestnet"],
     hederaEnv,
   );
 

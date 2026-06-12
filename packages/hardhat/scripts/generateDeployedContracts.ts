@@ -9,7 +9,7 @@ const GENERATED_COMMENT = `/**
 export async function generateDeployedContracts(configDir: string): Promise<void> {
   const deployedPath = path.join(configDir, "deployed-addresses.json");
   if (!fs.existsSync(deployedPath)) {
-    console.warn("⚠️  generate-deployed-contracts: deployed-addresses.json not found, skipping.");
+    console.warn("⚠️  generateDeployedContracts: deployed-addresses.json not found, skipping.");
     return;
   }
 

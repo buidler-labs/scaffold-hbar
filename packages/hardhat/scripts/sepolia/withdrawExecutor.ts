@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as path from "path";
-import { getTokensWithBalance } from "./lib/token-scanner";
+import { getTokensWithBalance } from "./lib/tokenScanner";
 import { getEthWallet } from "../utils/decryptKey";
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
