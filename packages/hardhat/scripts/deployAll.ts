@@ -3,7 +3,23 @@ dotenv.config();
 import { Wallet } from "ethers";
 import { spawn } from "child_process";
 import * as readline from "readline";
+import * as fs from "fs";
 import password from "@inquirer/password";
+
+const envFilePath = "./.env";
+
+const writeEnvVar = (key: string, value: string) => {
+  const content = fs.existsSync(envFilePath) ? fs.readFileSync(envFilePath, "utf8") : "";
+  const newLine = `${key}='${value}'`;
+  const lines = content.split("\n");
+  const idx = lines.findIndex(l => l.startsWith(`${key}=`));
+  if (idx !== -1) {
+    lines[idx] = newLine;
+  } else {
+    lines.push(newLine);
+  }
+  fs.writeFileSync(envFilePath, lines.join("\n"));
+};
 
 // ── config (defaults overridden by .env) ──────────────────────────────────────
 const cfg = {
@@ -79,9 +95,16 @@ async function main() {
   const hederaKey = await decryptPrivateKey(process.env.HEDERA_DEPLOYER_PRIVATE_KEY_ENCRYPTED!, "Hedera");
   const ethKey = await decryptPrivateKey(process.env.ETH_DEPLOYER_PRIVATE_KEY_ENCRYPTED!, "ETH (Sepolia)");
 
+  // Prompt for Etherscan API key if not already saved
+  if (!process.env.ETHERSCAN_API_KEY) {
+    const apiKey = await password({ message: "Enter Etherscan API key (for Sepolia contract verification):" });
+    writeEnvVar("ETHERSCAN_API_KEY", apiKey);
+    process.env.ETHERSCAN_API_KEY = apiKey;
+  }
+
   // Config summary + confirmation
   console.log("\n╔══════════════════════════════════════════════════════════════╗");
-  console.log("║         Cross-chain DCA — Full Deployment (8 steps)          ║");
+  console.log("║        Cross-chain DCA — Full Deployment (10 steps)          ║");
   console.log("╚══════════════════════════════════════════════════════════════╝");
   console.log("\n  Steps:");
   console.log("    1. Compile all contracts");
@@ -92,6 +115,8 @@ async function main() {
   console.log("    6. Fund DcaOrchestrator with HBAR");
   console.log("    7. Fund DcaExecutor with USDC");
   console.log("    8. Create DCA plan");
+  console.log("    9. Verify Hedera contracts  (Sourcify)");
+  console.log("   10. Verify Sepolia contracts (Etherscan)");
   console.log("\n  Configuration:");
   console.log(`    AXELAR_GATEWAY_HEDERA         = ${cfg.axelarGatewayHedera}`);
   console.log(`    AXELAR_GAS_SERVICE_HEDERA     = ${cfg.axelarGasServiceHedera}`);
@@ -121,41 +146,51 @@ async function main() {
   const ethEnv: NodeJS.ProcessEnv = { ...process.env, __RUNTIME_ETH_PRIVATE_KEY: ethKey };
 
   // Execute all 8 steps — stop immediately on any failure
-  await runStep("1/8  Compile contracts", ["compile"], process.env);
+  await runStep("1/10 Compile contracts", ["compile"], process.env);
   await runStep(
-    "2/8  Deploy Hedera contracts",
+    "2/10 Deploy Hedera contracts",
     ["run", "scripts/hedera/deploy.ts", "--network", "hederaTestnet"],
     hederaEnv,
   );
   await runStep(
-    "3/8  Deploy Sepolia contracts",
+    "3/10 Deploy Sepolia contracts",
     ["run", "scripts/sepolia/deploy.ts", "--network", "ethereumSepolia"],
     ethEnv,
   );
   await runStep(
-    "4/8  Wire Hedera contracts",
+    "4/10 Wire Hedera contracts",
     ["run", "scripts/hedera/wire.ts", "--network", "hederaTestnet"],
     hederaEnv,
   );
   await runStep(
-    "5/8  Wire Sepolia contracts",
+    "5/10 Wire Sepolia contracts",
     ["run", "scripts/sepolia/wire.ts", "--network", "ethereumSepolia"],
     ethEnv,
   );
   await runStep(
-    "6/8  Fund DcaOrchestrator with HBAR",
+    "6/10 Fund DcaOrchestrator with HBAR",
     ["run", "scripts/hedera/fundOrchestrator.ts", "--network", "hederaTestnet"],
     hederaEnv,
   );
   await runStep(
-    "7/8  Fund DcaExecutor with USDC",
+    "7/10 Fund DcaExecutor with USDC",
     ["run", "scripts/sepolia/fundUsdc.ts", "--network", "ethereumSepolia"],
     ethEnv,
   );
   await runStep(
-    "8/8  Create DCA plan",
+    "8/10 Create DCA plan",
     ["run", "scripts/hedera/createPlan.ts", "--network", "hederaTestnet"],
     hederaEnv,
+  );
+  await runStep(
+    "9/10 Verify Hedera contracts",
+    ["run", "scripts/hedera/verify.ts", "--network", "hederaTestnet"],
+    hederaEnv,
+  );
+  await runStep(
+    "10/10 Verify Sepolia contracts",
+    ["run", "scripts/sepolia/verify.ts", "--network", "ethereumSepolia"],
+    ethEnv,
   );
 
   console.log("\n✔  Deployment complete.");

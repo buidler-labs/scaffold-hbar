@@ -61,15 +61,13 @@ const config: HardhatUserConfig = {
     enabled: true,
   },
   etherscan: {
-    apiKey: {
-      ethereumSepolia: etherscanApiKey,
-    },
+    apiKey: etherscanApiKey,
     customChains: [
       {
         network: "ethereumSepolia",
         chainId: 11155111,
         urls: {
-          apiURL: "https://api-sepolia.etherscan.io/api",
+          apiURL: "https://api.etherscan.io/v2/api?chainid=11155111",
           browserURL: "https://sepolia.etherscan.io",
         },
       },

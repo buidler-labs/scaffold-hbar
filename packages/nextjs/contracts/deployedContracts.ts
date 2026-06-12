@@ -582,7 +582,7 @@ const deployedContracts = {
       deployedOnBlock: 33578759,
     },
     DcaOrchestrator: {
-      address: "0x89464Ae88e7BB053ADbfc12b0A7Ce3B3938F3009",
+      address: "0xEa461e31a9c1Fe6eC046FB31F157e4bC84D97F1F",
       abi: [
         {
           inputs: [
@@ -940,7 +940,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     AxelarMessageSender: {
-      address: "0x7b32D59E6B838A447e9846F25695297E1080c329",
+      address: "0xEAf4631fe81d76F1f9C826EbB589780244F9274C",
       abi: [
         {
           inputs: [
@@ -1143,7 +1143,7 @@ const deployedContracts = {
   },
   11155111: {
     DcaExecutor: {
-      address: "0xEBbaeC0a2E1A4D986F0750B33831fA0A2c925e47",
+      address: "0x26B676645b5EC3553bD256C6736CB9E13935a3F0",
       abi: [
         {
           inputs: [
@@ -1339,7 +1339,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     AxelarMessageReceiver: {
-      address: "0x290001EaFAcA00684616A43EBFa488a212cAc278",
+      address: "0xDE611941E73c2d7069FC43d6a577f0e4C998c51b",
       abi: [
         {
           inputs: [
