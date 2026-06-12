@@ -13,8 +13,8 @@ async function verifySourcify(name: string, address: string): Promise<void> {
       const network = chainId === 295 ? "mainnet" : "testnet";
       console.log(`  HashScan: https://hashscan.io/${network}/contract/${address}`);
     }
-  } catch (err: any) {
-    if (err.message?.toLowerCase().includes("already verified")) {
+  } catch (err) {
+    if (err instanceof Error && err.message.toLowerCase().includes("already verified")) {
       console.log(`  ${name} already verified ✓`);
     } else {
       throw err;

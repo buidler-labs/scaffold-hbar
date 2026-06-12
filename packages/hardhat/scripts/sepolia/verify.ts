@@ -2,21 +2,7 @@ import hre from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
 import password from "@inquirer/password";
-
-const envFilePath = "./.env";
-
-const writeEnvVar = (key: string, value: string) => {
-  const content = fs.existsSync(envFilePath) ? fs.readFileSync(envFilePath, "utf8") : "";
-  const newLine = `${key}='${value}'`;
-  const lines = content.split("\n");
-  const idx = lines.findIndex(l => l.startsWith(`${key}=`));
-  if (idx !== -1) {
-    lines[idx] = newLine;
-  } else {
-    lines.push(newLine);
-  }
-  fs.writeFileSync(envFilePath, lines.join("\n"));
-};
+import { writeEnvVar } from "../utils/envUtils";
 
 async function verifyEtherscan(name: string, address: string, constructorArguments: unknown[]): Promise<void> {
   console.log(`\n=== Verifying ${name} on Etherscan ===`);
@@ -25,8 +11,8 @@ async function verifyEtherscan(name: string, address: string, constructorArgumen
     await hre.run("verify:verify", { address, constructorArguments });
     console.log(`  ${name} verified ✓`);
     console.log(`  Etherscan: https://sepolia.etherscan.io/address/${address}`);
-  } catch (err: any) {
-    if (err.message?.toLowerCase().includes("already verified")) {
+  } catch (err) {
+    if (err instanceof Error && err.message.toLowerCase().includes("already verified")) {
       console.log(`  ${name} already verified ✓`);
     } else {
       throw err;
@@ -39,6 +25,9 @@ async function main() {
     const apiKey = await password({ message: "Enter Etherscan API key (required for Sepolia verification):" });
     writeEnvVar("ETHERSCAN_API_KEY", apiKey);
     process.env.ETHERSCAN_API_KEY = apiKey;
+    // Mutate the already-loaded hardhat config so this run uses the new key.
+    // hardhat-verify reads hre.config.etherscan.apiKey lazily during verify:verify,
+    // so this works for standalone runs where dotenv loaded before the key existed.
     hre.config.etherscan.apiKey = apiKey;
   }
 

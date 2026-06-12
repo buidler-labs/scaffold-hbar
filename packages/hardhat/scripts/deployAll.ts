@@ -1,25 +1,10 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import { Wallet } from "ethers";
 import { spawn } from "child_process";
 import * as readline from "readline";
-import * as fs from "fs";
 import password from "@inquirer/password";
-
-const envFilePath = "./.env";
-
-const writeEnvVar = (key: string, value: string) => {
-  const content = fs.existsSync(envFilePath) ? fs.readFileSync(envFilePath, "utf8") : "";
-  const newLine = `${key}='${value}'`;
-  const lines = content.split("\n");
-  const idx = lines.findIndex(l => l.startsWith(`${key}=`));
-  if (idx !== -1) {
-    lines[idx] = newLine;
-  } else {
-    lines.push(newLine);
-  }
-  fs.writeFileSync(envFilePath, lines.join("\n"));
-};
+import { decryptKey } from "./utils/decryptKey";
+import { writeEnvVar } from "./utils/envUtils";
 
 // ── config (defaults overridden by .env) ──────────────────────────────────────
 const cfg = {
@@ -41,17 +26,6 @@ const cfg = {
 };
 
 // ── helpers ───────────────────────────────────────────────────────────────────
-const decryptPrivateKey = async (encryptedJson: string, chain: string): Promise<string> => {
-  const pass = await password({ message: `Enter password to decrypt ${chain} private key:` });
-  try {
-    const wallet = await Wallet.fromEncryptedJson(encryptedJson, pass);
-    return wallet.privateKey;
-  } catch {
-    console.error(`❌ Failed to decrypt ${chain} private key. Wrong password?`);
-    process.exit(1);
-  }
-};
-
 const confirm = (prompt: string): Promise<boolean> =>
   new Promise(resolve => {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -100,8 +74,8 @@ async function main() {
   }
 
   // Decrypt both keys upfront — one password ceremony before any network calls
-  const hederaKey = await decryptPrivateKey(process.env.HEDERA_DEPLOYER_PRIVATE_KEY_ENCRYPTED!, "Hedera");
-  const ethKey = await decryptPrivateKey(process.env.ETH_DEPLOYER_PRIVATE_KEY_ENCRYPTED!, "ETH (Sepolia)");
+  const hederaKey = (await decryptKey(process.env.HEDERA_DEPLOYER_PRIVATE_KEY_ENCRYPTED!, "Hedera")).privateKey;
+  const ethKey = (await decryptKey(process.env.ETH_DEPLOYER_PRIVATE_KEY_ENCRYPTED!, "ETH")).privateKey;
 
   // Prompt for Etherscan API key if not already saved
   if (!process.env.ETHERSCAN_API_KEY) {
@@ -153,7 +127,7 @@ async function main() {
   const hederaEnv: NodeJS.ProcessEnv = { ...process.env, __RUNTIME_HEDERA_PRIVATE_KEY: hederaKey };
   const ethEnv: NodeJS.ProcessEnv = { ...process.env, __RUNTIME_ETH_PRIVATE_KEY: ethKey };
 
-  // Execute all 8 steps — stop immediately on any failure
+  // Execute all 10 steps — stop immediately on any failure
   await runStep("1/10 Compile contracts", ["compile"], process.env);
   await runStep(
     "2/10 Deploy Hedera contracts",
