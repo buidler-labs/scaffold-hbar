@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { HederaPortalFaucet } from "@scaffold-hbar-ui/components";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -113,38 +112,60 @@ const Home: NextPage = () => {
               <div className="flex items-start gap-3">
                 <span className="font-bold text-primary text-lg leading-none mt-0.5">1</span>
                 <div>
-                  <p className="m-0 font-medium">Edit the frontend</p>
-                  <code className="text-xs bg-base-200 px-2 py-1 rounded">packages/nextjs/app/page.tsx</code>
+                  <p className="m-0 font-medium">Generate deployer accounts</p>
+                  <code className="text-xs bg-base-200 px-2 py-1 rounded">yarn hardhat:account:generate</code>
+                  <p className="m-0 text-xs text-base-content/60 mt-1">Run once for Hedera, once for Sepolia</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <span className="font-bold text-primary text-lg leading-none mt-0.5">2</span>
                 <div>
-                  <p className="m-0 font-medium">Edit your contract</p>
-                  <code className="text-xs bg-base-200 px-2 py-1 rounded">
-                    packages/hardhat/contracts/YourContract.sol
-                  </code>
+                  <p className="m-0 font-medium">Fund both accounts</p>
+                  <div className="flex flex-col gap-1 mt-1">
+                    <a
+                      href="https://portal.hedera.com/faucet"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link link-primary text-xs"
+                    >
+                      Hedera HBAR — portal.hedera.com/faucet
+                    </a>
+                    <a
+                      href="https://sepolia-faucet.pk910.de/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link link-primary text-xs"
+                    >
+                      Sepolia ETH — sepolia-faucet.pk910.de
+                    </a>
+                    <a
+                      href="https://faucet.circle.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link link-primary text-xs"
+                    >
+                      Sepolia USDC — faucet.circle.com
+                    </a>
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <span className="font-bold text-primary text-lg leading-none mt-0.5">3</span>
                 <div>
-                  <p className="m-0 font-medium">Get testnet HBAR</p>
-                  <HederaPortalFaucet variant="link" label="portal.hedera.com/faucet" showIcon={false} />
+                  <p className="m-0 font-medium">Deploy to both chains</p>
+                  <code className="text-xs bg-base-200 px-2 py-1 rounded">yarn hardhat:deploy</code>
+                  <p className="m-0 text-xs text-base-content/60 mt-1">
+                    Prompts for RPC URL, API keys, and key passwords
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <span className="font-bold text-primary text-lg leading-none mt-0.5">4</span>
                 <div>
-                  <p className="m-0 font-medium">Deploy to Hedera</p>
-                  <div className="flex flex-col gap-1">
-                    <code className="text-xs bg-base-200 px-2 py-1 rounded">
-                      yarn hardhat:deploy --network hederaTestnet
-                    </code>
-                    <code className="text-xs bg-base-200 px-2 py-1 rounded">
-                      yarn foundry:deploy --network hedera_testnet
-                    </code>
-                  </div>
+                  <p className="m-0 font-medium">Open the DCA dashboard</p>
+                  <Link href="/dca" className="link link-primary text-xs">
+                    localhost:3000/dca
+                  </Link>
                 </div>
               </div>
             </div>

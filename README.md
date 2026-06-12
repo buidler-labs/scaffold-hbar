@@ -1,4 +1,4 @@
-# cross-chain-dca — Scaffold-HBAR template
+# Scaffold-HBAR template - Cross-chain DCA
 
 A Scaffold-HBAR template that uses **Hedera as a cross-chain orchestration layer** for automated DCA (Dollar-Cost Averaging) workflows. Hedera schedules recurring executions fully on-chain via the Hedera Schedule Service (HIP-1215); each execution dispatches a cross-chain message via Axelar GMP to a Uniswap v3 swap on Sepolia.
 
@@ -12,6 +12,10 @@ Hedera (DcaOrchestrator)
 ```
 
 For lower-level package details (contracts, scripts, environment variables) see [`packages/hardhat/README.md`](packages/hardhat/README.md).
+
+> [!IMPORTANT]
+> **Demo limitation — swap proceeds are not user-owned on Sepolia.**
+> All tokens purchased by `DcaExecutor` accumulate in the contract itself (`address(this)`), not in the Hedera plan creator's wallet. Only the deployer (contract owner) can withdraw them via `yarn hardhat:sepolia:withdraw:executor`. This is intentional for a demo template — in a production system you would track per-user balances and allow individual withdrawals.
 
 ## Prerequisites
 
@@ -173,6 +177,8 @@ Navigate to `http://localhost:3000/dca` after starting `yarn next:dev`. Connect 
 ### Create plan
 
 A form that submits a new DCA plan to `DcaOrchestrator`. Requires a wallet connected to Hedera testnet.
+
+> **Note:** Purchased tokens accumulate in the `DcaExecutor` contract on Sepolia, not in your wallet. Only the deployer can withdraw them via `yarn hardhat:sepolia:withdraw:executor`.
 
 | Field | Default | Description |
 |---|---|---|
