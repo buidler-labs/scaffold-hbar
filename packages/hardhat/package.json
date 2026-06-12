@@ -25,6 +25,7 @@
     "hedera:fund": "hardhat run scripts/hedera/fund-orchestrator.ts --network hederaTestnet",
     "hedera:plan:create": "hardhat run scripts/hedera/create-plan.ts --network hederaTestnet",
     "hedera:plan:cancel": "hardhat run scripts/hedera/cancel-plan.ts --network hederaTestnet",
+    "hedera:plan:reschedule": "hardhat run scripts/hedera/reschedule-plan.ts --network hederaTestnet",
     "hedera:plan:latest": "hardhat run scripts/hedera/latest-plan.ts --network hederaTestnet",
     "hedera:verify": "hardhat run scripts/hedera/verify.ts --network hederaTestnet",
     "hedera:withdraw:orchestrator": "hardhat run scripts/hedera/withdraw-orchestrator.ts --network hederaTestnet",

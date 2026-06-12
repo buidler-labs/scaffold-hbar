@@ -26,6 +26,7 @@ contract DcaOrchestrator {
     IBridgeSender public immutable bridgeSender;
     address public owner;
     mapping(uint256 => DcaPlan) public plans;
+    mapping(uint256 => bool) public needsReschedule;
     uint256 public nextPlanId;
 
     event PlanCreated(
@@ -39,6 +40,7 @@ contract DcaOrchestrator {
     event PlanCancelled(uint256 indexed planId, address indexed owner);
     event ExecutionTriggered(uint256 indexed planId, uint64 executionCount);
     event ScheduleAttempted(uint256 indexed planId, int64 responseCode, bool success);
+    event ScheduleFailed(uint256 indexed planId, int64 responseCode);
 
     constructor(address _bridgeSender) {
         require(_bridgeSender != address(0), "DcaOrchestrator: zero bridge sender");
@@ -94,7 +96,9 @@ contract DcaOrchestrator {
         });
 
         emit PlanCreated(planId, msg.sender, amountPerExecution, feeForSender, intervalSeconds, targetToken);
-        _scheduleNextExecution(planId);
+
+        bool ok = _scheduleNextExecution(planId);
+        require(ok, "DcaOrchestrator: initial scheduling failed");
     }
 
     function cancelPlan(uint256 planId) external onlyPlanOwner(planId) {
@@ -117,8 +121,19 @@ contract DcaOrchestrator {
             plan.active = false;
             emit PlanCancelled(planId, plan.owner);
         } else {
-            _scheduleNextExecution(planId);
+            bool ok = _scheduleNextExecution(planId);
+            if (!ok) {
+                needsReschedule[planId] = true;
+            }
         }
+    }
+
+    function reschedule(uint256 planId) external onlyPlanOwner(planId) {
+        require(plans[planId].active, "DcaOrchestrator: plan not active");
+        require(needsReschedule[planId], "DcaOrchestrator: no reschedule needed");
+        needsReschedule[planId] = false;
+        bool ok = _scheduleNextExecution(planId);
+        require(ok, "DcaOrchestrator: reschedule failed");
     }
 
     function _dispatchViaBridge(uint256 planId) internal {
@@ -131,11 +146,16 @@ contract DcaOrchestrator {
         );
     }
 
-    function _scheduleNextExecution(uint256 planId) internal virtual {
+    function _scheduleNextExecution(uint256 planId) internal virtual returns (bool) {
         DcaPlan storage plan = plans[planId];
 
         bytes memory callData = abi.encodeWithSelector(this.executeDca.selector, planId);
         uint256 expiry = block.timestamp + plan.intervalSeconds;
+
+        if (!IHederaScheduleService(HEDERA_SCHEDULE_SERVICE).hasScheduleCapacity(expiry, 4_000_000)) {
+            emit ScheduleFailed(planId, 0);
+            return false;
+        }
 
         (int64 code, ) = IHederaScheduleService(HEDERA_SCHEDULE_SERVICE).scheduleCall(
             address(this),
@@ -147,5 +167,7 @@ contract DcaOrchestrator {
 
         bool ok = (code == RESPONSE_SUCCESS);
         emit ScheduleAttempted(planId, code, ok);
+        if (!ok) emit ScheduleFailed(planId, code);
+        return ok;
     }
 }

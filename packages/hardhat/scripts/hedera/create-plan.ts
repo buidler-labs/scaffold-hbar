@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
+import { getHederaWallet } from "../utils/decryptKey";
 
 // Wrapped ETH on Sepolia — most liquid USDC pair on Uniswap v3 Sepolia
 const SEPOLIA_WETH = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14";
@@ -31,7 +32,8 @@ async function main() {
   console.log("  Min amount out:       ", minAmountOut.toString(), "tokenOut base units");
   console.log("  Max executions:       ", maxExecutions === 0n ? "unlimited" : maxExecutions.toString());
 
-  const orchestrator = await ethers.getContractAt("DcaOrchestrator", orchestratorAddr);
+  const signer = (await getHederaWallet()).connect(ethers.provider);
+  const orchestrator = await ethers.getContractAt("DcaOrchestrator", orchestratorAddr, signer);
 
   const tx = await orchestrator.createPlan(
     amountPerExecution,

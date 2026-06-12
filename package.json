@@ -32,6 +32,7 @@
     "hardhat:hedera:wire": "yarn workspace @sh/hardhat hedera:wire",
     "hardhat:hedera:plan:create": "yarn workspace @sh/hardhat hedera:plan:create",
     "hardhat:hedera:plan:cancel": "yarn workspace @sh/hardhat hedera:plan:cancel",
+    "hardhat:hedera:plan:reschedule": "yarn workspace @sh/hardhat hedera:plan:reschedule",
     "hardhat:hedera:plan:latest": "yarn workspace @sh/hardhat hedera:plan:latest",
     "hardhat:hedera:fund": "yarn workspace @sh/hardhat hedera:fund",
     "hardhat:hedera:withdraw:orchestrator": "yarn workspace @sh/hardhat hedera:withdraw:orchestrator",

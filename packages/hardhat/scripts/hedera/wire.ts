@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
+import { getHederaWallet } from "../utils/decryptKey";
 
 async function main() {
   const deployedPath = path.resolve(__dirname, "../../config/deployed-addresses.json");
@@ -21,7 +22,8 @@ async function main() {
   console.log("  AxelarMessageSender: ", bridgeSenderAddr);
   console.log("  AxelarMessageReceiver:", receiverAddr, "(Sepolia)");
 
-  const bridgeSender = await ethers.getContractAt("AxelarMessageSender", bridgeSenderAddr);
+  const signer = (await getHederaWallet()).connect(ethers.provider);
+  const bridgeSender = await ethers.getContractAt("AxelarMessageSender", bridgeSenderAddr, signer);
 
   const current = await bridgeSender.destinationAddress();
   if (current.toLowerCase() === receiverAddr.toLowerCase()) {

@@ -7,10 +7,17 @@ import "../DcaOrchestrator.sol";
 ///      run on a plain Hardhat network without the 0x16b precompile.
 contract DcaOrchestratorHarness is DcaOrchestrator {
     uint256 public scheduleCallCount;
+    bool public scheduleShouldFail;
 
     constructor(address _bridgeSender) DcaOrchestrator(_bridgeSender) {}
 
-    function _scheduleNextExecution(uint256 /*planId*/) internal override {
+    function setScheduleShouldFail(bool fail) external {
+        scheduleShouldFail = fail;
+    }
+
+    function _scheduleNextExecution(uint256 /*planId*/) internal override returns (bool) {
+        if (scheduleShouldFail) return false;
         scheduleCallCount++;
+        return true;
     }
 }

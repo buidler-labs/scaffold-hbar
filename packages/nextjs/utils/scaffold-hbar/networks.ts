@@ -48,7 +48,9 @@ export function getBlockExplorerTxLink(chainId: number, txnHash: string) {
     return "";
   }
 
-  return `${blockExplorerTxURL}/tx/${txnHash}`;
+  // HashScan uses /transaction/ while Etherscan-compatible explorers use /tx/
+  const pathSegment = HEDERA_CHAIN_IDS.has(chainId) ? "transaction" : "tx";
+  return `${blockExplorerTxURL}/${pathSegment}/${txnHash}`;
 }
 
 /**

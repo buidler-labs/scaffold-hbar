@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
+import { getHederaWallet } from "../utils/decryptKey";
 
 async function main() {
   const deployedPath = path.resolve(__dirname, "../../config/deployed-addresses.json");
@@ -12,8 +13,9 @@ async function main() {
 
   const GAS = { gasLimit: 4_000_000n, gasPrice: 1_200_000_000_000n } as const;
 
-  const bridgeSender = await ethers.getContractAt("AxelarMessageSender", bridgeSenderAddr);
-  const [owner] = await ethers.getSigners();
+  const signer = (await getHederaWallet()).connect(ethers.provider);
+  const bridgeSender = await ethers.getContractAt("AxelarMessageSender", bridgeSenderAddr, signer);
+  const owner = signer;
 
   const balanceBefore = await ethers.provider.getBalance(bridgeSenderAddr);
   console.log("=== Withdrawing from AxelarMessageSender ===");

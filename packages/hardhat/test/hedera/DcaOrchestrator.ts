@@ -264,4 +264,86 @@ describe("DcaOrchestrator — executeDca", function () {
     await harness.executeDca(0);
     expect(await mockBridgeSender.callCount()).to.equal(3n);
   });
+
+  it("sets needsReschedule when rescheduling fails after executeDca", async function () {
+    const { harness } = await deployAll();
+    await harness.createPlan(AMOUNT, FEE_FOR_SENDER, INTERVAL, TARGET_TOKEN, MIN_AMOUNT_OUT, 5);
+    await harness.setScheduleShouldFail(true);
+    await harness.executeDca(0);
+    expect(await harness.needsReschedule(0)).to.be.true;
+    expect((await harness.plans(0)).active).to.be.true;
+  });
+
+  it("does not set needsReschedule when rescheduling succeeds", async function () {
+    const { harness } = await deployAll();
+    await harness.createPlan(AMOUNT, FEE_FOR_SENDER, INTERVAL, TARGET_TOKEN, MIN_AMOUNT_OUT, 5);
+    await harness.executeDca(0);
+    expect(await harness.needsReschedule(0)).to.be.false;
+  });
+});
+
+describe("DcaOrchestrator — createPlan scheduling failure", function () {
+  it("reverts createPlan when initial scheduling fails", async function () {
+    const { harness } = await deployAll();
+    await harness.setScheduleShouldFail(true);
+    await expect(
+      harness.createPlan(AMOUNT, FEE_FOR_SENDER, INTERVAL, TARGET_TOKEN, MIN_AMOUNT_OUT, 5),
+    ).to.be.revertedWith("DcaOrchestrator: initial scheduling failed");
+  });
+
+  it("does not increment nextPlanId when createPlan reverts", async function () {
+    const { harness } = await deployAll();
+    await harness.setScheduleShouldFail(true);
+    await expect(harness.createPlan(AMOUNT, FEE_FOR_SENDER, INTERVAL, TARGET_TOKEN, MIN_AMOUNT_OUT, 5)).to.be.reverted;
+    expect(await harness.nextPlanId()).to.equal(0n);
+  });
+});
+
+describe("DcaOrchestrator — reschedule()", function () {
+  it("clears needsReschedule and increments scheduleCallCount", async function () {
+    const { harness } = await deployAll();
+    await harness.createPlan(AMOUNT, FEE_FOR_SENDER, INTERVAL, TARGET_TOKEN, MIN_AMOUNT_OUT, 5);
+    await harness.setScheduleShouldFail(true);
+    await harness.executeDca(0);
+    expect(await harness.needsReschedule(0)).to.be.true;
+
+    await harness.setScheduleShouldFail(false);
+    const beforeCount = await harness.scheduleCallCount();
+    await harness.reschedule(0);
+    expect(await harness.needsReschedule(0)).to.be.false;
+    expect(await harness.scheduleCallCount()).to.equal(beforeCount + 1n);
+  });
+
+  it("reverts when needsReschedule is not set", async function () {
+    const { harness } = await deployAll();
+    await harness.createPlan(AMOUNT, FEE_FOR_SENDER, INTERVAL, TARGET_TOKEN, MIN_AMOUNT_OUT, 5);
+    await expect(harness.reschedule(0)).to.be.revertedWith("DcaOrchestrator: no reschedule needed");
+  });
+
+  it("reverts when called by non-plan-owner", async function () {
+    const { harness, other } = await deployAll();
+    await harness.createPlan(AMOUNT, FEE_FOR_SENDER, INTERVAL, TARGET_TOKEN, MIN_AMOUNT_OUT, 5);
+    await harness.setScheduleShouldFail(true);
+    await harness.executeDca(0);
+    await harness.setScheduleShouldFail(false);
+    await expect(harness.connect(other).reschedule(0)).to.be.revertedWith("DcaOrchestrator: not plan owner");
+  });
+
+  it("reverts when plan is inactive", async function () {
+    const { harness } = await deployAll();
+    await harness.createPlan(AMOUNT, FEE_FOR_SENDER, INTERVAL, TARGET_TOKEN, MIN_AMOUNT_OUT, 5);
+    await harness.setScheduleShouldFail(true);
+    await harness.executeDca(0);
+    await harness.cancelPlan(0);
+    await harness.setScheduleShouldFail(false);
+    await expect(harness.reschedule(0)).to.be.revertedWith("DcaOrchestrator: plan not active");
+  });
+
+  it("reverts when reschedule itself fails", async function () {
+    const { harness } = await deployAll();
+    await harness.createPlan(AMOUNT, FEE_FOR_SENDER, INTERVAL, TARGET_TOKEN, MIN_AMOUNT_OUT, 5);
+    await harness.setScheduleShouldFail(true);
+    await harness.executeDca(0);
+    await expect(harness.reschedule(0)).to.be.revertedWith("DcaOrchestrator: reschedule failed");
+  });
 });

@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
+import { getHederaWallet } from "../utils/decryptKey";
 
 async function main() {
   const deployedPath = path.resolve(__dirname, "../../config/deployed-addresses.json");
@@ -8,7 +9,7 @@ async function main() {
 
   const orchestratorFundAmount = process.env.ORCHESTRATOR_FUND_AMOUNT ?? "10";
   const { hederaOrchestrator: ORCHESTRATOR } = JSON.parse(fs.readFileSync(deployedPath, "utf8"));
-  const [funder] = await ethers.getSigners();
+  const funder = (await getHederaWallet()).connect(ethers.provider);
 
   console.log("Funding amount:", orchestratorFundAmount, "HBAR");
   const balanceBefore = await ethers.provider.getBalance(ORCHESTRATOR);

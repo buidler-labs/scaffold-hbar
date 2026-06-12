@@ -582,7 +582,7 @@ const deployedContracts = {
       deployedOnBlock: 33578759,
     },
     DcaOrchestrator: {
-      address: "0x3ACf7Bf800Ab4A86747e9F10E516A021c8972a18",
+      address: "0x89464Ae88e7BB053ADbfc12b0A7Ce3B3938F3009",
       abi: [
         {
           inputs: [
@@ -702,6 +702,25 @@ const deployedContracts = {
           type: "event",
         },
         {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "planId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "int64",
+              name: "responseCode",
+              type: "int64",
+            },
+          ],
+          name: "ScheduleFailed",
+          type: "event",
+        },
+        {
           inputs: [],
           name: "bridgeSender",
           outputs: [
@@ -754,7 +773,11 @@ const deployedContracts = {
               name: "minAmountOut",
               type: "uint256",
             },
-            { internalType: "uint64", name: "maxExecutions", type: "uint64" },
+            {
+              internalType: "uint64",
+              name: "maxExecutions",
+              type: "uint64",
+            },
           ],
           name: "createPlan",
           outputs: [
@@ -778,6 +801,25 @@ const deployedContracts = {
           name: "executeDca",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "needsReschedule",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -871,6 +913,19 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "planId",
+              type: "uint256",
+            },
+          ],
+          name: "reschedule",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "withdraw",
           outputs: [],
@@ -885,7 +940,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     AxelarMessageSender: {
-      address: "0x4d1C653Ec351028A723bB7113C93C4fD6970c258",
+      address: "0x7b32D59E6B838A447e9846F25695297E1080c329",
       abi: [
         {
           inputs: [
@@ -1088,7 +1143,7 @@ const deployedContracts = {
   },
   11155111: {
     DcaExecutor: {
-      address: "0x08F0168ED46e2cdc735b3e5a16D97cBd65198030",
+      address: "0xEBbaeC0a2E1A4D986F0750B33831fA0A2c925e47",
       abi: [
         {
           inputs: [
@@ -1284,7 +1339,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     AxelarMessageReceiver: {
-      address: "0x31a9E32C599d8a01D12D938582dcCE77f08f6568",
+      address: "0x290001EaFAcA00684616A43EBFa488a212cAc278",
       abi: [
         {
           inputs: [

@@ -25,3 +25,18 @@ export const getEthWallet = async (): Promise<Wallet> => {
   }
   return decryptKey(encryptedKey, "ETH");
 };
+
+// Returns the Hedera deployer wallet.
+// When __RUNTIME_HEDERA_PRIVATE_KEY is set (injected by deploy-all.ts), uses it directly
+// so the user is not prompted for a password a second time.
+export const getHederaWallet = async (): Promise<Wallet> => {
+  if (process.env.__RUNTIME_HEDERA_PRIVATE_KEY) {
+    return new Wallet(process.env.__RUNTIME_HEDERA_PRIVATE_KEY);
+  }
+  const encryptedKey = process.env.HEDERA_DEPLOYER_PRIVATE_KEY_ENCRYPTED;
+  if (!encryptedKey) {
+    console.error("HEDERA_DEPLOYER_PRIVATE_KEY_ENCRYPTED not set — run `yarn account:generate` first");
+    process.exit(1);
+  }
+  return decryptKey(encryptedKey, "Hedera");
+};
