@@ -15,7 +15,7 @@ const deploySubscriptionMarketplace: DeployFunction = async function (hre: Hardh
     log: true,
     autoMine: true,
     gasLimit: "3000000",
-    gasPrice: "1100000000000",
+    gasPrice: "1160000000000",
   });
 };
 
