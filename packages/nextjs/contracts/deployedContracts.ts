@@ -6,8 +6,539 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 
 const deployedContracts = {
   296: {
+    FileRegistry: {
+      address: "0x4c5e0F1Fd7b13D1632f876944C9f7861Bdd177Bd",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "field",
+              type: "string",
+            },
+          ],
+          name: "EmptyValue",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+          ],
+          name: "FileAlreadyRegistered",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+          ],
+          name: "FileNotFound",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidContentHash",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "caller",
+              type: "address",
+            },
+          ],
+          name: "NotFileOwner",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+          ],
+          name: "FileDelisted",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "objectKey",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "payToAccountId",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "priceTinybar",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "isPublic",
+              type: "bool",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "contentHash",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "mimeType",
+              type: "string",
+            },
+          ],
+          name: "FileRegistered",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "oldPayToAccountId",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "newPayToAccountId",
+              type: "string",
+            },
+          ],
+          name: "PayToChanged",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "oldPriceTinybar",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "newPriceTinybar",
+              type: "uint256",
+            },
+          ],
+          name: "PriceChanged",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "isPublic",
+              type: "bool",
+            },
+          ],
+          name: "VisibilityChanged",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "MAX_PAGE_SIZE",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "PAYMENT_ASSET",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              internalType: "string",
+              name: "objectKey",
+              type: "string",
+            },
+          ],
+          name: "computeFileId",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+          ],
+          name: "delistFile",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+          ],
+          name: "getFile",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
+                },
+                {
+                  internalType: "string",
+                  name: "payToAccountId",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "priceTinybar",
+                  type: "uint256",
+                },
+                {
+                  internalType: "bool",
+                  name: "isPublic",
+                  type: "bool",
+                },
+                {
+                  internalType: "string",
+                  name: "objectKey",
+                  type: "string",
+                },
+                {
+                  internalType: "bytes32",
+                  name: "contentHash",
+                  type: "bytes32",
+                },
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "mimeType",
+                  type: "string",
+                },
+                {
+                  internalType: "bool",
+                  name: "exists",
+                  type: "bool",
+                },
+              ],
+              internalType: "struct FileRegistry.FileItem",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getFileCount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "offset",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "limit",
+              type: "uint256",
+            },
+          ],
+          name: "getFiles",
+          outputs: [
+            {
+              internalType: "bytes32[]",
+              name: "ids",
+              type: "bytes32[]",
+            },
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
+                },
+                {
+                  internalType: "string",
+                  name: "payToAccountId",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "priceTinybar",
+                  type: "uint256",
+                },
+                {
+                  internalType: "bool",
+                  name: "isPublic",
+                  type: "bool",
+                },
+                {
+                  internalType: "string",
+                  name: "objectKey",
+                  type: "string",
+                },
+                {
+                  internalType: "bytes32",
+                  name: "contentHash",
+                  type: "bytes32",
+                },
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "mimeType",
+                  type: "string",
+                },
+                {
+                  internalType: "bool",
+                  name: "exists",
+                  type: "bool",
+                },
+              ],
+              internalType: "struct FileRegistry.FileItem[]",
+              name: "files",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "objectKey",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "payToAccountId",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "priceTinybar",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "isPublic",
+              type: "bool",
+            },
+            {
+              internalType: "bytes32",
+              name: "contentHash",
+              type: "bytes32",
+            },
+            {
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "mimeType",
+              type: "string",
+            },
+          ],
+          name: "registerFile",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "string",
+              name: "newPayToAccountId",
+              type: "string",
+            },
+          ],
+          name: "setPayToAccountId",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "newPriceTinybar",
+              type: "uint256",
+            },
+          ],
+          name: "setPrice",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "fileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "bool",
+              name: "isPublic",
+              type: "bool",
+            },
+          ],
+          name: "setVisibility",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 36606458,
+    },
     SubscriptionMarketplace: {
-      address: "0x1630d60ACF7603fFCc8d4cdCc2Ae56A36D25bB0e",
+      address: "0xE9fBBaB46FCaf69fF565430F2e1B1e4b1abf1BDa",
       abi: [
         {
           inputs: [
@@ -201,6 +732,11 @@ const deployedContracts = {
         {
           inputs: [],
           name: "PayoutNotAvailableYet",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ProviderPayoutFailed",
           type: "error",
         },
         {
@@ -412,6 +948,12 @@ const deployedContracts = {
               name: "feeAmount",
               type: "uint256",
             },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "providerFeeAmount",
+              type: "uint256",
+            },
           ],
           name: "BookingPayoutClaimed",
           type: "event",
@@ -489,6 +1031,19 @@ const deployedContracts = {
         {
           inputs: [],
           name: "DAY",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "PROVIDER_FEE_BPS",
           outputs: [
             {
               internalType: "uint256",
@@ -638,6 +1193,11 @@ const deployedContracts = {
             {
               internalType: "uint256",
               name: "feeAmount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "providerFeeAmount",
               type: "uint256",
             },
             {
@@ -825,6 +1385,11 @@ const deployedContracts = {
                 {
                   internalType: "uint256",
                   name: "feeAmount",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "providerFeeAmount",
                   type: "uint256",
                 },
                 {
@@ -1037,10 +1602,10 @@ const deployedContracts = {
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
-      deployedOnBlock: 35823819,
+      deployedOnBlock: 37161576,
     },
     SubscriptionNFT: {
-      address: "0xcFFd57C6AcE6A4D8A16DA549eDd1584cC9875F02",
+      address: "0x47231D6eD37B1F4A5d972c31a4838fEe530B0ACe",
       abi: [
         {
           inputs: [
@@ -1563,10 +2128,10 @@ const deployedContracts = {
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
-      deployedOnBlock: 35823816,
+      deployedOnBlock: 37161572,
     },
     SubscriptionSalesMarketplace: {
-      address: "0x2d925B5797bd85609E1DD189640D3423c7C55A30",
+      address: "0x350CDD4aE2CB46d6C4c3d220abF1322d7af287a5",
       abi: [
         {
           inputs: [
@@ -2573,7 +3138,7 @@ const deployedContracts = {
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
-      deployedOnBlock: 35829908,
+      deployedOnBlock: 37161580,
     },
   },
 } as const;

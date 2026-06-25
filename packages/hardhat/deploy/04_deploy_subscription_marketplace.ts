@@ -1,6 +1,8 @@
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import type { DeployFunction } from "hardhat-deploy/types";
 
+import { getDeployGasPrice } from "../utils/getDeployGasPrice";
+
 const INITIAL_MARKETPLACE_FEE_BPS = 500;
 
 const deploySubscriptionMarketplace: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -15,7 +17,7 @@ const deploySubscriptionMarketplace: DeployFunction = async function (hre: Hardh
     log: true,
     autoMine: true,
     gasLimit: "3000000",
-    gasPrice: "1160000000000",
+    gasPrice: await getDeployGasPrice(hre),
   });
 };
 

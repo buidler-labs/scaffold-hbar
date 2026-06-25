@@ -1,0 +1,26 @@
+{
+  "hederaMessageSender": "0xfD1Aa23134422B2730C819256387790A0f152D1B",
+  "hederaMessageSenderArgs": [
+    "0xe432150cce91c13a887f7D836923d5597adD8E31",
+    "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+    "ethereum-sepolia",
+    ""
+  ],
+  "hederaOrchestrator": "0x1E4B8c5c97c532fa659B3e4edB70BdA9e096bb23",
+  "hederaOrchestratorArgs": [
+    "0xfD1Aa23134422B2730C819256387790A0f152D1B"
+  ],
+  "sepoliaExecutor": "0x2EC5917C5C4c6e22296306f8aDdB137cD1dfeEE1",
+  "sepoliaExecutorArgs": [
+    "0x65669fE35312947050C450Bd5d36e6361F85eC12",
+    "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"
+  ],
+  "sepoliaMessageReceiver": "0x3dD0ADcA1C374778d8030F282Fe9a54AAd44a1D8",
+  "sepoliaMessageReceiverArgs": [
+    "0xe432150cce91c13a887f7D836923d5597adD8E31",
+    "hedera",
+    "0xfd1aa23134422b2730c819256387790a0f152d1b",
+    "0x2EC5917C5C4c6e22296306f8aDdB137cD1dfeEE1"
+  ],
+  "testPlanId": "0"
+}
