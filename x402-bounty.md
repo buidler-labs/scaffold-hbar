@@ -4,6 +4,8 @@ x402 turns the `402 Payment Required` status code into a working payment standar
 
 The bounty runs **Monday, July 13 to Sunday, July 19**. Submissions close at **11:59 PM ET on July 19**.
 
+**[Submit your build →](https://forms.gle/Ff7UPLc5ZKZ4VC5P8)**
+
 > Get build support on Discord → https://hedera.com/discord
 
 ## What you're building
@@ -35,7 +37,7 @@ Start from this reference repo: https://github.com/hedera-dev/scaffold-hbar/tree
 1. Build your solution on the x402 standard using Hedera rails, in a public open-source GitHub repo.
 2. Make real on-chain transactions on Hedera testnet and keep the HashScan links.
 3. Record a demo under five minutes showing the end-to-end flow, focused on the tech and the on-chain payments.
-4. Submit through the form before 11:59 PM ET on July 19.
+4. [Submit through the form](https://forms.gle/Ff7UPLc5ZKZ4VC5P8) before 11:59 PM ET on July 19.
 
 ## What counts as a valid submission
 
@@ -67,3 +69,5 @@ Join the Discord → https://hedera.com/discord
 ---
 
 The x402 standard is open and the rails are live. Build a payment solution, show it working on-chain, and submit before the July 19 deadline.
+
+**[Submit your build →](https://forms.gle/Ff7UPLc5ZKZ4VC5P8)**
