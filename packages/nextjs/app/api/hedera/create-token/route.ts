@@ -1,0 +1,19 @@
+import { NextResponse } from "next/server";
+
+export async function POST(req: Request) {
+  try {
+    // Read and discard body to keep request shape compatibility.
+    (await req.json()) as unknown;
+  } catch {
+    // No-op: route is deprecated regardless of body validity.
+  }
+
+  return NextResponse.json(
+    {
+      error: "Deprecated endpoint",
+      message:
+        "POST /api/hedera/create-token no longer signs transactions server-side. Create tokens on the client with Hedera WalletConnect signer.",
+    },
+    { status: 410 },
+  );
+}

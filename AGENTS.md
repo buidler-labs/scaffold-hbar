@@ -1,96 +1,32 @@
-# [AGENTS.md](http://AGENTS.md)
+# AGENTS.md
 
 This file provides guidance to coding agents working in this repository.
 
 ## Project Overview
 
-Scaffold-HBAR (`sh`) is a starter kit for building dApps on Hedera. It comes in **two flavors** based on the Solidity framework:
+This branch is a **Hedera-native Next.js demo**. Contract workspaces are not part of the active workflow.
 
-- **Hardhat flavor**: Uses `packages/hardhat` with hardhat-deploy plugin
-- **Foundry flavor**: Uses `packages/foundry` with Forge scripts
-
-Both flavors share the same frontend package:
-
-- **packages/nextjs**: React frontend (Next.js App Router, not Pages Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS with DaisyUI)
-
-### Detecting Which Flavor You're Usings
-
-Check which package exists in the repository:
-
-- If `packages/hardhat` exists → **Hardhat flavor** (follow Hardhat instructions)
-- If `packages/foundry` exists → **Foundry flavor** (follow Foundry instructions)
+- **packages/nextjs**: React frontend (Next.js App Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS with DaisyUI)
 
 ## Common Commands
 
-Use explicit package-prefixed scripts for package-specific work. Keep only truly cross-workspace commands unprefixed.
+Use these commands at repo root:
 
 ```bash
-# Development workflow (run each in separate terminal)
-yarn hardhat:chain   # Start local Hedera-forked Hardhat node
-yarn hardhat:deploy  # Deploy contracts with Hardhat
-yarn foundry:chain   # Start plain Anvil from the Foundry package
-yarn foundry:deploy  # Deploy contracts with Foundry
-yarn next:start      # Start Next.js frontend at http://localhost:3000
+yarn next:dev         # Start Next.js frontend at http://localhost:3000 (same as yarn next:start)
 
 # Code quality
-yarn lint            # Lint all present packages
-yarn format          # Format all present packages
+yarn lint             # Lint frontend package
+yarn format           # Format frontend package
 
 # Building
-yarn next:build      # Build frontend
-yarn hardhat:compile # Compile Solidity contracts with Hardhat
-yarn foundry:compile # Compile Solidity contracts with Foundry
+yarn next:check-types  # TypeScript checks
+yarn next:build        # Build frontend
 
-# Contract verification
-yarn hardhat:verify:testnet
-yarn foundry:verify:testnet
-
-# Account management
-yarn hardhat:account:generate
-yarn hardhat:account:import
-yarn hardhat:account
-yarn foundry:account:generate
-yarn foundry:account:import
-yarn foundry:account
-
-# Deploy to live network
-yarn hardhat:deploy --network <network>   # e.g., hederaTestnet, hederaMainnet
-yarn foundry:deploy --network <network>   # e.g., hedera_testnet, hedera_mainnet
-
-yarn next:vercel:yolo --prod # deploy frontend
+yarn next:vercel:yolo --prod # for deployment of frontend
 ```
 
 ## Architecture
-
-### Smart Contract Development
-
-#### Hardhat Flavor
-
-- Contracts: `packages/hardhat/contracts/`
-- Deployment scripts: `packages/hardhat/deploy/` (uses hardhat-deploy plugin)
-- Tests: `packages/hardhat/test/`
-- Config: `packages/hardhat/hardhat.config.ts`
-- Deploying specific contract:
-  - If the deploy script has:
-    ```typescript
-    // In packages/hardhat/deploy/01_deploy_my_contract.ts
-    deployMyContract.tags = ["MyContract"];
-    ```
- - `yarn hardhat:deploy --tags MyContract`
-
-#### Foundry Flavor
-
-- Contracts: `packages/foundry/contracts/`
-- Deployment scripts: `packages/foundry/script/` (uses custom deployment strategy)
-  - Example: `packages/foundry/script/Deploy.s.sol` and `packages/foundry/script/DeployYourContract.s.sol`
-- Tests: `packages/foundry/test/`
-- Config: `packages/foundry/foundry.toml`
-- Deploying a specific contract:
- - Create a separate deployment script and run `yarn foundry:deploy --file DeployYourContract.s.sol`
-
-#### Both Flavors
-
-- After `yarn hardhat:deploy` or `yarn foundry:deploy`, ABIs are auto-generated to `packages/nextjs/contracts/deployedContracts.ts`
 
 ### Frontend Contract Interaction
 
@@ -142,17 +78,17 @@ const { data: events, isLoading } = useScaffoldEventHistory({
 
 Scaffold-HBAR also provides other hooks to interact with blockchain data: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
 
-**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-hbar` for contract interactions (legacy path segment; project branding is Scaffold-HBAR / `sh`). Always refer to the hook names as they exist in the codebase.**
+**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-hbar` for contract interactions. Always refer to the hook names as they exist in the codebase.**
 
 ### UI Components
 
 **Always use `@scaffold-hbar-ui/components` library for web3 UI components:**
 
-- `Address`: Display Hedera EVM addresses with blockie avatars and explorer links
-- `AddressInput`: Input field with address validation
-- `Balance`: Show HBAR balance in tinybar/HBAR and fiat equivalent
-- `EtherInput`: Number input for EVM value entry (kept for EVM compatibility)
-- `IntegerInput`: Integer-only input with wei conversion
+- `Address`: Display Hedera EVM addresses and explorer links
+- `HederaAddressInput`: Input field with Hedera account/address validation
+- `Balance`: Show HBAR balance
+- `HbarInput`: Numeric HBAR amount input with currency helper
+- `IntegerInput`: Integer-only input
 
 ### Styling
 
@@ -167,17 +103,7 @@ Scaffold-HBAR also provides other hooks to interact with blockchain data: `useSc
 <button className="px-4 py-2 bg-blue-500 text-white rounded">Connect</button>
 ```
 
-### Configure Target Network before deploying to testnet / mainnet.
-
-#### Hardhat
-
-Add networks in `packages/hardhat/hardhat.config.ts` if not present.
-
-#### Foundry
-
-Add RPC endpoints in `packages/foundry/foundry.toml` if not present.
-
-#### NextJs
+### Configure Target Network
 
 Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file also contains configuration for polling interval, API keys. Remember to decrease the polling interval for L2 chains.
 
@@ -185,14 +111,12 @@ Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file a
 
 ### Identifiers
 
-
 | Style            | Category                                                                                                               |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `UpperCamelCase` | class / interface / type / enum / decorator / type parameters / component functions in TSX / JSXElement type parameter |
 | `lowerCamelCase` | variable / parameter / function / property / module alias                                                              |
 | `CONSTANT_CASE`  | constant / enum / global variables                                                                                     |
-| `snake_case`     | for hardhat deploy files and foundry script files                                                                      |
-
+| `snake_case`     | file naming where appropriate                                                                                           |
 
 ### Import Paths
 
@@ -226,11 +150,10 @@ Make comments that add information. Avoid redundant JSDoc for simple functions.
 
 ## Documentation
 
-Use **Context7 MCP** tools to fetch up-to-date documentation for any library (Wagmi, Viem, RainbowKit, DaisyUI, Hardhat, Next.js, etc.). Context7 is configured as an MCP server and provides access to indexed documentation with code examples.
+Use **Context7 MCP** tools to fetch up-to-date documentation for any library (Wagmi, Viem, RainbowKit, DaisyUI, Next.js, etc.). Context7 is configured as an MCP server and provides access to indexed documentation with code examples.
 
 ## Specialized Agents
 
 Use these specialized agents for specific tasks:
 
-- `**grumpy-carlos-code-reviewer`**: Use this agent for code reviews before finalizing changes
-
+- **`grumpy-carlos-code-reviewer`**: Use this agent for code reviews before finalizing changes

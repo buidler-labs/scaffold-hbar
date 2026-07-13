@@ -1,3 +1,2 @@
 export * from "./BlockieAvatar";
-export * from "./HederaAddress";
-export * from "./RainbowKitCustomConnectButton";
+export { WalletConnectButton, AppKitConnectButton, RainbowKitCustomConnectButton } from "./WalletConnectButton";

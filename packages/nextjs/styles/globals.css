@@ -140,6 +140,14 @@
   opacity: 80%;
 }
 
+.alert-warning code {
+  @apply bg-warning/20 text-warning-content border border-warning/30 font-bold;
+}
+
+textarea.textarea {
+  border-radius: var(--radius-box, 1rem) !important;
+}
+
 .hedera-gradient {
   background: linear-gradient(135deg, #8259ef 0%, #0031ff 100%);
 }

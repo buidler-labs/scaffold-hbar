@@ -3,16 +3,15 @@ import { HederaPortalFaucet } from "@scaffold-hbar-ui/components";
 import { hedera } from "viem/chains";
 import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
 import { SwitchTheme } from "~~/components/SwitchTheme";
-import { useFetchHbarPrice } from "~~/hooks/scaffold-hbar";
-import { useTargetNetwork } from "~~/hooks/scaffold-hbar/useTargetNetwork";
+import { useFetchHbarPrice, useTargetNetwork } from "~~/hooks/scaffold-hbar";
 
 /**
  * Site footer
  */
 export const Footer = () => {
+  const { price: nativeCurrencyPrice } = useFetchHbarPrice();
   const { targetNetwork } = useTargetNetwork();
   const isTestnet = targetNetwork.id !== hedera.id;
-  const { price: nativeCurrencyPrice } = useFetchHbarPrice();
 
   return (
     <div className="min-h-0 py-5 px-1 mb-11 lg:mb-0">
@@ -27,7 +26,7 @@ export const Footer = () => {
                 </div>
               </div>
             )}
-            {isTestnet && <HederaPortalFaucet showIcon />}
+            {isTestnet && <HederaPortalFaucet />}
           </div>
           <SwitchTheme className="pointer-events-auto" />
         </div>
@@ -36,7 +35,7 @@ export const Footer = () => {
         <ul className="menu menu-horizontal w-full">
           <div className="flex justify-center items-center gap-3 text-sm w-full text-base-content/60">
             <a
-              href="https://github.com/buidler-labs/scaffold-hbar"
+              href="https://github.com/hedera-dev/scaffold-hbar"
               target="_blank"
               rel="noreferrer"
               className="link hover:text-primary"

@@ -1,0 +1,20 @@
+{
+  "name": "hedera-demo",
+  "description": "Hedera-native Next.js demo without local Solidity workspaces.",
+  "create-scaffold-hbar": {
+    "capabilities": {
+      "frontend": ["nextjs-app"],
+      "solidityFramework": ["none"]
+    },
+    "defaults": {
+      "frontend": "nextjs-app",
+      "solidityFramework": "none"
+    },
+    "outro": {
+      "steps": [
+        "Hedera native services: no contract deploy is required to run or test this demo.",
+        "+Start the frontend: {run:next:dev}"
+      ]
+    }
+  }
+}
