@@ -13,6 +13,7 @@
     "postinstall": "husky",
     "precommit": "lint-staged",
     "lint-staged": "lint-staged",
+    "harness:extend": "hedera-harness extend .harness/spec.yaml",
     "next:build": "yarn workspace @sh/nextjs build",
     "next:check-types": "yarn workspace @sh/nextjs check-types",
     "next:format": "yarn workspace @sh/nextjs format",
@@ -27,6 +28,7 @@
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
+    "hedera-harness": "1.1.0",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10"
   },

@@ -4,16 +4,19 @@
   "create-scaffold-hbar": {
     "capabilities": {
       "frontend": ["nextjs-app"],
-      "solidityFramework": ["none"]
+      "solidityFramework": ["none"],
+      "packageManager": ["yarn"]
     },
     "defaults": {
       "frontend": "nextjs-app",
-      "solidityFramework": "none"
+      "solidityFramework": "none",
+      "packageManager": "yarn"
     },
     "outro": {
       "steps": [
         "Hedera native services: no contract deploy is required to run or test this demo.",
-        "+Start the frontend: {run:next:dev}"
+        "+Start the frontend: {run:next:dev}",
+        "+Extend this app with the co-versioned harness recipe: {run:harness:extend}"
       ]
     }
   }
