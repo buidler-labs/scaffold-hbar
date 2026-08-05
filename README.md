@@ -36,6 +36,14 @@ Tracked recipe files live under `.harness/` (spec, PRD, validators). Runtime sta
 
 Requires [Cursor `agent` CLI](https://cursor.com/) (or another command configured in `.harness/spec.yaml`) on your PATH.
 
+This template’s Learn recipe is gate **0–1** (static + yarn). If you deepen the recipe with Playwright (gate 2) or on-chain validation (gate 3.5), install the optional peers at the **project root** with Yarn (do not use `npm install` in this repo):
+
+```bash
+yarn add -D playwright
+yarn playwright install chromium   # gate 2
+yarn add -D @hiero-ledger/sdk      # gate 3.5
+```
+
 ## Available Scripts
 
 - `yarn next:dev` - run the Next.js app in development mode (`yarn next:start` runs the same workspace `dev` script)
