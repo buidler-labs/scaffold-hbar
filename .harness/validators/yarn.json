@@ -1,0 +1,45 @@
+{
+  "name": "bridge-extend-yarn",
+  "description": "Yarn-only Foundry-aware target validation after the Bridge Architecture extension. Named install allows fingerprint skip across attempts. Initializes Forge submodules (LayerZero, OZ, etc.) before compile. Uses next:lint + foundry:compile + next:build (root yarn lint hits known prettier noise in foundry scripts-js). Does not require Sepolia/Hedera RPC or live LayerZero for this gate.",
+  "requiresNoSecrets": true,
+  "forbiddenCommands": [
+    "npm install",
+    "npm run",
+    "pnpm install",
+    "pnpm run",
+    "yarn hardhat:*",
+    "docker *"
+  ],
+  "commands": [
+    {
+      "name": "install",
+      "command": "yarn install",
+      "timeoutMs": 300000,
+      "purpose": "Install Next.js and Foundry workspaces with Yarn (pilot is yarn-only)."
+    },
+    {
+      "name": "submodules",
+      "command": "git submodule update --init --recursive --force",
+      "timeoutMs": 300000,
+      "purpose": "Fetch Foundry lib submodules required by LayerZero / OZ / Hedera forking (force fills empty checkouts)."
+    },
+    {
+      "name": "lint",
+      "command": "yarn next:lint",
+      "timeoutMs": 180000,
+      "purpose": "Lint the extended Next.js frontend."
+    },
+    {
+      "name": "compile",
+      "command": "yarn foundry:compile",
+      "timeoutMs": 300000,
+      "purpose": "Compile Foundry LayerZero OFT / HTS connector contracts to confirm the Solidity workspace stays healthy."
+    },
+    {
+      "name": "build",
+      "command": "yarn next:build",
+      "timeoutMs": 300000,
+      "purpose": "Production build (includes TypeScript checks)."
+    }
+  ]
+}

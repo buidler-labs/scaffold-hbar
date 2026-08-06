@@ -1,0 +1,91 @@
+{
+  "name": "bridge-extend-static",
+  "description": "Static acceptance for the Bridge Architecture extension on a scaffolded bridge app (template.json is removed by create-scaffold-hbar). Baseline app health is checked separately via extend.baseline.",
+  "jsonAssertions": [
+    {
+      "file": "package.json",
+      "path": "packageManager",
+      "equals": "yarn@3.2.3"
+    },
+    {
+      "file": "package.json",
+      "path": "scripts.harness:extend",
+      "equals": "hedera-harness extend .harness/spec.yaml"
+    },
+    {
+      "file": "package.json",
+      "path": "devDependencies.hedera-harness",
+      "equals": "1.1.1"
+    },
+    {
+      "file": "package.json",
+      "path": "workspaces.packages",
+      "equals": ["packages/nextjs", "packages/foundry"]
+    }
+  ],
+  "fileAssertions": {
+    "required": [
+      "README.md",
+      "AGENTS.md",
+      "package.json",
+      "packages/nextjs/package.json",
+      "packages/foundry/package.json",
+      "packages/nextjs/app/page.tsx",
+      "packages/nextjs/components/Header.tsx",
+      "packages/nextjs/app/architecture/page.tsx",
+      "packages/foundry/contracts/layerzero/MyOFT.sol",
+      "packages/foundry/contracts/layerzero/hts/HTSConnector.sol",
+      "packages/foundry/contracts/layerzero/hts/MyHTSConnectorOFT.sol",
+      "packages/foundry/script/layerzero/WireOApp.s.sol",
+      ".harness/spec.yaml",
+      ".harness/prd.md"
+    ],
+    "forbidden": [
+      ".env",
+      "packages/nextjs/.env",
+      "packages/hardhat"
+    ]
+  },
+  "textAssertions": [
+    {
+      "file": "packages/nextjs/app/architecture/page.tsx",
+      "contains": [
+        "How LayerZero bridging works on Hedera",
+        "Paired OFTs and peers",
+        "HTS connector on Hedera",
+        "Educational testnet relay"
+      ]
+    },
+    {
+      "file": "packages/nextjs/components/Header.tsx",
+      "contains": ["/architecture"]
+    },
+    {
+      "file": "packages/foundry/contracts/layerzero/MyOFT.sol",
+      "contains": ["OFT", "contract MyOFT is OFT"]
+    },
+    {
+      "file": "packages/foundry/contracts/layerzero/hts/HTSConnector.sol",
+      "contains": [
+        "OFTCore",
+        "createFungibleToken",
+        "approvalRequired",
+        "_debit",
+        "_credit"
+      ]
+    },
+    {
+      "file": "packages/foundry/script/layerzero/WireOApp.s.sol",
+      "contains": ["setPeer", "setSendLibrary", "setReceiveLibrary", "setEnforcedOptions"]
+    },
+    {
+      "file": "README.md",
+      "contains": [
+        "Educational disclaimer",
+        "yarn install",
+        "yarn next:dev",
+        "yarn harness:extend"
+      ]
+    }
+  ]
+}

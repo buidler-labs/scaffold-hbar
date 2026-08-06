@@ -101,7 +101,7 @@ This updates `packages/nextjs/services/bridge/config/*.json`.
 From the repo root:
 
 ```bash
-yarn next:start
+yarn next:dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000), connect the wallet for the same funded EOA, choose the provider and direction, approve when prompted, and send a small test amount.
@@ -109,6 +109,33 @@ Open [http://localhost:3000](http://localhost:3000), connect the wallet for the 
 LayerZero uses educational simple workers in this template. The UI attempts to relay automatically when `LAYERZERO_RELAY_PRIVATE_KEY` is configured; otherwise it shows the manual `make layerzero-relay ...` command to run from `packages/foundry`.
 
 See [`packages/nextjs/README.md`](packages/nextjs/README.md) for the full UI testing checklist.
+
+## Extend with hedera-harness
+
+This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
+
+```bash
+yarn harness:extend
+```
+
+That runs `hedera-harness extend .harness/spec.yaml`, which:
+
+1. Creates a `harness/extend-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the extension PRD without rebuilding the app
+3. Checkpoints each attempt and validates against `.harness/validators/`
+4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
+
+Tracked recipe files live under `.harness/` (spec, PRD, validators). Runtime state (`.harness/runs/`, `.harness/cache/`, `.harness/runtime/`) is gitignored.
+
+Requires [Cursor `agent` CLI](https://cursor.com/) (or another command configured in `.harness/spec.yaml`) on your PATH.
+
+This template’s Bridge Architecture recipe is gate **0–1** (static + yarn). It does not require live Sepolia/Hedera RPCs or LayerZero message delivery. If you deepen the recipe with Playwright (gate 2) or on-chain validation (gate 3.5), install the optional peers at the **project root** with Yarn (do not use `npm install` in this repo):
+
+```bash
+yarn add -D playwright
+yarn playwright install chromium   # gate 2
+yarn add -D @hiero-ledger/sdk      # gate 3.5
+```
 
 ## Common Commands
 
@@ -121,9 +148,10 @@ Run these from the repo root unless noted otherwise.
 | `yarn foundry:compile` | Compile Foundry contracts |
 | `yarn foundry:test` | Run Foundry tests |
 | `yarn foundry:verify:testnet 0xAddress contracts/MyContract.sol:MyContract` | Verify a Hedera Testnet contract on Sourcify |
-| `yarn next:start` | Start the Next.js bridge UI |
+| `yarn next:dev` | Start the Next.js bridge UI |
 | `yarn next:build` | Build the Next.js app |
 | `yarn next:check-types` | Type-check the Next.js app |
+| `yarn harness:extend` | Run the co-versioned Bridge Architecture extend recipe |
 
 Provider-specific deploy and transfer commands are intentionally run from `packages/foundry` through `make axelar-*`, `make ccip-*`, and `make layerzero-*`.
 
@@ -131,6 +159,7 @@ Provider-specific deploy and transfer commands are intentionally run from `packa
 
 - `packages/foundry` - Solidity contracts, Foundry scripts, provider runbooks, tests, and bridge config sync tooling.
 - `packages/nextjs` - Next.js App Router frontend, RainbowKit, wagmi, bridge UI, and bridge config JSON files.
+- `.harness/` - tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:extend` to add the Bridge Architecture page (`/architecture`) in place.
 
 ## Links
 
@@ -139,3 +168,4 @@ Provider-specific deploy and transfer commands are intentionally run from `packa
 - [Hedera Documentation](https://docs.hedera.com/)
 - [HashScan](https://hashscan.io/)
 - [Hedera Token Service](https://docs.hedera.com/hedera/core-concepts/hedera-token-service-hts)
+- [hedera-harness](https://github.com/hedera-dev/hedera-harness)

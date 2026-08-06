@@ -22,6 +22,16 @@ node_modules
 # cli
 dist
 
+.env
+
+# hedera-harness runtime (keep tracked .harness recipe: spec, prd, validators)
+.harness/runs/
+.harness/cache/
+.harness/runtime/
+.harness-skills/
+.harness-context/
+.skill-cache/
+
 # generated deployment identifiers
 packages/foundry/deployments/bridge/
 packages/foundry/script/axelar/.salt
