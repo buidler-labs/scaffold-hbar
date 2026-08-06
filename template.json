@@ -24,6 +24,7 @@
         "4. Deploy to Hedera testnet: {run:foundry:deploy:testnet}",
         "5. Verify on Hashscan testnet: {run:foundry:verify:testnet}",
         "6. Start the frontend: {run:next:dev}",
+        "7. Extend this app with the co-versioned harness recipe: {run:harness:extend}",
         "After this, customize anything you want in contracts or frontend to fit your product."
       ]
     }

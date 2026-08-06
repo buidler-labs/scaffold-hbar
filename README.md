@@ -49,10 +49,37 @@ From the repository root:
    yarn next:dev
    ```
 
-Open [http://localhost:3000](http://localhost:3000), connect a wallet on **Hedera testnet**, and use **Debug Contracts** (`/debug`) or **DCA** (`/dca`) against the addresses you deployed.
+Open [http://localhost:3000](http://localhost:3000), connect a wallet on **Hedera testnet**, and use **Debug Contracts** (`/debug`) or **DCA** (`/`) against the addresses you deployed.
 
 
-**Useful commands:** `yarn foundry:compile`, `yarn foundry:test`, `yarn lint`, `yarn format`, `yarn next:build`. Accounts: `yarn foundry:account:generate`, `yarn foundry:account:import`, `yarn foundry:account`.
+**Useful commands:** `yarn foundry:compile`, `yarn foundry:test`, `yarn lint`, `yarn format`, `yarn next:build`, `yarn harness:extend`. Accounts: `yarn foundry:account:generate`, `yarn foundry:account:import`, `yarn foundry:account`.
+
+## Extend with hedera-harness
+
+This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
+
+```bash
+yarn harness:extend
+```
+
+That runs `hedera-harness extend .harness/spec.yaml`, which:
+
+1. Creates a `harness/extend-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the extension PRD without rebuilding the app
+3. Checkpoints each attempt and validates against `.harness/validators/`
+4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
+
+Tracked recipe files live under `.harness/` (spec, PRD, validators). Runtime state (`.harness/runs/`, `.harness/cache/`, `.harness/runtime/`) is gitignored.
+
+Requires [Cursor `agent` CLI](https://cursor.com/) (or another command configured in `.harness/spec.yaml`) on your PATH.
+
+This template’s DCA Explainer recipe is gate **0–1** (static + yarn). If you deepen the recipe with Playwright (gate 2) or on-chain validation (gate 3.5), install the optional peers at the **project root** with Yarn (do not use `npm install` in this repo):
+
+```bash
+yarn add -D playwright
+yarn playwright install chromium   # gate 2
+yarn add -D @hiero-ledger/sdk      # gate 3.5
+```
 
 ## How to use this template
 
@@ -126,7 +153,8 @@ Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) a
 ## Project layout
 
 - **`packages/foundry`** — Solidity, Forge scripts, tests, keystore helpers, Hedera verify scripts
-- **`packages/nextjs`** — Next.js app, Wagmi/RainbowKit, scaffold hooks, `scaffold.config.ts
+- **`packages/nextjs`** — Next.js app, Wagmi/RainbowKit, scaffold hooks, `scaffold.config.ts`
+- **`.harness/`** — tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:extend` to add the DCA Explainer page (`/dca-guide`) in place.
 
 ## Links
 
@@ -134,6 +162,7 @@ Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) a
 - [Hedera Schedule Service](https://docs.hedera.com/hedera/core-concepts/smart-contracts/system-smart-contracts/hedera-schedule-service)
 - [Hashscan](https://hashscan.io/)
 - [create-scaffold-hbar](https://github.com/hedera-dev/create-scaffold-hbar)
+- [hedera-harness](https://github.com/hedera-dev/hedera-harness)
 
 ## License
 
