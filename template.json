@@ -26,6 +26,7 @@
         "6. Deploy the demo consumer: ORACLE_ADAPTER_NAME=ChainlinkPriceOracleAdapter {run:foundry:deploy:consumer:testnet}",
         "7. Read oracle prices: {run:foundry:read:chainlink:testnet}",
         "8. Start the frontend: {run:next:dev}",
+        "9. Extend this app with the co-versioned harness recipe: {run:harness:extend}",
         "After this, customize the supported pairs, provider config, contracts, or frontend to fit your product."
       ]
     }

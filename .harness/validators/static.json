@@ -1,0 +1,85 @@
+{
+  "name": "oracles-extend-static",
+  "description": "Static acceptance for the Oracle Comparison extension on a scaffolded oracles app (template.json is removed by create-scaffold-hbar). Baseline app health is checked separately via extend.baseline.",
+  "jsonAssertions": [
+    {
+      "file": "package.json",
+      "path": "packageManager",
+      "equals": "yarn@3.2.3"
+    },
+    {
+      "file": "package.json",
+      "path": "scripts.harness:extend",
+      "equals": "hedera-harness extend .harness/spec.yaml"
+    },
+    {
+      "file": "package.json",
+      "path": "devDependencies.hedera-harness",
+      "equals": "1.1.1"
+    },
+    {
+      "file": "package.json",
+      "path": "workspaces.packages",
+      "equals": ["packages/nextjs", "packages/foundry"]
+    }
+  ],
+  "fileAssertions": {
+    "required": [
+      "README.md",
+      "AGENTS.md",
+      "package.json",
+      "packages/nextjs/package.json",
+      "packages/foundry/package.json",
+      "packages/nextjs/app/page.tsx",
+      "packages/nextjs/components/Header.tsx",
+      "packages/nextjs/app/compare/page.tsx",
+      "packages/foundry/contracts/oracle/interfaces/IPriceOracle.sol",
+      "packages/foundry/contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol",
+      "packages/foundry/contracts/oracle/adapters/SupraPriceOracleAdapter.sol",
+      "packages/foundry/contracts/oracle/adapters/PythPriceOracleAdapter.sol",
+      ".harness/spec.yaml",
+      ".harness/prd.md"
+    ],
+    "forbidden": [
+      ".env",
+      "packages/nextjs/.env",
+      "packages/hardhat"
+    ]
+  },
+  "textAssertions": [
+    {
+      "file": "packages/nextjs/app/compare/page.tsx",
+      "contains": [
+        "Compare oracle providers on Hedera",
+        "Shared IPriceOracle interface",
+        "Chainlink adapter",
+        "Supra adapter",
+        "Pyth adapter"
+      ]
+    },
+    {
+      "file": "packages/nextjs/components/Header.tsx",
+      "contains": ["/compare"]
+    },
+    {
+      "file": "packages/foundry/contracts/oracle/interfaces/IPriceOracle.sol",
+      "contains": ["latestPrice", "priceE18", "OracleStalePrice"]
+    },
+    {
+      "file": "packages/foundry/contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol",
+      "contains": ["IPriceOracle", "AggregatorV3Interface", "latestRoundData"]
+    },
+    {
+      "file": "packages/foundry/contracts/oracle/adapters/SupraPriceOracleAdapter.sol",
+      "contains": ["IPriceOracle", "ISupraSValueFeed", "getSvalue"]
+    },
+    {
+      "file": "packages/foundry/contracts/oracle/adapters/PythPriceOracleAdapter.sol",
+      "contains": ["IPriceOracle", "updatePrice", "getPriceNoOlderThan"]
+    },
+    {
+      "file": "README.md",
+      "contains": ["yarn install", "yarn next:dev", "yarn harness:extend"]
+    }
+  ]
+}

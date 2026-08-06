@@ -65,10 +65,39 @@ yarn foundry:test
 Run the frontend:
 
 ```bash
+yarn next:dev
+# or
 yarn next:start
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+## Extend with hedera-harness
+
+This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
+
+```bash
+yarn harness:extend
+```
+
+That runs `hedera-harness extend .harness/spec.yaml`, which:
+
+1. Creates a `harness/extend-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the extension PRD without rebuilding the app
+3. Checkpoints each attempt and validates against `.harness/validators/`
+4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
+
+Tracked recipe files live under `.harness/` (spec, PRD, validators). Runtime state (`.harness/runs/`, `.harness/cache/`, `.harness/runtime/`) is gitignored.
+
+Requires [Cursor `agent` CLI](https://cursor.com/) (or another command configured in `.harness/spec.yaml`) on your PATH.
+
+This template’s Oracle Comparison recipe is gate **0–1** (static + yarn). If you deepen the recipe with Playwright (gate 2) or on-chain validation (gate 3.5), install the optional peers at the **project root** with Yarn (do not use `npm install` in this repo):
+
+```bash
+yarn add -D playwright
+yarn playwright install chromium   # gate 2
+yarn add -D @hiero-ledger/sdk      # gate 3.5
+```
 
 ## Foundry Oracle Workflow
 
@@ -147,6 +176,7 @@ Foundry `broadcast/` files are execution history and do not populate the fronten
 - `packages/foundry` - Solidity contracts, Forge scripts, deployment exports, tests, and ABI generation.
 - `packages/nextjs` - Next.js app, wallet connection, Scaffold-HBAR hooks, and oracle dashboard UI.
 - `packages/nextjs/contracts/deployedContracts.ts` - generated frontend contract metadata.
+- `.harness/` - tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:extend` to add the Oracle Comparison page (`/compare`) in place.
 
 Network and RPC configuration for Foundry lives in `packages/foundry/foundry.toml`.
 
@@ -180,3 +210,4 @@ Use `yarn foundry:verify:mainnet` with the same contract identifier format for m
 - [HashScan](https://hashscan.io/)
 - [Foundry Book](https://book.getfoundry.sh/)
 - [Sourcify](https://sourcify.dev/)
+- [hedera-harness](https://github.com/hedera-dev/hedera-harness)

@@ -1,0 +1,117 @@
+name: oracles-extend
+description: >
+  In-place extension of the Hedera oracles template — add a public Oracle Comparison page
+  explaining multi-provider IPriceOracle adapters without rebuilding the app.
+
+# Paths are relative to the project root (parent of .harness/).
+prd: .harness/prd.md
+
+# No seed — extend runs against the already-scaffolded cwd.
+
+generator:
+  provider: command
+  command: agent
+  args:
+    - -p
+    - --trust
+    - --sandbox
+    - enabled
+    - --workspace
+    - "{workspace}"
+    - --model
+    - composer-2.5
+    - --force
+    - --output-format
+    - stream-json
+    - --stream-partial-output
+  timeoutMs: 3600000
+
+skills:
+  - hedera-oracle-adapters
+  - quality-gates
+
+constraints:
+  packageManager: yarn@3.2.3
+  workspaces:
+    - packages/nextjs
+    - packages/foundry
+  forbiddenWorkspaces:
+    - packages/hardhat
+  forbiddenCommands:
+    - npm install
+    - npm run
+    - pnpm install
+    - pnpm run
+    - yarn hardhat:*
+    - docker *
+
+templateMetadata:
+  name: oracles
+  frontend: nextjs-app
+  solidityFramework: foundry
+
+# Baseline = existing project health before the extension is implemented.
+# Target acceptance = validators below (Compare page + yarn lint/build).
+extend:
+  baseline:
+    commands:
+      - name: install
+        command: yarn install
+        timeoutMs: 300000
+      - name: submodules
+        command: git submodule update --init --recursive
+        timeoutMs: 300000
+      - name: lint
+        # Root `yarn lint` also runs foundry prettier checks that currently fail on stock scripts-js.
+        command: yarn next:lint
+        timeoutMs: 180000
+      - name: compile
+        command: yarn foundry:compile
+        timeoutMs: 300000
+      - name: build
+        command: yarn next:build
+        timeoutMs: 300000
+
+validators:
+  static: .harness/validators/static.json
+  commands: .harness/validators/yarn.json
+
+requiredFiles:
+  - README.md
+  - AGENTS.md
+  - package.json
+  - packages/nextjs/package.json
+  - packages/foundry/package.json
+  - packages/nextjs/app/page.tsx
+  - packages/nextjs/components/Header.tsx
+  - packages/nextjs/app/compare/page.tsx
+  - packages/foundry/contracts/oracle/interfaces/IPriceOracle.sol
+  - packages/foundry/contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol
+  - packages/foundry/contracts/oracle/adapters/SupraPriceOracleAdapter.sol
+  - packages/foundry/contracts/oracle/adapters/PythPriceOracleAdapter.sol
+  - .harness/spec.yaml
+  - .harness/prd.md
+
+forbiddenFiles:
+  - .env
+  - packages/nextjs/.env
+  - packages/hardhat
+
+secretScan:
+  failOnFiles:
+    - .env
+    - packages/nextjs/.env
+  patterns:
+    - name: private-key-assignment
+      pattern: "(PRIVATE_KEY|OPERATOR_KEY|HEDERA_OPERATOR_PRIVATE_KEY)\\s*=\\s*(0x)?[0-9a-fA-F]{32,}"
+    - name: api-key-assignment
+      pattern: "(API_KEY|TOKEN|SECRET)\\s*=\\s*['\\\"]?[A-Za-z0-9_\\-]{24,}"
+      allowIn:
+        - packages/foundry/.env.example
+        - packages/nextjs/.env.example
+
+maxAttempts: 3
+
+logging:
+  jsonl: .harness/runs/harness.log.jsonl
+  notes: .harness/runs/harness-notes.md
