@@ -1,0 +1,109 @@
+name: tokenise-subscriptions-extend
+description: >
+  In-place extension of the NFT subscription marketplace — add a public Subscription Guide
+  page explaining HTS rental and sales flows without rebuilding the app.
+
+# Paths are relative to the project root (parent of .harness/).
+prd: .harness/prd.md
+
+# No seed — extend runs against the already-scaffolded cwd.
+
+generator:
+  provider: command
+  command: agent
+  args:
+    - -p
+    - --trust
+    - --sandbox
+    - enabled
+    - --workspace
+    - "{workspace}"
+    - --model
+    - composer-2.5
+    - --force
+    - --output-format
+    - stream-json
+    - --stream-partial-output
+  timeoutMs: 3600000
+
+skills:
+  - hedera-token-service
+  - hts-system-contract
+  - quality-gates
+
+constraints:
+  packageManager: yarn@3.2.3
+  workspaces:
+    - packages/nextjs
+    - packages/hardhat
+  forbiddenWorkspaces:
+    - packages/foundry
+  forbiddenCommands:
+    - npm install
+    - npm run
+    - pnpm install
+    - pnpm run
+    - yarn foundry:*
+    - docker *
+
+templateMetadata:
+  name: tokenise-subscriptions
+  frontend: nextjs-app
+  solidityFramework: hardhat
+
+# Baseline = existing project health before the extension is implemented.
+# Target acceptance = validators below (Guide page + yarn lint/build).
+extend:
+  baseline:
+    commands:
+      - name: install
+        command: yarn install
+        timeoutMs: 300000
+      - name: lint
+        command: yarn lint
+        timeoutMs: 180000
+      - name: build
+        command: yarn next:build
+        timeoutMs: 300000
+
+validators:
+  static: .harness/validators/static.json
+  commands: .harness/validators/yarn.json
+
+requiredFiles:
+  - README.md
+  - AGENTS.md
+  - package.json
+  - packages/nextjs/package.json
+  - packages/hardhat/package.json
+  - packages/nextjs/app/page.tsx
+  - packages/nextjs/components/Header.tsx
+  - packages/nextjs/app/guide/page.tsx
+  - packages/hardhat/contracts/SubscriptionNFT.sol
+  - packages/hardhat/contracts/interfaces/IHederaTokenService.sol
+  - .harness/spec.yaml
+  - .harness/prd.md
+
+forbiddenFiles:
+  - .env
+  - packages/nextjs/.env
+  - packages/foundry
+
+secretScan:
+  failOnFiles:
+    - .env
+    - packages/nextjs/.env
+  patterns:
+    - name: private-key-assignment
+      pattern: "(PRIVATE_KEY|OPERATOR_KEY|HEDERA_OPERATOR_PRIVATE_KEY)\\s*=\\s*(0x)?[0-9a-fA-F]{32,}"
+    - name: api-key-assignment
+      pattern: "(API_KEY|TOKEN|SECRET)\\s*=\\s*['\\\"]?[A-Za-z0-9_\\-]{24,}"
+      allowIn:
+        - packages/hardhat/.env.example
+        - packages/nextjs/.env.example
+
+maxAttempts: 3
+
+logging:
+  jsonl: .harness/runs/harness.log.jsonl
+  notes: .harness/runs/harness-notes.md

@@ -22,7 +22,8 @@
         "+Create NFT collection:",
         "  cd packages/hardhat && npx ts-node scripts/createCollection.ts",
         "+Start the frontend:",
-        "  {run:next:start}"
+        "  {run:next:start}",
+        "+Extend this app with the co-versioned harness recipe: {run:harness:extend}"
       ]
     }
   }
