@@ -82,6 +82,33 @@ After deployment, `packages/nextjs/contracts/deployedContracts.ts` is auto-gener
 yarn next:dev   # http://localhost:3000/dca
 ```
 
+## Extend with hedera-harness
+
+This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
+
+```bash
+yarn harness:extend
+```
+
+That runs `hedera-harness extend .harness/spec.yaml`, which:
+
+1. Creates a `harness/extend-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the extension PRD without rebuilding the app
+3. Checkpoints each attempt and validates against `.harness/validators/`
+4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
+
+Tracked recipe files live under `.harness/` (spec, PRD, validators). Runtime state (`.harness/runs/`, `.harness/cache/`, `.harness/runtime/`) is gitignored.
+
+Requires [Cursor `agent` CLI](https://cursor.com/) (or another command configured in `.harness/spec.yaml`) on your PATH.
+
+This template’s Cross-Chain Flow recipe is gate **0–1** (static + yarn). It does **not** require Sepolia RPC or live Axelar for acceptance. If you deepen the recipe with Playwright (gate 2) or on-chain validation (gate 3.5), install the optional peers at the **project root** with Yarn (do not use `npm install` in this repo):
+
+```bash
+yarn add -D playwright
+yarn playwright install chromium   # gate 2
+yarn add -D @hiero-ledger/sdk      # gate 3.5
+```
+
 ## Manual deployment
 
 Use these commands when re-running individual steps after a partial failure or when customizing the deployment sequence.
@@ -230,3 +257,4 @@ Displays the last 10,000 blocks of on-chain events from both chains with live up
 - [Axelar Documentation](https://docs.axelar.dev/)
 - [Hashscan testnet](https://hashscan.io/testnet) — Hedera block explorer
 - [create-scaffold-hbar](https://github.com/buidler-labs/create-scaffold-hbar) — CLI to scaffold Hedera dApps
+- [hedera-harness](https://github.com/hedera-dev/hedera-harness) — co-versioned extend recipe under `.harness/` (`yarn harness:extend`)
