@@ -26,3 +26,11 @@ node_modules
 
 # cli
 dist
+
+# hedera-harness runtime (keep tracked .harness recipe: spec, prd, validators)
+.harness/runs/
+.harness/cache/
+.harness/runtime/
+.harness-skills/
+.harness-context/
+.skill-cache/

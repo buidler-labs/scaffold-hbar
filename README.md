@@ -137,6 +137,34 @@ Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet).
 | `yarn hardhat:test` | Run `FileRegistry` contract tests |
 | `yarn x402:buy` | Node agent buyer script (see `RUNBOOK.md`) |
 | `yarn facilitator:check-types` | Type-check the facilitator service |
+| `yarn harness:extend` | Run the co-versioned How x402 Works extend recipe |
+
+## Extend with hedera-harness
+
+This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
+
+```bash
+yarn harness:extend
+```
+
+That runs `hedera-harness extend .harness/spec.yaml`, which:
+
+1. Creates a `harness/extend-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the extension PRD without rebuilding the app
+3. Checkpoints each attempt and validates against `.harness/validators/`
+4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
+
+Tracked recipe files live under `.harness/` (spec, PRD, validators). Runtime state (`.harness/runs/`, `.harness/cache/`, `.harness/runtime/`) is gitignored.
+
+Requires [Cursor `agent` CLI](https://cursor.com/) (or another command configured in `.harness/spec.yaml`) on your PATH.
+
+This template’s How x402 Works recipe is gate **0–1** (static + yarn). It does **not** forbid Docker (MinIO + facilitator are part of the template) and does not require live settlement for the extend page. If you deepen the recipe with Playwright (gate 2) or on-chain validation (gate 3.5), install the optional peers at the **project root** with Yarn (do not use `npm install` in this repo):
+
+```bash
+yarn add -D playwright
+yarn playwright install chromium   # gate 2
+yarn add -D @hiero-ledger/sdk      # gate 3.5
+```
 
 ## Caveats
 
@@ -158,6 +186,7 @@ Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet).
 - **`packages/nextjs`** — Next.js resource server (`/api/files/*`), marketplace UI, x402 client (HashPack)
 - **`facilitator/`** — self-hosted x402 Hedera facilitator (verify / settle)
 - **`docker-compose.yml`** — MinIO + facilitator for local development
+- **`.harness/`** — tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:extend` to add the How x402 Works page (`/how-it-works`) in place.
 
 ## Links
 
@@ -165,3 +194,4 @@ Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet).
 - [Hedera Documentation](https://docs.hedera.com/)
 - [Hashscan](https://hashscan.io/) — block explorer
 - [Hedera Portal faucet](https://portal.hedera.com/faucet)
+- [hedera-harness](https://github.com/hedera-dev/hedera-harness)

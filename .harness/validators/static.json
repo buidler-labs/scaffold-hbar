@@ -1,0 +1,96 @@
+{
+  "name": "x402-pay-per-use-extend-static",
+  "description": "Static acceptance for the How x402 Works extension on a scaffolded x402-pay-per-use app (template.json is removed by create-scaffold-hbar). Baseline app health is checked separately via extend.baseline.",
+  "jsonAssertions": [
+    {
+      "file": "package.json",
+      "path": "packageManager",
+      "equals": "yarn@3.2.3"
+    },
+    {
+      "file": "package.json",
+      "path": "scripts.harness:extend",
+      "equals": "hedera-harness extend .harness/spec.yaml"
+    },
+    {
+      "file": "package.json",
+      "path": "devDependencies.hedera-harness",
+      "equals": "1.1.1"
+    },
+    {
+      "file": "package.json",
+      "path": "workspaces.packages",
+      "equals": ["packages/hardhat", "packages/nextjs"]
+    }
+  ],
+  "fileAssertions": {
+    "required": [
+      "README.md",
+      "AGENTS.md",
+      "package.json",
+      "packages/nextjs/package.json",
+      "packages/hardhat/package.json",
+      "packages/nextjs/app/page.tsx",
+      "packages/nextjs/components/Header.tsx",
+      "packages/nextjs/app/how-it-works/page.tsx",
+      "packages/hardhat/contracts/FileRegistry.sol",
+      "packages/nextjs/services/x402/server.ts",
+      "packages/nextjs/services/x402/client.ts",
+      "packages/nextjs/app/api/files/[id]/download/route.ts",
+      "docker-compose.yml",
+      ".harness/spec.yaml",
+      ".harness/prd.md"
+    ],
+    "forbidden": [
+      "packages/foundry"
+    ]
+  },
+  "textAssertions": [
+    {
+      "file": "packages/nextjs/app/how-it-works/page.tsx",
+      "contains": [
+        "How x402 payments work on Hedera",
+        "FileRegistry metadata",
+        "HTTP 402 payment loop",
+        "Self-hosted facilitator"
+      ]
+    },
+    {
+      "file": "packages/nextjs/components/Header.tsx",
+      "contains": ["/how-it-works"]
+    },
+    {
+      "file": "packages/hardhat/contracts/FileRegistry.sol",
+      "contains": [
+        "registerFile",
+        "priceTinybar",
+        "payToAccountId",
+        "PAYMENT_ASSET"
+      ]
+    },
+    {
+      "file": "packages/nextjs/services/x402/server.ts",
+      "contains": [
+        "HTTPFacilitatorClient",
+        "ExactHederaScheme",
+        "x402ResourceServer"
+      ]
+    },
+    {
+      "file": "packages/nextjs/app/api/files/[id]/download/route.ts",
+      "contains": [
+        "PAYMENT-REQUIRED",
+        "verifyPayment",
+        "settlePayment"
+      ]
+    },
+    {
+      "file": "package.json",
+      "contains": ["\"infra:up\"", "\"harness:extend\""]
+    },
+    {
+      "file": "README.md",
+      "contains": ["yarn install", "yarn next:dev", "yarn harness:extend", "yarn infra:up"]
+    }
+  ]
+}
