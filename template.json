@@ -11,6 +11,12 @@
       "frontend": "nextjs-app",
       "solidityFramework": "foundry",
       "packageManager": "yarn"
+    },
+    "outro": {
+      "steps": [
+        "+Start the frontend: {run:next:dev}",
+        "+Extend this app with the co-versioned harness recipe: {run:harness:extend}"
+      ]
     }
   }
 }

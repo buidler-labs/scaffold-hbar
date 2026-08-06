@@ -1,0 +1,56 @@
+{
+  "name": "blank-template-extend-static",
+  "description": "Static acceptance for the Getting Started page extension on a scaffolded blank template (template.json is removed by create-scaffold-hbar). Baseline app health is checked separately via extend.baseline.",
+  "jsonAssertions": [
+    {
+      "file": "package.json",
+      "path": "packageManager",
+      "equals": "yarn@3.2.3"
+    },
+    {
+      "file": "package.json",
+      "path": "scripts.harness:extend",
+      "equals": "hedera-harness extend .harness/spec.yaml"
+    },
+    {
+      "file": "package.json",
+      "path": "devDependencies.hedera-harness",
+      "equals": "1.1.1"
+    }
+  ],
+  "fileAssertions": {
+    "required": [
+      "README.md",
+      "AGENTS.md",
+      "package.json",
+      "packages/nextjs/package.json",
+      "packages/nextjs/app/page.tsx",
+      "packages/nextjs/components/Header.tsx",
+      "packages/nextjs/app/getting-started/page.tsx",
+      ".harness/spec.yaml",
+      ".harness/prd.md"
+    ],
+    "forbidden": [
+      ".env",
+      "packages/nextjs/.env"
+    ]
+  },
+  "textAssertions": [
+    {
+      "file": "packages/nextjs/app/getting-started/page.tsx",
+      "contains": [
+        "Getting Started with Scaffold-HBAR",
+        "Run the frontend",
+        "Work with contracts"
+      ]
+    },
+    {
+      "file": "packages/nextjs/components/Header.tsx",
+      "contains": ["/getting-started"]
+    },
+    {
+      "file": "README.md",
+      "contains": ["yarn install", "yarn next:dev", "yarn harness:extend"]
+    }
+  ]
+}

@@ -26,6 +26,40 @@ A Hedera-ready monorepo for building dApps with Next.js, Hardhat or Foundry, and
   ```
    Open [http://localhost:3000](http://localhost:3000) and use the **Debug Contracts** page to interact with your contracts.
 
+Frontend-only quick start (no local chain):
+
+```bash
+yarn install
+yarn next:dev
+```
+
+## Extend with hedera-harness
+
+This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
+
+```bash
+yarn harness:extend
+```
+
+That runs `hedera-harness extend .harness/spec.yaml`, which:
+
+1. Creates a `harness/extend-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the extension PRD without rebuilding the app
+3. Checkpoints each attempt and validates against `.harness/validators/`
+4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
+
+Tracked recipe files live under `.harness/` (spec, PRD, validators). Runtime state (`.harness/runs/`, `.harness/cache/`, `.harness/runtime/`) is gitignored.
+
+Requires [Cursor `agent` CLI](https://cursor.com/) (or another command configured in `.harness/spec.yaml`) on your PATH.
+
+This template’s Getting Started recipe is gate **0–1** (static + yarn). If you deepen the recipe with Playwright (gate 2) or on-chain validation (gate 3.5), install the optional peers at the **project root** with Yarn (do not use `npm install` in this repo):
+
+```bash
+yarn add -D playwright
+yarn playwright install chromium   # gate 2
+yarn add -D @hiero-ledger/sdk      # gate 3.5
+```
+
 ## Available templates (create-scaffold-hbar)
 
 The `create-scaffold-hbar` CLI resolves templates from this repository's template branches.
@@ -152,8 +186,14 @@ This keeps local testing on a single path and avoids chain id drift between diff
 - **packages/hardhat** — Hardhat config, contracts, `deploy/` scripts, tests, `verifyHedera.js`
 - **packages/foundry** — Forge config, contracts, `script/` deploy scripts, tests, `scripts-js/verifyHedera.js`
 - **packages/nextjs** — Next.js app, RainbowKit, wagmi, scaffold config
+- **`.harness/`** — tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`)
 
 Network and RPC URLs are in `packages/hardhat/hardhat.config.ts` or `packages/foundry/foundry.toml`.
+
+Useful scripts:
+
+- `yarn next:dev` — run the Next.js app in development mode
+- `yarn harness:extend` — extend this app in place with the co-versioned harness recipe
 
 ## Links
 
@@ -161,4 +201,5 @@ Network and RPC URLs are in `packages/hardhat/hardhat.config.ts` or `packages/fo
 - [Hashscan](https://hashscan.io/) — block explorer
 - [Hedera Token Service (HTS)](https://docs.hedera.com/hedera/core-concepts/hedera-token-service-hts)
 - [create-scaffold-hbar](https://github.com/hedera-dev/create-scaffold-hbar) — CLI to scaffold Hedera dApps
+- [hedera-harness](https://github.com/hedera-dev/hedera-harness)
 
