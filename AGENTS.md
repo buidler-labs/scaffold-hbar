@@ -1,236 +1,169 @@
-# [AGENTS.md](http://AGENTS.md)
+# Bridge Agent Guide
 
-This file provides guidance to coding agents working in this repository.
+Guidance for coding agents working in the **bridge** Scaffold-HBAR template.
 
-## Project Overview
+## Overview
 
-Scaffold-HBAR (`sh`) is a starter kit for building dApps on Hedera. It comes in **two flavors** based on the Solidity framework:
+Testnet-first **Sepolia ↔ Hedera Testnet** bridge learning kit. Pick one provider path (LayerZero OFT+HTS, Axelar ITS, or CCIP CCT), deploy via Foundry make runbooks, sync addresses into Next.js, exercise the UI. **Unaudited / educational — not for mainnet funds.**
 
-- **Hardhat flavor**: Uses `packages/hardhat` with hardhat-deploy plugin
-- **Foundry flavor**: Uses `packages/foundry` with Forge scripts
+## Solidity Framework
 
-Both flavors share the same frontend package:
+**Foundry-only** monorepo (no Hardhat contracts package) **+ git submodules**:
 
-- **packages/nextjs**: React frontend (Next.js App Router, not Pages Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS with DaisyUI)
-
-### Detecting Which Flavor You're Usings
-
-Check which package exists in the repository:
-
-- If `packages/hardhat` exists → **Hardhat flavor** (follow Hardhat instructions)
-- If `packages/foundry` exists → **Foundry flavor** (follow Foundry instructions)
-
-## Common Commands
-
-Use explicit package-prefixed scripts for package-specific work. Keep only truly cross-workspace commands unprefixed.
+- **`packages/foundry`** — contracts, provider scripts (`script/{layerzero,axelar,ccip}`), Makefile, bridge sync
+- **`packages/nextjs`** — bridge UI + `services/bridge/config/*.json`
 
 ```bash
-# Development workflow (run each in separate terminal)
-yarn hardhat:chain   # Start local Hedera-forked Hardhat node
-yarn hardhat:deploy  # Deploy contracts with Hardhat
-yarn foundry:chain   # Start plain Anvil from the Foundry package
-yarn foundry:deploy  # Deploy contracts with Foundry
-yarn next:start      # Start Next.js frontend at http://localhost:3000
-
-# Code quality
-yarn lint            # Lint all present packages
-yarn format          # Format all present packages
-
-# Building
-yarn next:build      # Build frontend
-yarn hardhat:compile # Compile Solidity contracts with Hardhat
-yarn foundry:compile # Compile Solidity contracts with Foundry
-
-# Contract verification
-yarn hardhat:verify:testnet
-yarn foundry:verify:testnet
-
-# Account management
-yarn hardhat:account:generate
-yarn hardhat:account:import
-yarn hardhat:account
-yarn foundry:account:generate
-yarn foundry:account:import
-yarn foundry:account
-
-# Deploy to live network
-yarn hardhat:deploy --network <network>   # e.g., hederaTestnet, hederaMainnet
-yarn foundry:deploy --network <network>   # e.g., hedera_testnet, hedera_mainnet
-
-yarn next:vercel:yolo --prod # deploy frontend
+yarn install && git submodule update --init --recursive
 ```
 
-## Architecture
+Key libs under `packages/foundry/lib/`: `LayerZero-v2`, `forge-std`, `openzeppelin-contracts`, `hedera-forking`, Axelar/CCIP deps, etc.
 
-### Smart Contract Development
+## Architecture (LayerZero path)
 
-#### Hardhat Flavor
-
-- Contracts: `packages/hardhat/contracts/`
-- Deployment scripts: `packages/hardhat/deploy/` (uses hardhat-deploy plugin)
-- Tests: `packages/hardhat/test/`
-- Config: `packages/hardhat/hardhat.config.ts`
-- Deploying specific contract:
-  - If the deploy script has:
-    ```typescript
-    // In packages/hardhat/deploy/01_deploy_my_contract.ts
-    deployMyContract.tags = ["MyContract"];
-    ```
- - `yarn hardhat:deploy --tags MyContract`
-
-#### Foundry Flavor
-
-- Contracts: `packages/foundry/contracts/`
-- Deployment scripts: `packages/foundry/script/` (uses custom deployment strategy)
-  - Example: `packages/foundry/script/Deploy.s.sol` and `packages/foundry/script/DeployYourContract.s.sol`
-- Tests: `packages/foundry/test/`
-- Config: `packages/foundry/foundry.toml`
-- Deploying a specific contract:
- - Create a separate deployment script and run `yarn foundry:deploy --file DeployYourContract.s.sol`
-
-#### Both Flavors
-
-- After `yarn hardhat:deploy` or `yarn foundry:deploy`, ABIs are auto-generated to `packages/nextjs/contracts/deployedContracts.ts`
-
-### Frontend Contract Interaction
-
-**Correct interact hook names (use these):**
-
-- `useScaffoldReadContract` - NOT ~~useScaffoldContractRead~~
-- `useScaffoldWriteContract` - NOT ~~useScaffoldContractWrite~~
-
-Contract data is read from two files in `packages/nextjs/contracts/`:
-
-- `deployedContracts.ts`: Auto-generated from deployments
-- `externalContracts.ts`: Manually added external contracts
-
-#### Reading Contract Data
-
-```typescript
-const { data: totalCounter } = useScaffoldReadContract({
-  contractName: "YourContract",
-  functionName: "userGreetingCounter",
-  args: ["0xd8da6bf26964af9d7eed9e03e53415d37aa96045"],
-});
+```text
+MyOFT (Sepolia)  ←setPeer→  MyHTSConnectorOFT (Hedera)
+       │ send / quoteSend          │ _debit burn / _credit mint (HTS 0x167)
+       └──────── Endpoint V2 + ULN + (Simple or Labs) workers ────────┘
 ```
 
-#### Writing to Contracts
+### Critical invariants
 
-```typescript
-const { writeContractAsync, isPending } = useScaffoldWriteContract({
-  contractName: "YourContract",
-});
+- Use LayerZero **EIDs** (`40161` / `40285`), not EVM chain IDs, in peers and `SendParam`.
+- Wire **both** directions: peer + send/receive ULN + executor/ULN config + enforced options.
+- Hedera side is **HTS connector** (`HTSConnector` / `MyHTSConnectorOFT`), not a plain ERC-20 OFT.
+- Tutorial wires **SimpleDVNMock / SimpleExecutorMock** — packets are not auto-delivered by LZ Labs; relay manually or via UI key.
+- Hedera → Sepolia: `quoteSend` via cast + scale fee `* 1e10` before `send` (forge fee sim unreliable).
+- Associate Hedera account with `htsTokenAddress()` before Sepolia → Hedera receives.
 
-await writeContractAsync({
-  functionName: "setGreeting",
-  args: [newGreeting],
-  value: parseEther("0.01"), // for payable functions
-});
+### Contract names (LayerZero)
+
+| Contract | Path | Role |
+| -------- | ---- | ---- |
+| `MyOFT` | `contracts/layerzero/MyOFT.sol` | Sepolia ERC-20 OFT (+ optional premint) |
+| `MyHTSConnectorOFT` | `contracts/layerzero/hts/MyHTSConnectorOFT.sol` | Hedera concrete OFT |
+| `HTSConnector` | `contracts/layerzero/hts/HTSConnector.sol` | Create HTS; burn on send / mint on receive |
+| `SimpleDVNMock` / `SimpleExecutorMock` | `contracts/layerzero/` | Educational workers |
+
+Sibling providers also live under `contracts/` (CCIP HTS pool, Axelar ITS helpers) — use their `make *-help` targets.
+
+## Key Paths
+
+| Path | Purpose |
+| ---- | ------- |
+| `packages/foundry/script/layerzero/HelperConfig.s.sol` | EIDs + Endpoint/ULN/DVN/executor |
+| `packages/foundry/script/layerzero/` | Deploy / wire / send / relay scripts |
+| `packages/foundry/Makefile` + `bridge-layerzero.sh` | `layerzero-*` / `bridge-sync-next` |
+| `packages/foundry/deployments/bridge/layerzero.json` | Deploy state (gitignored) |
+| `packages/nextjs/services/bridge/config/layerzero.json` | Synced frontend config |
+| `packages/nextjs/app/` (bridge UI) | Send / relay UX |
+| `packages/nextjs/app/api/bridge/layerzero/relay` | Educational auto-relay API |
+
+## Addresses & Config
+
+Source of truth: `HelperConfig.s.sol`. Re-check [LayerZero metadata](https://metadata.layerzero-api.com/v1/metadata/deployments) before mainnet.
+
+### EIDs
+
+| Network | Chain ID | EID |
+| ------- | -------- | --- |
+| Hedera testnet | `296` | `40285` |
+| Ethereum Sepolia | `11155111` | `40161` |
+
+### Hedera testnet (EID `40285`)
+
+| Role | Address |
+| ---- | ------- |
+| Endpoint V2 | `0xbD672D1562Dd32C23B563C989d8140122483631d` |
+| Send ULN302 | `0x1707575F7cEcdC0Ad53fde9ba9bda3Ed5d4440f4` |
+| Receive ULN302 | `0xc0c34919A04d69415EF2637A3Db5D637a7126cd0` |
+| Executor (LZ Labs) | `0xe514D331c54d7339108045bF4794F8d71cad110e` |
+| DVN (LZ Labs) | `0xEc7Ee1f9e9060e08dF969Dc08EE72674AfD5E14D` |
+
+### Sepolia (EID `40161`)
+
+| Role | Address |
+| ---- | ------- |
+| Endpoint V2 | `0x6EDCE65403992e310A62460808c4b910D972f10f` |
+| Send ULN302 | `0xcc1ae8Cf5D3904Cef3360A9532B477529b177cCE` |
+| Receive ULN302 | `0xdAf00F5eE2158dD58E0d3857851c432E34A3A851` |
+| Executor (LZ Labs) | `0x718B92b5CB0a5552039B593faF724D182A881eDA` |
+| DVN (LZ Labs) | `0x8eebf8b423B73bFCa51a1Db4B7354AA0bFCA9193` |
+
+HTS precompile: `0x167`. Tutorial passes deployed **simple workers** into wire; Labs addresses remain as config fallbacks.
+
+### Hedera constants
+
+| Constant | Default | Notes |
+| -------- | ------- | ----- |
+| `HEDERA_HTS_CREATE_VALUE` | `40ether` | Make/deploy path for connector create fee |
+| `HEDERA_DEPLOY_GAS_LIMIT` | `15000000` | Hedera deploy txs |
+| `HEDERA_TRANSFER_GAS_LIMIT` | `15000000` | Falls back to deploy limit |
+| Enforced / quote `lzReceive` gas | `80_000` | WireOApp / SendOFT / UI |
+| `LAYERZERO_RELAY_LZRECEIVE_GAS` | `500000` | Educational `commitAndExecute` |
+| Fee scale (Hedera → EVM) | `* 1e10` | `VALUE = FEE * 1e10` after quote |
+| Min amount | 90% (`* 9 / 10`) or `LAYERZERO_DEFAULT_MIN_AMOUNT_BPS=9000` | Slippage floor |
+| HTS decimals | `18` | `HTSConnector` |
+
+Hedera txs: `--legacy` + explicit gas price (HashIO / EIP-1559 quirks).
+
+### Env vars
+
+**`packages/foundry/.env`** (see `.env.example`): `HEDERA_TESTNET_RPC_URL`, `SEPOLIA_RPC_URL`, `ACCOUNT`, `LAYERZERO_TOKEN_NAME` / `SYMBOL`, `LAYERZERO_PREMINT_SEPOLIA`, `HEDERA_HTS_CREATE_VALUE`, gas limits/price, optional address overrides (`SEPOLIA_OFT`, `HEDERA_OFT`, `HEDERA_HTS_TOKEN`, `*_WORKERS_*`), plus Axelar/CCIP blocks.
+
+**`packages/nextjs/.env`:** `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID`, RPC URLs, **`LAYERZERO_RELAY_PRIVATE_KEY`** (server-only, testnet educational relay).
+
+## Commands
+
+Prefer provider make targets over generic `yarn foundry:deploy`.
+
+```bash
+cd packages/foundry
+make layerzero-help
+
+# 1) Deploy
+make layerzero-deploy
+# or: layerzero-deploy-sepolia → layerzero-deploy-hedera
+#     → layerzero-deploy-workers-sepolia → layerzero-deploy-workers-hedera
+
+# 2) Wire + verify
+make layerzero-wire-sepolia
+make layerzero-wire-hedera
+make layerzero-verify-wiring
+
+# 3) Associate HTS
+make layerzero-associate-hedera [RECIPIENT=0x...]
+
+# 4) Sync Next.js config
+make bridge-sync-next PROVIDER=layerzero   # also: axelar | ccip | all
+
+# 5) Send + educational relay
+make layerzero-send-from-sepolia   # or layerzero-send-from-hedera
+make layerzero-relay DIRECTION=sepolia-to-hedera TX=0x...
+# DIRECTION=hedera-to-sepolia likewise
+
+make layerzero-balances   # optional
 ```
 
-#### Reading Events
+Root yarn: `yarn foundry:account:generate`, `yarn foundry:compile`, `yarn foundry:test`, `yarn next:dev`, `yarn harness:extend`.
 
-```typescript
-const { data: events, isLoading } = useScaffoldEventHistory({
-  contractName: "YourContract",
-  eventName: "GreetingChange",
-  watch: true,
-  fromBlock: 31231n,
-  blockData: true,
-});
-```
+Sibling providers: `make axelar-help`, `make ccip-help` (then `bridge-sync-next PROVIDER=…`).
 
-Scaffold-HBAR also provides other hooks to interact with blockchain data: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
+### Suggested LayerZero order
 
-**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-hbar` for contract interactions (legacy path segment; project branding is Scaffold-HBAR / `sh`). Always refer to the hook names as they exist in the codebase.**
+1. Submodules + account + fund Sepolia & Hedera testnet
+2. `make layerzero-deploy` (OFT + HTS connector + simple workers)
+3. Wire both sides + `layerzero-verify-wiring`
+4. Associate HTS; `bridge-sync-next PROVIDER=layerzero`
+5. `yarn next:dev` — send small amounts; relay via UI key or `make layerzero-relay`
 
-### UI Components
+## Educational vs production relay
 
-**Always use `@scaffold-hbar-ui/components` library for web3 UI components:**
+- Template uses **SimpleDVNMock + SimpleExecutorMock**; LZ Labs workers do not auto-deliver tutorial packets.
+- Manual: `make layerzero-relay` (parse `PacketSent` → `verify` → `commitAndExecute`).
+- UI auto-relay only with funded testnet `LAYERZERO_RELAY_PRIVATE_KEY`; otherwise follow make relay instructions.
+- Production apps use LayerZero’s verification network — do not ship a custom relayer key as the security model.
 
-- `Address`: Display Hedera EVM addresses with blockie avatars and explorer links
-- `AddressInput`: Input field with address validation
-- `Balance`: Show HBAR balance in tinybar/HBAR and fiat equivalent
-- `EtherInput`: Number input for EVM value entry (kept for EVM compatibility)
-- `IntegerInput`: Integer-only input with wei conversion
+## Skill Reference
 
-### Styling
-
-**Use DaisyUI classes** for building frontend components.
-
-```tsx
-// ✅ Good - using DaisyUI classes
-<button className="btn btn-primary">Connect</button>
-<div className="card bg-base-100 shadow-xl">...</div>
-
-// ❌ Avoid - raw Tailwind when DaisyUI has a component
-<button className="px-4 py-2 bg-blue-500 text-white rounded">Connect</button>
-```
-
-### Configure Target Network before deploying to testnet / mainnet.
-
-#### Hardhat
-
-Add networks in `packages/hardhat/hardhat.config.ts` if not present.
-
-#### Foundry
-
-Add RPC endpoints in `packages/foundry/foundry.toml` if not present.
-
-#### NextJs
-
-Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file also contains configuration for polling interval, API keys. Remember to decrease the polling interval for L2 chains.
-
-## Code Style Guide
-
-### Identifiers
-
-
-| Style            | Category                                                                                                               |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `UpperCamelCase` | class / interface / type / enum / decorator / type parameters / component functions in TSX / JSXElement type parameter |
-| `lowerCamelCase` | variable / parameter / function / property / module alias                                                              |
-| `CONSTANT_CASE`  | constant / enum / global variables                                                                                     |
-| `snake_case`     | for hardhat deploy files and foundry script files                                                                      |
-
-
-### Import Paths
-
-Use the `~~` path alias for imports in the nextjs package:
-
-```tsx
-import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
-```
-
-### Creating Pages
-
-```tsx
-import type { NextPage } from "next";
-
-const Home: NextPage = () => {
-  return <div>Home</div>;
-};
-
-export default Home;
-```
-
-### TypeScript Conventions
-
-- Use `type` over `interface` for custom types
-- Types use `UpperCamelCase` without `T` prefix (use `Address` not `TAddress`)
-- Avoid explicit typing when TypeScript can infer the type
-
-### Comments
-
-Make comments that add information. Avoid redundant JSDoc for simple functions.
-
-## Documentation
-
-Use **Context7 MCP** tools to fetch up-to-date documentation for any library (Wagmi, Viem, RainbowKit, DaisyUI, Hardhat, Next.js, etc.). Context7 is configured as an MCP server and provides access to indexed documentation with code examples.
-
-## Specialized Agents
-
-Use these specialized agents for specific tasks:
-
-- `**grumpy-carlos-code-reviewer`**: Use this agent for code reviews before finalizing changes
-
+Use skill: **`layerzero-messaging`** for OFT/OApp peer patterns, wire checklist, HTS connector burn/mint semantics, `quoteSend`/`send` flow, educational vs production relay distinction, and pre-send checklists.
