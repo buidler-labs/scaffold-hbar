@@ -1,235 +1,195 @@
-# [AGENTS.md](http://AGENTS.md)
+# Oracles Agent Guide
 
-This file provides guidance to coding agents working in this repository.
+Guidance for coding agents working in the **oracles** Scaffold-HBAR template.
 
-## Project Overview
+## Overview
 
-Scaffold-HBAR (`sh`) is a starter kit for building dApps on Hedera. It comes in **two flavors** based on the Solidity framework:
+Multi-provider price oracle dApp on Hedera: Chainlink, Supra, and Pyth adapters normalize feeds into one `IPriceOracle` interface; an `OracleConsumer` demo converts amounts with `priceE18`. Next.js dashboard reads deployed adapters/consumer.
 
-- **Hardhat flavor**: Uses `packages/hardhat` with hardhat-deploy plugin
-- **Foundry flavor**: Uses `packages/foundry` with Forge scripts
+## Solidity Framework
 
-Both flavors share the same frontend package:
+**Foundry-only** monorepo (no Hardhat contracts package):
 
-- **packages/nextjs**: React frontend (Next.js App Router, not Pages Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS with DaisyUI)
+- **`packages/foundry`** — adapters, consumer, Forge scripts, tests, ABI generation
+- **`packages/nextjs`** — oracle dashboard UI
 
-### Detecting Which Flavor You're Usings
-
-Check which package exists in the repository:
-
-- If `packages/hardhat` exists → **Hardhat flavor** (follow Hardhat instructions)
-- If `packages/foundry` exists → **Foundry flavor** (follow Foundry instructions)
-
-## Common Commands
-
-Use explicit package-prefixed scripts for package-specific work. Keep only truly cross-workspace commands unprefixed.
-
-```bash
-# Development workflow (run each in separate terminal)
-yarn hardhat:chain   # Start local Hedera-forked Hardhat node
-yarn hardhat:deploy  # Deploy contracts with Hardhat
-yarn foundry:chain   # Start plain Anvil from the Foundry package
-yarn foundry:deploy  # Deploy contracts with Foundry
-yarn next:start      # Start Next.js frontend at http://localhost:3000
-
-# Code quality
-yarn lint            # Lint all present packages
-yarn format          # Format all present packages
-
-# Building
-yarn next:build      # Build frontend
-yarn hardhat:compile # Compile Solidity contracts with Hardhat
-yarn foundry:compile # Compile Solidity contracts with Foundry
-
-# Contract verification
-yarn hardhat:verify:testnet <contract-address> <contract-path>:<contract-name>
-yarn foundry:verify:testnet <contract-address> <contract-path>:<contract-name>
-
-# Account management
-yarn hardhat:account:generate
-yarn hardhat:account:import
-yarn hardhat:account
-yarn foundry:account:generate
-yarn foundry:account:import
-yarn foundry:account
-
-# Deploy to live network
-yarn hardhat:deploy --network <network>   # e.g., hederaTestnet, hederaMainnet
-yarn foundry:deploy --network <network>   # e.g., hedera_testnet, hedera_mainnet
-
-yarn next:vercel:yolo --prod # deploy frontend
-```
+Init submodules after clone: `git submodule update --init --recursive`.
 
 ## Architecture
 
-### Smart Contract Development
-
-#### Hardhat Flavor
-
-- Contracts: `packages/hardhat/contracts/`
-- Deployment scripts: `packages/hardhat/deploy/` (uses hardhat-deploy plugin)
-- Tests: `packages/hardhat/test/`
-- Config: `packages/hardhat/hardhat.config.ts`
-- Deploying specific contract:
-  - If the deploy script has:
-    ```typescript
-    // In packages/hardhat/deploy/01_deploy_my_contract.ts
-    deployMyContract.tags = ["MyContract"];
-    ```
- - `yarn hardhat:deploy --tags MyContract`
-
-#### Foundry Flavor
-
-- Contracts: `packages/foundry/contracts/`
-- Deployment scripts: `packages/foundry/script/` (uses custom deployment strategy)
-  - Example: `packages/foundry/script/Deploy.s.sol` and `packages/foundry/script/DeployYourContract.s.sol`
-- Tests: `packages/foundry/test/`
-- Config: `packages/foundry/foundry.toml`
-- Deploying a specific contract:
- - Create a separate deployment script and run `yarn foundry:deploy --file DeployYourContract.s.sol`
-
-#### Both Flavors
-
-- After `yarn hardhat:deploy` or `yarn foundry:deploy`, ABIs are auto-generated to `packages/nextjs/contracts/deployedContracts.ts`
-
-### Frontend Contract Interaction
-
-**Correct interact hook names (use these):**
-
-- `useScaffoldReadContract` - NOT ~~useScaffoldContractRead~~
-- `useScaffoldWriteContract` - NOT ~~useScaffoldContractWrite~~
-
-Contract data is read from two files in `packages/nextjs/contracts/`:
-
-- `deployedContracts.ts`: Auto-generated from deployments
-- `externalContracts.ts`: Manually added external contracts
-
-#### Reading Contract Data
-
-```typescript
-const { data: totalCounter } = useScaffoldReadContract({
-  contractName: "YourContract",
-  functionName: "userGreetingCounter",
-  args: ["0xd8da6bf26964af9d7eed9e03e53415d37aa96045"],
-});
+```text
+Provider feed → Multi-pair provider adapter → OracleConsumer demo
 ```
 
-#### Writing to Contracts
+### Critical invariants
 
-```typescript
-const { writeContractAsync, isPending } = useScaffoldWriteContract({
-  contractName: "YourContract",
-});
+- Consumers depend only on `IPriceOracle`, never provider SDKs directly.
+- All adapters return **18-decimal** `priceE18` and share the same revert vocabulary.
+- Pair maps are **constructor-only** — adding a pair means redeploy + `setOracle`.
+- Chainlink / Supra = push reads; Pyth = pull (Hermes update + fee, then read).
+- Supra quotes on Hedera are **USDT** (not USD) — use `PairLib.pairKey("HBAR", "USDT")` etc.
+- Deployments land in `packages/foundry/deployments/<chainId>.json` → generated `packages/nextjs/contracts/deployedContracts.ts` (do not hand-edit).
 
-await writeContractAsync({
-  functionName: "setGreeting",
-  args: [newGreeting],
-  value: parseEther("0.01"), // for payable functions
-});
+### Contract names
+
+| Contract | Role |
+| -------- | ---- |
+| `ChainlinkPriceOracleAdapter` | Multi-pair Chainlink (`FeedConfig`) |
+| `SupraPriceOracleAdapter` | Multi-pair Supra push (`PairConfig`) |
+| `PythPriceOracleAdapter` | Multi-pair Pyth pull (`PriceConfig` + `updatePrice`) |
+| `OracleConsumer` | Demo consumer with `setOracle` / conversion helpers |
+| `IPriceOracle` | Shared `latestPrice(pairKey) → PriceData` |
+
+## Key Paths
+
+| Path | Purpose |
+| ---- | ------- |
+| `packages/foundry/contracts/oracle/interfaces/IPriceOracle.sol` | Shared interface |
+| `packages/foundry/contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol` | Chainlink adapter |
+| `packages/foundry/contracts/oracle/adapters/SupraPriceOracleAdapter.sol` | Supra adapter |
+| `packages/foundry/contracts/oracle/adapters/PythPriceOracleAdapter.sol` | Pyth adapter |
+| `packages/foundry/contracts/oracle/OracleConsumer.sol` | Demo consumer |
+| `packages/foundry/contracts/oracle/lib/{PairLib,ProviderLib,AssetConversionLib}.sol` | Keys + conversion |
+| `packages/foundry/script/HelperConfig.s.sol` | Network feed / pair / price IDs |
+| `packages/foundry/script/DeployChainlinkOracle.s.sol` | Deploy Chainlink adapter |
+| `packages/foundry/script/DeploySupraOracle.s.sol` | Deploy Supra adapter |
+| `packages/foundry/script/DeployPythOracle.s.sol` | Deploy Pyth adapter |
+| `packages/foundry/script/DeployOracleConsumer.s.sol` | Deploy consumer |
+| `packages/foundry/script/SetConsumerOracle.s.sol` | Point consumer at another adapter |
+| `packages/foundry/script/Read{Chainlink,Supra,Pyth}Oracle.s.sol` | Read helpers |
+| `packages/foundry/deployments/<chainId>.json` | Deployment export |
+| `packages/nextjs/services/oracle/constants.ts` | Frontend pair lists |
+| `packages/nextjs/contracts/deployedContracts.ts` | Generated ABIs/addresses |
+
+## Addresses & Config
+
+**Chain IDs:** mainnet `295`, testnet `296`. Source of truth: `HelperConfig.s.sol` (`CodeConstants` + `NetworkConfig`). Re-check provider docs before mainnet.
+
+### Chainlink Data Feeds (`FeedConfig`: `pairKey → feed`)
+
+| Pair | Mainnet (`295`) | Testnet (`296`) |
+| ---- | --------------- | --------------- |
+| HBAR/USD | `0xAF685FB45C12b92b5054ccb9313e135525F9b5d5` | `0x59bC155EB6c6C415fE43255aF66EcF0523c92B4a` |
+| BTC/USD | `0xaD01E27668658Cc8c1Ce6Ed31503D75F31eEf480` | `0x058fE79CB5775d4b167920Ca6036B824805A9ABd` |
+| ETH/USD | `0xd2D2CB0AEb29472C3008E291355757AD6225019e` | `0xb9d461e0b962aF219866aDfA7DD19C52bB9871b9` |
+
+### Supra Push Oracle (`PairConfig`: `pairKey → supraPairId`)
+
+| | Mainnet (`295`) | Testnet (`296`) |
+| - | --------------- | --------------- |
+| Push oracle | `0xD02cc7a670047b6b012556A88e275c685d25e0c9` | `0x6Cd59830AAD978446e6cc7f6cc173aF7656Fb917` |
+
+| Pair | Pair ID |
+| ---- | ------- |
+| BTC/USDT | `0` |
+| ETH/USDT | `1` |
+| HBAR/USDT | `75` |
+
+### Pyth (`PriceConfig`: `pairKey → priceId`)
+
+| | Mainnet / Testnet |
+| - | ----------------- |
+| Pyth contract | `0xA2aa501b19aff244D90cc15a4Cf739D2725B5729` |
+
+| Pair | Price ID |
+| ---- | -------- |
+| HBAR/USD | `0x3728e591097635310e6341af53db8b7ee42da9b3a8d918f9463ce9cca886dfbd` |
+| BTC/USD | `0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43` |
+| ETH/USD | `0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace` |
+
+### `HelperConfig` shape
+
+```solidity
+struct ChainlinkConfig { address hbarUsdFeed; address btcUsdFeed; address ethUsdFeed; }
+struct SupraConfig {
+    address pushOracle;
+    uint256 hbarUsdtPairId; uint256 btcUsdtPairId; uint256 ethUsdtPairId;
+}
+struct PythConfig {
+    address pyth;
+    bytes32 hbarUsdPriceId; bytes32 btcUsdPriceId; bytes32 ethUsdPriceId;
+}
+struct NetworkConfig {
+    ChainlinkConfig chainlink; SupraConfig supra; PythConfig pyth;
+}
 ```
 
-#### Reading Events
+Unsupported `chainId` → `HelperConfig__InvalidChainId`.
 
-```typescript
-const { data: events, isLoading } = useScaffoldEventHistory({
-  contractName: "YourContract",
-  eventName: "GreetingChange",
-  watch: true,
-  fromBlock: 31231n,
-  blockData: true,
-});
+### Deploy config example (Chainlink)
+
+```solidity
+FeedConfig[] memory configs = new FeedConfig[](3);
+configs[0] = FeedConfig({ pairKey: PairLib.pairKey("HBAR", "USD"), feed: hbarUsdFeed });
+configs[1] = FeedConfig({ pairKey: PairLib.pairKey("BTC", "USD"), feed: btcUsdFeed });
+configs[2] = FeedConfig({ pairKey: PairLib.pairKey("ETH", "USD"), feed: ethUsdFeed });
+
+new ChainlinkPriceOracleAdapter(configs, /* maxStaleness */ 365 days);
 ```
 
-Scaffold-HBAR also provides other hooks to interact with blockchain data: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
+Deploy scripts use `MAX_STALENESS = 365 days` for Chainlink/Supra and `1 hours` for Pyth. Pyth reads/updates may need a non-zero Hedera value (template uses `10_000_000_000` tinybar where required).
 
-**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-hbar` for contract interactions (legacy path segment; project branding is Scaffold-HBAR / `sh`). Always refer to the hook names as they exist in the codebase.**
+### Env vars
 
-### UI Components
+**`packages/foundry/.env`** (from `.env.example`):
 
-**Always use `@scaffold-hbar-ui/components` library for web3 UI components:**
+| Var | Purpose |
+| --- | ------- |
+| `HEDERA_RPC_URL` | Default `https://testnet.hashio.io/api` |
+| `ALCHEMY_API_KEY` | Optional / other networks |
+| `LOCALHOST_KEYSTORE_ACCOUNT` | Default `scaffold-hbar-default` |
 
-- `Address`: Display Hedera EVM addresses with blockie avatars and explorer links
-- `AddressInput`: Input field with address validation
-- `Balance`: Show HBAR balance in tinybar/HBAR and fiat equivalent
-- `EtherInput`: Number input for EVM value entry (kept for EVM compatibility)
-- `IntegerInput`: Integer-only input with wei conversion
+**Script overrides:** `ORACLE_ADAPTER_NAME` (default `ChainlinkPriceOracleAdapter`), `ORACLE_ADAPTER_ADDRESS`, `ORACLE_CONSUMER_NAME` (default `OracleConsumer`).
 
-### Styling
+**`packages/nextjs/.env`:** `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID`, optional Hedera RPC URLs.
 
-**Use DaisyUI classes** for building frontend components.
+RPCs in `foundry.toml`: `hedera_testnet`, `hedera_mainnet`.
 
-```tsx
-// ✅ Good - using DaisyUI classes
-<button className="btn btn-primary">Connect</button>
-<div className="card bg-base-100 shadow-xl">...</div>
+## Commands
 
-// ❌ Avoid - raw Tailwind when DaisyUI has a component
-<button className="px-4 py-2 bg-blue-500 text-white rounded">Connect</button>
+```bash
+yarn install && git submodule update --init --recursive
+yarn foundry:account:generate   # or :import
+yarn foundry:compile && yarn foundry:test
+
+# Fork tests
+yarn foundry:test:chainlink:testnet   # also :supra: / :pyth: ; :mainnet variants
+
+# Deploy adapters
+yarn foundry:deploy:chainlink:testnet # also :supra: / :pyth: ; :mainnet
+
+# Consumer
+ORACLE_ADAPTER_NAME=ChainlinkPriceOracleAdapter yarn foundry:deploy:consumer:testnet
+yarn foundry:set-oracle:testnet
+
+# Read
+yarn foundry:read:chainlink:testnet   # also :supra: / :pyth:
+
+# Verify (example)
+yarn foundry:verify:testnet <addr> \
+  contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol:ChainlinkPriceOracleAdapter
+
+# Frontend
+yarn next:dev
+yarn next:build
 ```
 
-### Configure Target Network before deploying to testnet / mainnet.
+Make (from `packages/foundry`): `make deploy-and-generate-abis DEPLOY_SCRIPT=script/DeployChainlinkOracle.s.sol RPC_URL=hedera_testnet …`; Pyth read may use `make run-script SCRIPT=script/ReadPythOracle.s.sol …`.
 
-#### Hardhat
+### Suggested order
 
-Add networks in `packages/hardhat/hardhat.config.ts` if not present.
+1. Account generate/import + fund on testnet
+2. Deploy one adapter (`yarn foundry:deploy:chainlink:testnet` etc.)
+3. Deploy consumer pointing at that adapter
+4. Optional: deploy another adapter + `yarn foundry:set-oracle:testnet`
+5. `yarn next:dev` — dashboard against `deployedContracts.ts`
 
-#### Foundry
+### Adding a pair
 
-Add RPC endpoints in `packages/foundry/foundry.toml` if not present.
+1. Add feed / pair ID / price ID to `HelperConfig.s.sol` for the target network
+2. Extend the relevant `Deploy*Oracle.s.sol` config array
+3. Redeploy adapter + `setOracle` on the consumer
 
-#### NextJs
+## Skill Reference
 
-Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file also contains configuration for polling interval, API keys. Remember to decrease the polling interval for L2 chains.
-
-## Code Style Guide
-
-### Identifiers
-
-
-| Style            | Category                                                                                                               |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `UpperCamelCase` | class / interface / type / enum / decorator / type parameters / component functions in TSX / JSXElement type parameter |
-| `lowerCamelCase` | variable / parameter / function / property / module alias                                                              |
-| `CONSTANT_CASE`  | constant / enum / global variables                                                                                     |
-| `snake_case`     | for hardhat deploy files and foundry script files                                                                      |
-
-
-### Import Paths
-
-Use the `~~` path alias for imports in the nextjs package:
-
-```tsx
-import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
-```
-
-### Creating Pages
-
-```tsx
-import type { NextPage } from "next";
-
-const Home: NextPage = () => {
-  return <div>Home</div>;
-};
-
-export default Home;
-```
-
-### TypeScript Conventions
-
-- Use `type` over `interface` for custom types
-- Types use `UpperCamelCase` without `T` prefix (use `Address` not `TAddress`)
-- Avoid explicit typing when TypeScript can infer the type
-
-### Comments
-
-Make comments that add information. Avoid redundant JSDoc for simple functions.
-
-## Documentation
-
-Use **Context7 MCP** tools to fetch up-to-date documentation for any library (Wagmi, Viem, RainbowKit, DaisyUI, Hardhat, Next.js, etc.). Context7 is configured as an MCP server and provides access to indexed documentation with code examples.
-
-## Specialized Agents
-
-Use these specialized agents for specific tasks:
-
-- `**grumpy-carlos-code-reviewer`**: Use this agent for code reviews before finalizing changes
+Use skill: **`hedera-oracle-adapters`** for `IPriceOracle` patterns, pair/provider keys, staleness/error semantics, provider quirks (Supra ms timestamps, Pyth pull), conversion math, and checklists.
