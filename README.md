@@ -110,18 +110,18 @@ LayerZero uses educational simple workers in this template. The UI attempts to r
 
 See [`packages/nextjs/README.md`](packages/nextjs/README.md) for the full UI testing checklist.
 
-## Extend with hedera-harness
+## Run with hedera-harness
 
 This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
 
 ```bash
-yarn harness:extend
+yarn harness:run
 ```
 
-That runs `hedera-harness extend .harness/spec.yaml`, which:
+That runs `hedera-harness run .harness/spec.yaml`, which:
 
-1. Creates a `harness/extend-…` branch (or continues an existing matching session)
-2. Asks an agent to implement the extension PRD without rebuilding the app
+1. Creates a `harness/run-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the recipe PRD without rebuilding the app
 3. Checkpoints each attempt and validates against `.harness/validators/`
 4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
 
@@ -151,7 +151,7 @@ Run these from the repo root unless noted otherwise.
 | `yarn next:dev` | Start the Next.js bridge UI |
 | `yarn next:build` | Build the Next.js app |
 | `yarn next:check-types` | Type-check the Next.js app |
-| `yarn harness:extend` | Run the co-versioned Bridge Architecture extend recipe |
+| `yarn harness:run` | Run the co-versioned Bridge Architecture harness recipe |
 
 Provider-specific deploy and transfer commands are intentionally run from `packages/foundry` through `make axelar-*`, `make ccip-*`, and `make layerzero-*`.
 
@@ -159,7 +159,7 @@ Provider-specific deploy and transfer commands are intentionally run from `packa
 
 - `packages/foundry` - Solidity contracts, Foundry scripts, provider runbooks, tests, and bridge config sync tooling.
 - `packages/nextjs` - Next.js App Router frontend, RainbowKit, wagmi, bridge UI, and bridge config JSON files.
-- `.harness/` - tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:extend` to add the Bridge Architecture page (`/architecture`) in place.
+- `.harness/` - tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:run` to add the Bridge Architecture page (`/architecture`) in place.
 
 ## Links
 

@@ -1,4 +1,4 @@
-name: bridge-extend
+name: bridge-architecture
 description: >
   In-place extension of the Scaffold-HBAR bridge template — add a public Bridge Architecture
   page explaining LayerZero OFT + HTS connector flows without rebuilding the app.
@@ -6,7 +6,7 @@ description: >
 # Paths are relative to the project root (parent of .harness/).
 prd: .harness/prd.md
 
-# No seed — extend runs against the already-scaffolded cwd.
+# No seed — `hedera-harness run` operates on the already-scaffolded cwd.
 
 generator:
   provider: command

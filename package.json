@@ -29,7 +29,7 @@
     "foundry:verify:testnet": "yarn workspace @sh/foundry verify:testnet",
     "foundry:verify:mainnet": "yarn workspace @sh/foundry verify:mainnet",
     "format": "yarn next:format && yarn foundry:format",
-    "harness:extend": "hedera-harness extend .harness/spec.yaml",
+    "harness:run": "hedera-harness run .harness/spec.yaml",
     "lint": "yarn next:lint && yarn foundry:lint",
     "next:build": "yarn workspace @sh/nextjs build",
     "next:check-types": "yarn workspace @sh/nextjs check-types",

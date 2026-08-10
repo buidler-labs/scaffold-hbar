@@ -1,5 +1,5 @@
 {
-  "name": "bridge-extend-static",
+  "name": "bridge-architecture-static",
   "description": "Static acceptance for the Bridge Architecture extension on a scaffolded bridge app (template.json is removed by create-scaffold-hbar). Baseline app health is checked separately via extend.baseline.",
   "jsonAssertions": [
     {
@@ -9,8 +9,8 @@
     },
     {
       "file": "package.json",
-      "path": "scripts.harness:extend",
-      "equals": "hedera-harness extend .harness/spec.yaml"
+      "path": "scripts.harness:run",
+      "equals": "hedera-harness run .harness/spec.yaml"
     },
     {
       "file": "package.json",
@@ -84,7 +84,7 @@
         "Educational disclaimer",
         "yarn install",
         "yarn next:dev",
-        "yarn harness:extend"
+        "yarn harness:run"
       ]
     }
   ]

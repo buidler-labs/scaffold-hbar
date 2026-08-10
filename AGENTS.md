@@ -145,7 +145,7 @@ make layerzero-relay DIRECTION=sepolia-to-hedera TX=0x...
 make layerzero-balances   # optional
 ```
 
-Root yarn: `yarn foundry:account:generate`, `yarn foundry:compile`, `yarn foundry:test`, `yarn next:dev`, `yarn harness:extend`.
+Root yarn: `yarn foundry:account:generate`, `yarn foundry:compile`, `yarn foundry:test`, `yarn next:dev`, `yarn harness:run`.
 
 Sibling providers: `make axelar-help`, `make ccip-help` (then `bridge-sync-next PROVIDER=…`).
 
