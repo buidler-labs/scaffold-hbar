@@ -28,7 +28,7 @@
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
-    "hedera-harness": "1.1.1",
+    "hedera-harness": "1.1.2",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10"
   },

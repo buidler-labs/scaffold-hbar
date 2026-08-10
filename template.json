@@ -16,7 +16,7 @@
       "steps": [
         "Hedera native services: no contract deploy is required to run or test this demo.",
         "+Start the frontend: {run:next:dev}",
-        "+Run the co-versioned harness recipe: {run:harness:run}"
+        "+To further develop this template with our agentic harness: {run:harness:run}"
       ]
     }
   }

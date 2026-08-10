@@ -10300,9 +10300,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hedera-harness@npm:1.1.1":
-  version: 1.1.1
-  resolution: "hedera-harness@npm:1.1.1"
+"hedera-harness@npm:1.1.2":
+  version: 1.1.2
+  resolution: "hedera-harness@npm:1.1.2"
   dependencies:
     yaml: ^2.9.0
   peerDependencies:
@@ -10315,7 +10315,7 @@ __metadata:
       optional: true
   bin:
     hedera-harness: dist/index.js
-  checksum: 01f6334bf705ef7a18ab1b262f8843fcbea59d319b8f992bc37156b8efa9f57dab6efb369b4cfcfcdbd3d0b063462731a94fb790aa88397295e43c49081bac79
+  checksum: f26234f0631cbce36e125bf832287ca0c3f901028e4a41a3342141349eb7abd2c5085084f3440e32a1676bf678f70408d8cceeadef4a7750c2d7510737a9a1ed
   languageName: node
   linkType: hard
 
@@ -14985,7 +14985,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "sh@workspace:."
   dependencies:
-    hedera-harness: 1.1.1
+    hedera-harness: 1.1.2
     husky: ^9.1.6
     lint-staged: ^15.2.10
   languageName: unknown

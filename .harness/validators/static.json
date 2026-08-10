@@ -20,7 +20,7 @@
     {
       "file": "package.json",
       "path": "devDependencies.hedera-harness",
-      "equals": "1.1.1"
+      "equals": "1.1.2"
     }
   ],
   "fileAssertions": {

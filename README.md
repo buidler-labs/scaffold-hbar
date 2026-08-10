@@ -19,7 +19,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Run with hedera-harness
 
-This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
+To further develop this template with our agentic [hedera-harness](https://www.npmjs.com/package/hedera-harness), use the recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
 
 ```bash
 yarn harness:run
@@ -53,7 +53,7 @@ yarn add -D @hiero-ledger/sdk      # gate 3.5
 - `yarn next:build` - build production assets
 - `yarn next:serve` - serve the production build
 - `yarn format` - format frontend code
-- `yarn harness:run` - run the co-versioned harness recipe against this app in place
+- `yarn harness:run` - further develop this template with the agentic harness
 - `yarn next:vercel` / `yarn next:vercel:yolo` / `yarn next:vercel:login` - Vercel deploy and login helpers
 - `yarn next:ipfs` - IPFS upload flow for the frontend build
 
