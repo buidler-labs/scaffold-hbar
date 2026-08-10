@@ -1,4 +1,4 @@
-name: hedera-demo-extend
+name: hedera-demo
 description: >
   In-place extension of the scaffolded Hedera Proof Wall demo — add a public Learn page
   explaining HCS/HTS without rebuilding the app.
@@ -6,7 +6,7 @@ description: >
 # Paths are relative to the project root (parent of .harness/).
 prd: .harness/prd.md
 
-# No seed — extend runs against the already-scaffolded cwd.
+# No seed — `hedera-harness run` operates on the already-scaffolded cwd.
 
 generator:
   provider: command

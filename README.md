@@ -17,18 +17,18 @@ yarn next:dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Extend with hedera-harness
+## Run with hedera-harness
 
 This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
 
 ```bash
-yarn harness:extend
+yarn harness:run
 ```
 
-That runs `hedera-harness extend .harness/spec.yaml`, which:
+That runs `hedera-harness run .harness/spec.yaml`, which:
 
-1. Creates a `harness/extend-…` branch (or continues an existing matching session)
-2. Asks an agent to implement the extension PRD without rebuilding the app
+1. Creates a `harness/run-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the recipe PRD without rebuilding the app
 3. Checkpoints each attempt and validates against `.harness/validators/`
 4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
 
@@ -53,14 +53,14 @@ yarn add -D @hiero-ledger/sdk      # gate 3.5
 - `yarn next:build` - build production assets
 - `yarn next:serve` - serve the production build
 - `yarn format` - format frontend code
-- `yarn harness:extend` - extend this app in place with the co-versioned harness recipe
+- `yarn harness:run` - run the co-versioned harness recipe against this app in place
 - `yarn next:vercel` / `yarn next:vercel:yolo` / `yarn next:vercel:login` - Vercel deploy and login helpers
 - `yarn next:ipfs` - IPFS upload flow for the frontend build
 
 ## Project Layout
 
 - `packages/nextjs` - Hedera-native frontend app
-- `.harness/` - tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`)
+- `.harness/` - tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:run` to add the Learn page (`/learn`) in place.
 
 ## Links
 

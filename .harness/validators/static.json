@@ -1,5 +1,5 @@
 {
-  "name": "hedera-demo-extend-static",
+  "name": "hedera-demo-static",
   "description": "Static acceptance for the Learn-page extension on a scaffolded hedera-demo app (template.json is removed by create-scaffold-hbar). Baseline app health is checked separately via extend.baseline.",
   "jsonAssertions": [
     {
@@ -14,8 +14,8 @@
     },
     {
       "file": "package.json",
-      "path": "scripts.harness:extend",
-      "equals": "hedera-harness extend .harness/spec.yaml"
+      "path": "scripts.harness:run",
+      "equals": "hedera-harness run .harness/spec.yaml"
     },
     {
       "file": "package.json",
@@ -57,7 +57,7 @@
     },
     {
       "file": "README.md",
-      "contains": ["yarn install", "yarn next:dev", "yarn harness:extend"]
+      "contains": ["yarn install", "yarn next:dev", "yarn harness:run"]
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "name": "hedera-demo-extend-yarn",
+  "name": "hedera-demo-yarn",
   "description": "Yarn-only target validation after the Learn-page extension. Named install allows fingerprint skip across attempts.",
   "requiresNoSecrets": true,
   "forbiddenCommands": [
