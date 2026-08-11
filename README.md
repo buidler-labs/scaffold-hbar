@@ -72,18 +72,18 @@ yarn next:start
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Extend with hedera-harness
+## Run with hedera-harness
 
 This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
 
 ```bash
-yarn harness:extend
+yarn harness:run
 ```
 
-That runs `hedera-harness extend .harness/spec.yaml`, which:
+That runs `hedera-harness run .harness/spec.yaml`, which:
 
-1. Creates a `harness/extend-…` branch (or continues an existing matching session)
-2. Asks an agent to implement the extension PRD without rebuilding the app
+1. Creates a `harness/run-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the recipe PRD without rebuilding the app
 3. Checkpoints each attempt and validates against `.harness/validators/`
 4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
 
@@ -176,7 +176,7 @@ Foundry `broadcast/` files are execution history and do not populate the fronten
 - `packages/foundry` - Solidity contracts, Forge scripts, deployment exports, tests, and ABI generation.
 - `packages/nextjs` - Next.js app, wallet connection, Scaffold-HBAR hooks, and oracle dashboard UI.
 - `packages/nextjs/contracts/deployedContracts.ts` - generated frontend contract metadata.
-- `.harness/` - tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:extend` to add the Oracle Comparison page (`/compare`) in place.
+- `.harness/` - tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:run` to add the Oracle Comparison page (`/compare`) in place.
 
 Network and RPC configuration for Foundry lives in `packages/foundry/foundry.toml`.
 
