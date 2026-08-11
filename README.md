@@ -52,20 +52,20 @@ From the repository root:
 Open [http://localhost:3000](http://localhost:3000), connect a wallet on **Hedera testnet**, and use **Debug Contracts** (`/debug`) or **DCA** (`/`) against the addresses you deployed.
 
 
-**Useful commands:** `yarn foundry:compile`, `yarn foundry:test`, `yarn lint`, `yarn format`, `yarn next:build`, `yarn harness:extend`. Accounts: `yarn foundry:account:generate`, `yarn foundry:account:import`, `yarn foundry:account`.
+**Useful commands:** `yarn foundry:compile`, `yarn foundry:test`, `yarn lint`, `yarn format`, `yarn next:build`, `yarn harness:run`. Accounts: `yarn foundry:account:generate`, `yarn foundry:account:import`, `yarn foundry:account`.
 
-## Extend with hedera-harness
+## Run with hedera-harness
 
 This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
 
 ```bash
-yarn harness:extend
+yarn harness:run
 ```
 
-That runs `hedera-harness extend .harness/spec.yaml`, which:
+That runs `hedera-harness run .harness/spec.yaml`, which:
 
-1. Creates a `harness/extend-…` branch (or continues an existing matching session)
-2. Asks an agent to implement the extension PRD without rebuilding the app
+1. Creates a `harness/run-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the recipe PRD without rebuilding the app
 3. Checkpoints each attempt and validates against `.harness/validators/`
 4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
 
@@ -154,7 +154,7 @@ Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) a
 
 - **`packages/foundry`** — Solidity, Forge scripts, tests, keystore helpers, Hedera verify scripts
 - **`packages/nextjs`** — Next.js app, Wagmi/RainbowKit, scaffold hooks, `scaffold.config.ts`
-- **`.harness/`** — tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:extend` to add the DCA Explainer page (`/dca-guide`) in place.
+- **`.harness/`** — tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:run` to add the DCA Explainer page (`/dca-guide`) in place.
 
 ## Links
 
