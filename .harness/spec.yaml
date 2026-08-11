@@ -1,30 +1,7 @@
+schemaVersion: 2
 name: bridge-architecture
 description: >
-  In-place extension of the Scaffold-HBAR bridge template — add a public Bridge Architecture
-  page explaining LayerZero OFT + HTS connector flows without rebuilding the app.
-
-# Paths are relative to the project root (parent of .harness/).
-prd: .harness/prd.md
-
-# No seed — `hedera-harness run` operates on the already-scaffolded cwd.
-
-generator:
-  provider: command
-  command: agent
-  args:
-    - -p
-    - --trust
-    - --sandbox
-    - enabled
-    - --workspace
-    - "{workspace}"
-    - --model
-    - composer-2.5
-    - --force
-    - --output-format
-    - stream-json
-    - --stream-partial-output
-  timeoutMs: 3600000
+  In-place extension of the Scaffold-HBAR bridge template — add a public Bridge Architecture page explaining LayerZero OFT + HTS connector flows without rebuilding the app.
 
 skills:
   - layerzero-messaging
@@ -49,33 +26,27 @@ templateMetadata:
   name: bridge
   frontend: nextjs-app
   solidityFramework: foundry
-
 # Baseline = existing project health before the extension is implemented.
 # Target acceptance = validators below (Architecture page + yarn lint/build).
 # Full multi-network deploy validation (Sepolia RPC + live LayerZero) is out of scope for this gate 0–1 recipe.
-extend:
-  baseline:
-    commands:
-      - name: install
-        command: yarn install
-        timeoutMs: 300000
-      - name: submodules
-        command: git submodule update --init --recursive --force
-        timeoutMs: 300000
-      - name: lint
-        # Root `yarn lint` also runs foundry prettier checks that currently fail on stock scripts-js.
-        command: yarn next:lint
-        timeoutMs: 180000
-      - name: compile
-        command: yarn foundry:compile
-        timeoutMs: 300000
-      - name: build
-        command: yarn next:build
-        timeoutMs: 300000
-
-validators:
-  static: .harness/validators/static.json
-  commands: .harness/validators/yarn.json
+baseline:
+  commands:
+    - name: install
+      command: yarn install
+      timeoutMs: 300000
+    - name: submodules
+      command: git submodule update --init --recursive --force
+      timeoutMs: 300000
+    - name: lint
+      # Root `yarn lint` also runs foundry prettier checks that currently fail on stock scripts-js.
+      command: yarn next:lint
+      timeoutMs: 180000
+    - name: compile
+      command: yarn foundry:compile
+      timeoutMs: 300000
+    - name: build
+      command: yarn next:build
+      timeoutMs: 300000
 
 requiredFiles:
   - README.md
@@ -90,8 +61,6 @@ requiredFiles:
   - packages/foundry/contracts/layerzero/hts/HTSConnector.sol
   - packages/foundry/contracts/layerzero/hts/MyHTSConnectorOFT.sol
   - packages/foundry/script/layerzero/WireOApp.s.sol
-  - .harness/spec.yaml
-  - .harness/prd.md
 
 forbiddenFiles:
   - .env
@@ -117,9 +86,3 @@ secretScan:
         - packages/foundry/lib/ccip/integration-tests/README_SETH.md
         # Upstream ITS test constants use INTERCHAIN_TOKEN = 'deploy…' identifiers.
         - packages/foundry/lib/interchain-token-service/test/constants.js
-
-maxAttempts: 3
-
-logging:
-  jsonl: .harness/runs/harness.log.jsonl
-  notes: .harness/runs/harness-notes.md
