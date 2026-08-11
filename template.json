@@ -23,7 +23,7 @@
         "  cd packages/hardhat && npx ts-node scripts/createCollection.ts",
         "+Start the frontend:",
         "  {run:next:start}",
-        "+Extend this app with the co-versioned harness recipe: {run:harness:extend}"
+        "+Further develop this template with our agentic harness: {run:harness:run}"
       ]
     }
   }
