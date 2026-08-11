@@ -82,18 +82,18 @@ After deployment, `packages/nextjs/contracts/deployedContracts.ts` is auto-gener
 yarn next:dev   # http://localhost:3000/dca
 ```
 
-## Extend with hedera-harness
+## Run with hedera-harness
 
 This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
 
 ```bash
-yarn harness:extend
+yarn harness:run
 ```
 
-That runs `hedera-harness extend .harness/spec.yaml`, which:
+That runs `hedera-harness run .harness/spec.yaml`, which:
 
-1. Creates a `harness/extend-…` branch (or continues an existing matching session)
-2. Asks an agent to implement the extension PRD without rebuilding the app
+1. Creates a `harness/run-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the recipe PRD without rebuilding the app
 3. Checkpoints each attempt and validates against `.harness/validators/`
 4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
 
@@ -257,4 +257,4 @@ Displays the last 10,000 blocks of on-chain events from both chains with live up
 - [Axelar Documentation](https://docs.axelar.dev/)
 - [Hashscan testnet](https://hashscan.io/testnet) — Hedera block explorer
 - [create-scaffold-hbar](https://github.com/buidler-labs/create-scaffold-hbar) — CLI to scaffold Hedera dApps
-- [hedera-harness](https://github.com/hedera-dev/hedera-harness) — co-versioned extend recipe under `.harness/` (`yarn harness:extend`)
+- [hedera-harness](https://github.com/hedera-dev/hedera-harness) — co-versioned harness recipe under `.harness/` (`yarn harness:run`)

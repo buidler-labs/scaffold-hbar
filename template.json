@@ -19,7 +19,7 @@
         "   Fund your accounts before deploying — Hedera testnet: https://portal.hedera.com, Sepolia: https://sepolia-faucet.pk910.de/",
         "3. Run the full 10-step deployment (compile, deploy, wire, fund, create plan, verify): {run:hardhat:deploy}",
         "4. Start the frontend: {run:next:dev}",
-        "5. Extend this app with the co-versioned harness recipe: {run:harness:extend}",
+        "5. Further develop this template with our agentic harness: {run:harness:run}",
         "After this, inspect the active plan with {run:hardhat:hedera:plan:latest} or check Sepolia balances with {run:hardhat:sepolia:balance:check}."
       ]
     }
