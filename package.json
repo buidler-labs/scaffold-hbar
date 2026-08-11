@@ -10,7 +10,7 @@
   },
   "scripts": {
     "format": "yarn next:format && yarn hardhat:format",
-    "harness:extend": "hedera-harness extend .harness/spec.yaml",
+    "harness:run": "hedera-harness run .harness/spec.yaml",
     "infra:up": "sh -c 'if docker compose version >/dev/null 2>&1; then docker compose up -d --build; else docker-compose up -d --build; fi'",
     "infra:down": "sh -c 'if docker compose version >/dev/null 2>&1; then docker compose down; else docker-compose down; fi'",
     "infra:logs": "sh -c 'if docker compose version >/dev/null 2>&1; then docker compose logs -f; else docker-compose logs -f; fi'",
@@ -52,7 +52,7 @@
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
-    "hedera-harness": "1.1.1",
+    "hedera-harness": "1.2.0",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10"
   },

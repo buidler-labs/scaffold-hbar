@@ -28,7 +28,7 @@
         "  {run:hardhat:deploy} --network hederaTestnet",
         "+Verify on Hashscan: {run:hardhat:verify:testnet}",
         "+Start the app: {run:next:dev}",
-        "+Extend this app with the co-versioned harness recipe: {run:harness:extend}",
+        "+Further develop this template with our agentic harness: {run:harness:run}",
         "See README.md and RUNBOOK.md for end-to-end verification and {run:x402:buy} agent testing."
       ]
     }

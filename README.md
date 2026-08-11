@@ -137,20 +137,20 @@ Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet).
 | `yarn hardhat:test` | Run `FileRegistry` contract tests |
 | `yarn x402:buy` | Node agent buyer script (see `RUNBOOK.md`) |
 | `yarn facilitator:check-types` | Type-check the facilitator service |
-| `yarn harness:extend` | Run the co-versioned How x402 Works extend recipe |
+| `yarn harness:run` | Run the co-versioned How x402 Works harness recipe |
 
-## Extend with hedera-harness
+## Run with hedera-harness
 
 This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
 
 ```bash
-yarn harness:extend
+yarn harness:run
 ```
 
-That runs `hedera-harness extend .harness/spec.yaml`, which:
+That runs `hedera-harness run .harness/spec.yaml`, which:
 
-1. Creates a `harness/extend-…` branch (or continues an existing matching session)
-2. Asks an agent to implement the extension PRD without rebuilding the app
+1. Creates a `harness/run-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the recipe PRD without rebuilding the app
 3. Checkpoints each attempt and validates against `.harness/validators/`
 4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
 
@@ -186,7 +186,7 @@ yarn add -D @hiero-ledger/sdk      # gate 3.5
 - **`packages/nextjs`** — Next.js resource server (`/api/files/*`), marketplace UI, x402 client (HashPack)
 - **`facilitator/`** — self-hosted x402 Hedera facilitator (verify / settle)
 - **`docker-compose.yml`** — MinIO + facilitator for local development
-- **`.harness/`** — tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:extend` to add the How x402 Works page (`/how-it-works`) in place.
+- **`.harness/`** — tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:run` to add the How x402 Works page (`/how-it-works`) in place.
 
 ## Links
 
