@@ -33,18 +33,18 @@ yarn install
 yarn next:dev
 ```
 
-## Extend with hedera-harness
+## Run with hedera-harness
 
 This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
 
 ```bash
-yarn harness:extend
+yarn harness:run
 ```
 
-That runs `hedera-harness extend .harness/spec.yaml`, which:
+That runs `hedera-harness run .harness/spec.yaml`, which:
 
-1. Creates a `harness/extend-…` branch (or continues an existing matching session)
-2. Asks an agent to implement the extension PRD without rebuilding the app
+1. Creates a `harness/run-…` branch (or continues an existing matching session)
+2. Asks an agent to implement the recipe PRD without rebuilding the app
 3. Checkpoints each attempt and validates against `.harness/validators/`
 4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
 
@@ -193,7 +193,7 @@ Network and RPC URLs are in `packages/hardhat/hardhat.config.ts` or `packages/fo
 Useful scripts:
 
 - `yarn next:dev` — run the Next.js app in development mode
-- `yarn harness:extend` — extend this app in place with the co-versioned harness recipe
+- `yarn harness:run` — run the co-versioned harness recipe in place
 
 ## Links
 

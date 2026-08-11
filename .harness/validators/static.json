@@ -1,6 +1,6 @@
 {
   "name": "blank-template-extend-static",
-  "description": "Static acceptance for the Getting Started page extension on a scaffolded blank template (template.json is removed by create-scaffold-hbar). Baseline app health is checked separately via extend.baseline.",
+  "description": "Static acceptance for the Getting Started page extension on a scaffolded blank template (template.json is removed by create-scaffold-hbar). Baseline app health is checked separately via baseline.",
   "jsonAssertions": [
     {
       "file": "package.json",
@@ -9,13 +9,13 @@
     },
     {
       "file": "package.json",
-      "path": "scripts.harness:extend",
-      "equals": "hedera-harness extend .harness/spec.yaml"
+      "path": "scripts.harness:run",
+      "equals": "hedera-harness run .harness/spec.yaml"
     },
     {
       "file": "package.json",
       "path": "devDependencies.hedera-harness",
-      "equals": "1.1.1"
+      "equals": "1.2.0"
     }
   ],
   "fileAssertions": {
@@ -50,7 +50,7 @@
     },
     {
       "file": "README.md",
-      "contains": ["yarn install", "yarn next:dev", "yarn harness:extend"]
+      "contains": ["yarn install", "yarn next:dev", "yarn harness:run"]
     }
   ]
 }

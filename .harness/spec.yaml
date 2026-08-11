@@ -1,30 +1,7 @@
+schemaVersion: 2
 name: blank-template-extend
 description: >
-  In-place extension of the blank Scaffold-HBAR starter — add a public Getting Started
-  page explaining how to use the scaffold without rebuilding the app.
-
-# Paths are relative to the project root (parent of .harness/).
-prd: .harness/prd.md
-
-# No seed — extend runs against the already-scaffolded cwd.
-
-generator:
-  provider: command
-  command: agent
-  args:
-    - -p
-    - --trust
-    - --sandbox
-    - enabled
-    - --workspace
-    - "{workspace}"
-    - --model
-    - composer-2.5
-    - --force
-    - --output-format
-    - stream-json
-    - --stream-partial-output
-  timeoutMs: 3600000
+  In-place extension of the blank Scaffold-HBAR starter — add a public Getting Started page explaining how to use the scaffold without rebuilding the app.
 
 skills:
   - project-scaffolding
@@ -50,25 +27,19 @@ templateMetadata:
   name: blank
   frontend: nextjs-app
   solidityFramework: foundry
-
 # Baseline = existing project health before the extension is implemented.
 # Target acceptance = validators below (Getting Started page + yarn lint/build).
-extend:
-  baseline:
-    commands:
-      - name: install
-        command: yarn install
-        timeoutMs: 300000
-      - name: lint
-        command: yarn next:lint
-        timeoutMs: 180000
-      - name: build
-        command: yarn next:build
-        timeoutMs: 300000
-
-validators:
-  static: .harness/validators/static.json
-  commands: .harness/validators/yarn.json
+baseline:
+  commands:
+    - name: install
+      command: yarn install
+      timeoutMs: 300000
+    - name: lint
+      command: yarn next:lint
+      timeoutMs: 180000
+    - name: build
+      command: yarn next:build
+      timeoutMs: 300000
 
 requiredFiles:
   - README.md
@@ -78,12 +49,6 @@ requiredFiles:
   - packages/nextjs/app/page.tsx
   - packages/nextjs/components/Header.tsx
   - packages/nextjs/app/getting-started/page.tsx
-  - .harness/spec.yaml
-  - .harness/prd.md
-
-forbiddenFiles:
-  - .env
-  - packages/nextjs/.env
 
 secretScan:
   failOnFiles:
@@ -99,9 +64,3 @@ secretScan:
         - packages/foundry/.env.example
         - packages/hardhat/.env.example
         - packages/nextjs/.env.example
-
-maxAttempts: 3
-
-logging:
-  jsonl: .harness/runs/harness.log.jsonl
-  notes: .harness/runs/harness-notes.md
