@@ -1,30 +1,7 @@
+schemaVersion: 2
 name: hedera-demo
 description: >
-  In-place extension of the scaffolded Hedera Proof Wall demo — add a public Learn page
-  explaining HCS/HTS without rebuilding the app.
-
-# Paths are relative to the project root (parent of .harness/).
-prd: .harness/prd.md
-
-# No seed — `hedera-harness run` operates on the already-scaffolded cwd.
-
-generator:
-  provider: command
-  command: agent
-  args:
-    - -p
-    - --trust
-    - --sandbox
-    - enabled
-    - --workspace
-    - "{workspace}"
-    - --model
-    - composer-2.5
-    - --force
-    - --output-format
-    - stream-json
-    - --stream-partial-output
-  timeoutMs: 3600000
+  In-place extension of the scaffolded Hedera Proof Wall demo — add a public Learn page explaining HCS/HTS without rebuilding the app.
 
 skills:
   - project-scaffolding
@@ -52,25 +29,19 @@ templateMetadata:
   name: hedera-demo
   frontend: nextjs-app
   solidityFramework: none
-
 # Baseline = existing project health before the extension is implemented.
 # Target acceptance = validators below (Learn page + yarn lint/build).
-extend:
-  baseline:
-    commands:
-      - name: install
-        command: yarn install
-        timeoutMs: 300000
-      - name: lint
-        command: yarn lint
-        timeoutMs: 180000
-      - name: build
-        command: yarn next:build
-        timeoutMs: 300000
-
-validators:
-  static: .harness/validators/static.json
-  commands: .harness/validators/yarn.json
+baseline:
+  commands:
+    - name: install
+      command: yarn install
+      timeoutMs: 300000
+    - name: lint
+      command: yarn lint
+      timeoutMs: 180000
+    - name: build
+      command: yarn next:build
+      timeoutMs: 300000
 
 requiredFiles:
   - README.md
@@ -80,8 +51,6 @@ requiredFiles:
   - packages/nextjs/app/page.tsx
   - packages/nextjs/components/Header.tsx
   - packages/nextjs/app/learn/page.tsx
-  - .harness/spec.yaml
-  - .harness/prd.md
 
 forbiddenFiles:
   - .env
@@ -98,9 +67,3 @@ secretScan:
       pattern: "(PRIVATE_KEY|OPERATOR_KEY|HEDERA_OPERATOR_PRIVATE_KEY)\\s*=\\s*(0x)?[0-9a-fA-F]{32,}"
     - name: api-key-assignment
       pattern: "(API_KEY|TOKEN|SECRET)\\s*=\\s*['\\\"]?[A-Za-z0-9_\\-]{24,}"
-
-maxAttempts: 3
-
-logging:
-  jsonl: .harness/runs/harness.log.jsonl
-  notes: .harness/runs/harness-notes.md

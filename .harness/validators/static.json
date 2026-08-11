@@ -1,6 +1,6 @@
 {
   "name": "hedera-demo-static",
-  "description": "Static acceptance for the Learn-page extension on a scaffolded hedera-demo app (template.json is removed by create-scaffold-hbar). Baseline app health is checked separately via extend.baseline.",
+  "description": "Static acceptance for the Learn-page extension on a scaffolded hedera-demo app (template.json is removed by create-scaffold-hbar). Baseline app health is checked separately via baseline.",
   "jsonAssertions": [
     {
       "file": "package.json",
@@ -20,7 +20,7 @@
     {
       "file": "package.json",
       "path": "devDependencies.hedera-harness",
-      "equals": "1.1.2"
+      "equals": "1.2.0"
     }
   ],
   "fileAssertions": {
