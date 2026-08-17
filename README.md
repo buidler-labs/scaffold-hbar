@@ -26,8 +26,6 @@ npm create scaffold-hbar@latest
   ```
 - **If using Foundry:** [Foundry](https://book.getfoundry.sh/getting-started/installation) (`forge`, `cast`, `anvil`)
 
-
-
 ### Quick start
 
 ```bash
@@ -45,7 +43,7 @@ yarn next:start
 
 Open [http://localhost:3000](http://localhost:3000) and use the **Debug Contracts** page.
 
-`yarn hardhat:deploy` without `--network localhost` targets the in-process `hardhat` network, not the long-running fork. Local Hardhat and Foundry workflows are in `[packages/hardhat/README.md](packages/hardhat/README.md)` and `[packages/foundry/README.md](packages/foundry/README.md)`. Deploy and verify on testnet/mainnet: [HashScan.](https://hashscan.io/)
+`yarn hardhat:deploy` without `--network localhost` targets the in-process `hardhat` network, not the long-running fork. Local Hardhat and Foundry workflows are in [`packages/hardhat/README.md`](packages/hardhat/README.md) and [`packages/foundry/README.md`](packages/foundry/README.md). Deploy and verify on testnet/mainnet: [Hedera docs](https://docs.hedera.com/solutions/tools/scaffold-hbar/index#deploying-to-testnet).
 
 ## Project layout
 
