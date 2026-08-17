@@ -59,5 +59,4 @@ Network and RPC URLs are in `packages/hardhat/hardhat.config.ts` and `packages/f
 - [create-scaffold-hbar](https://github.com/hedera-dev/create-scaffold-hbar) — CLI
 - [Hedera Portal faucet](https://portal.hedera.com/faucet)
 - [HashScan](https://hashscan.io/)
-- [Contributing](CONTRIBUTING.md)
 
