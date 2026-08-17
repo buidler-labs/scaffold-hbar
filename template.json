@@ -1,6 +1,6 @@
 {
   "name": "blank",
-  "description": "Blank Scaffold-HBAR starter with a minimal setup and no example contracts.",
+  "description": "Minimal Scaffold-HBAR starter: Next.js, Hardhat or Foundry, sample HTS contracts, no opinionated product UI.",
   "create-scaffold-hbar": {
     "capabilities": {
       "frontend": ["nextjs-app"],
@@ -14,8 +14,7 @@
     },
     "outro": {
       "steps": [
-        "+Start the frontend: {run:next:dev}",
-        "+Further develop this template with our agentic harness: {run:harness:run}"
+        "+Start the frontend: {run:next:dev}"
       ]
     }
   }

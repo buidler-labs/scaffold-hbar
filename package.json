@@ -48,7 +48,6 @@
     "hardhat:verify": "yarn workspace @sh/hardhat verify",
     "hardhat:verify:testnet": "yarn workspace @sh/hardhat verify:testnet",
     "hardhat:verify:mainnet": "yarn workspace @sh/hardhat verify:mainnet",
-    "harness:run": "hedera-harness run .harness/spec.yaml",
     "lint": "yarn next:lint && yarn hardhat:lint && yarn foundry:lint",
     "next:build": "yarn workspace @sh/nextjs build",
     "next:check-types": "yarn workspace @sh/nextjs check-types",
@@ -67,7 +66,6 @@
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
-    "hedera-harness": "1.2.0",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10"
   },
