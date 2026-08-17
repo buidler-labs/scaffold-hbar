@@ -1,4 +1,6 @@
-# [AGENTS.md](http://AGENTS.md)
+# Agent instructions
+
+This file is the shared briefing for coding agents in this repository (Cursor, Claude Code, Codex, and any other tool that reads `AGENTS.md`). Claude Code loads it through `CLAUDE.md`.
 
 This file provides guidance to coding agents working in this repository.
 
@@ -56,8 +58,6 @@ yarn foundry:account
 # Deploy to live network
 yarn hardhat:deploy --network <network>   # e.g., hederaTestnet, hederaMainnet
 yarn foundry:deploy --network <network>   # e.g., hedera_testnet, hedera_mainnet
-
-yarn next:vercel:yolo --prod # deploy frontend
 ```
 
 ## Architecture
