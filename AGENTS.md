@@ -1,236 +1,138 @@
 # Agent instructions
 
-This file is the shared briefing for coding agents in this repository (Cursor, Claude Code, Codex, and any other tool that reads `AGENTS.md`). Claude Code loads it through `CLAUDE.md`.
+Briefing for coding agents in this app (Cursor, Claude Code, Codex). Claude Code loads it through `CLAUDE.md`.
 
-This file provides guidance to coding agents working in this repository.
+This is a Scaffold-HBAR dApp: Next.js App Router, wallet connect, Debug Contracts, and Hedera networks (testnet, mainnet, local fork). The CLI may have left only Hardhat or only Foundry.
 
-## Project Overview
+Use the package manager this project was created with (`packageManager` in the root `package.json`, or the lockfile). Examples use `yarn`; if the app was created with npm, swap `yarn <script>` for `npm run <script>`.
 
-Scaffold-HBAR (`sh`) is a starter kit for building dApps on Hedera. It comes in **two flavors** based on the Solidity framework:
+## Which Solidity package
 
-- **Hardhat flavor**: Uses `packages/hardhat` with hardhat-deploy plugin
-- **Foundry flavor**: Uses `packages/foundry` with Forge scripts
+- `packages/hardhat` exists → Hardhat (`hardhat-deploy`)
+- `packages/foundry` exists → Foundry (Forge scripts)
+- `packages/nextjs` is always the frontend (App Router, RainbowKit, Wagmi, Viem, DaisyUI)
 
-Both flavors share the same frontend package:
+Follow only the flavor that is present.
 
-- **packages/nextjs**: React frontend (Next.js App Router, not Pages Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS with DaisyUI)
+## Commands
 
-### Detecting Which Flavor You're Usings
-
-Check which package exists in the repository:
-
-- If `packages/hardhat` exists → **Hardhat flavor** (follow Hardhat instructions)
-- If `packages/foundry` exists → **Foundry flavor** (follow Foundry instructions)
-
-## Common Commands
-
-Use explicit package-prefixed scripts for package-specific work. Keep only truly cross-workspace commands unprefixed.
+Package-prefixed scripts for package-specific work. Keep only truly cross-workspace commands unprefixed.
 
 ```bash
-# Development workflow (run each in separate terminal)
-yarn hardhat:chain   # Start local Hedera-forked Hardhat node
-yarn hardhat:deploy  # Deploy contracts with Hardhat
-yarn foundry:chain   # Start plain Anvil from the Foundry package
-yarn foundry:deploy  # Deploy contracts with Foundry
-yarn next:start      # Start Next.js frontend at http://localhost:3000
+# Local chain + deploy + frontend (separate terminals)
+yarn hardhat:chain    # Hedera-forked Hardhat node on 8545
+yarn hardhat:deploy --network localhost
+yarn foundry:chain    # Anvil from the Foundry package
+yarn foundry:deploy
+yarn next:start       # http://localhost:3000
 
-# Code quality
-yarn lint            # Lint all present packages
-yarn format          # Format all present packages
+# Frontend only
+yarn next:dev
 
-# Building
-yarn next:build      # Build frontend
-yarn hardhat:compile # Compile Solidity contracts with Hardhat
-yarn foundry:compile # Compile Solidity contracts with Foundry
+# Quality / build
+yarn lint
+yarn format
+yarn next:build
+yarn hardhat:compile
+yarn foundry:compile
 
-# Contract verification
+# Live networks
+yarn hardhat:deploy --network hederaTestnet   # or hederaMainnet
+yarn foundry:deploy --network hedera_testnet  # or hedera_mainnet
 yarn hardhat:verify:testnet
 yarn foundry:verify:testnet
 
-# Account management
+# Deployer account
 yarn hardhat:account:generate
 yarn hardhat:account:import
 yarn hardhat:account
-yarn foundry:account:generate
-yarn foundry:account:import
-yarn foundry:account
-
-# Deploy to live network
-yarn hardhat:deploy --network <network>   # e.g., hederaTestnet, hederaMainnet
-yarn foundry:deploy --network <network>   # e.g., hedera_testnet, hedera_mainnet
 ```
 
-## Architecture
+`yarn hardhat:deploy` without `--network localhost` targets the in-process `hardhat` network, not the long-running fork.
 
-### Smart Contract Development
+## Layout
 
-#### Hardhat Flavor
+### Hardhat
 
 - Contracts: `packages/hardhat/contracts/`
-- Deployment scripts: `packages/hardhat/deploy/` (uses hardhat-deploy plugin)
+- Deploy scripts: `packages/hardhat/deploy/`
 - Tests: `packages/hardhat/test/`
 - Config: `packages/hardhat/hardhat.config.ts`
-- Deploying specific contract:
-  - If the deploy script has:
-    ```typescript
-    // In packages/hardhat/deploy/01_deploy_my_contract.ts
-    deployMyContract.tags = ["MyContract"];
-    ```
- - `yarn hardhat:deploy --tags MyContract`
+- Tagged deploy: if `deployHederaToken.tags = ["HederaToken"]`, run `yarn hardhat:deploy --tags HederaToken`
 
-#### Foundry Flavor
+### Foundry
 
 - Contracts: `packages/foundry/contracts/`
-- Deployment scripts: `packages/foundry/script/` (uses custom deployment strategy)
-  - Example: `packages/foundry/script/Deploy.s.sol` and `packages/foundry/script/DeployYourContract.s.sol`
+- Deploy scripts: `packages/foundry/script/` (`Deploy.s.sol`, `DeployHederaToken.s.sol`, `DeployHtsTokenCreator.s.sol`)
 - Tests: `packages/foundry/test/`
 - Config: `packages/foundry/foundry.toml`
-- Deploying a specific contract:
- - Create a separate deployment script and run `yarn foundry:deploy --file DeployYourContract.s.sol`
+- One contract: `yarn foundry:deploy --file DeployHederaToken.s.sol`
 
-#### Both Flavors
+### After deploy
 
-- After `yarn hardhat:deploy` or `yarn foundry:deploy`, ABIs are auto-generated to `packages/nextjs/contracts/deployedContracts.ts`
+ABIs and addresses are written to `packages/nextjs/contracts/deployedContracts.ts`. Put third-party contracts in `packages/nextjs/contracts/externalContracts.ts`.
 
-### Frontend Contract Interaction
+Sample contracts on this starter: `HederaToken` (ERC-20) and `HtsTokenCreator` (HTS precompile at `0x167`).
 
-**Correct interact hook names (use these):**
+## Frontend contract interaction
 
-- `useScaffoldReadContract` - NOT ~~useScaffoldContractRead~~
-- `useScaffoldWriteContract` - NOT ~~useScaffoldContractWrite~~
+Hooks live in `packages/nextjs/hooks/scaffold-hbar`. Use the names that exist in the codebase:
 
-Contract data is read from two files in `packages/nextjs/contracts/`:
+- `useScaffoldReadContract` — not `useScaffoldContractRead`
+- `useScaffoldWriteContract` — not `useScaffoldContractWrite`
 
-- `deployedContracts.ts`: Auto-generated from deployments
-- `externalContracts.ts`: Manually added external contracts
-
-#### Reading Contract Data
+Also: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
 
 ```typescript
-const { data: totalCounter } = useScaffoldReadContract({
-  contractName: "YourContract",
-  functionName: "userGreetingCounter",
-  args: ["0xd8da6bf26964af9d7eed9e03e53415d37aa96045"],
+const { data: balance } = useScaffoldReadContract({
+  contractName: "HederaToken",
+  functionName: "balanceOf",
+  args: [connectedAddress],
 });
-```
 
-#### Writing to Contracts
-
-```typescript
 const { writeContractAsync, isPending } = useScaffoldWriteContract({
-  contractName: "YourContract",
+  contractName: "HederaToken",
 });
 
 await writeContractAsync({
-  functionName: "setGreeting",
-  args: [newGreeting],
-  value: parseEther("0.01"), // for payable functions
+  functionName: "mint",
+  args: [connectedAddress, parseEther("1")],
 });
 ```
 
-#### Reading Events
+`HederaToken.mint` is `onlyOwner`. For HTS creation, `HtsTokenCreator.createToken` is payable (HTS fee via `msg.value`) and emits `TokenCreated`.
 
-```typescript
-const { data: events, isLoading } = useScaffoldEventHistory({
-  contractName: "YourContract",
-  eventName: "GreetingChange",
-  watch: true,
-  fromBlock: 31231n,
-  blockData: true,
-});
-```
+### UI
 
-Scaffold-HBAR also provides other hooks to interact with blockchain data: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
+Use `@scaffold-hbar-ui/components` for web3 UI: `Address`, `AddressInput`, `Balance`, `EtherInput`, `IntegerInput`.
 
-**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-hbar` for contract interactions (legacy path segment; project branding is Scaffold-HBAR / `sh`). Always refer to the hook names as they exist in the codebase.**
-
-### UI Components
-
-**Always use `@scaffold-hbar-ui/components` library for web3 UI components:**
-
-- `Address`: Display Hedera EVM addresses with blockie avatars and explorer links
-- `AddressInput`: Input field with address validation
-- `Balance`: Show HBAR balance in tinybar/HBAR and fiat equivalent
-- `EtherInput`: Number input for EVM value entry (kept for EVM compatibility)
-- `IntegerInput`: Integer-only input with wei conversion
-
-### Styling
-
-**Use DaisyUI classes** for building frontend components.
+Use DaisyUI classes, not raw Tailwind when a DaisyUI component exists:
 
 ```tsx
-// ✅ Good - using DaisyUI classes
 <button className="btn btn-primary">Connect</button>
-<div className="card bg-base-100 shadow-xl">...</div>
-
-// ❌ Avoid - raw Tailwind when DaisyUI has a component
-<button className="px-4 py-2 bg-blue-500 text-white rounded">Connect</button>
 ```
 
-### Configure Target Network before deploying to testnet / mainnet.
+### Networks
 
-#### Hardhat
+- Hardhat: `packages/hardhat/hardhat.config.ts` (`hederaTestnet` 296, `hederaMainnet` 295)
+- Foundry: `packages/foundry/foundry.toml` (`hedera_testnet`, `hedera_mainnet`)
+- Next.js: `packages/nextjs/scaffold.config.ts` (target networks, polling, RPC overrides, WalletConnect)
 
-Add networks in `packages/hardhat/hardhat.config.ts` if not present.
+## Style
 
-#### Foundry
+| Style | Use |
+| --- | --- |
+| `UpperCamelCase` | types, components |
+| `lowerCamelCase` | variables, functions |
+| `CONSTANT_CASE` | constants |
+| `snake_case` | Hardhat deploy files and Foundry scripts |
 
-Add RPC endpoints in `packages/foundry/foundry.toml` if not present.
-
-#### NextJs
-
-Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file also contains configuration for polling interval, API keys. Remember to decrease the polling interval for L2 chains.
-
-## Code Style Guide
-
-### Identifiers
-
-
-| Style            | Category                                                                                                               |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `UpperCamelCase` | class / interface / type / enum / decorator / type parameters / component functions in TSX / JSXElement type parameter |
-| `lowerCamelCase` | variable / parameter / function / property / module alias                                                              |
-| `CONSTANT_CASE`  | constant / enum / global variables                                                                                     |
-| `snake_case`     | for hardhat deploy files and foundry script files                                                                      |
-
-
-### Import Paths
-
-Use the `~~` path alias for imports in the nextjs package:
+Next.js imports use the `~~` alias:
 
 ```tsx
 import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
 ```
 
-### Creating Pages
+App Router pages live under `packages/nextjs/app/`. Add `"use client"` when the page uses hooks.
 
-```tsx
-import type { NextPage } from "next";
-
-const Home: NextPage = () => {
-  return <div>Home</div>;
-};
-
-export default Home;
-```
-
-### TypeScript Conventions
-
-- Use `type` over `interface` for custom types
-- Types use `UpperCamelCase` without `T` prefix (use `Address` not `TAddress`)
-- Avoid explicit typing when TypeScript can infer the type
-
-### Comments
-
-Make comments that add information. Avoid redundant JSDoc for simple functions.
-
-## Documentation
-
-Use **Context7 MCP** tools to fetch up-to-date documentation for any library (Wagmi, Viem, RainbowKit, DaisyUI, Hardhat, Next.js, etc.). Context7 is configured as an MCP server and provides access to indexed documentation with code examples.
-
-## Specialized Agents
-
-Use these specialized agents for specific tasks:
-
-- `**grumpy-carlos-code-reviewer`**: Use this agent for code reviews before finalizing changes
-
+Prefer `type` over `interface`. No `T` prefix on types. Let TypeScript infer when it can. Comments should add information.
