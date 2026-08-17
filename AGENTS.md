@@ -58,8 +58,6 @@ yarn foundry:account
 # Deploy to live network
 yarn hardhat:deploy --network <network>   # e.g., hederaTestnet, hederaMainnet
 yarn foundry:deploy --network <network>   # e.g., hedera_testnet, hedera_mainnet
-
-yarn next:vercel:yolo --prod # deploy frontend
 ```
 
 ## Architecture
