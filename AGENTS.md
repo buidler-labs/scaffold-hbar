@@ -145,7 +145,7 @@ make layerzero-relay DIRECTION=sepolia-to-hedera TX=0x...
 make layerzero-balances   # optional
 ```
 
-Root yarn: `yarn foundry:account:generate`, `yarn foundry:compile`, `yarn foundry:test`, `yarn next:dev`, `yarn harness:run`.
+Root yarn: `yarn foundry:account:generate`, `yarn foundry:compile`, `yarn foundry:test`, `yarn next:dev`.
 
 Sibling providers: `make axelar-help`, `make ccip-help` (then `bridge-sync-next PROVIDER=…`).
 
@@ -163,7 +163,3 @@ Sibling providers: `make axelar-help`, `make ccip-help` (then `bridge-sync-next 
 - Manual: `make layerzero-relay` (parse `PacketSent` → `verify` → `commitAndExecute`).
 - UI auto-relay only with funded testnet `LAYERZERO_RELAY_PRIVATE_KEY`; otherwise follow make relay instructions.
 - Production apps use LayerZero’s verification network — do not ship a custom relayer key as the security model.
-
-## Skill Reference
-
-Use skill: **`layerzero-messaging`** for OFT/OApp peer patterns, wire checklist, HTS connector burn/mint semantics, `quoteSend`/`send` flow, educational vs production relay distinction, and pre-send checklists.
