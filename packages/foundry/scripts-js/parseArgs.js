@@ -27,10 +27,10 @@ Options:
   --make-target <name>  Advanced: internal Makefile target to run (default: deploy-and-generate-abis)
   --help, -h           Show this help message
 Examples:
-  yarn deploy --file DeployYourContract.s.sol --network sepolia
-  yarn deploy --network sepolia --keystore my-account
-  yarn deploy --file DeployYourContract.s.sol
-  yarn deploy
+  yarn foundry:deploy --file DeployChainlinkOracle.s.sol --network hedera_testnet
+  yarn foundry:deploy --network hedera_testnet --keystore my-account
+  yarn foundry:deploy --file DeployOracleConsumer.s.sol --network hedera_testnet
+  yarn foundry:deploy
   `);
   process.exit(0);
 }
