@@ -8,7 +8,7 @@ import { BarsArrowUpIcon } from "@heroicons/react/20/solid";
 import { ContractName, GenericContract } from "~~/utils/scaffold-hbar/contract";
 import { useAllContracts } from "~~/utils/scaffold-hbar/contractsData";
 
-const selectedContractStorageKey = "scaffoldEth2.selectedContract";
+const selectedContractStorageKey = "scaffoldHbar.selectedContract";
 
 export function DebugContracts() {
   const contractsData = useAllContracts();

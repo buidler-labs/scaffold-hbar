@@ -22,8 +22,7 @@
         "+Create NFT collection:",
         "  cd packages/hardhat && npx ts-node scripts/createCollection.ts",
         "+Start the frontend:",
-        "  {run:next:start}",
-        "+Further develop this template with our agentic harness: {run:harness:run}"
+        "  {run:next:start}"
       ]
     }
   }
