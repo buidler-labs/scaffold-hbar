@@ -1,159 +1,90 @@
-# AGENTS.md
+# Agent instructions
 
-This file provides guidance to coding agents working in this repository.
+Briefing for coding agents in this app (Cursor, Claude Code, Codex). Claude Code loads it through `CLAUDE.md`.
 
-## Project Overview
+This is a **Hedera-native Next.js demo** (Proof Wall). There is **no Solidity workspace** — interactions use HCS (topics/messages), HTS (badge tokens), and Mirror Node APIs via wallet-signed transactions and server routes.
 
-This branch is a **Hedera-native Next.js demo**. Contract workspaces are not part of the active workflow.
+Use the package manager this project was created with (`packageManager` in the root `package.json`). Examples use `yarn`.
 
-- **packages/nextjs**: React frontend (Next.js App Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS with DaisyUI)
-
-## Common Commands
-
-Use these commands at repo root:
+## Commands
 
 ```bash
-yarn next:dev         # Start Next.js frontend at http://localhost:3000 (same as yarn next:start)
-
-# Code quality
-yarn lint             # Lint frontend package
-yarn format           # Format frontend package
-
-# Building
-yarn next:check-types  # TypeScript checks
-yarn next:build        # Build frontend
-
-yarn next:vercel:yolo --prod # for deployment of frontend
+yarn next:dev           # http://localhost:3000
+yarn next:build
+yarn next:check-types
+yarn lint               # same as yarn next:lint
+yarn format
 ```
 
-## Architecture
+Copy `packages/nextjs/.env.example` → `packages/nextjs/.env`. Required: `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID`. After admin setup: `NEXT_PUBLIC_PROOF_WALL_TOPIC_ID`, optionally `NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID`.
 
-### Frontend Contract Interaction
+## App overview
 
-**Correct interact hook names (use these):**
+| Route | Purpose |
+|---|---|
+| `/` | Proof Wall — submit proofs, browse HCS feed for the active topic |
+| `/my-proofs` | Proofs filtered by connected account; badge display |
+| `/admin` | Create HCS topic and HTS badge token (wallet-signed) |
 
-- `useScaffoldReadContract` - NOT ~~useScaffoldContractRead~~
-- `useScaffoldWriteContract` - NOT ~~useScaffoldContractWrite~~
+Config: `packages/nextjs/config/proofWallConfig.ts` (topic ID, badge token ID, Mirror Node / HashScan URLs from env).
 
-Contract data is read from two files in `packages/nextjs/contracts/`:
+## Layout
 
-- `deployedContracts.ts`: Auto-generated from deployments
-- `externalContracts.ts`: Manually added external contracts
-
-#### Reading Contract Data
-
-```typescript
-const { data: totalCounter } = useScaffoldReadContract({
-  contractName: "YourContract",
-  functionName: "userGreetingCounter",
-  args: ["0xd8da6bf26964af9d7eed9e03e53415d37aa96045"],
-});
+```
+packages/nextjs/
+  app/                    App Router pages and API routes
+    api/hedera/           Mirror Node proxies, operator helpers, airdrop, badge check
+  components/             ProofWall, SubmitProofForm, TopicSelector, BadgeDisplay, …
+  hooks/
+    useHederaSigner.ts    Wallet + Hedera account identity
+    useSubmitProof.ts     HCS TopicMessageSubmitTransaction via native tx hook
+    useTopicMessages.ts   Poll Mirror Node for topic messages
+    useCreateTopic.ts     Admin: create HCS topic
+    useCreateToken.ts     Admin: create HTS badge token
+    useBadgeTokens.ts     Badge balance / eligibility
+    scaffold-hbar/        Shared Scaffold-HBAR hooks (useTargetNetwork, …)
+  services/               hederaClient, mirrorNode, badgeService
+  utils/scaffold-hbar/    Hedera tx helpers, identity, topic/token resolution
+  scaffold.config.ts      Target networks (testnet, mainnet, local fork), RPC, WalletConnect
 ```
 
-#### Writing to Contracts
+## Hedera integration patterns
 
-```typescript
-const { writeContractAsync, isPending } = useScaffoldWriteContract({
-  contractName: "YourContract",
-});
+**Wallet + identity:** `useHederaSigner` wraps connection state and `requireProvider()` for mutations. Account IDs use `0.0.xxxxx` form; helpers in `utils/scaffold-hbar/identity.ts` normalize EVM ↔ native identity.
 
-await writeContractAsync({
-  functionName: "setGreeting",
-  args: [newGreeting],
-  value: parseEther("0.01"), // for payable functions
-});
-```
+**Submit proof:** `useSubmitProof` builds a JSON payload `{ text, author, timestamp }`, submits via `@hiero-ledger/sdk` `TopicMessageSubmitTransaction`, and sends through `useNativeTransaction` from `@scaffold-hbar-ui/hooks`.
 
-#### Reading Events
+**Read feed:** `useTopicMessages` fetches from `/api/hedera/topic-messages` (Mirror Node). Home page polls every 15s; passes `onNewMessage` after submit for optimistic refresh.
 
-```typescript
-const { data: events, isLoading } = useScaffoldEventHistory({
-  contractName: "YourContract",
-  eventName: "GreetingChange",
-  watch: true,
-  fromBlock: 31231n,
-  blockData: true,
-});
-```
+**Admin create topic/token:** Client hooks call API routes or native transactions; after submit, `resolveTopicIdFromTransactionId` / `resolveTokenIdFromTransactionId` poll Mirror Node until IDs are indexed (may take 10–20s).
 
-Scaffold-HBAR also provides other hooks to interact with blockchain data: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
+## UI
 
-**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-hbar` for contract interactions. Always refer to the hook names as they exist in the codebase.**
+Use `@scaffold-hbar-ui/components` for web3 UI (`Address`, `HederaAddressInput`, `Balance`, `HbarInput`, `HederaPortalFaucet`, etc.).
 
-### UI Components
-
-**Always use `@scaffold-hbar-ui/components` library for web3 UI components:**
-
-- `Address`: Display Hedera EVM addresses and explorer links
-- `HederaAddressInput`: Input field with Hedera account/address validation
-- `Balance`: Show HBAR balance
-- `HbarInput`: Numeric HBAR amount input with currency helper
-- `IntegerInput`: Integer-only input
-
-### Styling
-
-**Use DaisyUI classes** for building frontend components.
+Use DaisyUI classes for layout and controls:
 
 ```tsx
-// ✅ Good - using DaisyUI classes
 <button className="btn btn-primary">Connect</button>
 <div className="card bg-base-100 shadow-xl">...</div>
-
-// ❌ Avoid - raw Tailwind when DaisyUI has a component
-<button className="px-4 py-2 bg-blue-500 text-white rounded">Connect</button>
 ```
 
-### Configure Target Network
-
-Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file also contains configuration for polling interval, API keys. Remember to decrease the polling interval for L2 chains.
-
-## Code Style Guide
-
-### Identifiers
-
-| Style            | Category                                                                                                               |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `UpperCamelCase` | class / interface / type / enum / decorator / type parameters / component functions in TSX / JSXElement type parameter |
-| `lowerCamelCase` | variable / parameter / function / property / module alias                                                              |
-| `CONSTANT_CASE`  | constant / enum / global variables                                                                                     |
-| `snake_case`     | file naming where appropriate                                                                                           |
-
-### Import Paths
-
-Use the `~~` path alias for imports in the nextjs package:
+Import app code with the `~~` alias:
 
 ```tsx
 import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
 ```
 
-### Creating Pages
+## Networks
 
-```tsx
-import type { NextPage } from "next";
+`packages/nextjs/scaffold.config.ts` — `hederaTestnet`, `hedera` mainnet, and a local Hardhat fork entry. RPC overrides via `NEXT_PUBLIC_HEDERA_*_RPC_URL`. Default polling interval: 10s.
 
-const Home: NextPage = () => {
-  return <div>Home</div>;
-};
+## Code style
 
-export default Home;
-```
+| Style | Use for |
+|---|---|
+| `UpperCamelCase` | types, components, enums |
+| `lowerCamelCase` | functions, variables, hooks |
+| `CONSTANT_CASE` | constants |
 
-### TypeScript Conventions
-
-- Use `type` over `interface` for custom types
-- Types use `UpperCamelCase` without `T` prefix (use `Address` not `TAddress`)
-- Avoid explicit typing when TypeScript can infer the type
-
-### Comments
-
-Make comments that add information. Avoid redundant JSDoc for simple functions.
-
-## Documentation
-
-Use **Context7 MCP** tools to fetch up-to-date documentation for any library (Wagmi, Viem, RainbowKit, DaisyUI, Next.js, etc.). Context7 is configured as an MCP server and provides access to indexed documentation with code examples.
-
-## Specialized Agents
-
-Use these specialized agents for specific tasks:
-
-- **`grumpy-carlos-code-reviewer`**: Use this agent for code reviews before finalizing changes
+Prefer `type` over `interface`. Comments only when they add non-obvious context.

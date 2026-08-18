@@ -13,22 +13,16 @@
     "postinstall": "husky",
     "precommit": "lint-staged",
     "lint-staged": "lint-staged",
-    "harness:run": "hedera-harness run .harness/spec.yaml",
     "next:build": "yarn workspace @sh/nextjs build",
     "next:check-types": "yarn workspace @sh/nextjs check-types",
     "next:format": "yarn workspace @sh/nextjs format",
     "next:lint": "yarn workspace @sh/nextjs lint",
     "next:serve": "yarn workspace @sh/nextjs serve",
     "next:dev": "yarn workspace @sh/nextjs dev",
-    "next:start": "yarn workspace @sh/nextjs dev",
-    "next:vercel": "yarn workspace @sh/nextjs vercel",
-    "next:vercel:yolo": "yarn workspace @sh/nextjs vercel:yolo",
-    "next:ipfs": "yarn workspace @sh/nextjs ipfs",
-    "next:vercel:login": "yarn workspace @sh/nextjs vercel:login"
+    "next:start": "yarn workspace @sh/nextjs dev"
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
-    "hedera-harness": "1.2.0",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10"
   },
