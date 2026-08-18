@@ -174,7 +174,3 @@ yarn next:dev   # http://localhost:3000/dca
 10. Verify Sepolia (Etherscan) — `scripts/sepolia/verify.ts`
 
 Also regenerates `packages/nextjs/contracts/deployedContracts.ts`.
-
-## Skill Reference
-
-Use skill: **`axelar-gmp`** for GMP gas-then-gateway rules, allowlisting, sender/receiver/handler separation, HSS scheduling patterns, and operational checklists.
