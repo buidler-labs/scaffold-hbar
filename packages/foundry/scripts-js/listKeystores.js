@@ -4,7 +4,7 @@ import readline from "readline";
 import { fileURLToPath } from "url";
 
 async function listKeystores(
-  selectMessage = "Select a keystore (enter the number, e.g., 1):",
+  selectMessage = "Select a keystore (enter the number, e.g., 1):"
 ) {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -15,12 +15,12 @@ async function listKeystores(
 
   try {
     const keystores = readdirSync(keystorePath).filter(
-      (keystore) => keystore !== "scaffold-hbar-default",
+      (keystore) => keystore !== "scaffold-hbar-default"
     );
 
     if (keystores.length === 0) {
       console.error(
-        "\n❌ No keystores found in ~/.foundry/keystores, please create a new keystore by running:",
+        "\n❌ No keystores found in ~/.foundry/keystores, please create a new keystore by running:"
       );
       console.log("\n\tyarn foundry:account:generate\n");
       process.exit(1);

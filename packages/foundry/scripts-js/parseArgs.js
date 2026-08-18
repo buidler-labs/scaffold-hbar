@@ -25,9 +25,10 @@ Options:
   --keystore <name>     Specify the keystore account to use (bypasses selection prompt)
   --help, -h           Show this help message
 Examples:
-  yarn foundry:deploy --file DeployYourContract.s.sol --network hedera_testnet
+  yarn foundry:deploy --file Deploy.s.sol --network hedera_testnet
   yarn foundry:deploy --network hedera_testnet --keystore my-account
-  yarn foundry:deploy --file DeployYourContract.s.sol
+  yarn foundry:deploy --file DeployFactory.s.sol --network hedera_testnet
+  yarn foundry:deploy
   yarn foundry:deploy
   `);
   process.exit(0);
@@ -57,7 +58,7 @@ function validateKeystore(keystoreName) {
     process.env.HOME,
     ".foundry",
     "keystores",
-    keystoreName,
+    keystoreName
   );
   return existsSync(keystorePath);
 }
@@ -71,7 +72,7 @@ try {
   if (!parsedToml.rpc_endpoints[network]) {
     console.log(
       `\n❌ Error: Network '${network}' not found in foundry.toml!`,
-      "\nPlease check `foundry.toml` for available networks in the [rpc_endpoints] section or add a new network.",
+      "\nPlease check `foundry.toml` for available networks in the [rpc_endpoints] section or add a new network."
     );
     process.exit(1);
   }
@@ -102,7 +103,7 @@ if (network !== "localhost") {
     if (!validateKeystore(keystoreArg)) {
       console.log(`\n❌ Error: Keystore '${keystoreArg}' not found!`);
       console.log(
-        `Please check that the keystore exists in ~/.foundry/keystores/`,
+        `Please check that the keystore exists in ~/.foundry/keystores/`
       );
       process.exit(1);
     }
@@ -121,13 +122,13 @@ if (network !== "localhost") {
   if (!validateKeystore(keystoreArg)) {
     console.log(`\n❌ Error: Keystore '${keystoreArg}' not found!`);
     console.log(
-      `Please check that the keystore exists in ~/.foundry/keystores/`,
+      `Please check that the keystore exists in ~/.foundry/keystores/`
     );
     process.exit(1);
   }
   selectedKeystore = keystoreArg;
   console.log(
-    `\n🔑 Using keystore: ${selectedKeystore} for localhost deployment`,
+    `\n🔑 Using keystore: ${selectedKeystore} for localhost deployment`
   );
 }
 

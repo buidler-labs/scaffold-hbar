@@ -1,169 +1,81 @@
-# Scaffold-HBAR — Payments scheduler (Hedera)
+# Scaffold-HBAR — Payments scheduler
 
-A Hedera-ready monorepo for building dApps with **Next.js**, **Foundry**, and Hedera networks (testnet, mainnet). This repository is the source for [create-scaffold-hbar](https://github.com/hedera-dev/create-scaffold-hbar) templates; **it** uses the **Foundry** stack and ships the **payments-scheduler** pattern: a generic **ScheduledVault** plus pluggable strategies (example: DCA) driven by the **Hedera Schedule Service (HSS)**.
+Recurring on-chain execution on Hedera via **Schedule Service (HSS)**: a generic **ScheduledVault** custodies funds and runs pluggable **IExecutionStrategy** plugins on each schedule tick. Example strategy: **MemejobDCAStrategy** (MemeJob DCA buy/sell).
 
-### Target networks: Hedera testnet and mainnet
+CLI key: `payments-scheduler` (branch `templates/payments-scheduler`).
 
-These contracts are **meant for Hedera testnet and mainnet** (use at your own risk). **Schedule Service is not supported on Hedera forks**, so local or forked RPC cannot validate real schedule execution—only testnet/mainnet can. Forge tests (mock HSS) and fork options are in [`packages/foundry/README.md`](packages/foundry/README.md).
+> **HSS is testnet/mainnet only** — Schedule Service is not available on Hedera forks or local Anvil. Deploy and run schedules on live Hedera networks.
 
-## Disclaimer
+General Scaffold-HBAR docs: [Scaffold HBAR on Hedera](https://docs.hedera.com/solutions/tools/scaffold-hbar/index). Architecture, lifecycle, Makefile, and verification: [packages/foundry/README.md](packages/foundry/README.md).
 
-This template—including **contracts, frontend, and tooling**—is **experimental** and **not audited**. Do not use it in production without proper security review and your own due diligence.
+## What's in this template
 
-## Prerequisites
+- **Foundry-only** monorepo — `ScheduledVault`, `ScheduledVaultFactory`, example `MemejobDCAStrategy`
+- Next.js **Memejob DCA** UI — create vault, configure DCA, monitor schedule status
+- Block explorer routes under `/blockexplorer`
+- Deploy exports → `packages/foundry/deployments/<chainId>.json` → `packages/nextjs/contracts/deployedContracts.ts`
 
-- [Node.js](https://nodejs.org/) **>= 20.18.3**
-- [Yarn](https://yarnpkg.com/)
-- [Git](https://git-scm.com/)
-- [Foundry](https://book.getfoundry.sh/getting-started/installation): `forge`, `cast`, `anvil`
-
-After cloning, install JS dependencies from the repo root. In `packages/foundry`, install Solidity dependencies once (see [`packages/foundry/README.md`](packages/foundry/README.md)):
+Create a project:
 
 ```bash
-forge install foundry-rs/forge-std gnsps/solidity-bytes-utils hashgraph/hedera-forking OpenZeppelin/openzeppelin-contracts
+npm create scaffold-hbar@latest -- --template payments-scheduler
 ```
 
-## How to start
+## Quick start
 
-From the repository root:
+### Prerequisites
 
-1. **Install**
+- Node.js ≥ 20.18.3, Yarn (Corepack), Git
+- [Foundry](https://book.getfoundry.sh/getting-started/installation) (`forge`, `cast`)
+- Hedera testnet account — fund via [portal.hedera.com](https://portal.hedera.com/faucet)
 
-   ```bash
-   yarn install
-   ```
-
-   In `packages/foundry`, run `forge install` once as described under [Prerequisites](#prerequisites).
-
-2. **Deploy on Hedera testnet** — use a keystore with a **Hedera-created** account and fund it via the [Hedera Portal faucet](https://portal.hedera.com/faucet) (see [`packages/foundry/README.md`](packages/foundry/README.md) for keystores and flags):
-
-   ```bash
-   yarn foundry:deploy --network hedera_testnet
-   ```
-
-   This compiles, broadcasts the default deploy script, and regenerates [`packages/nextjs/contracts/deployedContracts.ts`](packages/nextjs/contracts/deployedContracts.ts).
-
-3. **App**
-
-   ```bash
-   yarn next:dev
-   ```
-
-Open [http://localhost:3000](http://localhost:3000), connect a wallet on **Hedera testnet**, and use **Debug Contracts** (`/debug`) or **DCA** (`/`) against the addresses you deployed.
-
-
-**Useful commands:** `yarn foundry:compile`, `yarn foundry:test`, `yarn lint`, `yarn format`, `yarn next:build`, `yarn harness:run`. Accounts: `yarn foundry:account:generate`, `yarn foundry:account:import`, `yarn foundry:account`.
-
-## Run with hedera-harness
-
-This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
+### Install
 
 ```bash
-yarn harness:run
+yarn install
+# In packages/foundry (once): forge install — see packages/foundry/README.md
 ```
 
-That runs `hedera-harness run .harness/spec.yaml`, which:
-
-1. Creates a `harness/run-…` branch (or continues an existing matching session)
-2. Asks an agent to implement the recipe PRD without rebuilding the app
-3. Checkpoints each attempt and validates against `.harness/validators/`
-4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
-
-Tracked recipe files live under `.harness/` (spec, PRD, validators). Runtime state (`.harness/runs/`, `.harness/cache/`, `.harness/runtime/`) is gitignored.
-
-Requires [Cursor `agent` CLI](https://cursor.com/) (or another command configured in `.harness/spec.yaml`) on your PATH.
-
-This template’s DCA Explainer recipe is gate **0–1** (static + yarn). If you deepen the recipe with Playwright (gate 2) or on-chain validation (gate 3.5), install the optional peers at the **project root** with Yarn (do not use `npm install` in this repo):
+### Compile, test, deploy
 
 ```bash
-yarn add -D playwright
-yarn playwright install chromium   # gate 2
-yarn add -D @hiero-ledger/sdk      # gate 3.5
-```
+yarn foundry:account:generate   # once — fund on testnet
 
-## How to use this template
-
-A practical order that matches how teams usually iterate:
-
-### 1. Customize contracts
-
-- **Core contracts** live in [`packages/foundry/contracts/`](packages/foundry/contracts/): `ScheduledVault`, `ScheduledVaultFactory`, and strategies under `contracts/strategies/` (the **Memejob** DCA strategy is an **example** — copy the pattern for your own `IExecutionStrategy`).
-- **Deploy scripts** are in [`packages/foundry/script/`](packages/foundry/script/) (e.g. `Deploy.s.sol`, or split scripts like `DeployFactory.s.sol`).
-- **Networks and RPCs** are configured in [`packages/foundry/foundry.toml`](packages/foundry/foundry.toml) and, for the app, [`packages/nextjs/scaffold.config.ts`](packages/nextjs/scaffold.config.ts).
-
-### 2. Compile
-
-```bash
 yarn foundry:compile
+yarn foundry:test               # local tests (mock HSS)
+
+yarn foundry:deploy:testnet     # factory + example strategy on Hedera testnet
+
+yarn foundry:verify:testnet 0xYourFactory \
+  contracts/ScheduledVaultFactory.sol:ScheduledVaultFactory
+
+yarn next:dev                   # http://localhost:3000
 ```
 
-### 3. Test
+Use `yarn foundry:deploy:mainnet` and `yarn foundry:verify:mainnet` for mainnet (at your own risk).
 
-```bash
-yarn foundry:test
-```
+Optional fork tests (no real HSS): `yarn foundry:test:testnet`, `yarn foundry:test:local` (requires `yarn foundry:chain`).
 
+## Scripts (root)
 
-### 4. Deploy
-
-Deploy to **Hedera testnet** or **mainnet** as in [How to start](#how-to-start). Keystores, `--keystore`, and split deploy scripts (`DeployFactory.s.sol`, etc.) are covered in [`packages/foundry/README.md`](packages/foundry/README.md).
-
-`yarn foundry:deploy` also runs ABI generation (see `packages/foundry/scripts-js/generateTsAbis.js`) so the UI stays in sync with `broadcast/` / deployments.
-
-### 5. Verify (optional, on Hashscan)
-
-```bash
-yarn foundry:verify:testnet 0xYourContractAddress contracts/ScheduledVaultFactory.sol:ScheduledVaultFactory
-yarn foundry:verify:mainnet 0xYourContractAddress contracts/ScheduledVaultFactory.sol:ScheduledVaultFactory
-```
-
-Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet) and [Hashscan (mainnet)](https://hashscan.io/mainnet)
-
-## Customizing the UI and wiring your contracts
-
-### Integrate contracts in the frontend
-
-- **Generated contract metadata** for hooks is in [`packages/nextjs/contracts/deployedContracts.ts`](packages/nextjs/contracts/deployedContracts.ts) (updated after deploy). Manually curated addresses/ABIs go in [`packages/nextjs/contracts/externalContracts.ts`](packages/nextjs/contracts/externalContracts.ts).
-- Use hooks from [`packages/nextjs/hooks/scaffold-hbar`](packages/nextjs/hooks/scaffold-hbar): `useScaffoldReadContract`, `useScaffoldWriteContract`, `useScaffoldEventHistory`, etc.
-
-### Debug and iterate quickly
-
-- **`/debug`** — auto-generated contract UIs from the scaffold; ideal for calling any deployed function without building a custom screen first.
-- **Browser + wallet** — connect with RainbowKit; ensure the app target network in `scaffold.config.ts` matches where you deployed.
-- **Contract logs / explorer** — use [Hashscan](https://hashscan.io/) for testnet and mainnet transactions.
-
-### Build product-specific UI
-
-- App routes live under [`packages/nextjs/app/`](packages/nextjs/app/) (App Router). The **DCA** example is [`packages/nextjs/app/dca/page.tsx`](packages/nextjs/app/dca/page.tsx) with components such as `CreateVaultCard`, `DepositSection`, `ScheduleControls`, etc.
-- **Navigation:** add links in [`packages/nextjs/components/Header.tsx`](packages/nextjs/components/Header.tsx) (`menuLinks`).
-- **Styling:** prefer **DaisyUI** component classes over one-off Tailwind.
-- **@scaffold-hbar-ui/components** — use `Address`, `Balance`, `HederaAddressInput`, and related components for consistent web3 UX.
-
-## Use cases and how to customize them
-
-| Use case | What the template gives you | Typical customization |
-| -------- | ---------------------------- | --------------------- |
-| **Recurring on-chain actions** | Vault + HSS reschedule loop | Adjust vault parameters, failure handling, and strategy `plan()` / config encoding |
-| **DCA / scheduled swaps** | Example MemeJob strategy + DCA page | Replace strategy with your DEX/router logic; reshape UI forms to your config struct |
-| **Payment or allowance schedules** | Same vault abstraction | New `IExecutionStrategy` that returns `Action[]` for transfers or approvals |
-| **Learning / demo** | Debug page + block explorer routes | Strip or replace example branding; add your own pages only |
-
-**Strategies:** Implement `IExecutionStrategy` (`validateConfig`, `plan`), deploy it, and point new vaults from `ScheduledVaultFactory.createVault(strategy)`. Encode config off-chain the same way your Solidity decodes it (see Foundry README **Adding a new execution strategy**).
+| Command | Description |
+|---|---|
+| `yarn foundry:compile` / `yarn foundry:test` | Build + Forge unit tests |
+| `yarn foundry:deploy:testnet` / `:mainnet` | Deploy default `Deploy.s.sol` |
+| `yarn foundry:verify:testnet` / `:mainnet` | Sourcify verify (HashScan) |
+| `yarn foundry:chain` | Local Anvil (optional; HSS not supported) |
+| `yarn next:dev` | Memejob DCA frontend |
+| `yarn lint` | Next.js + Foundry lint |
 
 ## Project layout
 
-- **`packages/foundry`** — Solidity, Forge scripts, tests, keystore helpers, Hedera verify scripts
-- **`packages/nextjs`** — Next.js app, Wagmi/RainbowKit, scaffold hooks, `scaffold.config.ts`
-- **`.harness/`** — tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:run` to add the DCA Explainer page (`/dca-guide`) in place.
+- **packages/foundry** — vault, factory, strategies, scripts, tests
+- **packages/nextjs** — DCA UI, wallet connect, block explorer, scaffold hooks
 
 ## Links
 
-- [Hedera Documentation](https://docs.hedera.com/)
-- [Hedera Schedule Service](https://docs.hedera.com/hedera/core-concepts/smart-contracts/system-smart-contracts/hedera-schedule-service)
-- [Hashscan](https://hashscan.io/)
-- [create-scaffold-hbar](https://github.com/hedera-dev/create-scaffold-hbar)
-- [hedera-harness](https://github.com/hedera-dev/hedera-harness)
-
-## License
-
-Open source under the [MIT License](https://opensource.org/licenses/MIT). Solidity sources in `packages/foundry/contracts` use `SPDX-License-Identifier: MIT` unless a file states otherwise.
+- [Scaffold HBAR docs](https://docs.hedera.com/solutions/tools/scaffold-hbar/index)
+- [create-scaffold-hbar](https://github.com/hedera-dev/create-scaffold-hbar) — CLI
+- [Foundry Book](https://book.getfoundry.sh/)
+- [Hedera Portal faucet](https://portal.hedera.com/faucet)
+- [HashScan testnet](https://hashscan.io/testnet)
