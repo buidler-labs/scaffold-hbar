@@ -32,11 +32,3 @@ packages/cross-chain-dca/config/deployed-addresses.json
 packages/cross-chain-dca/.env
 
 .env
-
-# hedera-harness runtime (keep tracked .harness recipe: spec, prd, validators)
-.harness/runs/
-.harness/cache/
-.harness/runtime/
-.harness-skills/
-.harness-context/
-.skill-cache/
