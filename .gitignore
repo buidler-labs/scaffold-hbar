@@ -28,7 +28,7 @@ cache/
 typechain-types/
 
 # cross-chain-dca — generated at deploy time, contains environment-specific addresses
-packages/cross-chain-dca/config/deployed-addresses.json
-packages/cross-chain-dca/.env
+packages/hardhat/config/deployed-addresses.json
+packages/hardhat/.env
 
 .env
