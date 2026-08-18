@@ -34,9 +34,7 @@ jobs:
         run: yarn hardhat:compile
 
       - name: Run Hardhat unit tests
-        run: |
-          yarn hardhat:hedera:test
-          yarn hardhat:sepolia:test
+        run: yarn hardhat:test
 
       - name: Run nextjs lint
         run: yarn next:lint --max-warnings=0

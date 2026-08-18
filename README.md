@@ -13,7 +13,7 @@ Hedera (DcaOrchestrator)
 
 > **Educational / unaudited.** Testnets and small amounts only. Swap proceeds accumulate in `DcaExecutor` on Sepolia — only the deployer can withdraw via `yarn hardhat:sepolia:withdraw:executor`.
 
-General Scaffold-HBAR docs: [Scaffold HBAR on Hedera](https://docs.hedera.com/solutions/tools/scaffold-hbar/index). Contract layout, scripts, and env vars: `[packages/hardhat/README.md](packages/hardhat/README.md)`.
+General Scaffold-HBAR docs: [Scaffold HBAR on Hedera](https://docs.hedera.com/solutions/tools/scaffold-hbar/index). Contract layout, scripts, and env vars: [packages/hardhat/README.md](packages/hardhat/README.md).
 
 ## What's in this template
 
@@ -54,12 +54,12 @@ yarn hardhat:deploy             # interactive: RPC, keys, full 10-step deploy
 yarn next:dev                   # http://localhost:3000/dca
 ```
 
-Manual step-by-step commands, plan variables, withdraw scripts, and tests: `[packages/hardhat/README.md](packages/hardhat/README.md)`.
+Manual step-by-step commands, plan variables, withdraw scripts, and tests: [packages/hardhat/README.md](packages/hardhat/README.md).
 
 ## Project layout
 
 - **packages/hardhat** — `DcaOrchestrator`, `AxelarMessageSender`, `DcaExecutor`, `AxelarMessageReceiver`, deploy/wire/fund scripts
-- **packages/nextjs** — bridge UI, wagmi, RainbowKit
+- **packages/nextjs** — DCA UI, wagmi, RainbowKit
 
 
 
