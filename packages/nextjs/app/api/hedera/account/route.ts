@@ -4,7 +4,6 @@ import type { MirrorAccountResponse } from "~~/types/hederaFetchJson";
 const MIRROR_BASE: Record<string, string> = {
   testnet: process.env.HEDERA_MIRROR_TESTNET_URL ?? "https://testnet.mirrornode.hedera.com",
   mainnet: process.env.HEDERA_MIRROR_MAINNET_URL ?? "https://mainnet.mirrornode.hedera.com",
-  local: process.env.HEDERA_MIRROR_LOCAL_URL ?? "",
 };
 
 const EVM_ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
@@ -19,9 +18,6 @@ export async function GET(req: Request) {
   }
 
   const base = MIRROR_BASE[network] ?? MIRROR_BASE.testnet;
-  if (network === "local" && !base) {
-    return NextResponse.json({ accountId: null });
-  }
   const url = `${base}/api/v1/accounts/${evm}`;
 
   try {
