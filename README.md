@@ -1,70 +1,70 @@
-# Scaffold-HBAR Hedera Demo
+# Scaffold-HBAR — Hedera Demo (Proof Wall)
 
-This branch is a Hedera-native demo focused on the Next.js application only. It does not rely on local Solidity contract workspaces.
+Hedera-native **Next.js-only** demo: post timestamped proofs on **Hedera Consensus Service (HCS)**, browse them on a live feed, and earn **HTS badge tokens** for participation. No Solidity workspace or contract deploy required.
 
-## Prerequisites
+CLI key: `hedera-demo` (branch `templates/hedera-demo`).
 
-- [Node.js](https://nodejs.org/) v20.x LTS (recommended: 20.18.3 or higher). Node 22+ may work but is not officially tested.
-- [Yarn](https://yarnpkg.com/) (v1 or v2+) — this template is Yarn-only
-- [Git](https://git-scm.com/)
+```
+Wallet connect → Submit HCS message (JSON proof) → Mirror Node feed
+Admin (/admin) → Create topic + HTS badge token → env vars for the app
+```
 
-## Quick Start
+General Scaffold-HBAR docs: [Scaffold HBAR on Hedera](https://docs.hedera.com/solutions/tools/scaffold-hbar/index).
+
+## What's in this template
+
+- **Next.js only** — no `packages/hardhat` or `packages/foundry`
+- **Proof Wall** at `/` — submit and browse HCS messages on a configured topic
+- **My proofs** at `/my-proofs` — filter feed by connected account; badge display
+- **Admin** at `/admin` — create HCS topic and HTS badge token via wallet-signed transactions
+- Server routes under `packages/nextjs/app/api/hedera/` for Mirror Node and operator helpers
+
+Create a project:
+
+```bash
+npm create scaffold-hbar@latest -- --template hedera-demo
+```
+
+## Quick start
+
+### Prerequisites
+
+- Node.js ≥ 20.18.3, Yarn (Corepack), Git
+- [WalletConnect project ID](https://cloud.reown.com) (Reown / WalletConnect Cloud)
+- Hedera testnet account — fund via [portal.hedera.com](https://portal.hedera.com/faucet)
+
+### Install and run
 
 ```bash
 yarn install
-yarn next:dev
+
+cp packages/nextjs/.env.example packages/nextjs/.env
+# Set NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID (required)
+
+yarn next:dev    # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+1. Open **Admin** (`/admin`), connect wallet, create a topic (and optionally a badge token).
+2. Copy topic ID into `NEXT_PUBLIC_PROOF_WALL_TOPIC_ID` (and badge token into `NEXT_PUBLIC_PROOF_WALL_BADGE_TOKEN_ID` if created).
+3. Restart dev server, post a proof on the home page.
 
-## Run with hedera-harness
+## Scripts
 
-To further develop this template with our agentic [hedera-harness](https://www.npmjs.com/package/hedera-harness), use the recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
+| Command | Description |
+|---|---|
+| `yarn next:dev` | Dev server at http://localhost:3000 |
+| `yarn next:build` | Production build |
+| `yarn next:check-types` | TypeScript check |
+| `yarn lint` / `yarn next:lint` | ESLint |
+| `yarn format` | Prettier |
 
-```bash
-yarn harness:run
-```
+## Project layout
 
-That runs `hedera-harness run .harness/spec.yaml`, which:
-
-1. Creates a `harness/run-…` branch (or continues an existing matching session)
-2. Asks an agent to implement the recipe PRD without rebuilding the app
-3. Checkpoints each attempt and validates against `.harness/validators/`
-4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
-
-Tracked recipe files live under `.harness/` (spec, PRD, validators). Runtime state (`.harness/runs/`, `.harness/cache/`, `.harness/runtime/`) is gitignored.
-
-Requires [Cursor `agent` CLI](https://cursor.com/) (or another command configured in `.harness/spec.yaml`) on your PATH.
-
-This template’s Learn recipe is gate **0–1** (static + yarn). If you deepen the recipe with Playwright (gate 2) or on-chain validation (gate 3.5), install the optional peers at the **project root** with Yarn (do not use `npm install` in this repo):
-
-```bash
-yarn add -D playwright
-yarn playwright install chromium   # gate 2
-yarn add -D @hiero-ledger/sdk      # gate 3.5
-```
-
-## Available Scripts
-
-- `yarn next:dev` - run the Next.js app in development mode (`yarn next:start` runs the same workspace `dev` script)
-- `yarn lint` - lint frontend code (delegates to `next:lint`)
-- `yarn next:lint` - lint the Next.js workspace directly
-- `yarn next:check-types` - run TypeScript checks
-- `yarn next:build` - build production assets
-- `yarn next:serve` - serve the production build
-- `yarn format` - format frontend code
-- `yarn harness:run` - further develop this template with the agentic harness
-- `yarn next:vercel` / `yarn next:vercel:yolo` / `yarn next:vercel:login` - Vercel deploy and login helpers
-- `yarn next:ipfs` - IPFS upload flow for the frontend build
-
-## Project Layout
-
-- `packages/nextjs` - Hedera-native frontend app
-- `.harness/` - tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:run` to add the Learn page (`/learn`) in place.
+- **packages/nextjs** — App Router UI, Hedera SDK + wallet connect, Mirror Node API routes, Proof Wall components
 
 ## Links
 
-- [Hedera Documentation](https://docs.hedera.com/)
-- [Hashscan](https://hashscan.io/)
-- [create-scaffold-hbar](https://github.com/hedera-dev/create-scaffold-hbar)
-- [hedera-harness](https://github.com/hedera-dev/hedera-harness)
+- [Scaffold HBAR docs](https://docs.hedera.com/solutions/tools/scaffold-hbar/index)
+- [create-scaffold-hbar](https://github.com/hedera-dev/create-scaffold-hbar) — CLI
+- [Hedera docs](https://docs.hedera.com/)
+- [HashScan testnet](https://hashscan.io/testnet)

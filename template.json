@@ -15,8 +15,11 @@
     "outro": {
       "steps": [
         "Hedera native services: no contract deploy is required to run or test this demo.",
-        "+Start the frontend: {run:next:dev}",
-        "+To further develop this template with our agentic harness: {run:harness:run}"
+        "+Suggested steps:",
+        "1. Copy the env file: packages/nextjs/.env.example → packages/nextjs/.env",
+        "2. Set NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID (https://cloud.reown.com) and optional NEXT_PUBLIC_PROOF_WALL_TOPIC_ID",
+        "3. Start the frontend: {run:next:dev}",
+        "4. Open /admin to create an HCS topic and HTS badge token, then post proofs on the home page"
       ]
     }
   }
