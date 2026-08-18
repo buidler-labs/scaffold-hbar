@@ -27,7 +27,6 @@
         "7. Sync the deployed provider config into the frontend: cd packages/foundry && make bridge-sync-next PROVIDER=<provider>.",
         "8. Start the frontend: {run:next:dev}",
         "9. Connect a funded testnet wallet, select the configured provider, and send a small test transfer. Some Hedera HTS flows require receiver association before receiving.",
-        "10. Run the co-versioned harness recipe: {run:harness:run}",
         "After this, customize the bridge provider config, contracts, UI, limits, fees, and operational controls to fit your product."
       ]
     }

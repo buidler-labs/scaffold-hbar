@@ -92,7 +92,6 @@ Run these from the repo root.
 | `yarn next:build` | Build the app |
 | `yarn next:check-types` | Run TypeScript checks |
 | `yarn next:lint` | Run Next.js linting |
-| `yarn next:vercel:yolo --prod` | Deploy the frontend with the existing Vercel helper |
 
 ## Troubleshooting
 
