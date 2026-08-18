@@ -10,7 +10,6 @@
   },
   "scripts": {
     "format": "yarn next:format && yarn hardhat:format",
-    "harness:run": "hedera-harness run .harness/spec.yaml",
     "infra:up": "sh -c 'if docker compose version >/dev/null 2>&1; then docker compose up -d --build; else docker-compose up -d --build; fi'",
     "infra:down": "sh -c 'if docker compose version >/dev/null 2>&1; then docker compose down; else docker-compose down; fi'",
     "infra:logs": "sh -c 'if docker compose version >/dev/null 2>&1; then docker compose logs -f; else docker-compose logs -f; fi'",
@@ -38,13 +37,9 @@
     "next:check-types": "yarn workspace @sh/nextjs check-types",
     "next:dev": "yarn workspace @sh/nextjs dev",
     "next:format": "yarn workspace @sh/nextjs format",
-    "next:ipfs": "yarn workspace @sh/nextjs ipfs",
     "next:lint": "yarn workspace @sh/nextjs lint",
     "next:serve": "yarn workspace @sh/nextjs serve",
     "next:start": "yarn workspace @sh/nextjs start",
-    "next:vercel": "yarn workspace @sh/nextjs vercel",
-    "next:vercel:login": "yarn workspace @sh/nextjs vercel:login",
-    "next:vercel:yolo": "yarn workspace @sh/nextjs vercel:yolo",
     "x402:buy": "yarn workspace @sh/nextjs x402:buy",
     "postinstall": "husky",
     "precommit": "lint-staged",
@@ -52,7 +47,6 @@
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
-    "hedera-harness": "1.2.0",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10"
   },

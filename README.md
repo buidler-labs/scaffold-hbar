@@ -1,12 +1,18 @@
 # x402 Pay-Per-Use Template (Hedera)
 
-A [Scaffold-HBAR](https://github.com/hedera-dev/scaffold-hbar) template for a **pay-per-download file marketplace** on Hedera using [x402](https://x402.org/).
+Pay-per-download file marketplace on Hedera using [x402](https://x402.org/): private **MinIO** storage, self-hosted **x402 facilitator**, and on-chain **FileRegistry** metadata.
+
+CLI key: `x402-pay-per-use` (branch `templates/x402-pay-per-use`).
 
 ```bash
 npx create-scaffold-hbar@latest --template x402-pay-per-use
 ```
 
-Or clone this repo directly for development on the template branch (`templates/x402-pay-per-use`).
+General Scaffold-HBAR setup: [Scaffold HBAR on Hedera](https://docs.hedera.com/solutions/tools/scaffold-hbar/index). Step-by-step verification: [`RUNBOOK.md`](RUNBOOK.md).
+
+## Disclaimer
+
+This template—including **contracts, frontend, facilitator, and tooling**—is **experimental** and **not audited**. Use testnets and small amounts only.
 
 Sellers upload files to private **MinIO** storage and register them on-chain with `FileRegistry`. Buyers pay in **HBAR** via **HashPack**; a self-hosted **x402 Hedera facilitator** verifies and settles each payment on testnet before the resource server issues a short-lived download URL.
 
@@ -137,34 +143,6 @@ Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet).
 | `yarn hardhat:test` | Run `FileRegistry` contract tests |
 | `yarn x402:buy` | Node agent buyer script (see `RUNBOOK.md`) |
 | `yarn facilitator:check-types` | Type-check the facilitator service |
-| `yarn harness:run` | Run the co-versioned How x402 Works harness recipe |
-
-## Run with hedera-harness
-
-This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
-
-```bash
-yarn harness:run
-```
-
-That runs `hedera-harness run .harness/spec.yaml`, which:
-
-1. Creates a `harness/run-…` branch (or continues an existing matching session)
-2. Asks an agent to implement the recipe PRD without rebuilding the app
-3. Checkpoints each attempt and validates against `.harness/validators/`
-4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
-
-Tracked recipe files live under `.harness/` (spec, PRD, validators). Runtime state (`.harness/runs/`, `.harness/cache/`, `.harness/runtime/`) is gitignored.
-
-Requires [Cursor `agent` CLI](https://cursor.com/) (or another command configured in `.harness/spec.yaml`) on your PATH.
-
-This template’s How x402 Works recipe is gate **0–1** (static + yarn). It does **not** forbid Docker (MinIO + facilitator are part of the template) and does not require live settlement for the extend page. If you deepen the recipe with Playwright (gate 2) or on-chain validation (gate 3.5), install the optional peers at the **project root** with Yarn (do not use `npm install` in this repo):
-
-```bash
-yarn add -D playwright
-yarn playwright install chromium   # gate 2
-yarn add -D @hiero-ledger/sdk      # gate 3.5
-```
 
 ## Caveats
 
@@ -186,7 +164,6 @@ yarn add -D @hiero-ledger/sdk      # gate 3.5
 - **`packages/nextjs`** — Next.js resource server (`/api/files/*`), marketplace UI, x402 client (HashPack)
 - **`facilitator/`** — self-hosted x402 Hedera facilitator (verify / settle)
 - **`docker-compose.yml`** — MinIO + facilitator for local development
-- **`.harness/`** — tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:run` to add the How x402 Works page (`/how-it-works`) in place.
 
 ## Links
 
@@ -194,4 +171,4 @@ yarn add -D @hiero-ledger/sdk      # gate 3.5
 - [Hedera Documentation](https://docs.hedera.com/)
 - [Hashscan](https://hashscan.io/) — block explorer
 - [Hedera Portal faucet](https://portal.hedera.com/faucet)
-- [hedera-harness](https://github.com/hedera-dev/hedera-harness)
+- [create-scaffold-hbar](https://github.com/hedera-dev/create-scaffold-hbar) — CLI
