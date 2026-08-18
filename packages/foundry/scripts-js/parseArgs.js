@@ -25,9 +25,9 @@ Options:
   --keystore <name>     Specify the keystore account to use (bypasses selection prompt)
   --help, -h           Show this help message
 Examples:
-  yarn deploy --file DeployYourContract.s.sol --network sepolia
-  yarn deploy --network sepolia --keystore my-account
-  yarn deploy --file DeployYourContract.s.sol
+  yarn deploy --file DeployHederaToken.s.sol --network hedera_testnet
+  yarn deploy --network hedera_testnet --keystore my-account
+  yarn deploy --file DeployHederaToken.s.sol
   yarn deploy
   `);
   process.exit(0);
