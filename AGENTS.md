@@ -45,7 +45,8 @@ packages/nextjs/
     scaffold-hbar/        Shared Scaffold-HBAR hooks (useTargetNetwork, …)
   services/               hederaClient, mirrorNode, badgeService
   utils/scaffold-hbar/    Hedera tx helpers, identity, topic/token resolution
-  scaffold.config.ts      Target networks (testnet, mainnet, local fork), RPC, WalletConnect
+  scaffold.config.ts      Target networks (testnet, mainnet), RPC, WalletConnect
+  contracts/              deployedContracts.ts (empty — no Solidity workspace)
 ```
 
 ## Hedera integration patterns
@@ -77,7 +78,7 @@ import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
 
 ## Networks
 
-`packages/nextjs/scaffold.config.ts` — `hederaTestnet`, `hedera` mainnet, and a local Hardhat fork entry. RPC overrides via `NEXT_PUBLIC_HEDERA_*_RPC_URL`. Default polling interval: 10s.
+`packages/nextjs/scaffold.config.ts` — `hederaTestnet` and `hedera` mainnet. RPC overrides via `NEXT_PUBLIC_HEDERA_*_RPC_URL`. Default polling interval: 10s.
 
 ## Code style
 

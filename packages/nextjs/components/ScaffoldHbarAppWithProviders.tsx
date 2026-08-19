@@ -6,7 +6,6 @@ import { Toaster } from "react-hot-toast";
 import { WagmiProvider } from "wagmi";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
-import { LocalChainErrorBanner } from "~~/components/LocalChainErrorBanner";
 import { NativeTransactionSignerBridge } from "~~/services/web3/NativeTransactionSignerBridge";
 import { HederaWalletConnectProvider } from "~~/services/web3/hederaWalletConnect";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
@@ -16,7 +15,6 @@ const ScaffoldHbarApp = ({ children }: { children: React.ReactNode }) => {
     <>
       <div className="flex flex-col min-h-screen">
         <Header />
-        <LocalChainErrorBanner />
         <main className="relative flex flex-col flex-1">{children}</main>
         <Footer />
       </div>
