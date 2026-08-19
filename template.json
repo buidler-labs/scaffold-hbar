@@ -3,31 +3,72 @@
   "description": "Hedera bridge starter template with Foundry contracts and Axelar ITS, Chainlink CCIP, and LayerZero OFT flows.",
   "create-scaffold-hbar": {
     "capabilities": {
-      "frontend": [
-        "nextjs-app"
-      ],
-      "solidityFramework": [
-        "foundry"
-      ]
+      "frontend": ["nextjs-app"],
+      "solidityFramework": ["foundry"]
     },
     "defaults": {
       "frontend": "nextjs-app",
       "solidityFramework": "foundry"
     },
     "outro": {
-      "steps": [
-        "This template is an educational bridge starter.",
-        "Suggested steps:",
-        "1. Generate or import a deployer account: {run:foundry:account:generate}",
-        "2. Configure packages/foundry/.env with ACCOUNT, SEPOLIA_RPC_URL, and HEDERA_TESTNET_RPC_URL.",
-        "3. Compile contracts: {run:foundry:compile}",
-        "4. Run unit tests: {run:foundry:test}",
-        "5. Choose one bridge provider and open its runbook: cd packages/foundry && make axelar-help, make ccip-help, or make layerzero-help.",
-        "6. Deploy and configure that provider by following its README from packages/foundry/script/<provider>/README.md.",
-        "7. Sync the deployed provider config into the frontend: cd packages/foundry && make bridge-sync-next PROVIDER=<provider>.",
-        "8. Start the frontend: {run:next:dev}",
-        "9. Connect a funded testnet wallet, select the configured provider, and send a small test transfer. Some Hedera HTS flows require receiver association before receiving.",
-        "After this, customize the bridge provider config, contracts, UI, limits, fees, and operational controls to fit your product."
+      "sections": [
+        {
+          "steps": [
+            {
+              "text": "This template is an educational bridge starter (Foundry + Axelar ITS, Chainlink CCIP, LayerZero OFT)."
+            }
+          ]
+        },
+        {
+          "title": "Next steps",
+          "steps": [
+            {
+              "label": "Generate or import a deployer account",
+              "command": "{run:foundry:account:generate}"
+            },
+            {
+              "label": "Configure packages/foundry/.env",
+              "text": "Set ACCOUNT, SEPOLIA_RPC_URL, and HEDERA_TESTNET_RPC_URL"
+            },
+            {
+              "label": "Compile contracts",
+              "command": "{run:foundry:compile}"
+            },
+            {
+              "label": "Run unit tests",
+              "command": "{run:foundry:test}"
+            },
+            {
+              "label": "Choose one bridge provider and open its runbook",
+              "command": "cd packages/foundry && make axelar-help"
+            },
+            {
+              "command": "cd packages/foundry && make ccip-help"
+            },
+            {
+              "command": "cd packages/foundry && make layerzero-help"
+            },
+            {
+              "label": "Deploy and configure that provider",
+              "text": "Follow packages/foundry/script/<provider>/README.md"
+            },
+            {
+              "label": "Sync the deployed provider config into the frontend",
+              "command": "cd packages/foundry && make bridge-sync-next PROVIDER=<provider>"
+            },
+            {
+              "label": "Start the frontend",
+              "command": "{run:next:dev}"
+            },
+            {
+              "label": "Try a small test transfer",
+              "text": "Connect a funded testnet wallet, select the configured provider, and send a transfer. Some Hedera HTS flows require receiver association before receiving."
+            },
+            {
+              "text": "After this, customize provider config, contracts, UI, limits, fees, and operational controls to fit your product."
+            }
+          ]
+        }
       ]
     }
   }
