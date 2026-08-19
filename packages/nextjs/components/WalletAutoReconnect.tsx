@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { reconnect } from "wagmi/actions";
 import { useConfig } from "wagmi";
+import { reconnect } from "wagmi/actions";
 
 /** Reconnect persisted WalletConnect sessions on load. */
 export const WalletAutoReconnect = () => {

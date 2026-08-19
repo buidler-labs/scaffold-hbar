@@ -373,7 +373,7 @@ git push origin HEAD:templates/x402-pay-per-use
 
 Or merge into `templates/x402-pay-per-use` and push. The branch name must be exactly
 `templates/x402-pay-per-use` so `npx create-scaffold-hbar@latest --template x402-pay-per-use`
-resolves to `buidler-labs/scaffold-hbar#templates/x402-pay-per-use`.
+resolves to `hedera-dev/scaffold-hbar#templates/x402-pay-per-use`.
 
 ### 5.3 Scaffold a fresh project
 
