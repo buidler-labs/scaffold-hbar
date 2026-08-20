@@ -30,8 +30,12 @@
             },
             {
               "label": "Optional: set NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID",
-              "text": "A built-in fallback project id works for local demos; set your own for production. Optional: also set NEXT_PUBLIC_PROOF_WALL_TOPIC_ID after creating a topic in /admin.",
+              "text": "A built-in fallback project id works for local demos; set your own for production.",
               "url": "https://cloud.reown.com"
+            },
+            {
+              "label": "Set NEXT_PUBLIC_PROOF_WALL_TOPIC_ID",
+              "text": "After creating a topic in /admin, set this in packages/nextjs/.env."
             },
             {
               "label": "Start the frontend",
