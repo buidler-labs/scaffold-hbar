@@ -1,111 +1,72 @@
-# Hedera Oracle Template
+# Scaffold-HBAR — Oracles
 
-A Hedera oracle dApp template with Foundry smart contracts and a Next.js frontend.
+Hedera oracle dApp template: **Chainlink**, **Supra**, and **Pyth** adapters normalize feeds into one `IPriceOracle` interface; an `OracleConsumer` demo converts amounts with `priceE18`. Next.js dashboard reads deployed adapters and the active consumer.
 
-The template includes:
-
-- Foundry contracts, deploy scripts, account tooling, and tests in `packages/foundry`.
-- A Next.js app with RainbowKit, wagmi, viem, and Scaffold-HBAR UI components in `packages/nextjs`.
-- Provider adapter flows for Chainlink, Supra, and Pyth.
-- Frontend contract metadata generated from `packages/foundry/deployments/<chainId>.json`.
-
-## Overview
-
-The contract side provides a provider-agnostic oracle pattern:
+CLI key: `oracles` (branch `templates/oracles`).
 
 ```text
-Provider feed -> Multi-pair provider adapter -> OracleConsumer demo
+Provider feed → Multi-pair provider adapter → OracleConsumer demo
 ```
 
-Each provider adapter normalizes upstream prices into one shared `IPriceOracle` interface. The demo consumer stores
-one selected adapter and can be switched to another provider after deployment.
+Each provider adapter normalizes upstream prices into the shared `IPriceOracle` interface. The demo consumer stores one selected adapter and can be switched to another provider after deployment.
 
-For architecture details, provider limitations, and package-level commands, see
-[`packages/foundry/README.md`](packages/foundry/README.md).
+General Scaffold-HBAR docs: [Scaffold HBAR on Hedera](https://docs.hedera.com/solutions/tools/scaffold-hbar/index). Architecture, provider limitations, env vars, and Makefile targets: [packages/foundry/README.md](packages/foundry/README.md).
+
+## Disclaimer
+
+This template—including **contracts, frontend, and tooling**—is **experimental** and **not audited**. Do not use it in production without proper security review and your own due diligence.
+
+## What's in this template
+
+- **Foundry-only** monorepo (adapters, consumer, Forge scripts, tests, ABI generation)
+- Provider adapters: `ChainlinkPriceOracleAdapter`, `SupraPriceOracleAdapter`, `PythPriceOracleAdapter`
+- Next.js oracle dashboard + Debug Contracts
+- Deploy exports → `packages/foundry/deployments/<chainId>.json` → `packages/nextjs/contracts/deployedContracts.ts`
+
+Create a project:
+
+```bash
+npm create scaffold-hbar@latest -- --template oracles
+```
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 20.18.3
-- [Yarn](https://yarnpkg.com/) via Corepack:
-
-  ```bash
-  corepack enable && corepack prepare yarn@stable --activate
-  ```
-
-- [Git](https://git-scm.com/)
+- Node.js ≥ 20.18.3, Yarn (Corepack), Git
 - [Foundry](https://book.getfoundry.sh/getting-started/installation) (`forge`, `cast`)
-- A Hedera-created and funded account for testnet/mainnet deploys
+- A Hedera-created, funded account for testnet/mainnet deploys
 
-## Quick Start
+## Quick start
 
-Install dependencies and initialize Forge submodules:
+### Install
 
 ```bash
 yarn install
 git submodule update --init --recursive
 ```
 
-Create or import a Foundry keystore account:
+### Account, compile, test
 
 ```bash
-yarn foundry:account:generate
-# or
-yarn foundry:account:import
-```
+yarn foundry:account:generate   # or yarn foundry:account:import
+# Fund via https://portal.hedera.com/faucet
 
-Fund that Hedera account with testnet HBAR from the [Hedera Portal faucet](https://portal.hedera.com/faucet).
-
-Compile contracts and run the default unit tests:
-
-```bash
 yarn foundry:compile
-yarn foundry:test
+yarn foundry:test               # local unit tests
 ```
 
-Run the frontend:
+### Frontend
 
 ```bash
 yarn next:dev
-# or
-yarn next:start
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Run with hedera-harness
+## Foundry oracle workflow
 
-This template ships a co-versioned [hedera-harness](https://www.npmjs.com/package/hedera-harness) recipe under `.harness/`. After install, from a clean Git working tree on a normal branch (e.g. `main`):
-
-```bash
-yarn harness:run
-```
-
-That runs `hedera-harness run .harness/spec.yaml`, which:
-
-1. Creates a `harness/run-…` branch (or continues an existing matching session)
-2. Asks an agent to implement the recipe PRD without rebuilding the app
-3. Checkpoints each attempt and validates against `.harness/validators/`
-4. Leaves you on the harness branch with push/PR instructions — it does **not** push, open a PR, merge, or switch back to `main`
-
-Tracked recipe files live under `.harness/` (spec, PRD, validators). Runtime state (`.harness/runs/`, `.harness/cache/`, `.harness/runtime/`) is gitignored.
-
-Requires [Cursor `agent` CLI](https://cursor.com/) (or another command configured in `.harness/spec.yaml`) on your PATH.
-
-This template’s Oracle Comparison recipe is gate **0–1** (static + yarn). If you deepen the recipe with Playwright (gate 2) or on-chain validation (gate 3.5), install the optional peers at the **project root** with Yarn (do not use `npm install` in this repo):
-
-```bash
-yarn add -D playwright
-yarn playwright install chromium   # gate 2
-yarn add -D @hiero-ledger/sdk      # gate 3.5
-```
-
-## Foundry Oracle Workflow
-
-Run commands in this section from the repo root.
+Run from the repo root. Pattern for each provider: **fork smoke test → deploy adapter → deploy consumer → read prices**.
 
 ### Chainlink
-
-Run the Chainlink fork smoke test, deploy the adapter, deploy the demo consumer, and read prices:
 
 ```bash
 yarn foundry:test:chainlink:testnet
@@ -114,15 +75,13 @@ ORACLE_ADAPTER_NAME=ChainlinkPriceOracleAdapter yarn foundry:deploy:consumer:tes
 yarn foundry:read:chainlink:testnet
 ```
 
-Check the exported deployment file:
+Check the deployment export:
 
 ```bash
 cat packages/foundry/deployments/296.json
 ```
 
 ### Supra
-
-Use the same root-level flow for Supra:
 
 ```bash
 yarn foundry:test:supra:testnet
@@ -131,7 +90,7 @@ ORACLE_ADAPTER_NAME=SupraPriceOracleAdapter yarn foundry:deploy:consumer:testnet
 yarn foundry:read:supra:testnet
 ```
 
-To switch an existing consumer to Supra:
+Switch an existing consumer to Supra:
 
 ```bash
 ORACLE_ADAPTER_NAME=SupraPriceOracleAdapter yarn foundry:set-oracle:testnet
@@ -139,7 +98,7 @@ ORACLE_ADAPTER_NAME=SupraPriceOracleAdapter yarn foundry:set-oracle:testnet
 
 ### Pyth
 
-Pyth is a pull oracle, so read scripts fetch fresh Hermes update data and broadcast update transactions where needed:
+Pyth is a **pull oracle** — read scripts fetch fresh Hermes update data and may broadcast update transactions (and pay update fees) before reading on-chain.
 
 ```bash
 yarn foundry:test:pyth:testnet
@@ -148,66 +107,93 @@ ORACLE_ADAPTER_NAME=PythPriceOracleAdapter yarn foundry:deploy:consumer:testnet
 yarn foundry:read:pyth:testnet
 ```
 
-To switch an existing consumer to Pyth:
+Switch an existing consumer to Pyth:
 
 ```bash
 ORACLE_ADAPTER_NAME=PythPriceOracleAdapter yarn foundry:set-oracle:testnet
 ```
 
-## Frontend Workflow
+Use `:mainnet` variants of the above commands for mainnet (at your own risk).
 
-Foundry deploy scripts export addresses to `packages/foundry/deployments/<chainId>.json`. The ABI generator reads
-that deployment file and writes `packages/nextjs/contracts/deployedContracts.ts`, which is what the Next.js app uses
-for Scaffold-HBAR contract hooks and dashboard state.
+## Frontend workflow
 
-Useful frontend commands:
+Foundry deploy scripts export addresses to `packages/foundry/deployments/<chainId>.json`. The ABI generator reads that file and writes `packages/nextjs/contracts/deployedContracts.ts`, which the Next.js app uses for scaffold hooks and dashboard state.
+
+- If `deployments/296.json` lists only one adapter, the frontend should only treat **that** adapter as deployed.
+- Foundry `broadcast/` files are execution history — they do **not** populate the dashboard.
 
 ```bash
-yarn next:start
+yarn next:dev
 yarn next:check-types
 yarn next:build
 ```
 
-If `deployments/296.json` only lists one adapter, the frontend should only treat that adapter as deployed. Historical
-Foundry `broadcast/` files are execution history and do not populate the frontend dashboard.
-
-## Project Layout
-
-- `packages/foundry` - Solidity contracts, Forge scripts, deployment exports, tests, and ABI generation.
-- `packages/nextjs` - Next.js app, wallet connection, Scaffold-HBAR hooks, and oracle dashboard UI.
-- `packages/nextjs/contracts/deployedContracts.ts` - generated frontend contract metadata.
-- `.harness/` - tracked harness recipe (`spec.yaml`, `prd.md`, `validators/`). Run `yarn harness:run` to add the Oracle Comparison page (`/compare`) in place.
-
-Network and RPC configuration for Foundry lives in `packages/foundry/foundry.toml`.
+Connect a wallet on the same network you deployed to. Use **`/debug`** for raw contract calls or the main dashboard for oracle reads.
 
 ## Verification
 
-Hedera Mainnet (`295`) and Testnet (`296`) are verified through the main Sourcify flow. After Sourcify accepts the
-match, HashScan displays the verified status.
-
-Examples:
+Hedera testnet (`296`) and mainnet (`295`) verify through [Sourcify](https://sourcify.dev/); HashScan shows verified status after a successful match.
 
 ```bash
-yarn foundry:verify:testnet 0xContractAddress contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol:ChainlinkPriceOracleAdapter
-yarn foundry:verify:testnet 0xContractAddress contracts/oracle/adapters/SupraPriceOracleAdapter.sol:SupraPriceOracleAdapter
-yarn foundry:verify:testnet 0xContractAddress contracts/oracle/adapters/PythPriceOracleAdapter.sol:PythPriceOracleAdapter
+yarn foundry:verify:testnet 0xAdapterAddress \
+  contracts/oracle/adapters/ChainlinkPriceOracleAdapter.sol:ChainlinkPriceOracleAdapter
+
+yarn foundry:verify:testnet 0xAdapterAddress \
+  contracts/oracle/adapters/SupraPriceOracleAdapter.sol:SupraPriceOracleAdapter
+
+yarn foundry:verify:testnet 0xAdapterAddress \
+  contracts/oracle/adapters/PythPriceOracleAdapter.sol:PythPriceOracleAdapter
 ```
 
-Use `yarn foundry:verify:mainnet` with the same contract identifier format for mainnet contracts.
+Use `yarn foundry:verify:mainnet` with the same contract identifier format for mainnet.
 
-## Where To Go Next
+## Customization
 
-- Read [`packages/foundry/README.md`](packages/foundry/README.md) for oracle architecture, provider flows,
-  prerequisites, limitations, and resources.
-- Update `packages/foundry/script/HelperConfig.s.sol` when adding networks, feeds, pair IDs, or Pyth price IDs.
-- Update deploy scripts when adding new provider adapters or changing the active demo flow.
-- Run `yarn foundry:compile` and the relevant provider fork smoke test before broadcasting to Hedera.
+- **Networks, feeds, pair IDs, Pyth price IDs:** `packages/foundry/script/HelperConfig.s.sol`
+- **New provider adapters:** add under `packages/foundry/contracts/oracle/adapters/`, wire deploy/read scripts, update `HelperConfig`
+- **Before broadcasting:** run `yarn foundry:compile` and the relevant `yarn foundry:test:<provider>:testnet` fork smoke test
+
+See [packages/foundry/README.md](packages/foundry/README.md) for architecture diagrams, provider-specific limitations, and Makefile shortcuts.
+
+## Scripts (root)
+
+| Command | Description |
+| --- | --- |
+| `yarn foundry:compile` / `yarn foundry:test` | Build + local Forge tests |
+| `yarn foundry:test:<provider>:testnet` | Provider fork smoke tests |
+| `yarn foundry:deploy:<provider>:testnet` | Deploy adapter |
+| `yarn foundry:deploy:consumer:testnet` | Deploy `OracleConsumer` (set `ORACLE_ADAPTER_NAME`) |
+| `yarn foundry:read:<provider>:testnet` | Read prices from CLI |
+| `yarn foundry:set-oracle:testnet` | Point consumer at another adapter |
+| `yarn foundry:verify:testnet` / `:mainnet` | Sourcify verify (HashScan) |
+| `yarn next:dev` / `yarn next:build` | Frontend dashboard |
+| `yarn lint` / `yarn format` | Next.js + Foundry lint/format |
+
+## Project layout
+
+```
+packages/foundry/
+  contracts/oracle/   adapters/, OracleConsumer, IPriceOracle
+  script/           deploy/read/set-oracle scripts, HelperConfig.s.sol
+  deployments/      <chainId>.json exports (source of truth for frontend)
+  test/             unit + fork smoke tests
+packages/nextjs/
+  app/              oracle dashboard, /debug
+  contracts/        deployedContracts.ts (generated), externalContracts.ts
+```
+
+Network and RPC configuration: `packages/foundry/foundry.toml`.
 
 ## Links
 
+- [Scaffold HBAR docs](https://docs.hedera.com/solutions/tools/scaffold-hbar/index)
 - [Hedera Documentation](https://docs.hedera.com/)
-- [Hedera Portal faucet](https://portal.hedera.com/faucet)
-- [HashScan](https://hashscan.io/)
+- [create-scaffold-hbar](https://github.com/hedera-dev/create-scaffold-hbar) — CLI
 - [Foundry Book](https://book.getfoundry.sh/)
+- [Hedera Portal faucet](https://portal.hedera.com/faucet)
+- [Hashscan](https://hashscan.io/testnet)
 - [Sourcify](https://sourcify.dev/)
-- [hedera-harness](https://github.com/hedera-dev/hedera-harness)
+
+## License
+
+Open source under the [MIT License](https://opensource.org/licenses/MIT). Solidity sources in `packages/foundry/contracts` use `SPDX-License-Identifier: MIT` unless a file states otherwise.

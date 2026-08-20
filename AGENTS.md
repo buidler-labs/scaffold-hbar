@@ -189,7 +189,3 @@ Make (from `packages/foundry`): `make deploy-and-generate-abis DEPLOY_SCRIPT=scr
 1. Add feed / pair ID / price ID to `HelperConfig.s.sol` for the target network
 2. Extend the relevant `Deploy*Oracle.s.sol` config array
 3. Redeploy adapter + `setOracle` on the consumer
-
-## Skill Reference
-
-Use skill: **`hedera-oracle-adapters`** for `IPriceOracle` patterns, pair/provider keys, staleness/error semantics, provider quirks (Supra ms timestamps, Pyth pull), conversion math, and checklists.
