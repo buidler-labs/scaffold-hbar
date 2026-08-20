@@ -3,28 +3,54 @@
   "description": "HTS payments scheduler template with Foundry contracts.",
   "create-scaffold-hbar": {
     "capabilities": {
-      "frontend": [
-        "nextjs-app"
-      ],
-      "solidityFramework": [
-        "foundry"
-      ]
+      "frontend": ["nextjs-app"],
+      "solidityFramework": ["foundry"]
     },
     "defaults": {
       "frontend": "nextjs-app",
       "solidityFramework": "foundry"
     },
     "outro": {
-      "steps": [
-        "This template uses Hedera Schedule Service, which is not yet available in Foundry Hedera forking, so run it on Hedera testnet or mainnet (not on a local chain or forked Hedera network).",
-        "+Suggested steps:",
-        "1. Generate/import a deployer account: {run:foundry:account:generate}",
-        "2. Compile contracts: {run:foundry:compile}",
-        "3. Run tests: {run:foundry:test}",
-        "4. Deploy to Hedera testnet: {run:foundry:deploy:testnet}",
-        "5. Verify on Hashscan testnet: {run:foundry:verify:testnet}",
-        "6. Start the frontend: {run:next:dev}",
-        "After this, customize anything you want in contracts or frontend to fit your product."
+      "sections": [
+        {
+          "steps": [
+            {
+              "text": "This template uses Hedera Schedule Service, which is not yet available in Foundry Hedera forking, so run it on Hedera testnet or mainnet (not on a local chain or forked Hedera network)."
+            }
+          ]
+        },
+        {
+          "title": "Suggested steps",
+          "steps": [
+            {
+              "label": "Generate or import a deployer account",
+              "command": "{run:foundry:account:generate}"
+            },
+            {
+              "label": "Compile contracts",
+              "command": "{run:foundry:compile}"
+            },
+            {
+              "label": "Run tests",
+              "command": "{run:foundry:test}"
+            },
+            {
+              "label": "Deploy to Hedera testnet",
+              "command": "{run:foundry:deploy:testnet}"
+            },
+            {
+              "label": "Verify on Hashscan testnet",
+              "command": "{run:foundry:verify:testnet}"
+            },
+            {
+              "label": "Start the frontend",
+              "command": "{run:next:dev}"
+            },
+            {
+              "text": "After this, customize anything you want in contracts or frontend to fit your product."
+            }
+          ]
+        }
       ]
     }
   }
