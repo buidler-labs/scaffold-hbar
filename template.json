@@ -40,7 +40,7 @@
               "url": "https://sepolia-faucet.pk910.de/"
             },
             {
-              "label": "Run the full 10-step deployment (compile, deploy, wire, fund, create plan, verify)",
+              "label": "Run the full 10 step-by-step deployment (compile, deploy, wire, fund, create plan, verify)",
               "command": "{run:hardhat:deploy}"
             },
             {
