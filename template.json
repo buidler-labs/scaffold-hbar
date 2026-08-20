@@ -11,18 +11,39 @@
       "solidityFramework": "hardhat"
     },
     "outro": {
-      "steps": [
-        "This template uses Hardhat and deploys to Hedera testnet/mainnet.",
-        "+Set up deployer account:",
-        "  {run:hardhat:account:generate}",
-        "+Fund your account with testnet HBAR:",
-        "  https://portal.hedera.com/faucet",
-        "+Deploy contracts:",
-        "  {run:hardhat:deploy} --network hederaTestnet",
-        "+Create NFT collection:",
-        "  cd packages/hardhat && npx ts-node scripts/createCollection.ts",
-        "+Start the frontend:",
-        "  {run:next:start}"
+      "sections": [
+        {
+          "steps": [
+            {
+              "text": "This template uses Hardhat and deploys to Hedera testnet/mainnet."
+            }
+          ]
+        },
+        {
+          "title": "Next steps",
+          "steps": [
+            {
+              "label": "Set up deployer account",
+              "command": "{run:hardhat:account:generate}"
+            },
+            {
+              "label": "Fund your account with testnet HBAR",
+              "url": "https://portal.hedera.com/faucet"
+            },
+            {
+              "label": "Deploy contracts",
+              "command": "{run:hardhat:deploy} --network hederaTestnet"
+            },
+            {
+              "label": "Create NFT collection",
+              "command": "cd packages/hardhat && npx ts-node scripts/createCollection.ts"
+            },
+            {
+              "label": "Start the frontend",
+              "command": "{run:next:start}"
+            }
+          ]
+        }
       ]
     }
   }
