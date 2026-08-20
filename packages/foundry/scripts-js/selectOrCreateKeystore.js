@@ -16,13 +16,13 @@ async function selectOrCreateKeystore() {
   try {
     const keystores = existsSync(keystorePath)
       ? readdirSync(keystorePath).filter(
-          (keystore) => keystore !== "scaffold-hbar-default",
+          (keystore) => keystore !== "scaffold-hbar-default"
         )
       : [];
 
     if (keystores.length === 0) {
       console.log(
-        "\n❌ No keystores found in ~/.foundry/keystores, please select 0 to create a new keystore",
+        "\n❌ No keystores found in ~/.foundry/keystores, please select 0 to create a new keystore"
       );
     }
 
@@ -38,7 +38,7 @@ async function selectOrCreateKeystore() {
     const answer = await new Promise((resolve) => {
       rl.question(
         "\nSelect a keystore or create new (enter number): ",
-        resolve,
+        resolve
       );
     });
 
@@ -52,7 +52,7 @@ async function selectOrCreateKeystore() {
       if (newWalletResult.error || newWalletResult.status !== 0) {
         console.error(
           "\n❌ Error generating new wallet:",
-          newWalletResult.stderr || newWalletResult.error,
+          newWalletResult.stderr || newWalletResult.error
         );
         process.exit(1);
       }
@@ -81,16 +81,16 @@ async function selectOrCreateKeystore() {
           ["wallet", "import", keystoreName, "--private-key", privateKey],
           {
             stdio: "inherit",
-          },
+          }
         );
 
         importProcess.on("close", (code) => {
           if (code === 0) {
             console.log(
-              "\n💰 Fund the address and re-run the deploy command to use this keystore.",
+              "\n💰 Fund the address and re-run the deploy command to use this keystore."
             );
             console.log(
-              `\nTIP: Use \`yarn foundry:account\` and select \`${keystoreName}\` keystore to check if the address is funded.`,
+              `\nTIP: Use \`yarn foundry:account\` and select \`${keystoreName}\` keystore to check if the address is funded.`
             );
             process.exit(0);
           } else {

@@ -23,11 +23,3 @@ node_modules
 dist
 
 .env
-
-# hedera-harness runtime (keep tracked .harness recipe: spec, prd, validators)
-.harness/runs/
-.harness/cache/
-.harness/runtime/
-.harness-skills/
-.harness-context/
-.skill-cache/

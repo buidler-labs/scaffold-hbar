@@ -19,7 +19,7 @@ async function createKeystore() {
     if (newWalletResult.error || newWalletResult.status !== 0) {
       console.error(
         "\n❌ Error generating new wallet:",
-        newWalletResult.stderr || newWalletResult.error,
+        newWalletResult.stderr || newWalletResult.error
       );
       process.exit(1);
     }
@@ -48,16 +48,16 @@ async function createKeystore() {
         ["wallet", "import", keystoreName, "--private-key", privateKey],
         {
           stdio: "inherit",
-        },
+        }
       );
 
       importProcess.on("close", (code) => {
         if (code === 0) {
           console.log(
-            "\n💰 Fund the address and re-run the deploy command to use this keystore.",
+            "\n💰 Fund the address and re-run the deploy command to use this keystore."
           );
           console.log(
-            `\nTIP: Use \`yarn foundry:account\` and select \`${keystoreName}\` keystore to check if the address is funded.`,
+            `\nTIP: Use \`yarn foundry:account\` and select \`${keystoreName}\` keystore to check if the address is funded.`
           );
           process.exit(0);
         } else {

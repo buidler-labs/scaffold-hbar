@@ -19,7 +19,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Setup node env
         uses: actions/setup-node@v3
@@ -30,8 +32,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Run foundry node, deploy contracts (& generate contracts typescript output)
-        run: yarn foundry:chain & yarn foundry:deploy
+      - name: Compile Foundry contracts
+        run: yarn foundry:compile
+
+      - name: Run Foundry unit tests
+        run: yarn foundry:test
 
       - name: Run nextjs lint
         run: yarn next:lint --max-warnings=0
@@ -40,4 +45,4 @@ jobs:
         run: yarn next:check-types
 
       - name: Run foundry lint
-        run: yarn foundry:lint
+        run: yarn foundry:lint --max-warnings=0

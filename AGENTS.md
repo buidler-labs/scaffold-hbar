@@ -1,229 +1,83 @@
-# [AGENTS.md](http://AGENTS.md)
+# Agent instructions
 
-This file provides guidance to coding agents working in this repository.
+Briefing for coding agents in this app (Cursor, Claude Code, Codex). Claude Code loads it through `CLAUDE.md`.
 
-## Project Overview
+**Foundry-only** Hedera template: **ScheduledVault** + **ScheduledVaultFactory** with pluggable **IExecutionStrategy** contracts, driven by **Hedera Schedule Service (HSS)** at `0x000000000000000000000000000000000000016B`. Example strategy: **MemejobDCAStrategy** (MemeJob DCA). Next.js UI for creating/configuring vaults.
 
-Scaffold-HBAR (`sh`) is a starter kit for building dApps on Hedera. It comes in **two flavors** based on the Solidity framework:
+**HSS runs on Hedera testnet/mainnet only** — not on local Anvil or Hedera forks. Local `forge test` uses mocks; real schedule execution requires live network deploy.
 
-- **Hardhat flavor**: Uses `packages/hardhat` with hardhat-deploy plugin
-- **Foundry flavor**: Uses `packages/foundry` with Forge scripts
+Use `yarn` unless this project was created with another package manager.
 
-Both flavors share the same frontend package:
-
-- **packages/nextjs**: React frontend (Next.js App Router, not Pages Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS with DaisyUI)
-
-### Detecting Which Flavor You're Usings
-
-Check which package exists in the repository:
-
-- If `packages/hardhat` exists → **Hardhat flavor** (follow Hardhat instructions)
-- If `packages/foundry` exists → **Foundry flavor** (follow Foundry instructions)
-
-## Common Commands
-
-Commands work the same for both flavors unless noted otherwise:
+## Commands
 
 ```bash
-# Development workflow (run each in separate terminal)
-yarn foundry:chain    # Start local blockchain (Anvil)
-yarn foundry:deploy   # Deploy contracts to local network
-yarn next:dev         # Start Next.js frontend at http://localhost:3000
+yarn install
 
-# Code quality
-yarn lint           # Lint both packages
-yarn format         # Format both packages
+yarn foundry:account:generate   # or :import — fund on testnet
+yarn foundry:compile
+yarn foundry:test               # unit tests (mock HSS)
+yarn foundry:deploy:testnet     # Deploy.s.sol → factory + example strategy
+yarn foundry:deploy:mainnet
+yarn foundry:verify:testnet <addr> contracts/ScheduledVaultFactory.sol:ScheduledVaultFactory
 
-# Building
-yarn next:build     # Build frontend
-yarn foundry:compile # Compile Solidity contracts
-
-# Contract verification (works for both)
-yarn foundry:verify:testnet
-yarn foundry:verify:mainnet
-
-# Account management (works for both)
-yarn foundry:account:generate   # Generate new deployer account
-yarn foundry:account:import     # Import existing private key
-yarn foundry:account            # View current account info
-
-# Deploy to live network
-yarn foundry:deploy --network <network>   # e.g., hedera_testnet, hedera_mainnet
-
-yarn next:vercel:yolo --prod # for deployment of frontend
+yarn next:dev                   # http://localhost:3000
+yarn next:build
+yarn lint
+yarn format
 ```
+
+Optional: `yarn foundry:chain` (Anvil), `yarn foundry:test:local`, `yarn foundry:test:testnet` (fork; no real HSS).
+
+Deploy scripts: `script/Deploy.s.sol` (default), `DeployFactory.s.sol`, `DeployMemejobDCAStrategy.s.sol`.
 
 ## Architecture
 
-### Smart Contract Development
-
-#### Hardhat Flavor
-
-- Contracts: `packages/hardhat/contracts/`
-- Deployment scripts: `packages/hardhat/deploy/` (uses hardhat-deploy plugin)
-- Tests: `packages/hardhat/test/`
-- Config: `packages/hardhat/hardhat.config.ts`
-- Deploying specific contract:
-  - If the deploy script has:
-    ```typescript
-    // In packages/hardhat/deploy/01_deploy_my_contract.ts
-    deployMyContract.tags = ["MyContract"];
-    ```
-  - `yarn foundry:deploy --tags MyContract`
-
-#### Foundry Flavor
-
-- Contracts: `packages/foundry/contracts/`
-- Deployment scripts: `packages/foundry/script/` (uses custom deployment strategy)
-  - Example: `packages/foundry/script/Deploy.s.sol` and `packages/foundry/script/DeployYourContract.s.sol`
-- Tests: `packages/foundry/test/`
-- Config: `packages/foundry/foundry.toml`
-- Deploying a specific contract:
-  - Create a separate deployment script and run `yarn foundry:deploy --file DeployYourContract.s.sol`
-
-#### Both Flavors
-
-- After `yarn foundry:deploy`, ABIs are auto-generated to `packages/nextjs/contracts/deployedContracts.ts`
-
-### Frontend Contract Interaction
-
-**Correct interact hook names (use these):**
-
-- `useScaffoldReadContract` - NOT ~~useScaffoldContractRead~~
-- `useScaffoldWriteContract` - NOT ~~useScaffoldContractWrite~~
-
-Contract data is read from two files in `packages/nextjs/contracts/`:
-
-- `deployedContracts.ts`: Auto-generated from deployments
-- `externalContracts.ts`: Manually added external contracts
-
-#### Reading Contract Data
-
-```typescript
-const { data: totalCounter } = useScaffoldReadContract({
-  contractName: "YourContract",
-  functionName: "userGreetingCounter",
-  args: ["0xd8da6bf26964af9d7eed9e03e53415d37aa96045"],
-});
+```text
+HSS → ScheduledVault.executeScheduled() → IExecutionStrategy.plan() → Action[] → targets → scheduleNextRun()
 ```
 
-#### Writing to Contracts
+| Contract | Role |
+|---|---|
+| `ScheduledVaultFactory` | `createVault(strategy)` per user |
+| `ScheduledVault` | Custody, config, HSS scheduling, execute strategy actions |
+| `MemejobDCAStrategy` | Example DCA strategy (MemeJob buy/sell) |
+| `IExecutionStrategy` | `validateConfig(bytes)` + `plan(bytes) → Action[]` |
 
-```typescript
-const { writeContractAsync, isPending } = useScaffoldWriteContract({
-  contractName: "YourContract",
-});
+Typical lifecycle: create vault → `configure(bytes, interval)` → `scheduleNextRun()` → each tick `executeScheduled()` (auto-reschedule on success).
 
-await writeContractAsync({
-  functionName: "setGreeting",
-  args: [newGreeting],
-  value: parseEther("0.01"), // for payable functions
-});
-```
+## Key paths
 
-#### Reading Events
+| Path | Purpose |
+|---|---|
+| `packages/foundry/contracts/ScheduledVault.sol` | Core vault + HSS integration |
+| `packages/foundry/contracts/ScheduledVaultFactory.sol` | Vault factory |
+| `packages/foundry/contracts/strategies/MemejobDCAStrategy.sol` | Example strategy |
+| `packages/foundry/contracts/interfaces/IExecutionStrategy.sol` | Strategy plugin API |
+| `packages/foundry/script/Deploy.s.sol` | Default deploy |
+| `packages/foundry/foundry.toml` | RPC: `hedera_testnet`, `hedera_mainnet` |
+| `packages/foundry/deployments/<chainId>.json` | Deployment export |
+| `packages/nextjs/contracts/deployedContracts.ts` | Generated ABIs/addresses (after deploy) |
+| `packages/nextjs/app/page.tsx` | Memejob DCA dashboard |
+| `packages/nextjs/components/CreateVaultCard.tsx`, `VaultDashboard.tsx` | Vault UI |
+| `packages/nextjs/hooks/scaffold-hbar/useLatestUserVault.ts` | Resolve user's vault |
 
-```typescript
-const { data: events, isLoading } = useScaffoldEventHistory({
-  contractName: "YourContract",
-  eventName: "GreetingChange",
-  watch: true,
-  fromBlock: 31231n,
-  blockData: true,
-});
-```
+Env: `packages/foundry/.env` from `.env.example` (keystore account, RPC). `packages/nextjs/.env` — `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID`, optional Hedera RPC URLs.
 
-Scaffold-HBAR also provides other hooks to interact with blockchain data: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
+## Frontend
 
-**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-hbar` for contract interactions (legacy path segment; project branding is Scaffold-HBAR / `sh`). Always refer to the hook names as they exist in the codebase.**
+Hooks in `packages/nextjs/hooks/scaffold-hbar`. Use existing names (`useScaffoldReadContract`, `useScaffoldWriteContract`, etc.).
 
-### UI Components
+UI: `@scaffold-hbar-ui/components`. DaisyUI for layout. Import app code with `~~` alias.
 
-**Always use `@scaffold-hbar-ui/components` library for web3 UI components:**
+Networks: `packages/nextjs/scaffold.config.ts` — Hedera testnet/mainnet.
 
-- `Address`: Display Hedera EVM addresses with blockie avatars and explorer links
-- `AddressInput`: Input field with address validation
-- `Balance`: Show HBAR balance in tinybar/HBAR and fiat equivalent
-- `EtherInput`: Number input for EVM value entry (kept for EVM compatibility)
-- `IntegerInput`: Integer-only input with wei conversion
+## Adding a strategy
 
-### Styling
+1. Implement `IExecutionStrategy` (`validateConfig` + `plan`).
+2. Add tests under `packages/foundry/test/strategies/`.
+3. Add deploy script or extend `Deploy.s.sol`.
+4. Wire frontend if the template should expose the new strategy.
 
-**Use DaisyUI classes** for building frontend components.
+## Code style
 
-```tsx
-// ✅ Good - using DaisyUI classes
-<button className="btn btn-primary">Connect</button>
-<div className="card bg-base-100 shadow-xl">...</div>
-
-// ❌ Avoid - raw Tailwind when DaisyUI has a component
-<button className="px-4 py-2 bg-blue-500 text-white rounded">Connect</button>
-```
-
-### Configure Target Network before deploying to testnet / mainnet.
-
-#### Hardhat
-
-Add networks in `packages/hardhat/hardhat.config.ts` if not present.
-
-#### Foundry
-
-Add RPC endpoints in `packages/foundry/foundry.toml` if not present.
-
-#### NextJs
-
-Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file also contains configuration for polling interval, API keys. Remember to decrease the polling interval for L2 chains.
-
-## Code Style Guide
-
-### Identifiers
-
-
-| Style            | Category                                                                                                               |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `UpperCamelCase` | class / interface / type / enum / decorator / type parameters / component functions in TSX / JSXElement type parameter |
-| `lowerCamelCase` | variable / parameter / function / property / module alias                                                              |
-| `CONSTANT_CASE`  | constant / enum / global variables                                                                                     |
-| `snake_case`     | for hardhat deploy files and foundry script files                                                                      |
-
-
-### Import Paths
-
-Use the `~~` path alias for imports in the nextjs package:
-
-```tsx
-import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
-```
-
-### Creating Pages
-
-```tsx
-import type { NextPage } from "next";
-
-const Home: NextPage = () => {
-  return <div>Home</div>;
-};
-
-export default Home;
-```
-
-### TypeScript Conventions
-
-- Use `type` over `interface` for custom types
-- Types use `UpperCamelCase` without `T` prefix (use `Address` not `TAddress`)
-- Avoid explicit typing when TypeScript can infer the type
-
-### Comments
-
-Make comments that add information. Avoid redundant JSDoc for simple functions.
-
-## Documentation
-
-Use **Context7 MCP** tools to fetch up-to-date documentation for any library (Wagmi, Viem, RainbowKit, DaisyUI, Hardhat, Next.js, etc.). Context7 is configured as an MCP server and provides access to indexed documentation with code examples.
-
-## Specialized Agents
-
-Use these specialized agents for specific tasks:
-
-- `**grumpy-carlos-code-reviewer`**: Use this agent for code reviews before finalizing changes
-
+Prefer `type` over `interface`. Match surrounding naming. Comments only for non-obvious HSS/strategy behavior.
