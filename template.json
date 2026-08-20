@@ -13,8 +13,16 @@
       "packageManager": "yarn"
     },
     "outro": {
-      "steps": [
-        "+Start the frontend: {run:next:dev}"
+      "sections": [
+        {
+          "title": "Next steps",
+          "steps": [
+            {
+              "label": "Start the frontend",
+              "command": "{run:next:dev}"
+            }
+          ]
+        }
       ]
     }
   }
