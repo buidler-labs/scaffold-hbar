@@ -11,15 +11,52 @@
       "solidityFramework": "hardhat"
     },
     "outro": {
-      "steps": [
-        "This template deploys contracts to two live testnets — Hedera testnet (chain 296) and Ethereum Sepolia (chain 11155111). It cannot run on a local chain.",
-        "+Suggested steps:",
-        "1. Copy the env file: packages/hardhat/.env.example → packages/hardhat/.env, if you want to modify or add env variables manually go directly to the packages/hardhat/ file and make the changes there",
-        "2. Generate or import deployer accounts for both chains: {run:hardhat:account:generate}",
-        "   Fund your accounts before deploying — Hedera testnet: https://portal.hedera.com, Sepolia: https://sepolia-faucet.pk910.de/",
-        "3. Run the full 10-step deployment (compile, deploy, wire, fund, create plan, verify): {run:hardhat:deploy}",
-        "4. Start the frontend: {run:next:dev}",
-        "After this, inspect the active plan with {run:hardhat:hedera:plan:latest} or check Sepolia balances with {run:hardhat:sepolia:balance:check}."
+      "sections": [
+        {
+          "steps": [
+            {
+              "text": "This template deploys contracts to two live testnets — Hedera testnet (chain 296) and Ethereum Sepolia (chain 11155111). It cannot run on a local chain."
+            }
+          ]
+        },
+        {
+          "title": "Suggested steps",
+          "steps": [
+            {
+              "label": "Copy the env file",
+              "text": "packages/hardhat/.env.example → packages/hardhat/.env. To change variables manually, edit packages/hardhat/.env directly."
+            },
+            {
+              "label": "Generate or import deployer accounts for both chains",
+              "command": "{run:hardhat:account:generate}"
+            },
+            {
+              "label": "Fund your accounts before deploying",
+              "text": "Hedera testnet faucet:",
+              "url": "https://portal.hedera.com"
+            },
+            {
+              "text": "Sepolia faucet:",
+              "url": "https://sepolia-faucet.pk910.de/"
+            },
+            {
+              "label": "Run the full 10-step deployment (compile, deploy, wire, fund, create plan, verify)",
+              "command": "{run:hardhat:deploy}"
+            },
+            {
+              "label": "Start the frontend",
+              "command": "{run:next:dev}"
+            },
+            {
+              "label": "Inspect the active plan",
+              "command": "{run:hardhat:hedera:plan:latest}"
+            },
+            {
+              "label": "Check Sepolia balances",
+              "command": "{run:hardhat:sepolia:balance:check}"
+            }
+          ]
+        }
       ]
     }
   }
