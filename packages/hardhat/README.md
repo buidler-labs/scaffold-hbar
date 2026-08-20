@@ -86,14 +86,14 @@ You need a deployer account with HBAR on the target network. Without funds, depl
 4. **Verify on Sourcify** (Hedera is now supported on the main [Sourcify instance](https://sourcify.dev)):
    ```bash
    # Verify a specific contract by address
-   yarn hardhat:verify:testnet 0xYourContractAddress
-   yarn hardhat:verify:mainnet 0xYourContractAddress
+   yarn hardhat:verify:testnet 0xSubscriptionNFTAddress
+   yarn hardhat:verify:mainnet 0xSubscriptionNFTAddress
 
    # With constructor arguments (if any)
-   yarn hardhat:verify:testnet 0xYourContractAddress "arg1" "arg2"
+   yarn hardhat:verify:testnet 0xSubscriptionNFTAddress "arg1" "arg2"
 
    # From packages/hardhat directory
-   npx hardhat verify --network hederaTestnet 0xYourContractAddress
+   npx hardhat verify --network hederaTestnet 0xSubscriptionNFTAddress
    ```
    
    Verified contracts are visible on [HashScan](https://hashscan.io) and the broader Sourcify ecosystem.
