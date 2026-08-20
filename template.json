@@ -11,6 +11,34 @@
       "frontend": "nextjs-app",
       "solidityFramework": "foundry",
       "packageManager": "yarn"
+    },
+    "outro": {
+      "sections": [
+        {
+          "title": "Next steps",
+          "steps": [
+            {
+              "label": "Generate or import a deployer account",
+              "command": "{run:framework:account:generate}"
+            },
+            {
+              "label": "Start a local chain",
+              "command": "{run:framework:chain}"
+            },
+            {
+              "label": "Deploy contracts to that node",
+              "command": "{run:framework:deploy} --network localhost"
+            },
+            {
+              "label": "Start the frontend",
+              "command": "{run:next:dev}"
+            },
+            {
+              "text": "For Hedera testnet/mainnet deploy and verify, see the Scaffold HBAR docs and your chosen package README under packages/hardhat or packages/foundry."
+            }
+          ]
+        }
+      ]
     }
   }
 }
