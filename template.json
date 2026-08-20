@@ -18,8 +18,23 @@
           "title": "Next steps",
           "steps": [
             {
+              "label": "Generate or import a deployer account",
+              "text": "Hardhat: {run:hardhat:account:generate} — Foundry: {run:foundry:account:generate}"
+            },
+            {
+              "label": "Start a local chain",
+              "text": "Hardhat: {run:hardhat:chain} — Foundry: {run:foundry:chain}"
+            },
+            {
+              "label": "Deploy contracts to that node",
+              "text": "Hardhat: {run:hardhat:deploy} --network localhost — Foundry: {run:foundry:deploy} (see packages/foundry/README.md)"
+            },
+            {
               "label": "Start the frontend",
               "command": "{run:next:dev}"
+            },
+            {
+              "text": "For Hedera testnet/mainnet deploy and verify, see the Scaffold HBAR docs and your chosen package README under packages/hardhat or packages/foundry."
             }
           ]
         }
