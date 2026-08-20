@@ -13,22 +13,57 @@
       "packageManager": "yarn"
     },
     "outro": {
-      "steps": [
-        "x402 pay-per-download marketplace: MinIO + self-hosted facilitator + FileRegistry on Hedera testnet.",
-        "+Copy environment files:",
-        "  cp .env.example .env",
-        "  cp packages/nextjs/.env.example packages/nextjs/.env",
-        "+Configure facilitator fee-payer (ECDSA) in root .env:",
-        "  FACILITATOR_ACCOUNT_ID and FACILITATOR_PRIVATE_KEY",
-        "+Fund accounts with testnet HBAR:",
-        "  https://portal.hedera.com/faucet",
-        "+Start local infra (MinIO + facilitator): {run:infra:up}",
-        "+Deploy FileRegistry:",
-        "  {run:hardhat:account:generate}",
-        "  {run:hardhat:deploy} --network hederaTestnet",
-        "+Verify on Hashscan: {run:hardhat:verify:testnet}",
-        "+Start the app: {run:next:dev}",
-        "See README.md and RUNBOOK.md for end-to-end verification and {run:x402:buy} agent testing."
+      "sections": [
+        {
+          "steps": [
+            {
+              "text": "x402 pay-per-download marketplace: MinIO + self-hosted facilitator + FileRegistry on Hedera testnet."
+            }
+          ]
+        },
+        {
+          "title": "Next steps",
+          "steps": [
+            {
+              "label": "Copy environment files",
+              "command": "cp .env.example .env"
+            },
+            {
+              "command": "cp packages/nextjs/.env.example packages/nextjs/.env"
+            },
+            {
+              "label": "Configure facilitator fee-payer (ECDSA) in root .env",
+              "text": "Set FACILITATOR_ACCOUNT_ID and FACILITATOR_PRIVATE_KEY"
+            },
+            {
+              "label": "Fund accounts with testnet HBAR",
+              "url": "https://portal.hedera.com/faucet"
+            },
+            {
+              "label": "Start local infra (MinIO + facilitator)",
+              "command": "{run:infra:up}"
+            },
+            {
+              "label": "Generate a deployer account",
+              "command": "{run:hardhat:account:generate}"
+            },
+            {
+              "label": "Deploy FileRegistry",
+              "command": "{run:hardhat:deploy} --network hederaTestnet"
+            },
+            {
+              "label": "Verify on Hashscan",
+              "command": "{run:hardhat:verify:testnet}"
+            },
+            {
+              "label": "Start the app",
+              "command": "{run:next:dev}"
+            },
+            {
+              "text": "See README.md and RUNBOOK.md for end-to-end verification and agent testing with {run:x402:buy}."
+            }
+          ]
+        }
       ]
     }
   }
