@@ -27,7 +27,8 @@ npm create scaffold-hbar@latest -- --template payments-scheduler
 
 ## Prerequisites
 
-- Node.js ≥ 20.18.3, Yarn, Git
+- Node.js ≥ 20.18.3, Git
+- Yarn (default; required if you clone this repo) or npm if you scaffolded with the CLI
 - [Foundry](https://book.getfoundry.sh/getting-started/installation) (`forge`, `cast`, `anvil`)
 - Hedera testnet account — fund via [portal.hedera.com](https://portal.hedera.com/faucet)
 
