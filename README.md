@@ -19,7 +19,7 @@ Sellers upload files to private **MinIO** storage and register them on-chain wit
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) — see [Node.js version](#nodejs-version) below (default: **20 LTS** ≥ 20.18.3)
-- [Yarn](https://yarnpkg.com/) — install via Corepack: `corepack enable && corepack prepare yarn@stable --activate`
+- Yarn (default; required if you clone this repo) or npm if you scaffolded with the CLI. For Yarn, install via Corepack: `corepack enable && corepack prepare yarn@stable --activate`
 - [Git](https://git-scm.com/)
 - [Docker](https://docs.docker.com/get-docker/) + Docker Compose (MinIO and self-hosted facilitator)
 - A funded **ECDSA** Hedera testnet account for contract deploy and facilitator fee-payer duties
