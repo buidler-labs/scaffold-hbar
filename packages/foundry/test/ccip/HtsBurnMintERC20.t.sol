@@ -23,6 +23,24 @@ contract HtsBurnerHarness {
     }
 }
 
+contract HtsPoolHarness is HtsBurnMintTokenPool {
+    constructor(
+        HTSBurnMintERC20 wrapper,
+        uint8 localTokenDecimals,
+        address[] memory allowlist,
+        address rmnProxy,
+        address router
+    ) HtsBurnMintTokenPool(wrapper, localTokenDecimals, allowlist, rmnProxy, router) { }
+
+    function exposedLockOrBurn(uint256 amount) external {
+        _lockOrBurn(amount);
+    }
+
+    function exposedReleaseOrMint(address receiver, uint256 amount) external {
+        _releaseOrMint(receiver, amount);
+    }
+}
+
 contract HtsBurnMintERC20Test is Test {
     address internal constant HTS_PRECOMPILE = address(0x167);
 
@@ -142,6 +160,29 @@ contract HtsBurnMintERC20Test is Test {
         assertEq(
             HtsIERC20(token.htsToken()).allowance(address(htsPool), address(token)), uint256(uint64(type(int64).max))
         );
+    }
+
+    function test_pool_lockOrBurn_and_releaseOrMint_sync_hts() public {
+        address[] memory allowlist = new address[](0);
+        address predictedPool = vm.computeCreateAddress(owner, vm.getNonce(owner));
+        _markLocalHederaAccount(predictedPool);
+
+        HtsPoolHarness htsPool = new HtsPoolHarness(token, token.decimals(), allowlist, rmnProxy, router);
+        htsPool.initializeHtsPool();
+
+        token.grantMintAndBurnRoles(address(htsPool));
+
+        uint256 lockAmount = 30e8;
+        assertTrue(HtsIERC20(token.htsToken()).transfer(address(htsPool), lockAmount));
+
+        htsPool.exposedLockOrBurn(lockAmount);
+        assertEq(HtsIERC20(token.htsToken()).balanceOf(address(htsPool)), 0);
+        assertEq(token.totalSupply(), PRE_MINT - lockAmount);
+
+        uint256 mintAmount = 20e8;
+        htsPool.exposedReleaseOrMint(alice, mintAmount);
+        assertEq(token.balanceOf(alice), mintAmount);
+        assertEq(token.totalSupply(), PRE_MINT - lockAmount + mintAmount);
     }
 
     function _markLocalHederaAccount(address account) internal {

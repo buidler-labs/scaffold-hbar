@@ -21,13 +21,13 @@ pragma solidity ^0.8.24;
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { Script, console } from "forge-std/Script.sol";
-import { BurnMintERC20 } from "@chainlink/contracts-ccip/src/v0.8/shared/token/ERC20/BurnMintERC20.sol";
-import { IBurnMintERC20 } from "@chainlink/contracts-ccip/src/v0.8/shared/token/ERC20/IBurnMintERC20.sol";
-import { BurnMintTokenPool } from "@chainlink/contracts-ccip/src/v0.8/ccip/pools/BurnMintTokenPool.sol";
+import { BurnMintERC20 } from "@chainlink/contracts/src/v0.8/shared/token/ERC20/BurnMintERC20.sol";
+import { IBurnMintERC20 } from "@chainlink/contracts/src/v0.8/shared/token/ERC20/IBurnMintERC20.sol";
+import { BurnMintTokenPool } from "@chainlink/contracts-ccip/contracts/pools/BurnMintTokenPool.sol";
 import {
     RegistryModuleOwnerCustom
-} from "@chainlink/contracts-ccip/src/v0.8/ccip/tokenAdminRegistry/RegistryModuleOwnerCustom.sol";
-import { TokenAdminRegistry } from "@chainlink/contracts-ccip/src/v0.8/ccip/tokenAdminRegistry/TokenAdminRegistry.sol";
+} from "@chainlink/contracts-ccip/contracts/tokenAdminRegistry/RegistryModuleOwnerCustom.sol";
+import { TokenAdminRegistry } from "@chainlink/contracts-ccip/contracts/tokenAdminRegistry/TokenAdminRegistry.sol";
 
 import { HelperConfig } from "./HelperConfig.s.sol";
 

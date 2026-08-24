@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import { IBurnMintERC20 } from "@chainlink/contracts-ccip/src/v0.8/shared/token/ERC20/IBurnMintERC20.sol";
+import { IBurnMintERC20 } from "@chainlink/contracts/src/v0.8/shared/token/ERC20/IBurnMintERC20.sol";
 import { IGetCCIPAdmin } from "@chainlink/contracts/src/v0.8/shared/interfaces/IGetCCIPAdmin.sol";
 import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { HederaTokenService } from "../hedera/HederaTokenService.sol";

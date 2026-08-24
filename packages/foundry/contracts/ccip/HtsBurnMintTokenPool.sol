@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {
-    IERC20
-} from "@chainlink/contracts-ccip/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/token/ERC20/IERC20.sol";
-import { ITypeAndVersion } from "@chainlink/contracts-ccip/src/v0.8/shared/interfaces/ITypeAndVersion.sol";
-import { Pool } from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Pool.sol";
-import { TokenPool } from "@chainlink/contracts-ccip/src/v0.8/ccip/pools/TokenPool.sol";
+import { ITypeAndVersion } from "@chainlink/contracts/src/v0.8/shared/interfaces/ITypeAndVersion.sol";
+import { TokenPool } from "@chainlink/contracts-ccip/contracts/pools/TokenPool.sol";
+import { IERC20 } from "@openzeppelin/contracts@4.8.3/token/ERC20/IERC20.sol";
 import { HederaResponseCodes } from "../hedera/HederaResponseCodes.sol";
 import { HTSBurnMintERC20 } from "./HTSBurnMintERC20.sol";
 
@@ -65,38 +62,11 @@ contract HtsBurnMintTokenPool is TokenPool, ITypeAndVersion {
         return uint256(uint32(abi.decode(result, (int32))));
     }
 
-    function lockOrBurn(Pool.LockOrBurnInV1 calldata lockOrBurnIn)
-        external
-        virtual
-        override
-        returns (Pool.LockOrBurnOutV1 memory)
-    {
-        _validateLockOrBurn(lockOrBurnIn);
-
-        htsWrapper.burn(address(this), lockOrBurnIn.amount);
-
-        emit Burned(msg.sender, lockOrBurnIn.amount);
-
-        return Pool.LockOrBurnOutV1({
-            destTokenAddress: getRemoteToken(lockOrBurnIn.remoteChainSelector), destPoolData: _encodeLocalDecimals()
-        });
+    function _lockOrBurn(uint256 amount) internal override {
+        htsWrapper.burn(address(this), amount);
     }
 
-    function releaseOrMint(Pool.ReleaseOrMintInV1 calldata releaseOrMintIn)
-        external
-        virtual
-        override
-        returns (Pool.ReleaseOrMintOutV1 memory)
-    {
-        _validateReleaseOrMint(releaseOrMintIn);
-
-        uint256 localAmount =
-            _calculateLocalAmount(releaseOrMintIn.amount, _parseRemoteDecimals(releaseOrMintIn.sourcePoolData));
-
-        htsWrapper.mint(releaseOrMintIn.receiver, localAmount);
-
-        emit Minted(msg.sender, releaseOrMintIn.receiver, localAmount);
-
-        return Pool.ReleaseOrMintOutV1({ destinationAmount: localAmount });
+    function _releaseOrMint(address receiver, uint256 amount) internal override {
+        htsWrapper.mint(receiver, amount);
     }
 }

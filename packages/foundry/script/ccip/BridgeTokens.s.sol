@@ -17,8 +17,8 @@ pragma solidity ^0.8.24;
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { Script, console } from "forge-std/Script.sol";
-import { IRouterClient } from "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
-import { Client } from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
+import { IRouterClient } from "@chainlink/contracts-ccip/contracts/interfaces/IRouterClient.sol";
+import { Client } from "@chainlink/contracts-ccip/contracts/libraries/Client.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract BridgeTokens is Script {
@@ -50,7 +50,7 @@ contract BridgeTokens is Script {
             data: "",
             tokenAmounts: tokenAmounts,
             feeToken: address(0), // native gas
-            extraArgs: Client._argsToBytes(Client.EVMExtraArgsV2({ gasLimit: 0, allowOutOfOrderExecution: true }))
+            extraArgs: Client._argsToBytes(Client.GenericExtraArgsV2({ gasLimit: 0, allowOutOfOrderExecution: true }))
         });
 
         uint256 fee = IRouterClient(router).getFee(destinationChainSelector, message);
