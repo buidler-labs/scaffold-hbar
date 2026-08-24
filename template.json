@@ -3,8 +3,12 @@
   "description": "Hedera bridge starter template with Foundry contracts and Axelar ITS, Chainlink CCIP, and LayerZero OFT flows.",
   "create-scaffold-hbar": {
     "capabilities": {
-      "frontend": ["nextjs-app"],
-      "solidityFramework": ["foundry"]
+      "frontend": [
+        "nextjs-app"
+      ],
+      "solidityFramework": [
+        "foundry"
+      ]
     },
     "defaults": {
       "frontend": "nextjs-app",
@@ -25,6 +29,15 @@
             {
               "label": "Generate or import a deployer account",
               "command": "{run:foundry:account:generate}"
+            },
+            {
+              "label": "Fund the account before testnet deploy",
+              "text": "Hedera testnet HBAR:",
+              "url": "https://portal.hedera.com/faucet"
+            },
+            {
+              "text": "Sepolia ETH:",
+              "url": "https://sepolia-faucet.pk910.de/"
             },
             {
               "label": "Configure packages/foundry/.env",
