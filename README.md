@@ -27,9 +27,9 @@ Tutorial path: clone → deploy **one** provider → sync frontend config → te
 
 ### 1. Prerequisites
 
-- Node.js ≥ 20.18.3
-- Yarn via Corepack: `corepack enable && corepack prepare yarn@stable --activate`
-- Git, Foundry (`forge`, `cast`, `anvil`)
+- Node.js ≥ 20.18.3, Git
+- Yarn (default; required if you clone this repo) or npm if you scaffolded with the CLI
+- Foundry (`forge`, `cast`, `anvil`)
 
 ### 2. Install
 
