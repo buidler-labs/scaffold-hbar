@@ -3,8 +3,12 @@
   "description": "HTS payments scheduler template with Foundry contracts.",
   "create-scaffold-hbar": {
     "capabilities": {
-      "frontend": ["nextjs-app"],
-      "solidityFramework": ["foundry"]
+      "frontend": [
+        "nextjs-app"
+      ],
+      "solidityFramework": [
+        "foundry"
+      ]
     },
     "defaults": {
       "frontend": "nextjs-app",
@@ -25,6 +29,10 @@
             {
               "label": "Generate or import a deployer account",
               "command": "{run:foundry:account:generate}"
+            },
+            {
+              "label": "Fund the account with testnet HBAR before deploying",
+              "url": "https://portal.hedera.com/faucet"
             },
             {
               "label": "Compile contracts",
