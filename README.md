@@ -14,13 +14,13 @@ npm create scaffold-hbar@latest
 
 ## Work from this repository
 
-`main` is the forkable baseline. It uses Yarn workspaces, so clone-and-run needs Yarn. The CLI can also scaffold with npm; see the [docs](https://docs.hedera.com/solutions/tools/scaffold-hbar/index).
+`main` is the forkable baseline. Clone-and-run uses Yarn workspaces. Apps created with the CLI can use Yarn (default) or npm; see the [docs](https://docs.hedera.com/solutions/tools/scaffold-hbar/index).
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) ≥ 20.18.3
 - [Git](https://git-scm.com/) with `user.name` and `user.email` configured
-- [Yarn](https://yarnpkg.com/) — required for this repo (Yarn workspaces). Install via Corepack:
+- [Yarn](https://yarnpkg.com/) (default; required if you clone this repo) or npm if you scaffolded with the CLI. For Yarn, install via Corepack:
   ```bash
   corepack enable && corepack prepare yarn@stable --activate
   ```
