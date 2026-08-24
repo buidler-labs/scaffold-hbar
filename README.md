@@ -29,7 +29,8 @@ npm create scaffold-hbar@latest -- --template hedera-demo
 
 ### Prerequisites
 
-- Node.js ≥ 20.18.3, Yarn (Corepack), Git
+- Node.js ≥ 20.18.3, Git
+- Yarn (this template is Yarn-only)
 - [WalletConnect project ID](https://cloud.reown.com) (Reown / WalletConnect Cloud)
 - Hedera testnet account — fund via [portal.hedera.com](https://portal.hedera.com/faucet)
 
