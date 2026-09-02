@@ -65,6 +65,9 @@
     "lint-staged": "lint-staged"
   },
   "packageManager": "yarn@3.2.3",
+  "resolutions": {
+    "@coinbase/cdp-sdk": "1.44.1"
+  },
   "devDependencies": {
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10"
