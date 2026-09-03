@@ -15,8 +15,19 @@ const nextConfig: NextConfig = {
   // SDK lazy-imports optional @x402/* peers; webpack still resolves those
   // specifiers and the production build fails if they are not installed.
   serverExternalPackages: ["@coinbase/cdp-sdk"],
-  webpack: (config, { dev }) => {
-    config.resolve.fallback = { fs: false, net: false, tls: false };
+  webpack: (config, { dev, webpack }) => {
+    config.resolve.fallback = {
+      fs: false,
+      net: false,
+      tls: false,
+      "@x402/evm": false,
+      "@x402/core": false,
+    };
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^@x402\//,
+      }),
+    );
     config.externals.push("pino-pretty", "lokijs", "encoding");
     if (dev) {
       config.watchOptions = {
