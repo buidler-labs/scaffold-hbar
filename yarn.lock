@@ -932,7 +932,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@coinbase/cdp-sdk@npm:^1.0.0":
+"@coinbase/cdp-sdk@npm:1.44.1":
   version: 1.44.1
   resolution: "@coinbase/cdp-sdk@npm:1.44.1"
   dependencies:

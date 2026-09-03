@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },
+  // RainbowKit → wagmi → @base-org/account → @coinbase/cdp-sdk. From 1.53 the
+  // SDK lazy-imports optional @x402/* peers; webpack still resolves those
+  // specifiers and the production build fails if they are not installed.
+  serverExternalPackages: ["@coinbase/cdp-sdk"],
   webpack: (config, { dev }) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
     config.externals.push("pino-pretty", "lokijs", "encoding");
