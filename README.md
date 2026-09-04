@@ -2,7 +2,7 @@
 
 Hedera HTS subscription marketplace: tokenize subscriptions (gym, WiFi, streaming, etc.) as NFTs, **rent** unused periods via escrow, or **sell/bid** on a secondary market. Hardhat contracts + Next.js App Router UI.
 
-CLI key: `nft-subscription-marketplace` (branch `templates/tokenise-subscriptions`).
+CLI key: `tokenize-subscriptions` (branch `templates/tokenize-subscriptions`).
 
 General Scaffold-HBAR setup: [Scaffold HBAR on Hedera](https://docs.hedera.com/solutions/tools/scaffold-hbar/index). Deep contract behavior: [packages/hardhat/docs/contract-behavior.md](packages/hardhat/docs/contract-behavior.md).
 
